@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
-import './App.css';
-import TestApi from './components/TestApi';
+import '../styles/App.scss';
+import TestApi from '../components/TestApi';
 
 function App() {
   return (
