@@ -1,0 +1,26 @@
+# Normalize Java source files
+*.java text eol=lf
+
+# Normalize config and build files
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.properties text eol=lf
+*.gradle text eol=lf
+*.md text eol=lf
+
+# Shell scripts (LF)
+*.sh text eol=lf
+/mvnw text eol=lf
+
+# Batch scripts (CRLF for Windows)
+*.cmd text eol=crlf
+*.bat text eol=crlf
+/mvnw.cmd text eol=crlf
+
+# Binary files (no line ending normalization)
+*.jar binary
+*.class binary
+*.png binary
+*.jpg binary
