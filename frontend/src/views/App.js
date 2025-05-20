@@ -1,10 +1,16 @@
 //import logo from './logo.svg';
 import '../styles/App.scss';
-import TestApi from '../components/TestApi';
-
+import UserProfileComponent from "../components/UserProfile/userProfileComponent";
+import { ToastContainer } from 'react-toastify';
 function App() {
   return (
-    <TestApi />
+    <div className="App">
+      <header className="App-header">
+        {/* <HomeComponent /> */}
+        <UserProfileComponent />
+      </header>
+      <ToastContainer />
+    </div>
   );
 }
 
