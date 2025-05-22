@@ -29,6 +29,11 @@
             height: 50px;
             font-size: 90%;
             transition: background-color 0.5s ease-in-out;
+
+            a{
+                text-decoration: none;
+                color: black;
+            }
             
         }
         .profile-item:hover{

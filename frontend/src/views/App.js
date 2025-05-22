@@ -1,13 +1,15 @@
 //import logo from './logo.svg';
 import '../styles/App.scss';
-import UserProfileComponent from "../components/UserProfile/userProfileComponent";
+import UserSettingComponent from '../components/UserProfile/userSettingComponent';
 import { ToastContainer } from 'react-toastify';
+
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         {/* <HomeComponent /> */}
-        <UserProfileComponent />
+        <UserSettingComponent />
+
       </header>
       <ToastContainer />
     </div>
