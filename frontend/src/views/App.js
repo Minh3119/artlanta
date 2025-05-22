@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import '../styles/App.scss';
-import UserSettingComponent from '../components/UserProfile/userSettingComponent';
+import UserSettingComponent from '../components/UserProfileEdit/userSettingComponent';
 import { ToastContainer } from 'react-toastify';
 
 function App() {

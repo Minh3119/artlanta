@@ -13,44 +13,48 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
+    withRouter
 } from "react-router-dom";
 
 class UserSettingComponent extends React.Component {
     state = {
-        user: {
-            name: "Ndluong",
-            gender: "Male",
-            email: "ndluong1903@gmail.com",
-            social: [{
-                platform: "Github",
-                link: "https://github.com/Natlife",
-            }],
-            bio: "I am a software engineer with a passion for web development.",
-        },
-        tab: "profileTab",
+        tab: "",
     }
 
     componentDidMount() {
         // GET data tu sever
 
     }
+    // componentDidUpdate() {
+    //     if (this.state.tab == "") {
+    //         switch (this.props.location.pathname) {
+    //             case "editprofile":
+    //                 this.setState({ tab: "profileTab" });
+    //                 break;
+    //             case "editprofile":
+    //                 this.setState({ tab: "passwordTab" });
+    //                 break;
+    //             case "editprofile":
+    //                 this.setState({ tab: "notificationTab" });
+    //                 break;
+    //             case "editprofile":
+    //                 this.setState({ tab: "pricingTab" });
+    //                 break;
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    // }
     handleTabChange = (newTab) => {
         this.setState({ tab: newTab });
     }
     render() {
 
-        if (!this.state.user) {
-            return (
-                <div className="user-profile-container">
-                    <div className="user-profile">Loading...</div>
-                </div>
-            );
-        }
 
         return (
             <Router>
                 <div className="user-profile-container">
-                    <div className="user-profile">
+                    <div className="user-control">
                         <UserProfileTabsComponent
                             tab={this.state.tab}
                             handleTabChange={this.handleTabChange}
