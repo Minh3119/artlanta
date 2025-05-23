@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
+import util.JsonUtil;
 import dal.UserDAO;
 
 @WebServlet("/api/user/*")
@@ -28,57 +29,32 @@ public class UserServlet extends HttpServlet {
 
         // Get the last part of the URL
         int userId = -1;
-        String errorMessage = null;
-        String pathInfo = request.getPathInfo(); // e.g., "/2"
+        String pathInfo = request.getPathInfo(); // example: "/2"
         if (pathInfo != null && pathInfo.length() > 1) {
             String idStr = pathInfo.substring(1); // remove leading "/"
             try {
                 userId = Integer.parseInt(idStr);
                 if (userId <= 0) {
-                    errorMessage = "Invalid user ID";
+                    JsonUtil.writeJsonError(response, "Invalid user ID");
+                    return;
                 }
             } catch (NumberFormatException e) {
-                errorMessage = "Invalid user ID";
-                //response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid user ID");  //TODO: replace this with json
-                //return;
+                JsonUtil.writeJsonError(response, "Invalid user ID");
+                return;
             }
         } else {
-            errorMessage = "User ID missing";
-            //response.sendError(HttpServletResponse.SC_BAD_REQUEST, "User ID missing");  //TODO: replace this with json
-            //return;
-        }
-
-        if (errorMessage != null) {
-            try (PrintWriter out = response.getWriter()) {
-                JSONObject jsonResponse = new JSONObject();
-                jsonResponse.put("error", errorMessage);
-                out.write(jsonResponse.toString());
-                out.flush();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            JsonUtil.writeJsonError(response, "User ID missing");
             return;
         }
 
         UserDAO dao = new UserDAO();
         User user = dao.getOne(userId);
         if (user == null) {
-            errorMessage = "User not found";
-            if (errorMessage != null) {
-                try (PrintWriter out = response.getWriter()) {
-                    JSONObject jsonResponse = new JSONObject();
-                    jsonResponse.put("error", errorMessage);
-                    out.write(jsonResponse.toString());
-                    out.flush();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return;
-            }
+            JsonUtil.writeJsonError(response, "User not found");
+            return;
         }
 
         // Respond
-        // Parse JSON
         JSONObject jsonUser = new JSONObject();
         jsonUser.put("id", user.getId());
         jsonUser.put("username", user.getUsername());
@@ -88,12 +64,7 @@ public class UserServlet extends HttpServlet {
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", jsonUser);
 
-        try (PrintWriter out = response.getWriter()) {
-			out.write(jsonResponse.toString());
-			out.flush();
-		} catch (Exception e) {
-		  //TODO: handle exception
-		}
+        JsonUtil.writeJsonResponse(response, jsonResponse);
 
     }
 
