@@ -20,29 +20,6 @@ class UserSettingComponent extends React.Component {
         // GET data tu sever
 
     }
-    // componentDidUpdate() {
-    //     if (this.state.tab == "") {
-    //         switch (this.props.location.pathname) {
-    //             case "editprofile":
-    //                 this.setState({ tab: "profileTab" });
-    //                 break;
-    //             case "editprofile":
-    //                 this.setState({ tab: "passwordTab" });
-    //                 break;
-    //             case "editprofile":
-    //                 this.setState({ tab: "notificationTab" });
-    //                 break;
-    //             case "editprofile":
-    //                 this.setState({ tab: "pricingTab" });
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    // }
-    handleTabChange = (newTab) => {
-        this.setState({ tab: newTab });
-    }
     render() {
 
 
