@@ -32,7 +32,7 @@ class UserSocialComponent extends React.Component {
                 <ul className="social-list">
                     {
 
-                        this.props.user.social.map((item, index) => {
+                        this.props.social.map((item, index) => {
 
                             return (
                                 <li key={index}>
