@@ -13,14 +13,9 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
-    withRouter
 } from "react-router-dom";
 
 class UserSettingComponent extends React.Component {
-    state = {
-        tab: "",
-    }
-
     componentDidMount() {
         // GET data tu sever
 
@@ -55,11 +50,10 @@ class UserSettingComponent extends React.Component {
             <Router>
                 <div className="user-profile-container">
                     <div className="user-control">
-                        <UserProfileTabsComponent
-                            tab={this.state.tab}
-                            handleTabChange={this.handleTabChange}
-                        />
+                        <UserProfileTabsComponent />
                         <Routes>
+                            <Route path="/"
+                                element={<div>hello</div>} />
                             <Route path="/editprofile"
                                 element={<EditProfileComponent />} />
                             <Route path="/editpassword"
