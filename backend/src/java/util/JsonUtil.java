@@ -1,0 +1,22 @@
+package util;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import org.json.JSONObject;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+public class JsonUtil {
+	public static void writeJsonResponse(HttpServletResponse response, JSONObject jsonObject) throws IOException {
+		PrintWriter out = response.getWriter();
+		out.write(jsonObject.toString());
+		out.flush();
+	}
+
+	public static void writeJsonError(HttpServletResponse response, String errorMessage) throws IOException {
+		JSONObject json = new JSONObject();
+		json.put("error", errorMessage);
+		writeJsonResponse(response, json);
+	}
+}
