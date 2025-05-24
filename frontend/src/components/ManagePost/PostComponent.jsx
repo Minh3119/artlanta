@@ -1,6 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
-import "../../components/style/PostComponent.scss";
+import "../../styles/PostComponent.scss";
 
 class PostComponent extends React.Component {
     state = {
