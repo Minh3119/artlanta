@@ -14,6 +14,7 @@ class EditProfileComponent extends React.Component {
         //     description: ''
         // },
         logo: "",
+        username: "",
         fullname: "",
         gender: "",
         dob: "",
@@ -130,7 +131,8 @@ class EditProfileComponent extends React.Component {
                     //     description: data.description || ''
                     // },
                     logo: data.logo || 'https://defaultimage.png',
-                    fullname: data.fullname || 'Guest',
+                    username: data.username || 'Guest',
+                    fullname: data.fullname || '',
                     gender: data.gender || 'Male',
                     dob: data.dob || '',
                     email: data.email || '',
@@ -158,6 +160,11 @@ class EditProfileComponent extends React.Component {
                             <button type="submit">Remove image</button>
                         </div>
                     </div>
+                </div>
+                <div className="name-container">
+                    <p className="profile-detail-title">Username</p>
+                    <input type="text" value={this.state.fullname} placeholder="input your fullname"
+                        onChange={(event) => this.handleOnChangeName(event)} />
                 </div>
                 <div className="name-container">
                     <p className="profile-detail-title">Fullname</p>

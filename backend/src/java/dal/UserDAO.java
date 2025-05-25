@@ -28,11 +28,11 @@ public class UserDAO extends DBContext {
                     u.setLogo(rs.getString("AvatarURL"));
                     u.setUsername(rs.getString("Username"));
                     u.setFullname(rs.getString("Fullname"));
-                    u.setGender(rs.getInt("Gender"));
                     u.setDob(rs.getString("DOB"));
                     u.setEmail(rs.getString("Email"));
                     u.setLocation(rs.getString("Location"));
                     u.setDescription(rs.getString("Bio"));
+                    u.setGender(rs.getInt("Gender")==1 ? "Male":"Female");
                 }
                 if (rs.getString("Platform") != null && rs.getString("Link") != null) {
                     social.add(new SocialLink(rs.getString("Platform"), rs.getString("Link")));

@@ -15,14 +15,14 @@ public class User {
     private String logo;
     private String username;
     private String fullname;
-    private int gender;
+    private String gender;
     private String dob;
     private String email;
     private List<SocialLink> social;
     private String location;
     private String description;
 
-    public User(int ID, String logo, String username, String fullname, int gender, String dob, String email, List<SocialLink> social, String location, String description) {
+    public User(int ID, String logo, String username, String fullname, String gender, String dob, String email, List<SocialLink> social, String location, String description) {
         this.ID = ID;
         this.logo = logo;
         this.username = username;
@@ -59,7 +59,7 @@ public class User {
         return fullname;
     }
 
-    public int getGender() {
+    public String getGender() {
         return gender;
     }
 
@@ -94,7 +94,7 @@ public class User {
         this.fullname = fullname;
     }
 
-    public void setGender(int gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 

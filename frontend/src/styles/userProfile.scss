@@ -110,9 +110,12 @@
                 }
             }
         }
-
+        input{
+            border: none;
+            height: 30px;
+        }
         .name-container{
-
+            margin-top: 10px;
 
             input{
             width: 90%;
