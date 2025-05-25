@@ -16,7 +16,7 @@ class UserProfilePage extends React.Component {
 	async handleSubmit(event) {
 		event.preventDefault();
 		try {
-			const res = await fetch(`/backend/api/user/${this.state.userId}`, {
+			const res = await fetch(`http://localhost:9999/backend/api/user/${this.state.userId}`, {
 				method: 'GET',
 				headers: { 'Content-Type': 'application/json' },
 				//body: JSON.stringify({ message: this.state.message })
