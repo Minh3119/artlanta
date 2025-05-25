@@ -36,7 +36,7 @@ class UserSocialComponent extends React.Component {
 
                             return (
                                 <li key={index}>
-                                    <a href={item.link}>{item.platform}</a>
+                                    <a href={item.Link}>{item.Platform}</a>
                                 </li>
                             )
                         })
