@@ -20,6 +20,7 @@ target/
 *.ipr
 
 ### NetBeans ###
+/nbproject/genfiles.properties
 /nbproject/private/
 /nbbuild/
 /dist/
