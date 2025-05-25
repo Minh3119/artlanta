@@ -1,0 +1,13 @@
+{
+    "java.project.sourcePaths": [
+        "backend\\src\\java"
+    ],
+    "java.project.referencedLibraries": [
+        "backend\\lib\\jakarta.servlet.jsp.jstl-2.0.0.jar",
+        "backend\\lib\\jakarta.servlet.jsp.jstl-api-2.0.0.jar",
+        "backend\\lib\\jakarta.servlet-api-5.0.0.jar",
+        "backend\\lib\\json-20240303.jar",
+        "backend\\lib\\jstl-1.2.jar",
+        "backend\\lib\\mysql-connector-j-9.3.0.jar"
+    ]
+}
