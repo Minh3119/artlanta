@@ -28,10 +28,51 @@ class EditProfileComponent extends React.Component {
         location: "",
         description: ""
     }
-    handleOnChangeName = (event) => {
-        this.setState({
-            fullname: event.target.value
-        })
+    handleOnChangeUsername = (event) => {
+        this.state.username.length <= 50 ?
+            (
+                this.setState({
+                    username: event.target.value
+                })
+            )
+            :
+            (
+                toast.error('Username too long!', {
+                    toastId: "username-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
+    }
+    handleOnChangeFullname = (event) => {
+        this.state.username.length <= 100 ?
+            (
+                this.setState({
+                    fullname: event.target.value
+                })
+            )
+            :
+            (
+                toast.error('Fullname too long!', {
+                    toastId: "fullname-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnChangeGender = (event) => {
         this.setState({
@@ -47,6 +88,7 @@ class EditProfileComponent extends React.Component {
         else {
             document.getElementsByClassName("DOB")[0].value = "";
             return toast.error('Age must be greater or equal to 18', {
+                toastId: "dob-toast",
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -60,9 +102,27 @@ class EditProfileComponent extends React.Component {
         }
     }
     handleOnChangeEmail = (event) => {
-        this.setState({
-            email: event.target.value,
-        })
+        (this.state.username.length <= 100) ?
+            (
+                this.setState({
+                    email: event.target.value
+                })
+            )
+            :
+            (
+                toast.error('Fullname too long!', {
+                    toastId: "email-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnChangeLocation = (event) => {
         this.setState({
@@ -89,6 +149,7 @@ class EditProfileComponent extends React.Component {
     handleSaveChange = () => {
 
     }
+
     handleCancel = () => {
         // this.setState({
         //     logo: this.state.user.logo,
@@ -111,6 +172,41 @@ class EditProfileComponent extends React.Component {
             theme: "dark",
             className: "toast-complete"
         });
+    }
+    verifyEmail = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(this.state.email)) {
+            document.getElementsByClassName("email-input")[0].style.backgroundColor = "lightgreen";
+            toast('Your email is perfect!', {
+                toastId: "email-toast",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                className: "toast-complete"
+            });
+        }
+        else {
+            document.getElementsByClassName("email-input")[0].style.backgroundColor = "lightcoral";
+            toast.error('Your email is wrong format', {
+                toastId: "email-toast",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                className: "toast-complete"
+            });
+        }
+
+
     }
     componentDidMount = () => {
         fetch('http://localhost:9999/backend/api/user-profile')
@@ -163,13 +259,13 @@ class EditProfileComponent extends React.Component {
                 </div>
                 <div className="name-container">
                     <p className="profile-detail-title">Username</p>
-                    <input type="text" value={this.state.fullname} placeholder="input your fullname"
-                        onChange={(event) => this.handleOnChangeName(event)} />
+                    <input type="text" value={this.state.username} placeholder="input your username"
+                        onChange={(event) => this.handleOnChangeUsername(event)} />
                 </div>
                 <div className="name-container">
                     <p className="profile-detail-title">Fullname</p>
                     <input type="text" value={this.state.fullname} placeholder="input your fullname"
-                        onChange={(event) => this.handleOnChangeName(event)} />
+                        onChange={(event) => this.handleOnChangeFullname(event)} />
                 </div>
                 <div className="gender-container">
                     <p className="profile-detail-title">Gender</p>
@@ -192,8 +288,9 @@ class EditProfileComponent extends React.Component {
                 </div>
                 <div className="email-container">
                     <p className="profile-detail-title">Email</p>
-                    <input type="text" value={this.state.email} placeholder="input your email"
+                    <input className="email-input" type="text" value={this.state.email} placeholder="input your email"
                         onChange={(event) => this.handleOnChangeEmail(event)} />
+                    <button onClick={() => this.verifyEmail()}>Verify</button>
                 </div>
 
 

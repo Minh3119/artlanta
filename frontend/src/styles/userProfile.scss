@@ -135,7 +135,14 @@
         .email-container{
             margin-top: 10px;
             input{
-                width: 90%;
+                
+                width: 80%;
+            }
+            button{
+                // margin-left: 5px;
+                width: 10%;
+                height: 30px;
+                border-radius: 10px;
             }
         }
         .social-container{
