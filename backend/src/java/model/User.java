@@ -5,6 +5,7 @@
 package model;
 
 import java.util.List;
+import java.sql.Timestamp;
 
 /**
  *
@@ -16,13 +17,14 @@ public class User {
     private String username;
     private String fullname;
     private String gender;
-    private String dob;
+    private Timestamp dob;
     private String email;
     private List<SocialLink> social;
     private String location;
     private String description;
 
-    public User(int ID, String logo, String username, String fullname, String gender, String dob, String email, List<SocialLink> social, String location, String description) {
+
+    public User(int ID, String logo, String username, String fullname, String gender, Timestamp dob, String email, List<SocialLink> social, String location, String description) {
         this.ID = ID;
         this.logo = logo;
         this.username = username;
@@ -63,7 +65,7 @@ public class User {
         return gender;
     }
 
-    public String getDob() {
+    public Timestamp getDob() {
         return dob;
     }
 
@@ -98,7 +100,7 @@ public class User {
         this.gender = gender;
     }
 
-    public void setDob(String dob) {
+    public void setDob(Timestamp dob) {
         this.dob = dob;
     }
 

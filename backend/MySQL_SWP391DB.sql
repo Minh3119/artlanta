@@ -12,16 +12,18 @@ CREATE TABLE Users (
     FullName VARCHAR(100),
     Bio VARCHAR(255),
     AvatarURL VARCHAR(255),
-    Gender BOOLEAN DEFAULT 0,
+    Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
     DOB DATETIME,
-    Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT' , 'ARTIST', 'ADMIN', 'STAFF')),
-    Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE' , 'BANNED', 'DEACTIVATED')),
-    Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en' , 'vn')),
+    Location VARCHAR(255),
+    Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'STAFF')),
+    Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE', 'BANNED', 'DEACTIVATED')),
+    Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     LastLogin DATETIME,
     IsPrivate BOOLEAN DEFAULT 0
 );
-/*RESET -- Beta
+
+/* PASSWORD RESET -- Beta
 CREATE TABLE PasswordReset (
    ID INT PRIMARY KEY IDENTITY(1,1),
    UserID INT NOT NULL,
@@ -219,6 +221,15 @@ CREATE TABLE UserHistory (
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
+CREATE TABLE UserSocialLinks (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    Platform VARCHAR(50) NOT NULL,
+    # nếu muốn chỉ giới hạn thì Platform VARCHAR(50) CHECK (Platform IN ('Instagram', 'Twitter', 'Facebook', 'ArtStation', 'DeviantArt'))
+    URL VARCHAR(255) NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
+);
 -- TAG SYSTEM -DANG TEST
 /*
 CREATE TABLE Tags (
@@ -226,21 +237,21 @@ CREATE TABLE Tags (
     Name VARCHAR(50) UNIQUE NOT NULL
 );
 
-CREATE TABLE ArtTags (
+CREATE TABLE ArtTags ( --Style
     ID INT AUTO_INCREMENT PRIMARY KEY,
     TagName VARCHAR(100) NOT NULL UNIQUE,
     Description VARCHAR(255)
 );
 
 CREATE TABLE PortfolioTags (
-    ArtistID INT NOT NULL,
+    ArtistID INT NOT NULL, --
     TagID INT NOT NULL,
     PRIMARY KEY (ArtistID, TagID),
     FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
     FOREIGN KEY (TagID) REFERENCES ArtTags(ID) ON DELETE CASCADE
 );
 
-CREATE TABLE UserTags (
+CREATE TABLE UserTags ( --@
     UserID INT NOT NULL,
     TagID INT NOT NULL,
     PRIMARY KEY (UserID, TagID),
@@ -248,7 +259,7 @@ CREATE TABLE UserTags (
     FOREIGN KEY (TagID) REFERENCES Tags(ID)
 );
 
-CREATE TABLE PostTags (
+CREATE TABLE PostTags ( --#
     PostID INT NOT NULL,
     TagID INT NOT NULL,
     PRIMARY KEY (PostID, TagID),
@@ -278,3 +289,6 @@ BEGIN
     CLOSE cur;
 END $$
 DELIMITER ;
+
+
+Select *  from Users LIMIT 1

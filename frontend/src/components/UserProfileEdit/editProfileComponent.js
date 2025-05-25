@@ -230,7 +230,7 @@ class EditProfileComponent extends React.Component {
                     username: data.username || 'Guest',
                     fullname: data.fullname || '',
                     gender: data.gender || 'Male',
-                    dob: data.dob || '',
+                    dob: (new Date(data.dob)).toISOString().split('T')[0],
                     email: data.email || '',
                     social: Array.isArray(data.social) ? data.social : [],
                     location: data.location || '',
@@ -284,7 +284,7 @@ class EditProfileComponent extends React.Component {
                 </div>
                 <div className="dob-container">
                     <p className="profile-detail-title">DOB</p>
-                    <input type="date" className="DOB" max="" required onChange={(event) => this.handleOnChangeDOB(event)} />
+                    <input type="date" className="DOB" value={this.state.dob} max="" required onChange={(event) => this.handleOnChangeDOB(event)} />
                 </div>
                 <div className="email-container">
                     <p className="profile-detail-title">Email</p>
