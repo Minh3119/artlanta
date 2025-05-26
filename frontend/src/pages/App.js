@@ -3,6 +3,7 @@ import '../styles/App.scss';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfileComponent from "../components/UserProfileEdit/userProfileComponent";
 import UserProfilePage from "../pages/ArtistExplore.js"
+import SessionTest from "../pages/SessionTest.js"
 //import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route exact path="/" element={<UserProfileComponent/>} />
         <Route path="/user" element={<UserProfilePage/>} />
+        <Route path="/sessiontest" element={<SessionTest/>} />
       </Routes>
     </BrowserRouter>
     //<Router>

@@ -18,6 +18,7 @@ class UserProfilePage extends React.Component {
 		try {
 			const res = await fetch(`http://localhost:9999/backend/api/user/${this.state.userId}`, {
 				method: 'GET',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
 				//body: JSON.stringify({ message: this.state.message })
 			});

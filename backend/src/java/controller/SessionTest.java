@@ -13,8 +13,8 @@ import model.User;
 import util.JsonUtil;
 import dal.UserDAO;
 
-@WebServlet("/api/user/*")
-public class UserServlet extends HttpServlet {
+@WebServlet("/api/lastusername")
+public class SessionTest extends HttpServlet {
 
     private void setCorsHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
@@ -38,41 +38,9 @@ public class UserServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // Get the last part of the URL
-        int userId = -1;
-        String pathInfo = request.getPathInfo(); // example: "/2"
-        if (pathInfo != null && pathInfo.length() > 1) {
-            String idStr = pathInfo.substring(1); // remove leading "/"
-            try {
-                userId = Integer.parseInt(idStr);
-                if (userId <= 0) {
-                    JsonUtil.writeJsonError(response, "Invalid user ID");
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                JsonUtil.writeJsonError(response, "Invalid user ID");
-                return;
-            }
-        } else {
-            JsonUtil.writeJsonError(response, "User ID missing");
-            return;
-        }
-
-        UserDAO dao = new UserDAO();
-        User user = dao.getOne(userId);
-        if (user == null) {
-            JsonUtil.writeJsonError(response, "User not found");
-            return;
-        }
-
-        request.getSession().setAttribute("lastUsername", user.getUsername());
-
         // Respond
         JSONObject jsonUser = new JSONObject();
-        jsonUser.put("id", user.getId());
-        jsonUser.put("username", user.getUsername());
-        jsonUser.put("displayName", user.getDisplayName());
-        jsonUser.put("bio", user.getBio());
+        jsonUser.put("lastusername", request.getSession().getAttribute("lastUsername"));
 
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", jsonUser);
