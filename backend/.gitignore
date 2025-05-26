@@ -18,7 +18,6 @@ target/
 *.iws
 *.iml
 *.ipr
-/src/java/dal/DBContext.java
 web/WEB-INF/env.txt
 **/web/WEB-INF/env.txt
 *env.txt
