@@ -334,56 +334,6 @@ BEGIN
 END $$
 DELIMITER ;
 
--- Sample Data for Users Table
-INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Gender, DOB, Location, Role, Status, Language) VALUES
-('john_doe', 'john.doe@email.com', 'hashed_password_123', 'John Doe', 'Professional digital artist specializing in concept art', 'https://example.com/avatars/john.jpg', 1, '1990-05-15', 'New York, USA', 'ARTIST', 'ACTIVE', 'en'),
-('admin_sarah', 'sarah.admin@artlanta.com', 'admin_hash_456', 'Sarah Johnson', 'Platform Administrator', 'https://example.com/avatars/sarah.jpg', 0, '1988-08-22', 'San Francisco, USA', 'ADMIN', 'ACTIVE', 'en'),
-('maria_art', 'maria@email.com', 'artist_hash_789', 'Maria Garcia', 'Traditional painter turned digital artist', 'https://example.com/avatars/maria.jpg', 0, '1995-03-10', 'Barcelona, Spain', 'ARTIST', 'ACTIVE', 'en'),
-('tom_client', 'tom@email.com', 'client_hash_101', 'Tom Wilson', 'Art enthusiast and collector', 'https://example.com/avatars/tom.jpg', 1, '1992-11-30', 'London, UK', 'CLIENT', 'ACTIVE', 'en'),
-('staff_alex', 'alex.staff@artlanta.com', 'staff_hash_202', 'Alex Chen', 'Community Manager', 'https://example.com/avatars/alex.jpg', 1, '1991-07-25', 'Toronto, Canada', 'STAFF', 'ACTIVE', 'en'),
-('lisa_draws', 'lisa@email.com', 'artist_hash_303', 'Lisa Nguyen', 'Digital illustrator and manga artist', 'https://example.com/avatars/lisa.jpg', 0, '1993-09-18', 'Tokyo, Japan', 'ARTIST', 'ACTIVE', 'vn'),
-('banned_user', 'banned@email.com', 'banned_hash_404', 'Banned User', 'Account banned for violation', 'https://example.com/avatars/default.jpg', 1, '1994-12-05', 'Unknown', 'CLIENT', 'BANNED', 'en'),
-('private_jane', 'jane@email.com', 'private_hash_505', 'Jane Smith', 'Private account', 'https://example.com/avatars/jane.jpg', 0, '1997-04-20', 'Private', 'CLIENT', 'ACTIVE', 'en'),
-('art_master', 'master@email.com', 'master_hash_606', 'David Kim', 'Professional concept artist with 10 years experience', 'https://example.com/avatars/david.jpg', 1, '1985-01-15', 'Seoul, Korea', 'ARTIST', 'ACTIVE', 'en'),
-('casual_client', 'casual@email.com', 'client_hash_707', 'Emma Brown', 'Art lover and occasional commissioner', 'https://example.com/avatars/emma.jpg', 0, '1996-06-12', 'Melbourne, Australia', 'CLIENT', 'ACTIVE', 'en');
-
--- Update some timestamps to make the data more realistic
-UPDATE Users SET 
-    CreatedAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 365) DAY),
-    LastLogin = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 7) DAY);
-
--- Sample Data for UserSocialLinks Table
-INSERT INTO UserSocialLinks (UserID, Platform, URL) VALUES
--- John Doe (Artist) social links
-(1, 'Instagram', 'https://instagram.com/john_doe_art'),
-(1, 'ArtStation', 'https://artstation.com/john_doe'),
-(1, 'Twitter', 'https://twitter.com/john_doe_art'),
--- Sarah Johnson (Admin) social links
-(2, 'LinkedIn', 'https://linkedin.com/in/sarah-johnson'),
-(2, 'Twitter', 'https://twitter.com/sarah_admin'),
--- Maria Garcia (Artist) social links
-(3, 'Instagram', 'https://instagram.com/maria_art'),
-(3, 'DeviantArt', 'https://deviantart.com/maria_art'),
-(3, 'Facebook', 'https://facebook.com/mariagarcia.art'),
--- Tom Wilson (Client) social link
-(4, 'Instagram', 'https://instagram.com/tom_wilson'),
--- Alex Chen (Staff) social links
-(5, 'LinkedIn', 'https://linkedin.com/in/alex-chen'),
-(5, 'Twitter', 'https://twitter.com/staff_alex');
-
--- Sample Data for Portfolio Table
-INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements) VALUES
-(1, 'Digital Dreams', 'A collection of concept art and digital illustrations spanning various genres and styles', 
-   'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop',
-   'Featured Artist on ArtStation 2023, Best Digital Art Award 2022, 100k+ Instagram followers'),
-
-(3, 'Traditional Meets Digital', 'Showcasing my journey from traditional painting to digital art, with focus on nature and portraits',
-   'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1000&auto=format&fit=crop',
-   'Barcelona Digital Arts Exhibition Winner 2023, Published Artist in Digital Arts Magazine');
-
--- Update their timestamps to be realistic
-UPDATE Portfolio SET 
-    CreatedAt = DATE_SUB(NOW(), INTERVAL FLOOR(RAND() * 365) DAY);
 
 -- SAMPLE DATA--
 
