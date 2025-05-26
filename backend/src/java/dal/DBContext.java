@@ -9,13 +9,16 @@ public class DBContext {
 
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/Artlanta?useSSL=false&serverTimezone=UTC";
+            // Edit URL , username, password to authenticate with your MS SQL Server
+            String url = "jdbc:mysql://localhost:3306/Artlanta?useSSL=false";
             String username = "root";
-            String password = "12345";
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            String password = "1234";
+            //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Class.forName("com.mysql.cj.jdbc.Driver");  // ERROR: java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver
             connection = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         }
     }
 }
+
