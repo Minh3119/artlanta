@@ -23,6 +23,9 @@ class UserProfilePage extends React.Component {
 				//body: JSON.stringify({ message: this.state.message })
 			});
 			const data = await res.json();
+			if (data.error) {
+				throw new Error(data.error);
+			}
 			this.setState({ userData: data.response });
 			toast.success(`Congrats, you found ${data.response.username}`);
 		} catch (error) {
