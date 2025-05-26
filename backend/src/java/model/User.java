@@ -6,23 +6,39 @@ public class User {
 	private int id;
 	private String username;
 	private String email;
-	private LocalDateTime createdAt;
-	private String displayName;
+	private String passwordHash;
+	private String fullName;
 	private String bio;
 	private String avatarUrl;
-	private String status;
+	private boolean gender;
+	private LocalDateTime dob;
+	private String location;
 	private String role;
+	private String status;
+	private String language;
+	private LocalDateTime createdAt;
+	private LocalDateTime lastLogin;
+	private boolean isPrivate;
 
-	public User(int id, String username, String email, LocalDateTime createdAt, String displayName, String bio, String avatarUrl, String status, String role) {
+	public User(int id, String username, String email, String passwordHash, String fullName, String bio, 
+			String avatarUrl, boolean gender, LocalDateTime dob, String location, String role, 
+			String status, String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isPrivate) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
-		this.createdAt = createdAt;
-		this.displayName = displayName;
+		this.passwordHash = passwordHash;
+		this.fullName = fullName;
 		this.bio = bio;
 		this.avatarUrl = avatarUrl;
-		this.status = status;
+		this.gender = gender;
+		this.dob = dob;
+		this.location = location;
 		this.role = role;
+		this.status = status;
+		this.language = language;
+		this.createdAt = createdAt;
+		this.lastLogin = lastLogin;
+		this.isPrivate = isPrivate;
 	}
 
 	public int getId() {
@@ -37,12 +53,12 @@ public class User {
 		return email;
 	}
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
+	public String getPasswordHash() {
+		return passwordHash;
 	}
 
-	public String getDisplayName() {
-		return displayName;
+	public String getFullName() {
+		return fullName;
 	}
 
 	public String getBio() {
@@ -53,12 +69,39 @@ public class User {
 		return avatarUrl;
 	}
 
-	public String getStatus() {
-		return status;
+	public boolean isGender() {
+		return gender;
+	}
+
+	public LocalDateTime getDob() {
+		return dob;
+	}
+
+	public String getLocation() {
+		return location;
 	}
 
 	public String getRole() {
 		return role;
 	}
-	
+
+	public String getStatus() {
+		return status;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public LocalDateTime getLastLogin() {
+		return lastLogin;
+	}
+
+	public boolean isPrivate() {
+		return isPrivate;
+	}
 }

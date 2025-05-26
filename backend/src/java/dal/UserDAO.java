@@ -21,12 +21,19 @@ public class UserDAO extends DBContext {
 						rs.getInt("ID"),
 						rs.getString("Username"),
 						rs.getString("Email"),
-						rs.getTimestamp("CreatedAt").toLocalDateTime(),
-						rs.getString("DisplayName"),
+						rs.getString("PasswordHash"),
+						rs.getString("FullName"),
 						rs.getString("Bio"),
 						rs.getString("AvatarURL"),
+						rs.getBoolean("Gender"),
+						rs.getTimestamp("DOB").toLocalDateTime(),
+						rs.getString("Location"),
+						rs.getString("Role"),
 						rs.getString("Status"),
-						rs.getString("Role"));
+						rs.getString("Language"),
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+						rs.getBoolean("IsPrivate"));
 
 				list.add(users);
 			}
@@ -50,12 +57,19 @@ public class UserDAO extends DBContext {
 						rs.getInt("ID"),
 						rs.getString("Username"),
 						rs.getString("Email"),
-						rs.getTimestamp("CreatedAt").toLocalDateTime(),
-						rs.getString("DisplayName"),
+						rs.getString("PasswordHash"),
+						rs.getString("FullName"),
 						rs.getString("Bio"),
 						rs.getString("AvatarURL"),
+						rs.getBoolean("Gender"),
+						rs.getTimestamp("DOB").toLocalDateTime(),
+						rs.getString("Location"),
+						rs.getString("Role"),
 						rs.getString("Status"),
-						rs.getString("Role"));
+						rs.getString("Language"),
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+						rs.getBoolean("IsPrivate"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

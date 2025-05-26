@@ -1,17 +1,15 @@
 package controller;
 
-import java.io.IOException;
-
-import org.json.JSONObject;
-
+import dal.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import model.User;
+import org.json.JSONObject;
 import util.JsonUtil;
-import dal.UserDAO;
 
 @WebServlet("/api/user/*")
 public class UserServlet extends HttpServlet {
@@ -71,8 +69,12 @@ public class UserServlet extends HttpServlet {
         JSONObject jsonUser = new JSONObject();
         jsonUser.put("id", user.getId());
         jsonUser.put("username", user.getUsername());
-        jsonUser.put("displayName", user.getDisplayName());
+        jsonUser.put("displayName", user.getFullName());
         jsonUser.put("bio", user.getBio());
+        jsonUser.put("avatarUrl", user.getAvatarUrl());
+        jsonUser.put("location", user.getLocation());
+        jsonUser.put("language", user.getLanguage());
+        jsonUser.put("createdAt", user.getCreatedAt().toString());
 
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", jsonUser);

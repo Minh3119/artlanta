@@ -2,7 +2,7 @@
 import '../styles/App.scss';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfileComponent from "../components/UserProfileEdit/userProfileComponent";
-import UserProfilePage from "../pages/ArtistExplore.js"
+import UserProfilePage from "./UserProfile.js"
 import SessionTest from "../pages/SessionTest.js"
 //import { ToastContainer } from 'react-toastify';
 
@@ -11,7 +11,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route exact path="/" element={<UserProfileComponent/>} />
-        <Route path="/user" element={<UserProfilePage/>} />
+        <Route path="/user/:userId" element={<UserProfilePage/>} />
         <Route path="/sessiontest" element={<SessionTest/>} />
       </Routes>
     </BrowserRouter>
