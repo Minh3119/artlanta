@@ -12,6 +12,8 @@ CREATE TABLE Users (
     FullName VARCHAR(100),
     Bio VARCHAR(255),
     AvatarURL VARCHAR(255),
+    Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
+    DOB DATETIME,
     Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'STAFF')),
     Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE', 'BANNED', 'DEACTIVATED')),
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
