@@ -16,7 +16,7 @@ class UserProfileTabsComponent extends React.Component {
                 </div>
                 <div className="profile-item" onClick={() => this.props.handleTabChange("notificationTab")}
                     style={this.props.tab === "notificationTab" ? { backgroundColor: "aqua" } : {}}>
-                    Notification
+                    Notification(deprecated)
                 </div>
                 <div className="profile-item" onClick={() => this.props.handleTabChange("pricingTab")}
                     style={this.props.tab === "pricingTab" ? { backgroundColor: "aqua" } : {}}>

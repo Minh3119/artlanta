@@ -15,8 +15,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "sass": "^1.87.0",
-    "sass-loader": "^16.0.5"
+    "sass": "^1.89.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -41,8 +40,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "sass": "^1.89.0"
   }
 }
