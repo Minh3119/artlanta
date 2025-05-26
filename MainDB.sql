@@ -3,6 +3,17 @@ DROP DATABASE IF EXISTS ARTLANTA;
 CREATE DATABASE ARTLANTA;
 USE ARTLANTA;
 
+-- Main Media Link -- 
+
+CREATE TABLE Media (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    URL VARCHAR(255) NOT NULL,
+    Description VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
 -- USERS
 CREATE TABLE Users (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -50,7 +61,6 @@ CREATE TABLE Posts (
     UserID INT NOT NULL,
     Title VARCHAR(100),
     Content VARCHAR(1000),
-    MediaURL VARCHAR(255),
     IsDraft BOOLEAN DEFAULT 0,
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -58,6 +68,27 @@ CREATE TABLE Posts (
     IsDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
+
+-- Multi Media URL -- bắt buộc để đảm bảo khóa
+
+-- bảng nối với Post
+CREATE TABLE PostMedia (
+    PostID INT,
+    MediaID INT,
+    PRIMARY KEY (PostID, MediaID),
+    FOREIGN KEY (PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
+    FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
+);
+
+-- bảng nối với Portfolio
+CREATE TABLE PortfolioMedia (
+    ArtistID INT, -- trùng với Portfolio.ArtistID
+    MediaID INT,
+    PRIMARY KEY (ArtistID, MediaID),
+    FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
+    FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
+);
+
 
 -- COMMENTS
 CREATE TABLE Comments (
@@ -73,6 +104,7 @@ CREATE TABLE Comments (
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(ParentID) REFERENCES Comments(ID)
 );
+
 
 -- LIKES
 CREATE TABLE Likes (
@@ -351,17 +383,17 @@ INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, Cre
 (10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu khác nhau.', 'cover10.jpg', 'Tác phẩm trưng bày tại bảo tàng', '2025-04-10');
 
 
-INSERT INTO Posts (UserID, Title, Content, MediaURL, IsDraft, Visibility, CreatedAt, UpdatedAt, IsDeleted) VALUES
-(1, 'Bài viết giới thiệu', 'Đây là bài giới thiệu đầu tiên.', 'post1.jpg', 0, 'PUBLIC', '2025-04-10', NULL, 0),
-(2, 'Quá trình sáng tác', 'Chia sẻ quá trình làm tranh.', 'post2.png', 0, 'PUBLIC', '2025-04-11', NULL, 0),
-(3, 'Mẹo vẽ phong cảnh', 'Hướng dẫn vẽ phong cảnh cơ bản.', NULL, 1, 'PRIVATE', '2025-04-12', NULL, 0),
-(4, 'Phác thảo chân dung', 'Các bước phác thảo chân dung nhanh.', 'post4.jpg', 0, 'PUBLIC', '2025-04-13', NULL, 0),
-(5, '3D modeling basics', 'Những kiến thức cơ bản về 3D.', 'post5.mp4', 0, 'PUBLIC', '2025-04-14', NULL, 0),
-(6, 'Tranh màu nước', 'Kỹ thuật vẽ màu nước đẹp.', 'post6.jpg', 0, 'PUBLIC', '2025-04-15', NULL, 0),
-(7, 'Nghệ thuật trừu tượng', 'Ý tưởng và cảm hứng.', NULL, 0, 'PRIVATE', '2025-04-16', NULL, 0),
-(8, 'Thiết kế nhân vật hoạt hình', 'Quy trình làm nhân vật.', 'post8.gif', 0, 'PUBLIC', '2025-04-17', NULL, 0),
-(9, 'Bộ sưu tập ảnh mới', 'Ảnh chụp tại Hà Nội.', 'post9.jpg', 0, 'PUBLIC', '2025-04-18', NULL, 0),
-(10, 'Kết hợp chất liệu', 'Kỹ thuật mixed media.', 'post10.png', 0, 'PUBLIC', '2025-04-19', NULL, 0);
+INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsDeleted) VALUES
+(1, 'Bài viết giới thiệu', 'Đây là bài giới thiệu đầu tiên.', 0, 'PUBLIC', '2025-04-10', NULL, 0),
+(2, 'Quá trình sáng tác', 'Chia sẻ quá trình làm tranh.', 0, 'PUBLIC', '2025-04-11', NULL, 0),
+(3, 'Mẹo vẽ phong cảnh', 'Hướng dẫn vẽ phong cảnh cơ bản.', 1, 'PRIVATE', '2025-04-12', NULL, 0),
+(4, 'Phác thảo chân dung', 'Các bước phác thảo chân dung nhanh.', 0, 'PUBLIC', '2025-04-13', NULL, 0),
+(5, '3D modeling basics', 'Những kiến thức cơ bản về 3D.',0, 'PUBLIC', '2025-04-14', NULL, 0),
+(6, 'Tranh màu nước', 'Kỹ thuật vẽ màu nước đẹp.', 0, 'PUBLIC', '2025-04-15', NULL, 0),
+(7, 'Nghệ thuật trừu tượng', 'Ý tưởng và cảm hứng.', 0, 'PRIVATE', '2025-04-16', NULL, 0),
+(8, 'Thiết kế nhân vật hoạt hình', 'Quy trình làm nhân vật.', 0, 'PUBLIC', '2025-04-17', NULL, 0),
+(9, 'Bộ sưu tập ảnh mới', 'Ảnh chụp tại Hà Nội.',0, 'PUBLIC', '2025-04-18', NULL, 0),
+(10, 'Kết hợp chất liệu', 'Kỹ thuật mixed media.', 0, 'PUBLIC', '2025-04-19', NULL, 0);
 
 
 
