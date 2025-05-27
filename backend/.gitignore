@@ -18,10 +18,13 @@ target/
 *.iws
 *.iml
 *.ipr
-/src/java/dal/DBContext.java
-/backend/web/WEB-INF/env.txt
+web/WEB-INF/env.txt
+**/web/WEB-INF/env.txt
+*env.txt
+web/WEB-INF/env.txt
 
 ### NetBeans ###
+/nbproject/genfiles.properties
 /nbproject/private/
 /nbbuild/
 /dist/

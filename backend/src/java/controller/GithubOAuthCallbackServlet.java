@@ -19,7 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
-import utils.EnvReader;
+import util.EnvReader;
 /**
  *
  * @author admin
