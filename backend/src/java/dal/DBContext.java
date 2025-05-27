@@ -11,12 +11,12 @@ public class DBContext {
     {
         try {
             // Edit URL , username, password to authenticate with your MS SQL Server
-            String url = "jdbc:mysql://localhost:3306/Artlanta?useSSL=false";
+            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false";
             String username = "root";
-            String password = "123";
-            //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Class.forName("com.mysql.cj.jdbc.Driver");  // ERROR: java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver
-            connection = DriverManager.getConnection(url, username, password);
+            String password = "1234";
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            this.connection = DriverManager.getConnection(url, username, password);
+//            System.out.println("Connected to MySQL successfully!");
         } catch (ClassNotFoundException | SQLException ex) {
             ex.printStackTrace();
         }
