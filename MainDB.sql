@@ -339,7 +339,7 @@ DELIMITER ;
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
-('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://res-console.cloudinary.com/drlgu6lyi/thumbnails/v1/image/upload/v1742189906/c3JnZGhibHQ2OHBiZTFlaW1vd2I=/drilldown', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
+('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
 ('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
@@ -371,7 +371,7 @@ VALUES
 
 
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
-(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'cover1.jpg', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
+(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
 (2, 'Portrait Sketches', 'Chuyên về phác thảo chân dung.', 'cover2.jpg', 'Triển lãm tranh tại gallery HN 2023', '2025-04-02'),
 (3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'cover3.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
 (4, 'Anime Style Works', 'Tác phẩm theo phong cách anime.', 'cover4.jpg', 'Top 10 nghệ sĩ trẻ năm 2023', '2025-04-04'),

@@ -11,7 +11,7 @@ public class User {
 	private String bio;
 	private String avatarUrl;
 	private boolean gender;
-	private LocalDateTime dob;
+//	private LocalDateTime dob;
 	private String location;
 	private String role;
 	private String status;
@@ -21,7 +21,7 @@ public class User {
 	private boolean isPrivate;
 
 	public User(int id, String username, String email, String passwordHash, String fullName, String bio, 
-			String avatarUrl, boolean gender, LocalDateTime dob, String location, String role, 
+			String avatarUrl, boolean gender, String location, String role, 
 			String status, String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isPrivate) {
 		this.id = id;
 		this.username = username;
@@ -31,7 +31,7 @@ public class User {
 		this.bio = bio;
 		this.avatarUrl = avatarUrl;
 		this.gender = gender;
-		this.dob = dob;
+//		this.dob = dob;
 		this.location = location;
 		this.role = role;
 		this.status = status;
@@ -73,9 +73,9 @@ public class User {
 		return gender;
 	}
 
-	public LocalDateTime getDob() {
-		return dob;
-	}
+//	public LocalDateTime getDob() {
+//		return dob;
+//	}
 
 	public String getLocation() {
 		return location;

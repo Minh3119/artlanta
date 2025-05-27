@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfileComponent from "../components/UserProfileEdit/userProfileComponent";
 import UserProfilePage from "./UserProfile.js"
 import SessionTest from "../pages/SessionTest.js"
+import Artists from "./Artists.js"
 //import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -13,19 +14,9 @@ function App() {
         <Route exact path="/" element={<UserProfileComponent/>} />
         <Route path="/user/:userId" element={<UserProfilePage/>} />
         <Route path="/sessiontest" element={<SessionTest/>} />
+        <Route path="/artists" element={<Artists />} />
       </Routes>
     </BrowserRouter>
-    //<Router>
-    //    <Route exact path="/" element={<UserProfileComponent/>} />
-    //    <Route path="/user" element={<UserProfilePage/>} />
-    //</Router>
-    //<div className="App">
-    //  <header className="App-header">
-    //    {/* <HomeComponent /> */}
-    //    <UserProfileComponent />
-    //  </header>
-    //  <ToastContainer />
-    //</div>
   );
 }
 

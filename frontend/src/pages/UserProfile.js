@@ -6,21 +6,47 @@ import 'react-toastify/dist/ReactToastify.css';
 const UserProfilePage = () => {
 	const { userId } = useParams();
 	const [userData, setUserData] = useState(null);
+	const [portfolioData, setPortfolioData] = useState(null);
+	const [socialLinks, setSocialLinks] = useState([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const fetchUserData = async () => {
+		const fetchAllData = async () => {
 			try {
-				const res = await fetch(`http://localhost:9999/backend/api/user/${userId}`, {
+				// Fetch user data
+				const userRes = await fetch(`http://localhost:9999/backend/api/user/${userId}`, {
 					method: 'GET',
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const data = await res.json();
-				if (data.error) {
-					throw new Error(data.error);
+				const userData = await userRes.json();
+				if (userData.error) {
+					throw new Error(userData.error);
 				}
-				setUserData(data.response);
+				setUserData(userData.response);
+
+				// Fetch portfolio data
+				const portfolioRes = await fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
+					method: 'GET',
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				const portfolioData = await portfolioRes.json();
+				if (!portfolioData.error) {
+					setPortfolioData(portfolioData.response);
+				}
+
+				// Fetch social links
+				const linksRes = await fetch(`http://localhost:9999/backend/api/social-links/${userId}`, {
+					method: 'GET',
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				const linksData = await linksRes.json();
+				if (!linksData.error) {
+					setSocialLinks(linksData.response);
+				}
+
 				setLoading(false);
 			} catch (error) {
 				toast.error(error.message);
@@ -29,9 +55,27 @@ const UserProfilePage = () => {
 		};
 
 		if (userId) {
-			fetchUserData();
+			fetchAllData();
 		}
 	}, [userId]);
+
+	const getSocialIcon = (platform) => {
+		// You can replace these with actual icons from your preferred icon library
+		switch (platform.toLowerCase()) {
+			case 'instagram':
+				return '📸';
+			case 'twitter':
+				return '🐦';
+			case 'facebook':
+				return '👤';
+			case 'artstation':
+				return '🎨';
+			case 'deviantart':
+				return '🖼️';
+			default:
+				return '🔗';
+		}
+	};
 
 	if (loading) {
 		return (
@@ -57,9 +101,9 @@ const UserProfilePage = () => {
 			<div className="max-w-4xl mx-auto py-12 px-4">
 				<div className="bg-white shadow-lg rounded-lg overflow-hidden">
 					<div className="relative h-48 bg-gray-100">
-						{userData.coverImage ? (
+						{portfolioData?.coverUrl ? (
 							<img
-								src={userData.coverImage}
+								src={portfolioData.coverUrl}
 								alt="Cover"
 								className="w-full h-full object-cover"
 							/>
@@ -99,6 +143,24 @@ const UserProfilePage = () => {
 							)}
 						</div>
 
+						{/* Social Links */}
+						{socialLinks.length > 0 && (
+							<div className="mt-4 flex flex-wrap gap-3">
+								{socialLinks.map((link) => (
+									<a
+										key={link.id}
+										href={link.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+									>
+										<span className="mr-2">{getSocialIcon(link.platform)}</span>
+										<span className="text-sm text-gray-700">{link.platform}</span>
+									</a>
+								))}
+							</div>
+						)}
+
 						<div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-6 border-t border-gray-200 pt-6">
 							{userData.location && (
 								<div>
@@ -119,6 +181,25 @@ const UserProfilePage = () => {
 								</p>
 							</div>
 						</div>
+
+						{/* Portfolio Section */}
+						{portfolioData && (
+							<div className="mt-8 border-t border-gray-200 pt-8">
+								<h2 className="text-2xl font-bold text-gray-900 mb-4">Portfolio</h2>
+								{portfolioData.title && (
+									<h3 className="text-xl font-semibold text-gray-800 mb-2">{portfolioData.title}</h3>
+								)}
+								{portfolioData.description && (
+									<p className="text-gray-600 mb-4">{portfolioData.description}</p>
+								)}
+								{portfolioData.achievements && (
+									<div className="mt-4">
+										<h4 className="text-lg font-semibold text-gray-800 mb-2">Achievements</h4>
+										<p className="text-gray-600">{portfolioData.achievements}</p>
+									</div>
+								)}
+							</div>
+						)}
 
 						{userData.artworks && (
 							<div className="mt-8">

@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import model.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
 
@@ -36,11 +38,38 @@ public class UserServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // Get the last part of the URL
+        UserDAO dao = new UserDAO();
+        String pathInfo = request.getPathInfo(); // Gets the path after /api/user/
+        String roleParam = request.getParameter("role"); // Get the role query parameter
+
+        // If role parameter is present, return all users with that role
+        if (roleParam != null && !roleParam.isEmpty()) {
+            List<User> users = dao.getByRole(roleParam);
+            JSONArray jsonUsers = new JSONArray();
+            
+            for (User user : users) {
+                JSONObject jsonUser = new JSONObject();
+                jsonUser.put("id", user.getId());
+                jsonUser.put("username", user.getUsername());
+                jsonUser.put("displayName", user.getFullName());
+                jsonUser.put("bio", user.getBio());
+                jsonUser.put("avatarUrl", user.getAvatarUrl());
+                jsonUser.put("location", user.getLocation());
+                jsonUser.put("language", user.getLanguage());
+                jsonUser.put("createdAt", user.getCreatedAt().toString());
+                jsonUsers.put(jsonUser);
+            }
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", jsonUsers);
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+            return;
+        }
+
+        // If no role parameter, handle single user request
         int userId = -1;
-        String pathInfo = request.getPathInfo(); // example: "/2"
         if (pathInfo != null && pathInfo.length() > 1) {
-            String idStr = pathInfo.substring(1); // remove leading "/"
+            String idStr = pathInfo.substring(1);
             try {
                 userId = Integer.parseInt(idStr);
                 if (userId <= 0) {
@@ -56,7 +85,6 @@ public class UserServlet extends HttpServlet {
             return;
         }
 
-        UserDAO dao = new UserDAO();
         User user = dao.getOne(userId);
         if (user == null) {
             JsonUtil.writeJsonError(response, "User not found");
@@ -69,7 +97,7 @@ public class UserServlet extends HttpServlet {
         JSONObject jsonUser = new JSONObject();
         jsonUser.put("id", user.getId());
         jsonUser.put("username", user.getUsername());
-        jsonUser.put("displayName", user.getFullName());
+        jsonUser.put("fullname", user.getFullName());
         jsonUser.put("bio", user.getBio());
         jsonUser.put("avatarUrl", user.getAvatarUrl());
         jsonUser.put("location", user.getLocation());
@@ -81,5 +109,4 @@ public class UserServlet extends HttpServlet {
 
         JsonUtil.writeJsonResponse(response, jsonResponse);
     }
-
 }
