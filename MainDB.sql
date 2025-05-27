@@ -31,7 +31,7 @@ CREATE TABLE Users (
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     LastLogin DATETIME,
-    IsPrivate BOOLEAN DEFAULT 0
+    IsFlagged BOOLEAN DEFAULT 0
 );
 
 /* PASSWORD RESET -- Beta
