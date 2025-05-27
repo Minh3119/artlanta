@@ -19,7 +19,7 @@ target/
 *.iml
 *.ipr
 /src/java/dal/DBContext.java
-/backend/web/WEB-INF/env.txt
+web/WEB-INF/env.txt
 
 ### NetBeans ###
 /nbproject/private/
@@ -33,3 +33,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+###env###
+.env
+config.properties
+*.properties

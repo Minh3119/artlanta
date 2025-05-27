@@ -3,102 +3,64 @@ package model;
 import java.time.LocalDateTime;
 
 public class Post {
-    private int id;
-    private int userId;
+    private int ID;
+    private int userID;
     private String title;
     private String content;
     private boolean isDraft;
-    private boolean visibility; // true for public, false for private
+    private String visibility;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private boolean isDeleted;
+    private boolean isFlagged;
 
-    public Post() {}
-
-    public Post(int id, int userId, String title, String content, boolean isDraft, boolean visibility,
-                LocalDateTime createdAt, LocalDateTime updatedAt, boolean isDeleted) {
-        this.id = id;
-        this.userId = userId;
+    public Post(int iD, int userID, String title, String content, boolean isDraft, String visibility,
+            LocalDateTime createdAt, LocalDateTime updatedAt, boolean isFlagged) {
+        ID = iD;
+        this.userID = userID;
         this.title = title;
         this.content = content;
         this.isDraft = isDraft;
         this.visibility = visibility;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.isDeleted = isDeleted;
+        this.isFlagged = isFlagged;
     }
 
-    // Getters and setters
-
-    public int getId() {
-        return id;
+    public int getID() {
+        return ID;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public int getUserID() {
+        return userID;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public boolean isDraft() {
         return isDraft;
     }
 
-    public void setDraft(boolean isDraft) {
-        this.isDraft = isDraft;
-    }
-
-    public boolean getVisibility() {
+    public String getVisibility() {
         return visibility;
-    }
-
-    public void setVisibility(boolean visibility) {
-        this.visibility = visibility;
     }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public boolean isFlagged() {
+        return isFlagged;
     }
+    
 
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean isDeleted) {
-        this.isDeleted = isDeleted;
-    }
 }

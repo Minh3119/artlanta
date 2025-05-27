@@ -1,67 +1,52 @@
-
 package model;
 
+import java.time.LocalDateTime;
+
 public class Notification {
-    private int id;
-    private int postId;
-    private int userId;
+    private int ID;
+    private int userID;
     private String type;
     private String content;
+    private Integer postID;  // Can be null
     private boolean isRead;
+    private LocalDateTime createdAt;
 
-    public Notification() {
+    public Notification(int ID, int userID, String type, String content, Integer postID, boolean isRead, LocalDateTime createdAt) {
+        this.ID = ID;
+        this.userID = userID;
+        this.type = type;
+        this.content = content;
+        this.postID = postID;
+        this.isRead = isRead;
+        this.createdAt = createdAt;
     }
 
-    public Notification(int id, int postId) {
-        this.id = id;
-        this.postId = postId;
+    public int getID() {
+        return ID;
+    }
+
+    public int getUserID() {
+        return userID;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public Integer getPostID() {
+        return postID;
     }
 
     public boolean isRead() {
         return isRead;
     }
 
-    public void setRead(boolean isRead) {
-        this.isRead = isRead;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getPostId() {
-        return postId;
-    }
-
-    public void setPostId(int postId) {
-        this.postId = postId;
-    }
-}
+} 

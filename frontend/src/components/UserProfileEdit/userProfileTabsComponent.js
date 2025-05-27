@@ -1,34 +1,31 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
+import '../../styles/userProfile.scss';
 class UserProfileTabsComponent extends React.Component {
     render() {
 
         return (
 
             <div className="profile-left">
-                <div className="profile-item" onClick={() => this.props.handleTabChange("profileTab")}
-                    style={this.props.tab === "profileTab" ? { backgroundColor: "aqua" } : {}}>
+                <Link to="editprofile" className="profile-item">
                     Profile
-                </div>
-                <div className="profile-item" onClick={() => this.props.handleTabChange("passwordTab")}
-                    style={this.props.tab === "passwordTab" ? { backgroundColor: "aqua" } : {}}>
+                </Link>
+                <Link to="editpassword" className="profile-item">
                     Password
-                </div>
-                <div className="profile-item" onClick={() => this.props.handleTabChange("notificationTab")}
-                    style={this.props.tab === "notificationTab" ? { backgroundColor: "aqua" } : {}}>
-                    Notification(deprecated)
-                </div>
-                <div className="profile-item" onClick={() => this.props.handleTabChange("pricingTab")}
-                    style={this.props.tab === "pricingTab" ? { backgroundColor: "aqua" } : {}}>
+                </Link>
+                <Link to="editnotification" className="profile-item">
+                    Notification
+                </Link>
+                <Link to="editpricing" className="profile-item">
                     Pricing
-                </div>
-                <div className="profile-delete profile-item" onClick={() => this.props.handleTabChange("deleteTab")}
-                    style={this.props.tab === "deleteTab" ? { backgroundColor: "red" } : {}}>
+                </Link>
+                <Link to="deleteaccount" className="profile-item profile-delete">
                     Delete your account
-                </div>
+                </Link>
 
             </div>
-        )
+        );
     }
 }
 export default UserProfileTabsComponent;
