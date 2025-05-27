@@ -29,8 +29,8 @@ function App() {
 
     // <CreatePostComponent />
     <>
-      {/* <UserSettingComponent /> */}
-      <CreatePostComponent />
+      <UserSettingComponent />
+      {/* <CreatePostComponent /> */}
       <ToastContainer />
     </>
 

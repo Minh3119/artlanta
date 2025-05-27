@@ -1,10 +1,7 @@
 package model;
 
-import java.util.List;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-
-import java.util.List;
 
 import java.util.List;
 
@@ -51,13 +48,23 @@ public class User {
         this.status = status;
         this.role = role;
     }
-
+    public User(){
+        
+    }
     public int getID() {
         return ID;
     }
 
     public void setID(int ID) {
         this.ID = ID;
+    }
+
+    public String getAvatarURL() {
+        return avatarURL;
+    }
+
+    public void setAvatarURL(String avatarURL) {
+        this.avatarURL = avatarURL;
     }
 
     public String getUsername() {
@@ -68,71 +75,85 @@ public class User {
         this.username = username;
     }
 
-    public String getAvatarURL() {
-        return avatarURL;
-    }
-
     public String getFullname() {
         return fullname;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public Timestamp getDob() {
-        return dob;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public List<SocialLink> getSocial() {
-        return social;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public User() {
-    }
-
-    public void setAvatarURL(String avatarURL) {
-        this.avatarURL = avatarURL;
     }
 
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Timestamp getDob() {
+        return dob;
     }
 
     public void setDob(Timestamp dob) {
         this.dob = dob;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<SocialLink> getSocial() {
+        return social;
     }
 
     public void setSocial(List<SocialLink> social) {
         this.social = social;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    
 }

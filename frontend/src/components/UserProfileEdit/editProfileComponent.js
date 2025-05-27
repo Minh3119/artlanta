@@ -21,10 +21,10 @@ class EditProfileComponent extends React.Component {
         dob: "",
         email: "",
         social: [
-            {
-                platform: "",
-                link: ""
-            }
+            // {
+            //     platform: "",
+            //     link: ""
+            // }
         ],
         location: "",
         description: ""
@@ -227,7 +227,7 @@ class EditProfileComponent extends React.Component {
                     //     location: data.location || '',
                     //     description: data.description || ''
                     // },
-                    logo: data.avatarURLs || 'https://defaultimage.png',
+                    logo: data.avatarURL || 'https://defaultimage.png',
                     username: data.username || 'Guest',
                     fullname: data.fullname || '',
                     gender: data.gender || 'Male',

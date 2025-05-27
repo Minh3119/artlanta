@@ -2,7 +2,6 @@ package dal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import model.SocialLink;
@@ -16,9 +15,10 @@ public class UserDAO extends DBContext {
         List<SocialLink> social = new ArrayList();
         try {
             String sql = """
-                         Select u.ID, u.AvatarURL, u.Username, u.Fullname, u.Gender, u.DOB, u.Email, s.Platform, s.URL, u.Location, u.Bio from Users as u join UserSocialLinks as s on u.ID=s.UserID
-                         where u.ID=?;
-                         """;
+                    Select u.ID, u.AvatarURL, u.Username, u.Fullname, u.Gender, u.DOB, u.Email, s.Platform, s.URL, u.Location, u.Bio
+                    from Users as u left join UserSocialLinks as s on u.ID=s.UserID
+                    where u.ID=?;
+                    """;
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, userID);
             ResultSet rs = st.executeQuery();
@@ -35,7 +35,7 @@ public class UserDAO extends DBContext {
                     u.setGender(rs.getInt("Gender") == 1 ? "Male" : "Female");
                 }
                 if (!rs.getString("s.Platform").equals("")) {
-                    social.add(new SocialLink(rs.getString("s.Platform"), rs.getString("s.URL")));
+                    social.add(new SocialLink(rs.getString("Platform"), rs.getString("URL")));
                 }
 
             }
@@ -44,7 +44,9 @@ public class UserDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        new User(10,"logo","UserN","FullN","Male","12","ndluong@gmail.com",social,"Hanoi","description bio")
+        // new
+        // User(10,"logo","UserN","FullN","Male","12","ndluong@gmail.com",social,"Hanoi","description
+        // bio")
         return u;
     }
 
@@ -52,17 +54,17 @@ public class UserDAO extends DBContext {
 
         try {
             String sql = """
-                       update Users set 
-                       AvatarURL=?, 
-                       Username=?, 
-                       FullName=?, 
-                       Gender=?, 
-                       DOB=?, 
-                       Email=?, 
-                       Location=?, 
-                       Bio=?
-                       where ID=10;
-                       """;
+                    update Users set
+                    AvatarURL=?,
+                    Username=?,
+                    FullName=?,
+                    Gender=?,
+                    DOB=?,
+                    Email=?,
+                    Location=?,
+                    Bio=?
+                    where ID=10;
+                    """;
 
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, user.getAvatarURL());
@@ -82,57 +84,57 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
     }
-//	public List<User> getAll() {
-//		List<User> list = new ArrayList<>();
-//		String sql = "SELECT * FROM Users";
-//		try {
-//			PreparedStatement stmt = connection.prepareStatement(sql);
-//			ResultSet rs = stmt.executeQuery();
-//			while (rs.next()) {
-//				User users = new User(
-//						rs.getInt("ID"),
-//						rs.getString("Username"),
-//						rs.getString("Email"),
-//						rs.getTimestamp("CreatedAt").toLocalDateTime(),
-//						rs.getString("Fullname"),
-//						rs.getString("Bio"),
-//						rs.getString("AvatarURL"),
-//						rs.getString("Status"),
-//						rs.getString("Role"));
-//
-//				list.add(users);
-//			}
-//			rs.close();
-//			stmt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return list;
-//	}
-//
-//	public User getOne(int userID) {
-//		User u = null;
-//		try {
-//			String sql = "SELECT * FROM Users WHERE `Users`.ID = ?";
-//			PreparedStatement st = connection.prepareStatement(sql);
-//			st.setInt(1, userID);
-//			ResultSet rs = st.executeQuery();
-//			if (rs.next()) {
-//				u = new User(
-//						rs.getInt("ID"),
-//						rs.getString("Username"),
-//						rs.getString("Email"),
-//						rs.getTimestamp("CreatedAt").toLocalDateTime(),
-//						rs.getString("Fullname"),
-//						rs.getString("Bio"),
-//						rs.getString("AvatarURL"),
-//						rs.getString("Status"),
-//						rs.getString("Role"));
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return u;
-//	}
+    // public List<User> getAll() {
+    // List<User> list = new ArrayList<>();
+    // String sql = "SELECT * FROM Users";
+    // try {
+    // PreparedStatement stmt = connection.prepareStatement(sql);
+    // ResultSet rs = stmt.executeQuery();
+    // while (rs.next()) {
+    // User users = new User(
+    // rs.getInt("ID"),
+    // rs.getString("Username"),
+    // rs.getString("Email"),
+    // rs.getTimestamp("CreatedAt").toLocalDateTime(),
+    // rs.getString("Fullname"),
+    // rs.getString("Bio"),
+    // rs.getString("AvatarURL"),
+    // rs.getString("Status"),
+    // rs.getString("Role"));
+    //
+    // list.add(users);
+    // }
+    // rs.close();
+    // stmt.close();
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // }
+    // return list;
+    // }
+    //
+    // public User getOne(int userID) {
+    // User u = null;
+    // try {
+    // String sql = "SELECT * FROM Users WHERE `Users`.ID = ?";
+    // PreparedStatement st = connection.prepareStatement(sql);
+    // st.setInt(1, userID);
+    // ResultSet rs = st.executeQuery();
+    // if (rs.next()) {
+    // u = new User(
+    // rs.getInt("ID"),
+    // rs.getString("Username"),
+    // rs.getString("Email"),
+    // rs.getTimestamp("CreatedAt").toLocalDateTime(),
+    // rs.getString("Fullname"),
+    // rs.getString("Bio"),
+    // rs.getString("AvatarURL"),
+    // rs.getString("Status"),
+    // rs.getString("Role"));
+    // }
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // }
+    // return u;
+    // }
 
 }
