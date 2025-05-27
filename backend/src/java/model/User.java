@@ -4,135 +4,108 @@ import java.util.List;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-import java.util.List;
-
-import java.util.List;
-
 public class User {
 
     private int ID;
-    private String avatarURL;
     private String username;
-    private String fullname;
-    private String gender;
-    private Timestamp dob;
     private String email;
-    private List<SocialLink> social;
+    private string passwordHash;
+    private String fullName;
+    private String bio;
+    private String avatarURL;
+    private boolean gender;
+    private LocalDateTime DOB;
     private String location;
-    private String description;
-    private LocalDateTime createdAt;
-    private String status;
     private String role;
-
-    public User(int ID, String avatarURL, String username, String fullname, String gender, Timestamp dob, String email, List<SocialLink> social, String location, String description) {
-        this.ID = ID;
-        this.avatarURL = avatarURL;
+    private String status;
+    private String language;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLogin;
+    private boolean isFlagged;
+    
+    public User(int iD, String username, String email, string passwordHash, String fullName, String bio,
+            String avatarURL, boolean gender, LocalDateTime dOB, String location, String role, String status,
+            String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged) {
+        ID = iD;
         this.username = username;
-        this.fullname = fullname;
-        this.gender = gender;
-        this.dob = dob;
         this.email = email;
-        this.social = social;
-        this.location = location;
-        this.description = description;
-    }
-
-    public User(int ID, String avatarURL, String username, String fullname, String gender, Timestamp dob, String email, String location, String description, LocalDateTime createdAt, String status, String role) {
-        this.ID = ID;
+        this.passwordHash = passwordHash;
+        this.fullName = fullName;
+        this.bio = bio;
         this.avatarURL = avatarURL;
-        this.username = username;
-        this.fullname = fullname;
         this.gender = gender;
-        this.dob = dob;
-        this.email = email;
+        DOB = dOB;
         this.location = location;
-        this.description = description;
-        this.createdAt = createdAt;
-        this.status = status;
         this.role = role;
+        this.status = status;
+        this.language = language;
+        this.createdAt = createdAt;
+        this.lastLogin = lastLogin;
+        this.isFlagged = isFlagged;
     }
 
     public int getID() {
         return ID;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getAvatarURL() {
-        return avatarURL;
-    }
-
-    public String getFullname() {
-        return fullname;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public Timestamp getDob() {
-        return dob;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public List<SocialLink> getSocial() {
-        return social;
+    public string getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public String getAvatarURL() {
+        return avatarURL;
+    }
+
+    public boolean isGender() {
+        return gender;
+    }
+
+    public LocalDateTime getDOB() {
+        return DOB;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public String getDescription() {
-        return description;
+    public String getRole() {
+        return role;
     }
 
-    public User() {
+    public String getStatus() {
+        return status;
     }
 
-    public void setAvatarURL(String avatarURL) {
-        this.avatarURL = avatarURL;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setGender(String gender) {
-        this.gender = gender;
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
     }
 
-    public void setDob(Timestamp dob) {
-        this.dob = dob;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setSocial(List<SocialLink> social) {
-        this.social = social;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public boolean isFlagged() {
+        return isFlagged;
     }
 
 }
