@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import org.json.JSONException;
 import org.json.JSONObject;
 import util.EnvReader;
 /**
@@ -124,7 +125,7 @@ public class GithubOAuthCallbackServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(userJson.toString());
 
-        } catch (Exception e) {
+        } catch (IOException | JSONException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
         } finally {
