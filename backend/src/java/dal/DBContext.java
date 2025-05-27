@@ -18,4 +18,8 @@ public class DBContext {
             ex.printStackTrace();
         }
     }
+
+    public Connection getConnection() {
+        return connection;
+    }
 }
