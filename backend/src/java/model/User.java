@@ -9,7 +9,7 @@ public class User {
     private int ID;
     private String username;
     private String email;
-    private string passwordHash;
+    private String passwordHash;
     private String fullName;
     private String bio;
     private String avatarURL;
@@ -23,7 +23,7 @@ public class User {
     private LocalDateTime lastLogin;
     private boolean isFlagged;
     
-    public User(int iD, String username, String email, string passwordHash, String fullName, String bio,
+    public User(int iD, String username, String email, String passwordHash, String fullName, String bio,
             String avatarURL, boolean gender, LocalDateTime dOB, String location, String role, String status,
             String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged) {
         ID = iD;
@@ -56,7 +56,7 @@ public class User {
         return email;
     }
 
-    public string getPasswordHash() {
+    public String getPasswordHash() {
         return passwordHash;
     }
 
