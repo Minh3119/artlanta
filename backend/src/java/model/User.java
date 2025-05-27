@@ -21,10 +21,10 @@ public class User {
     private LocalDateTime lastLogin;
     private boolean isFlagged;
     
-    public User(int iD, String username, String email, String passwordHash, String fullName, String bio,
-            String avatarURL, boolean gender, LocalDateTime dOB, String location, String role, String status,
+    public User(int ID, String username, String email, String passwordHash, String fullName, String bio,
+            String avatarURL, boolean gender, LocalDateTime DOB, String location, String role, String status,
             String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged) {
-        ID = iD;
+        this.ID = ID;
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -32,7 +32,7 @@ public class User {
         this.bio = bio;
         this.avatarURL = avatarURL;
         this.gender = gender;
-        DOB = dOB;
+        this.DOB = DOB;
         this.location = location;
         this.role = role;
         this.status = status;
@@ -70,7 +70,7 @@ public class User {
         return avatarURL;
     }
 
-    public boolean isGender() {
+    public boolean getGender() {
         return gender;
     }
 
