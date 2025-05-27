@@ -11,28 +11,28 @@ import CreatePostComponent from "../components/PostControl/createPostComponent.j
 
 function App() {
   return (
-    // <BrowserRouter>
-    //   <Routes>
-    //     <Route exact path="/home" element={<UserSettingComponent />} />
-    //     <Route path="/user" element={<UserProfilePage />} />
-    //     <Route path="/createpost" element={<CreatePostComponent />} />
-    //     <Route path="/home/editprofile"
-    //       element={<EditProfileComponent />} />
-    //     <Route path="/editpassword"
-    //       element={<EditPasswordComponent />} />
-    //     <Route path="/editnotification"
-    //       element={<EditNotificationComponent />} />
-    //     <Route path="/editpricing"
-    //       element={<EditPricingComponent />} />
-    //   </Routes>
-    // </BrowserRouter >
+    <BrowserRouter>
+      <Routes>
+        <Route exact path="/home" element={<UserSettingComponent />} />
+        <Route path="/user" element={<UserProfilePage />} />
+        <Route path="/createpost" element={<CreatePostComponent />} />
+        {/* <Route path="/home/editprofile"
+          element={<EditProfileComponent />} />
+        <Route path="/editpassword"
+          element={<EditPasswordComponent />} />
+        <Route path="/editnotification"
+          element={<EditNotificationComponent />} />
+        <Route path="/editpricing"
+          element={<EditPricingComponent />} /> */}
+      </Routes>
+    </BrowserRouter >
 
     // <CreatePostComponent />
-    <>
-      {/* <UserSettingComponent /> */}
-      <CreatePostComponent />
-      <ToastContainer />
-    </>
+    // <>
+    //   {/* <UserSettingComponent /> */}
+    //   <CreatePostComponent />
+    //   <ToastContainer />
+    // </>
 
   );
 }
