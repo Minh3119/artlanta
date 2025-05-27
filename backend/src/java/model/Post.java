@@ -1,76 +1,66 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author ADMIN
- */
+import java.time.LocalDateTime;
+
 public class Post {
+    private int ID;
     private int userID;
     private String title;
     private String content;
-    private String mediaURL;
+    private boolean isDraft;
     private String visibility;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean isFlagged;
 
-    public Post() {
-    }
-
-    public Post(int userID, String title, String content, String mediaURL, String visibility) {
+    public Post(int iD, int userID, String title, String content, boolean isDraft, String visibility,
+            LocalDateTime createdAt, LocalDateTime updatedAt, boolean isFlagged) {
+        ID = iD;
         this.userID = userID;
         this.title = title;
         this.content = content;
-        this.mediaURL = mediaURL;
+        this.isDraft = isDraft;
         this.visibility = visibility;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isFlagged = isFlagged;
     }
 
-    public Post(int userID, String title, String content, String visibility) {
-        this.userID = userID;
-        this.title = title;
-        this.content = content;
-        this.visibility = visibility;
+    public int getID() {
+        return ID;
     }
 
     public int getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getMediaURL() {
-        return mediaURL;
-    }
-
-    public void setMediaURL(String mediaURL) {
-        this.mediaURL = mediaURL;
+    public boolean isDraft() {
+        return isDraft;
     }
 
     public String getVisibility() {
         return visibility;
     }
 
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public boolean isFlagged() {
+        return isFlagged;
     }
     
+
 }

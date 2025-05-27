@@ -32,7 +32,7 @@ CREATE TABLE Users (
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT GETDATE(),
     LastLogin DATETIME,
-    IsPrivate BIT DEFAULT 0
+    IsFlagged BOOLEAN DEFAULT 0
 );
 
 -- Portfolio
@@ -86,7 +86,7 @@ CREATE TABLE Comments (
     MediaURL VARCHAR(255),
     ParentID INT,
     CreatedAt DATETIME DEFAULT GETDATE(),
-    IsDeleted BIT DEFAULT 0,
+    IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(ParentID) REFERENCES Comments(ID)
