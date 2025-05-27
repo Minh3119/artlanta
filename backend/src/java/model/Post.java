@@ -1,50 +1,44 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-import java.time.LocalDateTime;
-
-
-
+/**
+ *
+ * @author ADMIN
+ */
 public class Post {
-    private int id;
-    private int userId;
+    private int userID;
     private String title;
     private String content;
-    private boolean isDraft;
-    private String visibility; // "PUBLIC" or "PRIVATE"
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private boolean isDeleted;
+    private String mediaURL;
+    private String visibility;
 
     public Post() {
     }
 
-    public Post(int id, int userId, String title, String content, boolean isDraft,
-                String visibility, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isDeleted) {
-        this.id = id;
-        this.userId = userId;
+    public Post(int userID, String title, String content, String mediaURL, String visibility) {
+        this.userID = userID;
         this.title = title;
         this.content = content;
-        this.isDraft = isDraft;
+        this.mediaURL = mediaURL;
         this.visibility = visibility;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.isDeleted = isDeleted;
     }
 
-    public int getId() {
-        return id;
+    public Post(int userID, String title, String content, String visibility) {
+        this.userID = userID;
+        this.title = title;
+        this.content = content;
+        this.visibility = visibility;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getUserID() {
+        return userID;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public String getTitle() {
@@ -63,12 +57,12 @@ public class Post {
         this.content = content;
     }
 
-    public boolean isDraft() {
-        return isDraft;
+    public String getMediaURL() {
+        return mediaURL;
     }
 
-    public void setDraft(boolean isDraft) {
-        this.isDraft = isDraft;
+    public void setMediaURL(String mediaURL) {
+        this.mediaURL = mediaURL;
     }
 
     public String getVisibility() {
@@ -78,28 +72,5 @@ public class Post {
     public void setVisibility(String visibility) {
         this.visibility = visibility;
     }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public void setDeleted(boolean isDeleted) {
-        this.isDeleted = isDeleted;
-    }
+    
 }

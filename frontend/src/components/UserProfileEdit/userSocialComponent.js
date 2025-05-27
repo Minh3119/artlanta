@@ -4,8 +4,15 @@ class UserSocialComponent extends React.Component {
     state = {
         newLink: "",
         newPlatform: "",
+        editPlatform: "",
+        editLink: "",
         isAdd: false,
+        canUpdate: false,
     }
+    // handleEditSocial=()=>{
+    //     ;
+    //     this.setState({ canUpdate: !this.state.canUpdate });
+    // }
     render() {
         return (
             <div className="social-container">
@@ -31,13 +38,40 @@ class UserSocialComponent extends React.Component {
                 </div>
                 <ul className="social-list">
                     {
-
-                        this.props.user.social.map((item, index) => {
+                        this.props.social.map((item, index) => {
 
                             return (
-                                <li key={index}>
-                                    <a href={item.link}>{item.platform}</a>
-                                </li>
+                                <div className="social-list-component">
+                                    {/* {
+
+                                        this.setState({
+                                            editPlatform: item.Platform,
+                                            editLink: item.Link
+                                        })
+
+                                    } */}
+                                    {
+                                        // this.state.canUpdate ?
+                                        //     <div className="social-edit">
+                                        //         {/* <input type="text" placeholder="Platform"
+                                        //             className="social-platform" value={this.state.editPlatform}
+                                        //             onChange={(event) => this.setState({ editPlatform: event.target.value })} />
+                                        //         <input type="text" placeholder="Link"
+                                        //             className="social-link" value={this.state.editLink}
+                                        //             onChange={(event) => this.setState({ editLink: event.target.value })} />
+                                        //         <button onClick={() => this.handleEditSocial()}>Edit</button> */}
+                                        //     </div>
+                                        //     :
+                                        <div className="social-display">
+                                            <li key={index} style={{ margin: "0 30px" }}>
+                                                <a href={item.Link}>{item.Platform}</a>
+
+                                            </li>
+                                            {/* <button onClick={() => this.setState({ canUpdate: !this.state.canUpdate })}>Edit</button> */}
+                                        </div>
+                                    }
+
+                                </div>
                             )
                         })
                     }
