@@ -29,7 +29,7 @@ public class UserDAO extends DBContext {
             while (rs.next()) {
                 if (u.getID() == 0) {
                     u.setID(rs.getInt("ID"));
-                    u.setLogo(rs.getString("AvatarURL"));
+                    u.setAvatarURL(rs.getString("AvatarURL"));
                     u.setUsername(rs.getString("Username"));
                     u.setFullname(rs.getString("Fullname"));
                     u.setDob(rs.getTimestamp("DOB"));
@@ -68,7 +68,7 @@ public class UserDAO extends DBContext {
                        """;
             
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, user.getLogo());
+            st.setString(1, user.getAvatarURL());
             st.setString(2, user.getUsername());
             st.setString(3, user.getFullname());
             st.setInt(4, (user.getGender().equals("Male"))? 1:0);
@@ -88,5 +88,57 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
     }
+	public List<User> getAll() {
+		List<User> list = new ArrayList<>();
+		String sql = "SELECT * FROM Users";
+		try {
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				User users = new User(
+						rs.getInt("ID"),
+						rs.getString("Username"),
+						rs.getString("Email"),
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getString("Fullname"),
+						rs.getString("Bio"),
+						rs.getString("AvatarURL"),
+						rs.getString("Status"),
+						rs.getString("Role"));
+
+				list.add(users);
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public User getOne(int userID) {
+		User u = null;
+		try {
+			String sql = "SELECT * FROM Users WHERE `Users`.ID = ?";
+			PreparedStatement st = connection.prepareStatement(sql);
+			st.setInt(1, userID);
+			ResultSet rs = st.executeQuery();
+			if (rs.next()) {
+				u = new User(
+						rs.getInt("ID"),
+						rs.getString("Username"),
+						rs.getString("Email"),
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getString("Fullname"),
+						rs.getString("Bio"),
+						rs.getString("AvatarURL"),
+						rs.getString("Status"),
+						rs.getString("Role"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return u;
+	}
 
 }

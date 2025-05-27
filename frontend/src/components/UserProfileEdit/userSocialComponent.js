@@ -38,7 +38,6 @@ class UserSocialComponent extends React.Component {
                 </div>
                 <ul className="social-list">
                     {
-
                         this.props.social.map((item, index) => {
 
                             return (

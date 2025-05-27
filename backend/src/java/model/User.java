@@ -1,19 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package model;
 
 import java.util.List;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-/**
- *
- * @author ADMIN
- */
+import java.util.List;
+
+import java.util.List;
+
 public class User {
     private int ID;
-    private String logo;
+    private String avatarURL;
     private String username;
     private String fullname;
     private String gender;
@@ -22,11 +20,13 @@ public class User {
     private List<SocialLink> social;
     private String location;
     private String description;
+    private LocalDateTime createdAt;
+    private String status;
+	private String role;
 
-
-    public User(int ID, String logo, String username, String fullname, String gender, Timestamp dob, String email, List<SocialLink> social, String location, String description) {
+    public User(int ID, String avatarURL, String username, String fullname, String gender, Timestamp dob, String email, List<SocialLink> social, String location, String description) {
         this.ID = ID;
-        this.logo = logo;
+        this.avatarURL = avatarURL;
         this.username = username;
         this.fullname = fullname;
         this.gender = gender;
@@ -37,6 +37,21 @@ public class User {
         this.description = description;
     }
 
+    public User(int ID, String avatarURL, String username, String fullname, String gender, Timestamp dob, String email, String location, String description, LocalDateTime createdAt, String status, String role) {
+        this.ID = ID;
+        this.avatarURL = avatarURL;
+        this.username = username;
+        this.fullname = fullname;
+        this.gender = gender;
+        this.dob = dob;
+        this.email = email;
+        this.location = location;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.status = status;
+        this.role = role;
+    }
+    
     public int getID() {
         return ID;
     }
@@ -53,8 +68,8 @@ public class User {
         this.username = username;
     }
 
-    public String getLogo() {
-        return logo;
+    public String getAvatarURL() {
+        return avatarURL;
     }
 
     public String getFullname() {
@@ -88,8 +103,8 @@ public class User {
     public User() {
     }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
+    public void setAvatarURL(String avatarURL) {
+        this.avatarURL = avatarURL;
     }
 
     public void setFullname(String fullname) {
@@ -121,3 +136,6 @@ public class User {
     }
 
 }
+
+
+	
