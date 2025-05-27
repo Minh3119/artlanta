@@ -1,5 +1,6 @@
 import React from "react";
 import UserSocialComponent from "./userSocialComponent";
+import '../../styles/userProfile.scss';
 import { toast } from 'react-toastify';
 class EditProfileComponent extends React.Component {
     state = {
@@ -226,7 +227,7 @@ class EditProfileComponent extends React.Component {
                     //     location: data.location || '',
                     //     description: data.description || ''
                     // },
-                    logo: data.logo || 'https://defaultimage.png',
+                    logo: data.avatarURLs || 'https://defaultimage.png',
                     username: data.username || 'Guest',
                     fullname: data.fullname || '',
                     gender: data.gender || 'Male',

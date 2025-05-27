@@ -1,4 +1,3 @@
-
 package model;
 
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.List;
 
 public class User {
+
     private int ID;
     private String avatarURL;
     private String username;
@@ -22,7 +22,7 @@ public class User {
     private String description;
     private LocalDateTime createdAt;
     private String status;
-	private String role;
+    private String role;
 
     public User(int ID, String avatarURL, String username, String fullname, String gender, Timestamp dob, String email, List<SocialLink> social, String location, String description) {
         this.ID = ID;
@@ -51,7 +51,7 @@ public class User {
         this.status = status;
         this.role = role;
     }
-    
+
     public int getID() {
         return ID;
     }
@@ -136,6 +136,3 @@ public class User {
     }
 
 }
-
-
-	

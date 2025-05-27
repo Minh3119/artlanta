@@ -6,14 +6,13 @@ import EditPasswordComponent from "./editPasswordComponent";
 import EditNotificationComponent from "./editNotificationComponent";
 import EditPricingComponent from "./editPricingComponent";
 
-
-import "../../styles/userProfile.scss";
-
+// import { toast } from "react-toastify";
 import {
     BrowserRouter as Router,
     Routes,
     Route,
 } from "react-router-dom";
+
 
 class UserSettingComponent extends React.Component {
     componentDidMount() {
@@ -40,7 +39,6 @@ class UserSettingComponent extends React.Component {
                             <Route path="/editpricing"
                                 element={<EditPricingComponent />} />
                         </Routes>
-
                     </div>
                 </div>
             </Router>
