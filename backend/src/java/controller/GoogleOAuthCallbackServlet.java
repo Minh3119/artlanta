@@ -19,7 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
-import utils.EnvReader;
+import util.EnvReader;
 
 @WebServlet(name = "GoogleOAuthCallbackServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthCallbackServlet extends HttpServlet {
