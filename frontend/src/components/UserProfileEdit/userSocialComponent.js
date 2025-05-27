@@ -2,10 +2,10 @@ import React from "react";
 
 class UserSocialComponent extends React.Component {
     state = {
-        newLink: "",
+        newUrl: "",
         newPlatform: "",
         editPlatform: "",
-        editLink: "",
+        editUrl: "",
         isAdd: false,
         canUpdate: false,
     }
@@ -28,9 +28,9 @@ class UserSocialComponent extends React.Component {
                                     className="social-platform" value={this.state.newPlatform}
                                     onChange={(event) => this.setState({ newPlatform: event.target.value })} />
                                 <input type="text" placeholder="Link"
-                                    className="social-link" value={this.state.newLink}
-                                    onChange={(event) => this.setState({ newLink: event.target.value })} />
-                                <button onClick={() => this.props.handleAddSocial(this.state.newPlatform, this.state.newLink)}>Add</button>
+                                    className="social-link" value={this.state.newUrl}
+                                    onChange={(event) => this.setState({ newUrl: event.target.value })} />
+                                <button onClick={() => this.props.handleAddSocial(this.state.newPlatform, this.state.newUrl)}>Add</button>
                             </div>
                             :
                             null
@@ -64,7 +64,12 @@ class UserSocialComponent extends React.Component {
                                         //     :
                                         <div className="social-display">
                                             <li key={index} style={{ margin: "0 30px" }}>
-                                                <a href={item.Link}>{item.Platform}</a>
+                                                <a href={item.url}>{item.platform}</a>
+                                                {
+
+                                                    console.log(item.url)
+                                                }
+                                                {console.log("dcm")}
 
                                             </li>
                                             {/* <button onClick={() => this.setState({ canUpdate: !this.state.canUpdate })}>Edit</button> */}

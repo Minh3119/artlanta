@@ -120,9 +120,6 @@ public class User {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
-    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -152,9 +149,6 @@ public class User {
         DOB = dOB;
     }
 
-    public String getLocation() {
-        return location;
-    }
 
     public void setLocation(String location) {
         this.location = location;
@@ -186,30 +180,6 @@ public class User {
 
     public void setPrivate(boolean isPrivate) {
         this.isPrivate = isPrivate;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
 }
