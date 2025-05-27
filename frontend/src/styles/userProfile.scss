@@ -142,6 +142,8 @@
                 // margin-left: 5px;
                 width: 10%;
                 height: 30px;
+                text-align: center;
+                font-size: 40%;
                 border-radius: 10px;
             }
         }
@@ -157,7 +159,7 @@
                 .social-add{
                     display: flex;
                     justify-content: center;
-                    gap: 10px;
+                    gap: 1.5%;
                     .social-platform{
                         width: 20%;
                     }
@@ -168,7 +170,7 @@
                         text-align: center;
                         font-size: 30%;
                         font-weight: bolder;
-                        width: 5%;
+                        width: 7%;
                     }
                 }
             }

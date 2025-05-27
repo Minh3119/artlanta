@@ -38,7 +38,9 @@ public class UserDAO extends DBContext {
                     u.setDescription(rs.getString("Bio"));
                     u.setGender(rs.getInt("Gender") == 1 ? "Male" : "Female");
                 }
-                social.add(new SocialLink(rs.getString("s.Platform"), rs.getString("s.URL")));
+                if(!rs.getString("s.Platform").equals("")){
+                    social.add(new SocialLink(rs.getString("s.Platform"), rs.getString("s.URL")));
+                }
 
             }
             u.setSocial(social);
@@ -48,6 +50,43 @@ public class UserDAO extends DBContext {
         }
 //        new User(10,"logo","UserN","FullN","Male","12","ndluong@gmail.com",social,"Hanoi","description bio")
         return u;
+    }
+    public void updateUser(User user){
+        
+        try{
+            String sql="""
+                       update Users set 
+                       AvatarURL=?, 
+                       Username=?, 
+                       FullName=?, 
+                       Gender=?, 
+                       DOB=?, 
+                       Email=?, 
+                       Location=?, 
+                       Bio=?
+                       where ID=10;
+                       """;
+            
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, user.getLogo());
+            st.setString(2, user.getUsername());
+            st.setString(3, user.getFullname());
+            st.setInt(4, (user.getGender().equals("Male"))? 1:0);
+            st.setTimestamp(5, user.getDob());
+            st.setString(6, user.getEmail());
+            st.setString(7, user.getLocation());
+            st.setString(8, user.getDescription());
+            st.executeUpdate();
+            
+            
+            SocialDAO s= new SocialDAO();
+            s.updateSocial(user.getSocial(), user.getID());
+            
+        }
+        
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

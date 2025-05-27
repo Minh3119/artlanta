@@ -4,9 +4,16 @@
         <servlet-name>UserProfileEdit</servlet-name>
         <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CreatePost</servlet-name>
+        <servlet-class>controller.Post.CreatePost</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
     </servlet-mapping>
-    
+    <servlet-mapping>
+        <servlet-name>CreatePost</servlet-name>
+        <url-pattern>/api/create-post</url-pattern>
+    </servlet-mapping>
 </web-app>
