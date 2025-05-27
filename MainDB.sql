@@ -31,6 +31,7 @@ CREATE TABLE Users (
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     LastLogin DATETIME,
+    IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
 
@@ -65,7 +66,7 @@ CREATE TABLE Posts (
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt DATETIME,
-    IsDeleted BOOLEAN DEFAULT 0,
+    IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
@@ -339,7 +340,7 @@ DELIMITER ;
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
-('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://res-console.cloudinary.com/drlgu6lyi/thumbnails/v1/image/upload/v1742189906/c3JnZGhibHQ2OHBiZTFlaW1vd2I=/drilldown', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
+('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
 ('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
@@ -371,7 +372,7 @@ VALUES
 
 
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
-(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'cover1.jpg', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
+(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
 (2, 'Portrait Sketches', 'Chuyên về phác thảo chân dung.', 'cover2.jpg', 'Triển lãm tranh tại gallery HN 2023', '2025-04-02'),
 (3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'cover3.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
 (4, 'Anime Style Works', 'Tác phẩm theo phong cách anime.', 'cover4.jpg', 'Top 10 nghệ sĩ trẻ năm 2023', '2025-04-04'),
@@ -383,7 +384,7 @@ INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, Cre
 (10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu khác nhau.', 'cover10.jpg', 'Tác phẩm trưng bày tại bảo tàng', '2025-04-10');
 
 
-INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsDeleted) VALUES
+INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsFlagged) VALUES
 (1, 'Bài viết giới thiệu', 'Đây là bài giới thiệu đầu tiên.', 0, 'PUBLIC', '2025-04-10', NULL, 0),
 (2, 'Quá trình sáng tác', 'Chia sẻ quá trình làm tranh.', 0, 'PUBLIC', '2025-04-11', NULL, 0),
 (3, 'Mẹo vẽ phong cảnh', 'Hướng dẫn vẽ phong cảnh cơ bản.', 1, 'PRIVATE', '2025-04-12', NULL, 0),
@@ -397,7 +398,7 @@ INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, Updat
 
 
 
-INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsDeleted) VALUES
+INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsFlagged) VALUES
 (1, 2, 'Bài viết rất hữu ích!', NULL, NULL, '2025-04-20', 0),
 (1, 3, 'Mình thích phần hướng dẫn.', NULL, NULL, '2025-04-20', 0),
 (2, 4, 'Cảm ơn bạn đã chia sẻ.', NULL, NULL, '2025-04-21', 0),

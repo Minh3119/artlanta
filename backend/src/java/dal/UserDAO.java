@@ -3,10 +3,8 @@ package dal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import model.SocialLink;
 import model.User;
 
 public class UserDAO extends DBContext {
@@ -65,7 +63,8 @@ public class UserDAO extends DBContext {
                         Status = ?,
                         Language = ?,
                         LastLogin = ?,
-                        IsFlagged = ?
+                        IsFlagged = ?,
+                        IsPrivate = ?
                         WHERE ID = ?
                         """;
 
@@ -83,7 +82,8 @@ public class UserDAO extends DBContext {
             st.setString(11, user.getLanguage());
             st.setObject(12, user.getLastLogin());
             st.setBoolean(13, user.isFlagged());
-            st.setInt(14, user.getID());
+            st.setBoolean(14, user.isPrivate());
+            st.setInt(15, user.getID());
             
             st.executeUpdate();
         } catch (SQLException e) {
@@ -114,7 +114,8 @@ public class UserDAO extends DBContext {
                     rs.getString("Language"),
                     rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
                     rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged")
+                    rs.getBoolean("IsFlagged"),
+                    rs.getBoolean("IsPrivate")
                 );
                 list.add(user);
             }
@@ -150,7 +151,8 @@ public class UserDAO extends DBContext {
                     rs.getString("Language"),
                     rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
                     rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged")
+                    rs.getBoolean("IsFlagged"),
+                    rs.getBoolean("IsPrivate")
                 );
             }
             rs.close();
@@ -186,7 +188,8 @@ public class UserDAO extends DBContext {
                     rs.getString("Language"),
                     rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
                     rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged")
+                    rs.getBoolean("IsFlagged"),
+                    rs.getBoolean("IsPrivate")
                 );
                 list.add(user);
             }
