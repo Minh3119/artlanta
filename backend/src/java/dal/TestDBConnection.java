@@ -1,6 +1,6 @@
 package dal;
 
-public class TestDB {
+public class TestDBConnection {
     public static void main(String[] args) {
         dal.DBContext db = new dal.DBContext();
         if (db.connection != null) {
