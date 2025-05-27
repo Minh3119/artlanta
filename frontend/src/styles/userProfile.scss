@@ -7,7 +7,7 @@
   height: 100vh;
   ;
 
-  .user-profile{
+  .user-control{
     display: flex;
 
     background-color: whitesmoke;
@@ -29,17 +29,26 @@
             height: 50px;
             font-size: 90%;
             transition: background-color 0.5s ease-in-out;
+            text-decoration: none;
+            color: black;
+            width: 100%;
+            margin: 0 0;    
+                
             
         }
         .profile-item:hover{
             background-color: aqua;
             cursor: pointer;
         }
+        
         .profile-delete:hover{
             background-color: red;
             color: white;
             border: none;
             cursor: pointer;
+        }
+        .profile-item.active{
+            background-color: aqua;
         }
     }
     .profile-right{
@@ -101,9 +110,12 @@
                 }
             }
         }
-
+        input{
+            border: none;
+            height: 30px;
+        }
         .name-container{
-
+            margin-top: 10px;
 
             input{
             width: 90%;
@@ -123,7 +135,16 @@
         .email-container{
             margin-top: 10px;
             input{
-                width: 90%;
+                
+                width: 80%;
+            }
+            button{
+                // margin-left: 5px;
+                width: 10%;
+                height: 30px;
+                text-align: center;
+                font-size: 40%;
+                border-radius: 10px;
             }
         }
         .social-container{
@@ -138,7 +159,7 @@
                 .social-add{
                     display: flex;
                     justify-content: center;
-                    gap: 10px;
+                    gap: 1.5%;
                     .social-platform{
                         width: 20%;
                     }
@@ -149,7 +170,7 @@
                         text-align: center;
                         font-size: 30%;
                         font-weight: bolder;
-                        width: 5%;
+                        width: 7%;
                     }
                 }
             }
@@ -159,31 +180,78 @@
                 flex-direction: column;
                 list-style-type: none;
                 font-size: 50%;
-                margin: 0 20px;
-                padding:0 20px ;
-                gap:5px;
-                li{
+                // margin: 0 10px;
+                margin-top: 10px;
+                margin-block-start: 0;
+                margin-block-end: 0;
+                padding-inline-start: 0;
+                // gap:5px;
+                width: 100%;
+                
+
+                .social-list-component{
+                    margin-top: 10px;
+                    width: 100%;
                     display: flex;
                     align-items: center;
-                    margin-top: 5px;
-                    width: 30%;
-                    border:none;
-                    background-color: rgb(185, 180, 180);
-                    transition: background-color 0.5s ease-in-out;
-                }
-                a{
-                    text-decoration: none;
-                    font-weight: bolder;
-                    font-size: 80%;
-                    color: rgb(6, 152, 152);
-                    
-                    
-                }
-                li:hover{
-                    background-color: darkgreen;
-                    a{
-                        color:white;
+                    // justify-content: center;
+                    .social-edit{
+                        display: flex;
+                        gap: 10px;
+                        width: 100%;
+                        justify-content: center;
+                        .social-platform{
+                            width: 20%;
+                        }
+                        .social-link{
+                            width: 60%;
+                        }
+                        button{
+                            text-align: center;
+                            font-size: 60%;
+                            font-weight: bolder;
+                            width: 5%;
+                            
+                        }
                     }
+                    .social-display{
+                        width: 100%;
+                        display: flex;
+                        margin-left: 5px;
+
+                        li{
+                            display: flex;
+                            align-items: center;
+                            margin-top: 5px;
+                            width: 30%;
+                            height: 20px;
+                            border:none;
+                            background-color: rgb(185, 180, 180);
+                            transition: background-color 0.5s ease-in-out;
+                        }
+                        a{
+                            text-decoration: none;
+                            font-weight: bolder;
+                            font-size: 80%;
+                            color: rgb(6, 152, 152);
+                            
+                            
+                        }
+                        button{
+                            text-align: center;
+                            font-size: 80%;
+                            font-weight: bolder;
+                            width: 5%;
+                            padding-left: 2px;
+                        }
+                        li:hover{
+                            background-color: darkgreen;
+                            a{
+                                color:white;
+                            }
+                        }
+                    }
+                    
                 }
             }
         }

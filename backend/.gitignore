@@ -22,6 +22,8 @@ web/WEB-INF/env.txt
 **/web/WEB-INF/env.txt
 *env.txt
 src/java/dal/DBContext.java
+/src/java/dal/DBContext.java
+web/WEB-INF/env.txt
 
 ### NetBeans ###
 /nbproject/genfiles.properties
@@ -36,3 +38,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+###env###
+.env
+config.properties
+*.properties

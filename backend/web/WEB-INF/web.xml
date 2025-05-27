@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-         version="3.1">
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+    <servlet>
+        <servlet-name>UserProfileEdit</servlet-name>
+        <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CreatePost</servlet-name>
+        <servlet-class>controller.Post.CreatePost</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserProfileEdit</servlet-name>
+        <url-pattern>/api/user-profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreatePost</servlet-name>
+        <url-pattern>/api/create-post</url-pattern>
+    </servlet-mapping>
 </web-app>
