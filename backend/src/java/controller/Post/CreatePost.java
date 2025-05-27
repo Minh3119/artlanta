@@ -14,9 +14,12 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Map;
 import model.Post;
 import validation.EnvConfig;
+import org.json.JSONObject;
+import util.JsonUtil;
 
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,
@@ -24,11 +27,6 @@ import validation.EnvConfig;
     maxRequestSize = 1024 * 1024 * 50   
 )
 public class CreatePost extends HttpServlet {
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -41,60 +39,105 @@ public class CreatePost extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        // Set CORS headers
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        String title = request.getParameter("title");
-        String content = request.getParameter("content");
-        String visibility = request.getParameter("visibility");
-
-        Part filePart = request.getPart("file");
-        //test session
-        PostDAO pd = new PostDAO();
-        HttpSession session = request.getSession();
-        EnvConfig config= new EnvConfig(getServletContext());
         
-        session.setAttribute("userID", 11);
-        String imageUrl = null;
-        if (filePart != null && filePart.getSize() > 0) {
-            try (InputStream fileStream = filePart.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+        try {
+            // Get parameters
+            String title = request.getParameter("title");
+            String content = request.getParameter("content");
+            String visibility = request.getParameter("visibility");
+            boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
 
-                byte[] data = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, bytesRead);
-                }
-                byte[] fileBytes = buffer.toByteArray();
-
-                Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                        "cloud_name", config.getProperty("my_cloud_name"),
-                        "api_key", config.getProperty("my_key"),
-                        "api_secret", config.getProperty("my_secret")
-                ));
-
-                Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("resource_type", "image"));
-                imageUrl = uploadResult.get("secure_url").toString();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi upload ảnh lên Cloudinary: " + e.getMessage());
+            // Validate required fields
+            if (title == null || title.trim().isEmpty() || 
+                content == null || content.trim().isEmpty() ||
+                visibility == null || visibility.trim().isEmpty()) {
+                JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
-        }
 
-        int userID=11;
-        Post post = new Post(userID, title, content, imageUrl, visibility);
-        try {
+            // Get user from session
+            HttpSession session = request.getSession();
+            Integer userID = (Integer) session.getAttribute("userID");
+            if (userID == null) {
+                JsonUtil.writeJsonError(response, "User not logged in");
+                return;
+            }
+
+            // Handle file upload if present
+            Part filePart = request.getPart("file");
+            String imageUrl = null;
+            if (filePart != null && filePart.getSize() > 0) {
+                try (InputStream fileStream = filePart.getInputStream(); 
+                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+                    byte[] data = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+                    byte[] fileBytes = buffer.toByteArray();
+
+                    EnvConfig config = new EnvConfig(getServletContext());
+                    Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+                            "cloud_name", config.getProperty("my_cloud_name"),
+                            "api_key", config.getProperty("my_key"),
+                            "api_secret", config.getProperty("my_secret")
+                    ));
+
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("resource_type", "image"));
+                    imageUrl = uploadResult.get("secure_url").toString();
+                } catch (Exception e) {
+                    JsonUtil.writeJsonError(response, "Error uploading image: " + e.getMessage());
+                    return;
+                }
+            }
+
+            // Create post object
+            Post post = new Post(
+                0, // ID will be generated by database
+                userID,
+                title,
+                content,
+                isDraft,
+                visibility,
+                LocalDateTime.now(),
+                null, // UpdatedAt is null for new post
+                false // IsDeleted is false for new post
+            );
+
+            // Save post to database
+            PostDAO pd = new PostDAO();
             pd.createPost(post);
+
+            // Create success response
+            JSONObject jsonPost = new JSONObject();
+            jsonPost.put("title", post.getTitle());
+            jsonPost.put("content", post.getContent());
+            jsonPost.put("visibility", post.getVisibility());
+            jsonPost.put("isDraft", post.isDraft());
+            if (imageUrl != null) {
+                jsonPost.put("imageUrl", imageUrl);
+            }
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("success", true);
+            jsonResponse.put("message", "Post created successfully");
+            jsonResponse.put("post", jsonPost);
+
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+
         } catch (Exception e) {
             e.printStackTrace();
+            JsonUtil.writeJsonError(response, "Error creating post: " + e.getMessage());
         }
-
     }
 
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 }

@@ -56,9 +56,9 @@ public class UserServlet extends HttpServlet {
 
        // Respond
        JSONObject jsonUser = new JSONObject();
-       jsonUser.put("id", user.getId());
+       jsonUser.put("id", user.getID());
        jsonUser.put("username", user.getUsername());
-       jsonUser.put("displayName", user.getDisplayName());
+       jsonUser.put("displayName", user.getFullName());
        jsonUser.put("bio", user.getBio());
 
        JSONObject jsonResponse = new JSONObject();
