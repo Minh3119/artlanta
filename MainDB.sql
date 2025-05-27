@@ -1,77 +1,65 @@
--- DROP & CREATE DATABASE s
-DROP DATABASE IF EXISTS ARTLANTA;
+-- DROP & CREATE DATABASE
+IF DB_ID('ARTLANTA') IS NOT NULL
+    DROP DATABASE ARTLANTA;
+GO
 CREATE DATABASE ARTLANTA;
+GO
 USE ARTLANTA;
+GO
 
--- Main Media Link -- 
-
+-- Media
 CREATE TABLE Media (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     URL VARCHAR(255) NOT NULL,
     Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    CreatedAt DATETIME DEFAULT GETDATE()
 );
 
-
-
--- USERS
+-- Users
 CREATE TABLE Users (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    Username VARCHAR(50) UNIQUE NOT NULL,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    UserName VARCHAR(50) UNIQUE NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100),
     Bio VARCHAR(255),
     AvatarURL VARCHAR(255),
-    Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
+    Gender BIT DEFAULT 0,
     DOB DATETIME,
     Location VARCHAR(255),
     Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'STAFF')),
     Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE', 'BANNED', 'DEACTIVATED')),
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     LastLogin DATETIME,
-    IsPrivate BOOLEAN DEFAULT 0
+    IsPrivate BIT DEFAULT 0
 );
 
-/* PASSWORD RESET -- Beta
-CREATE TABLE PasswordReset (
-   ID INT PRIMARY KEY IDENTITY(1,1),
-   UserID INT NOT NULL,
-   Token NVARCHAR(255) NOT NULL,
-   Expiry DATETIME NOT NULL,
-   IsCaptchaVerified BOOLEAN DEFAULT 0,
-   FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
-)  */
-
--- PORTFOLIO
+-- Portfolio
 CREATE TABLE Portfolio (
     ArtistID INT PRIMARY KEY,
     Title VARCHAR(100),
     Description VARCHAR(500),
     CoverURL VARCHAR(255),
     Achievements VARCHAR(1000),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (ArtistID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
--- POSTS
+-- Posts
 CREATE TABLE Posts (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT NOT NULL,
     Title VARCHAR(100),
     Content VARCHAR(1000),
-    IsDraft BOOLEAN DEFAULT 0,
+    IsDraft BIT DEFAULT 0,
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME,
-    IsDeleted BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
--- Multi Media URL -- bắt buộc để đảm bảo khóa
-
--- bảng nối với Post
+-- PostMedia
 CREATE TABLE PostMedia (
     PostID INT,
     MediaID INT,
@@ -80,70 +68,64 @@ CREATE TABLE PostMedia (
     FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
 );
 
--- bảng nối với Portfolio
+-- PortfolioMedia
 CREATE TABLE PortfolioMedia (
-    ArtistID INT, -- trùng với Portfolio.ArtistID
+    ArtistID INT,
     MediaID INT,
     PRIMARY KEY (ArtistID, MediaID),
     FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
     FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
 );
 
-
--- COMMENTS
+-- Comments
 CREATE TABLE Comments (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     PostID INT NOT NULL,
     UserID INT NOT NULL,
     Content VARCHAR(1000),
     MediaURL VARCHAR(255),
     ParentID INT,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    IsDeleted BOOLEAN DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    IsDeleted BIT DEFAULT 0,
     FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(ParentID) REFERENCES Comments(ID)
 );
 
-
--- LIKES
+-- Likes
 CREATE TABLE Likes (
     UserID INT,
     PostID INT,
-    LikedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    LikedAt DATETIME DEFAULT GETDATE(),
     PRIMARY KEY(UserID, PostID),
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
--- SAVED POSTS
+-- SavedPost
 CREATE TABLE SavedPost (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
     PostID INT,
-    SavedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    SavedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
-
-
-
-
--- FOLLOWS
+-- Follows
 CREATE TABLE Follows (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     FollowerID INT,
     FollowingID INT,
     Status VARCHAR(10) DEFAULT 'ACCEPTED' CHECK (Status IN ('PENDING', 'ACCEPTED', 'REJECT')),
-    FollowAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FollowAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(FollowerID) REFERENCES Users(ID),
     FOREIGN KEY(FollowingID) REFERENCES Users(ID)
 );
 
--- COMMISSION PRICING
+-- CommissionPricing
 CREATE TABLE CommissionPricing (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     ArtistID INT,
     Title VARCHAR(100),
     Description VARCHAR(500),
@@ -152,221 +134,181 @@ CREATE TABLE CommissionPricing (
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- COMMISSION REQUESTS
+-- CommissionRequest
 CREATE TABLE CommissionRequest (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     ClientID INT,
     ArtistID INT,
     Title VARCHAR(100),
     Description VARCHAR(1000),
     ReferenceURL VARCHAR(255),
-    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    RequestAt DATETIME DEFAULT GETDATE(),
     Status VARCHAR(20) DEFAULT 'PENDING' CHECK (Status IN ('PENDING', 'APPROVED', 'REJECTED')),
     FOREIGN KEY(ClientID) REFERENCES Users(ID),
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- PAYMENT
+-- Payment
 CREATE TABLE Payment (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     Price INT NOT NULL,
     Type VARCHAR(20) DEFAULT 'VietQR' CHECK (Type IN ('Paypal', 'ATM', 'VietQR')),
     Tax INT DEFAULT 5
 );
 
--- COMMISSIONS
+-- Commission
 CREATE TABLE Commission (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     RequestID INT NOT NULL,
     PaymentID INT,
     Deadline DATETIME,
     Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
     FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
 );
 
--- COMMISSION PROGRESS
+-- CommissionProgress
 CREATE TABLE CommissionProgress (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     CommissionID INT,
     Note VARCHAR(1000),
     MediaURL VARCHAR(255),
-    ProgressAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ProgressAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID)
 );
 
--- REVIEWS
+-- Review
 CREATE TABLE Review (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     CommissionID INT,
     ReviewerID INT,
     Rating INT CHECK (Rating BETWEEN 1 AND 5),
     Comment VARCHAR(1000),
-    ReviewAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ReviewAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
     FOREIGN KEY(ReviewerID) REFERENCES Users(ID)
 );
 
--- REPORTS -- Đang thử rút ngắn report user, post xem sao
+-- Report
 CREATE TABLE Report (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     ReporterID INT,
     TargetUserID INT,
     TargetPostID INT,
     Reason VARCHAR(255),
-    ReportAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ReportAt DATETIME DEFAULT GETDATE(),
     Status VARCHAR(20) DEFAULT 'PENDING',
     FOREIGN KEY(ReporterID) REFERENCES Users(ID),
     FOREIGN KEY(TargetUserID) REFERENCES Users(ID),
     FOREIGN KEY(TargetPostID) REFERENCES Posts(ID)
 );
 
--- NOTIFICATIONS
+-- Notifications
 CREATE TABLE Notifications (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
     Type VARCHAR(20),
     Content VARCHAR(255),
     PostID INT,
-    IsRead BOOLEAN DEFAULT 0,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsRead BIT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
--- SETTINGS
+-- UserSettings
 CREATE TABLE UserSettings (
     UserID INT PRIMARY KEY,
-    NotifyLike BOOLEAN DEFAULT 1,
-    NotifyComment BOOLEAN DEFAULT 1,
-    NotifyCommission BOOLEAN DEFAULT 1,
+    NotifyLike BIT DEFAULT 1,
+    NotifyComment BIT DEFAULT 1,
+    NotifyCommission BIT DEFAULT 1,
     Language VARCHAR(10) DEFAULT 'vn',
     FOREIGN KEY(UserID) REFERENCES Users(ID)
 );
 
-
--- HISTORY
+-- UserHistory
 CREATE TABLE UserHistory (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
     PostID INT,
     ArtistID INT,
-    ViewedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ViewedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID),
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
+-- UserSocialLinks
 CREATE TABLE UserSocialLinks (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT NOT NULL,
     Platform VARCHAR(50) NOT NULL,
-    # nếu muốn chỉ giới hạn thì Platform VARCHAR(50) CHECK (Platform IN ('Instagram', 'Twitter', 'Facebook', 'ArtStation', 'DeviantArt'))
     URL VARCHAR(255) NOT NULL,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
--- TAG SYSTEM -DANG TEST
-/*
-CREATE TABLE Tags (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    Name VARCHAR(50) UNIQUE NOT NULL
-);
-
-CREATE TABLE ArtTags ( --Style
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    TagName VARCHAR(100) NOT NULL UNIQUE,
-    Description VARCHAR(255)
-);
-
-CREATE TABLE PortfolioTags (
-    ArtistID INT NOT NULL, --
-    TagID INT NOT NULL,
-    PRIMARY KEY (ArtistID, TagID),
-    FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
-    FOREIGN KEY (TagID) REFERENCES ArtTags(ID) ON DELETE CASCADE
-);
-
-CREATE TABLE UserTags ( --@
-    UserID INT NOT NULL,
-    TagID INT NOT NULL,
-    PRIMARY KEY (UserID, TagID),
-    FOREIGN KEY (UserID) REFERENCES Users(ID),
-    FOREIGN KEY (TagID) REFERENCES Tags(ID)
-);
-
-CREATE TABLE PostTags ( --#
-    PostID INT NOT NULL,
-    TagID INT NOT NULL,
-    PRIMARY KEY (PostID, TagID),
-    FOREIGN KEY (PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
-    FOREIGN KEY (TagID) REFERENCES ArtTags(ID) ON DELETE CASCADE
-);
 
 
-CREATE TABLE TRIGGERTIME (
-	TIME DATETIME,
-    
-
-)
-*/
--- TRIGGER: recursive delete for child comments
-DELIMITER $$
-CREATE TRIGGER trg_DeleteChildComments
-AFTER DELETE ON Comments
-FOR EACH ROW
+GO
+CREATE TRIGGER DeleteChildComments
+ON Comments
+AFTER DELETE
+AS
 BEGIN
-    DECLARE done INT DEFAULT FALSE;
-    DECLARE current_id INT;
-    DECLARE cur CURSOR FOR SELECT ID FROM Comments WHERE ParentID = OLD.ID;
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    SET NOCOUNT ON;
 
-    OPEN cur;
-    read_loop: LOOP
-        FETCH cur INTO current_id;
-        IF done THEN
-            LEAVE read_loop;
-        END IF;
-        DELETE FROM Comments WHERE ID = current_id;
-    END LOOP;
-    CLOSE cur;
-END $$
-DELIMITER ;
+    DECLARE @DeletedComments TABLE (ID INT PRIMARY KEY);
 
+    INSERT INTO @DeletedComments(ID)
+    SELECT ID FROM deleted;
+
+    WHILE EXISTS (
+        SELECT 1 FROM Comments c
+        INNER JOIN @DeletedComments d ON c.ParentID = d.ID
+        WHERE c.ID NOT IN (SELECT ID FROM @DeletedComments)
+    )
+    BEGIN
+        INSERT INTO @DeletedComments(ID)
+        SELECT c.ID
+        FROM Comments c
+        INNER JOIN @DeletedComments d ON c.ParentID = d.ID
+        WHERE c.ID NOT IN (SELECT ID FROM @DeletedComments);
+    END
+
+    DELETE FROM Comments WHERE ID IN (SELECT ID FROM @DeletedComments);
+END;
+GO
 
 -- SAMPLE DATA--
 
-INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
+INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt, DOB)
 VALUES
-('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://res-console.cloudinary.com/drlgu6lyi/thumbnails/v1/image/upload/v1742189906/c3JnZGhibHQ2OHBiZTFlaW1vd2I=/drilldown', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
-('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01'),
-('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
-('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
-('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
-('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
-('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
-('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
-('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05'),
-('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'kevin.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-10'),
-('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11'),
-('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'brian.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12'),
-('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'amanda.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-13'),
-('karen_yoga', 'karen.yoga@yogalife.com', 'yog4pass', 'Karen', 'Hướng dẫn viên yoga.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-22'),
-('tom_cars', 'tom.cars@auto.com', 'c@rlover', 'Tom', 'Sưu tầm siêu xe.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'BANNED', 'CLIENT', 1, '2025-03-15'),
-('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16'),
-('ryan_gamer', 'ryan.gamer@gamemail.com', 'g@m3rpass', 'Ryan', 'Stream game hằng đêm.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'CLIENT', 1, '2025-03-17'),
-('adam_smith', 'adam.smith@finance.com', 'Fin@nc3Gur#', 'Adam', 'Chuyên gia tài chính và đầu tư.', 'adam.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-18'),
-('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'STAFF', 1, '2025-03-19'),
-('carter_music', 'carter.music@melody.com', 'MusiC!an#99', 'Carter', 'Nghệ sĩ piano và sáng tác nhạc.', 'carter.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-20'),
-('daniel.photography', 'daniel.photo@shutter.com', 'Ph0t0Mast3r!', 'Daniel', 'Nhiếp ảnh gia chuyên nghiệp.', 'daniel.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-21'),
-('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'STAFF', 0, '2025-03-22'),
-('frank_eng.ineer', 'frank.engineer@tech.com', 'Eng!neerG33k', 'Frank', 'Kỹ sư phần mềm AI.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJFNw2dvGVLIG-Qh559mcsfcLRIwXZyXPAA&s', 'ACTIVE', 'ADMIN', 1, '2025-03-22'),
-('geo.rge_dev', 'george.dev@coding.com', 'C0d3Rul3s!', 'George', 'Fullstack developer.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYuP4IuXCruH6lqkPEfXG4f4aQE0hZ5e-1xUWrS5ZHRoCvopYXQENKSFI8LBBrp1vSNE&usqp=CAU', 'ACTIVE', 'CLIENT', 1, '2025-03-22'),
-('harry.sports', 'harry.sports@fitness.com', 'F1tn3sP@ss!', 'Harry', 'Huấn luyện viên thể hình.', 'https://www.caythuocdangian.com/wp-content/uploads/avatar-anime-1.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
-('isabe.lla_fashion', 'isabella.fashion@trend.com', 'Tr3ndyL00k!', 'Isabella', 'Fashionista và blogger.', NULL, 'ACTIVE', 'CLIENT', 0, '2025-03-06'),
-('jack_gaming', 'jack.gaming@stream.com', 'G@mingLif3!', 'Jack', 'Game thủ eSports.', 'jack.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-07');
+('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://res-console.cloudinary.com/drlgu6lyi/thumbnails/v1/image/upload/v1742189906/c3JnZGhibHQ2OHBiZTFlaW1vd2I=/drilldown', 'ACTIVE', 'CLIENT', 0, '2025-02-28', '1975-01-12'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01', '1988-03-22'),
+('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01', '1992-07-15'),
+('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01', '1985-11-30'),
+('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04', '1990-04-08'),
+('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05', '1995-06-20'),
+('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04', '1998-09-18'),
+('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07', '1993-03-11'),
+('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-08', '1987-07-21'),
+('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05', '1991-02-14'),
+('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'kevin.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-10', '1996-01-09'),
+('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11', '1994-10-05'),
+('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'brian.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12', '1982-05-16'),
+('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'amanda.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-13', '1997-08-30'),
+('karen_yoga', 'karen.yoga@yogalife.com', 'yog4pass', 'Karen', 'Hướng dẫn viên yoga.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-22', '1989-06-01'),
+('tom_cars', 'tom.cars@auto.com', 'c@rlover', 'Tom', 'Sưu tầm siêu xe.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'BANNED', 'CLIENT', 1, '2025-03-15', '1980-12-03'),
+('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16', '1979-09-29'),
+('ryan_gamer', 'ryan.gamer@gamemail.com', 'g@m3rpass', 'Ryan', 'Stream game hằng đêm.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'CLIENT', 1, '2025-03-17', '2000-04-23'),
+('adam_smith', 'adam.smith@finance.com', 'Fin@nc3Gur#', 'Adam', 'Chuyên gia tài chính và đầu tư.', 'adam.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-18', '1984-03-10'),
+('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'STAFF', 1, '2025-03-19', '1993-12-11'),
+('carter_music', 'carter.music@melody.com', 'MusiC!an#99', 'Carter', 'Nghệ sĩ piano và sáng tác nhạc.', 'carter.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-20', '1990-05-24'),
+('daniel.photography', 'daniel.photo@shutter.com', 'Ph0t0Mast3r!', 'Daniel', 'Nhiếp ảnh gia chuyên nghiệp.', 'daniel.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-21', '1986-07-14'),
+('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'STAFF', 0, '2025-03-22', '1992-08-03'),
+('frank_eng.ineer', 'frank.engineer@tech.com', 'Eng!neerG33k', 'Frank', 'Kỹ sư phần mềm AI.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJFNw2dvGVLIG-Qh559mcsfcLRIwXZyXPAA&s', 'ACTIVE', 'ADMIN', 1, '2025-03-22', '1983-02-02'),
+('geo.rge_dev', 'george.dev@coding.com', 'C0d3Rul3s!', 'George', 'Fullstack developer.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYuP4IuXCruH6lqkPEfXG4f4aQE0hZ5e-1xUWrS5ZHRoCvopYXQENKSFI8LBBrp1vSNE&usqp=CAU', 'ACTIVE', 'CLIENT', 1, '2025-03-22', '1991-09-01');
 
 
 

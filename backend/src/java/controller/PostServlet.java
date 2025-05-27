@@ -28,9 +28,9 @@ public class PostServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-        // Parse ID từ URL: /api/post/5
+
         int postId = -1;
-        String pathInfo = request.getPathInfo(); // ví dụ: "/5"
+        String pathInfo = request.getPathInfo(); 
         if (pathInfo != null && pathInfo.length() > 1) {
             String idStr = pathInfo.substring(1);
             try {
