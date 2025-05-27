@@ -1,7 +1,6 @@
 package controller.Post;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +9,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import dal.PostDAO;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -20,7 +18,9 @@ import model.Post;
 import validation.EnvConfig;
 import org.json.JSONObject;
 import util.JsonUtil;
+import jakarta.servlet.annotation.WebServlet;
 
+@WebServlet("/api/post/create")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2,
     maxFileSize = 1024 * 1024 * 10,   
@@ -28,25 +28,36 @@ import util.JsonUtil;
 )
 public class CreatePost extends HttpServlet {
 
+    private void setCorsHeaders(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Max-Age", "3600");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        setCorsHeaders(response);
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        out.println("<h1>API is working</h1>");
+        setCorsHeaders(response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JsonUtil.writeJsonError(response, "POST method required");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        setCorsHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
-        // Set CORS headers
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
         
         try {
             // Get parameters
@@ -64,8 +75,7 @@ public class CreatePost extends HttpServlet {
             }
 
             // Get user from session
-            HttpSession session = request.getSession();
-            Integer userID = (Integer) session.getAttribute("userID");
+            Integer userID = (Integer) request.getSession().getAttribute("userID");
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
@@ -128,9 +138,7 @@ public class CreatePost extends HttpServlet {
             }
 
             JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("success", true);
-            jsonResponse.put("message", "Post created successfully");
-            jsonResponse.put("post", jsonPost);
+            jsonResponse.put("response", jsonPost);
 
             JsonUtil.writeJsonResponse(response, jsonResponse);
 
