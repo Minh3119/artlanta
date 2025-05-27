@@ -49,11 +49,11 @@ public class UserServlet extends HttpServlet {
             
             for (User user : users) {
                 JSONObject jsonUser = new JSONObject();
-                jsonUser.put("id", user.getId());
+                jsonUser.put("id", user.getID());
                 jsonUser.put("username", user.getUsername());
                 jsonUser.put("displayName", user.getFullName());
                 jsonUser.put("bio", user.getBio());
-                jsonUser.put("avatarUrl", user.getAvatarUrl());
+                jsonUser.put("avatarUrl", user.getAvatarURL());
                 jsonUser.put("location", user.getLocation());
                 jsonUser.put("language", user.getLanguage());
                 jsonUser.put("createdAt", user.getCreatedAt().toString());
@@ -95,11 +95,11 @@ public class UserServlet extends HttpServlet {
 
         // Respond
         JSONObject jsonUser = new JSONObject();
-        jsonUser.put("id", user.getId());
+        jsonUser.put("id", user.getID());
         jsonUser.put("username", user.getUsername());
         jsonUser.put("fullname", user.getFullName());
         jsonUser.put("bio", user.getBio());
-        jsonUser.put("avatarUrl", user.getAvatarUrl());
+        jsonUser.put("avatarUrl", user.getAvatarURL());
         jsonUser.put("location", user.getLocation());
         jsonUser.put("language", user.getLanguage());
         jsonUser.put("createdAt", user.getCreatedAt().toString());

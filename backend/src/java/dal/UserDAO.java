@@ -93,7 +93,7 @@ public class UserDAO extends DBContext {
 
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users";
+        String sql = "SELECT * FROM Users WHERE Status = 'ACTIVE";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
@@ -160,4 +160,42 @@ public class UserDAO extends DBContext {
         }
         return user;
     }
+
+    public List<User> getByRole(String role) {
+        List<User> list = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Users WHERE Role = ? AND Status = 'ACTIVE'";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, role.toUpperCase());
+            ResultSet rs = st.executeQuery();
+            
+            while (rs.next()) {
+                User user = new User(
+                    rs.getInt("ID"),
+                    rs.getString("Username"),
+                    rs.getString("Email"),
+                    rs.getString("PasswordHash"),
+                    rs.getString("FullName"),
+                    rs.getString("Bio"),
+                    rs.getString("AvatarURL"),
+                    rs.getBoolean("Gender"),
+                    rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                    rs.getString("Location"),
+                    rs.getString("Role"),
+                    rs.getString("Status"),
+                    rs.getString("Language"),
+                    rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                    rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                    rs.getBoolean("IsFlagged")
+                );
+                list.add(user);
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }

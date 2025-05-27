@@ -106,4 +106,64 @@ public class User {
         return isFlagged;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setAvatarURL(String avatarURL) {
+        this.avatarURL = avatarURL;
+    }
+
+    public void setGender(boolean gender) {
+        this.gender = gender;
+    }
+
+    public void setDOB(LocalDateTime dOB) {
+        DOB = dOB;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public void setFlagged(boolean isFlagged) {
+        this.isFlagged = isFlagged;
+    }
+
 }
