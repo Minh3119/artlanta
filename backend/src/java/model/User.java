@@ -1,7 +1,5 @@
 package model;
 
-import java.util.List;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 public class User {
