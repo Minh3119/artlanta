@@ -8,6 +8,8 @@
         "backend\\lib\\jakarta.servlet-api-5.0.0.jar",
         "backend\\lib\\json-20240303.jar",
         "backend\\lib\\jstl-1.2.jar",
-        "backend\\lib\\mysql-connector-j-9.3.0.jar"
+        "backend\\lib\\mysql-connector-j-9.3.0.jar",
+        "backend\\lib\\cloudinary-core-1.32.0.jar",
+        "backend\\lib\\cloudinary-http44-1.35.0.jar"
     ]
 }

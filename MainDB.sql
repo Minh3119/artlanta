@@ -31,6 +31,7 @@ CREATE TABLE Users (
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     LastLogin DATETIME,
+    IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
 
@@ -65,7 +66,7 @@ CREATE TABLE Posts (
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt DATETIME,
-    IsDeleted BOOLEAN DEFAULT 0,
+    IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
@@ -383,7 +384,7 @@ INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, Cre
 (10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu khác nhau.', 'cover10.jpg', 'Tác phẩm trưng bày tại bảo tàng', '2025-04-10');
 
 
-INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsDeleted) VALUES
+INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsFlagged) VALUES
 (1, 'Bài viết giới thiệu', 'Đây là bài giới thiệu đầu tiên.', 0, 'PUBLIC', '2025-04-10', NULL, 0),
 (2, 'Quá trình sáng tác', 'Chia sẻ quá trình làm tranh.', 0, 'PUBLIC', '2025-04-11', NULL, 0),
 (3, 'Mẹo vẽ phong cảnh', 'Hướng dẫn vẽ phong cảnh cơ bản.', 1, 'PRIVATE', '2025-04-12', NULL, 0),
@@ -397,7 +398,7 @@ INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, Updat
 
 
 
-INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsDeleted) VALUES
+INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsFlagged) VALUES
 (1, 2, 'Bài viết rất hữu ích!', NULL, NULL, '2025-04-20', 0),
 (1, 3, 'Mình thích phần hướng dẫn.', NULL, NULL, '2025-04-20', 0),
 (2, 4, 'Cảm ơn bạn đã chia sẻ.', NULL, NULL, '2025-04-21', 0),

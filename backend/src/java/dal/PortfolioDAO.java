@@ -15,13 +15,14 @@ public class PortfolioDAO extends DBContext {
             ResultSet rs = st.executeQuery();
             
             if (rs.next()) {
-                Portfolio portfolio = new Portfolio();
-                portfolio.setArtistId(rs.getInt("ArtistID"));
-                portfolio.setTitle(rs.getString("Title"));
-                portfolio.setDescription(rs.getString("Description"));
-                portfolio.setCoverUrl(rs.getString("CoverURL"));
-                portfolio.setAchievements(rs.getString("Achievements"));
-                portfolio.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                Portfolio portfolio = new Portfolio(
+                    rs.getInt("ArtistID"),
+                    rs.getString("Title"),
+                    rs.getString("Description"), 
+                    rs.getString("CoverURL"),
+                    rs.getString("Achievements"),
+                    rs.getTimestamp("CreatedAt").toLocalDateTime()
+                );
                 return portfolio;
             }
         } catch (SQLException e) {

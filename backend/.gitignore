@@ -21,8 +21,6 @@ target/
 web/WEB-INF/env.txt
 **/web/WEB-INF/env.txt
 *env.txt
-src/java/dal/DBContext.java
-/src/java/dal/DBContext.java
 web/WEB-INF/env.txt
 
 ### NetBeans ###
