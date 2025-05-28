@@ -1,67 +1,78 @@
--- DROP & CREATE DATABASE
-IF DB_ID('ARTLANTA') IS NOT NULL
-    DROP DATABASE ARTLANTA;
-GO
+-- DROP & CREATE DATABASE s
+DROP DATABASE IF EXISTS ARTLANTA;
 CREATE DATABASE ARTLANTA;
-GO
 USE ARTLANTA;
-GO
 
--- Media
+-- Main Media Link -- 
+
 CREATE TABLE Media (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     URL VARCHAR(255) NOT NULL,
     Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Users
+
+
+-- USERS
 CREATE TABLE Users (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
-    UserName VARCHAR(50) UNIQUE NOT NULL,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100),
     Bio VARCHAR(255),
     AvatarURL VARCHAR(255),
-    Gender BIT DEFAULT 0,
+    Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
     DOB DATETIME,
     Location VARCHAR(255),
     Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'STAFF')),
     Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE', 'BANNED', 'DEACTIVATED')),
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     LastLogin DATETIME,
     IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
 
--- Portfolio
+/* PASSWORD RESET -- Beta
+CREATE TABLE PasswordReset (
+   ID INT PRIMARY KEY IDENTITY(1,1),
+   UserID INT NOT NULL,
+   Token NVARCHAR(255) NOT NULL,
+   Expiry DATETIME NOT NULL,
+   IsCaptchaVerified BOOLEAN DEFAULT 0,
+   FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
+)  */
+
+-- PORTFOLIO
 CREATE TABLE Portfolio (
     ArtistID INT PRIMARY KEY,
     Title VARCHAR(100),
     Description VARCHAR(500),
     CoverURL VARCHAR(255),
     Achievements VARCHAR(1000),
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ArtistID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
--- Posts
+-- POSTS
 CREATE TABLE Posts (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
     Title VARCHAR(100),
     Content VARCHAR(1000),
-    IsDraft BIT DEFAULT 0,
+    IsDraft BOOLEAN DEFAULT 0,
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt DATETIME,
     IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
--- PostMedia
+-- Multi Media URL -- bắt buộc để đảm bảo khóa
+
+-- bảng nối với Post
 CREATE TABLE PostMedia (
     PostID INT,
     MediaID INT,
@@ -70,64 +81,70 @@ CREATE TABLE PostMedia (
     FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
 );
 
--- PortfolioMedia
+-- bảng nối với Portfolio
 CREATE TABLE PortfolioMedia (
-    ArtistID INT,
+    ArtistID INT, -- trùng với Portfolio.ArtistID
     MediaID INT,
     PRIMARY KEY (ArtistID, MediaID),
     FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
     FOREIGN KEY (MediaID) REFERENCES Media(ID) ON DELETE CASCADE
 );
 
--- Comments
+
+-- COMMENTS
 CREATE TABLE Comments (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     PostID INT NOT NULL,
     UserID INT NOT NULL,
     Content VARCHAR(1000),
     MediaURL VARCHAR(255),
     ParentID INT,
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(ParentID) REFERENCES Comments(ID)
 );
 
--- Likes
+
+-- LIKES
 CREATE TABLE Likes (
     UserID INT,
     PostID INT,
-    LikedAt DATETIME DEFAULT GETDATE(),
+    LikedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(UserID, PostID),
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
--- SavedPost
+-- SAVED POSTS
 CREATE TABLE SavedPost (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
     PostID INT,
-    SavedAt DATETIME DEFAULT GETDATE(),
+    SavedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
--- Follows
+
+
+
+
+-- FOLLOWS
 CREATE TABLE Follows (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     FollowerID INT,
     FollowingID INT,
     Status VARCHAR(10) DEFAULT 'ACCEPTED' CHECK (Status IN ('PENDING', 'ACCEPTED', 'REJECT')),
-    FollowAt DATETIME DEFAULT GETDATE(),
+    FollowAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(FollowerID) REFERENCES Users(ID),
     FOREIGN KEY(FollowingID) REFERENCES Users(ID)
 );
 
--- CommissionPricing
+-- COMMISSION PRICING
 CREATE TABLE CommissionPricing (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     ArtistID INT,
     Title VARCHAR(100),
     Description VARCHAR(500),
@@ -136,155 +153,192 @@ CREATE TABLE CommissionPricing (
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- CommissionRequest
+-- COMMISSION REQUESTS
 CREATE TABLE CommissionRequest (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     ClientID INT,
     ArtistID INT,
     Title VARCHAR(100),
     Description VARCHAR(1000),
     ReferenceURL VARCHAR(255),
-    RequestAt DATETIME DEFAULT GETDATE(),
+    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(20) DEFAULT 'PENDING' CHECK (Status IN ('PENDING', 'APPROVED', 'REJECTED')),
     FOREIGN KEY(ClientID) REFERENCES Users(ID),
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- Payment
+-- PAYMENT
 CREATE TABLE Payment (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     Price INT NOT NULL,
     Type VARCHAR(20) DEFAULT 'VietQR' CHECK (Type IN ('Paypal', 'ATM', 'VietQR')),
     Tax INT DEFAULT 5
 );
 
--- Commission
+-- COMMISSIONS
 CREATE TABLE Commission (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     RequestID INT NOT NULL,
     PaymentID INT,
     Deadline DATETIME,
     Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
     FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
 );
 
--- CommissionProgress
+-- COMMISSION PROGRESS
 CREATE TABLE CommissionProgress (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     CommissionID INT,
     Note VARCHAR(1000),
     MediaURL VARCHAR(255),
-    ProgressAt DATETIME DEFAULT GETDATE(),
+    ProgressAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID)
 );
 
--- Review
+-- REVIEWS
 CREATE TABLE Review (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     CommissionID INT,
     ReviewerID INT,
     Rating INT CHECK (Rating BETWEEN 1 AND 5),
     Comment VARCHAR(1000),
-    ReviewAt DATETIME DEFAULT GETDATE(),
+    ReviewAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
     FOREIGN KEY(ReviewerID) REFERENCES Users(ID)
 );
 
--- Report
+-- REPORTS -- Đang thử rút ngắn report user, post xem sao
 CREATE TABLE Report (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     ReporterID INT,
     TargetUserID INT,
     TargetPostID INT,
     Reason VARCHAR(255),
-    ReportAt DATETIME DEFAULT GETDATE(),
+    ReportAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(20) DEFAULT 'PENDING',
     FOREIGN KEY(ReporterID) REFERENCES Users(ID),
     FOREIGN KEY(TargetUserID) REFERENCES Users(ID),
     FOREIGN KEY(TargetPostID) REFERENCES Posts(ID)
 );
 
--- Notifications
+-- NOTIFICATIONS
 CREATE TABLE Notifications (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
     Type VARCHAR(20),
     Content VARCHAR(255),
     PostID INT,
-    IsRead BIT DEFAULT 0,
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    IsRead BOOLEAN DEFAULT 0,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
--- UserSettings
+-- SETTINGS
 CREATE TABLE UserSettings (
     UserID INT PRIMARY KEY,
-    NotifyLike BIT DEFAULT 1,
-    NotifyComment BIT DEFAULT 1,
-    NotifyCommission BIT DEFAULT 1,
+    NotifyLike BOOLEAN DEFAULT 1,
+    NotifyComment BOOLEAN DEFAULT 1,
+    NotifyCommission BOOLEAN DEFAULT 1,
     Language VARCHAR(10) DEFAULT 'vn',
     FOREIGN KEY(UserID) REFERENCES Users(ID)
 );
 
--- UserHistory
+
+-- HISTORY
 CREATE TABLE UserHistory (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
     PostID INT,
     ArtistID INT,
-    ViewedAt DATETIME DEFAULT GETDATE(),
+    ViewedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID),
     FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- UserSocialLinks
 CREATE TABLE UserSocialLinks (
-    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
     Platform VARCHAR(50) NOT NULL,
+    # nếu muốn chỉ giới hạn thì Platform VARCHAR(50) CHECK (Platform IN ('Instagram', 'Twitter', 'Facebook', 'ArtStation', 'DeviantArt'))
     URL VARCHAR(255) NOT NULL,
-    CreatedAt DATETIME DEFAULT GETDATE(),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
+);
+-- TAG SYSTEM -DANG TEST
+/*
+CREATE TABLE Tags (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE ArtTags ( --Style
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    TagName VARCHAR(100) NOT NULL UNIQUE,
+    Description VARCHAR(255)
+);
+
+CREATE TABLE PortfolioTags (
+    ArtistID INT NOT NULL, --
+    TagID INT NOT NULL,
+    PRIMARY KEY (ArtistID, TagID),
+    FOREIGN KEY (ArtistID) REFERENCES Portfolio(ArtistID) ON DELETE CASCADE,
+    FOREIGN KEY (TagID) REFERENCES ArtTags(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE UserTags ( --@
+    UserID INT NOT NULL,
+    TagID INT NOT NULL,
+    PRIMARY KEY (UserID, TagID),
+    FOREIGN KEY (UserID) REFERENCES Users(ID),
+    FOREIGN KEY (TagID) REFERENCES Tags(ID)
+);
+
+CREATE TABLE PostTags ( --#
+    PostID INT NOT NULL,
+    TagID INT NOT NULL,
+    PRIMARY KEY (PostID, TagID),
+    FOREIGN KEY (PostID) REFERENCES Posts(ID) ON DELETE CASCADE,
+    FOREIGN KEY (TagID) REFERENCES ArtTags(ID) ON DELETE CASCADE
 );
 
 
-GO
-CREATE TRIGGER DeleteChildComments
-ON Comments
-AFTER DELETE
-AS
+CREATE TABLE TRIGGERTIME (
+	TIME DATETIME,
+    
+
+)
+*/
+-- TRIGGER: recursive delete for child comments
+DELIMITER $$
+CREATE TRIGGER trg_DeleteChildComments
+AFTER DELETE ON Comments
+FOR EACH ROW
 BEGIN
-    SET NOCOUNT ON;
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE current_id INT;
+    DECLARE cur CURSOR FOR SELECT ID FROM Comments WHERE ParentID = OLD.ID;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 
-    DECLARE @DeletedComments TABLE (ID INT PRIMARY KEY);
+    OPEN cur;
+    read_loop: LOOP
+        FETCH cur INTO current_id;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        DELETE FROM Comments WHERE ID = current_id;
+    END LOOP;
+    CLOSE cur;
+END $$
+DELIMITER ;
 
-    INSERT INTO @DeletedComments(ID)
-    SELECT ID FROM deleted;
-
-    WHILE EXISTS (
-        SELECT 1 FROM Comments c
-        INNER JOIN @DeletedComments d ON c.ParentID = d.ID
-        WHERE c.ID NOT IN (SELECT ID FROM @DeletedComments)
-    )
-    BEGIN
-        INSERT INTO @DeletedComments(ID)
-        SELECT c.ID
-        FROM Comments c
-        INNER JOIN @DeletedComments d ON c.ParentID = d.ID
-        WHERE c.ID NOT IN (SELECT ID FROM @DeletedComments);
-    END
-
-    DELETE FROM Comments WHERE ID IN (SELECT ID FROM @DeletedComments);
-END;
-GO
 
 -- SAMPLE DATA--
 
-INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt, DOB)
+INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
 ('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
 ('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
@@ -420,5 +474,4 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, Reference
 (9, 8, 'Animation Clip', 'Làm video hoạt hình.', 'http://ref8.com', '2025-04-27', 'APPROVED'),
 (10, 9, 'Logo Design', 'Thiết kế logo công ty.', 'http://ref9.com', '2025-04-28', 'REJECTED'),
 (1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
-
 
