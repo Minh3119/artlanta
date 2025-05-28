@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import '../../styles/userProfile.scss';
 class UserProfileTabsComponent extends React.Component {
@@ -8,21 +8,13 @@ class UserProfileTabsComponent extends React.Component {
         return (
 
             <div className="profile-left">
-                <Link to="editprofile" className="profile-item">
-                    Profile
-                </Link>
-                <Link to="editpassword" className="profile-item">
-                    Password
-                </Link>
-                <Link to="editnotification" className="profile-item">
-                    Notification
-                </Link>
-                <Link to="editpricing" className="profile-item">
-                    Pricing
-                </Link>
-                <Link to="deleteaccount" className="profile-item profile-delete">
+                <NavLink to="/editprofile" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Profile</NavLink>
+                <NavLink to="/editpassword" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Password</NavLink>
+                <NavLink to="/editnotification" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Notification</NavLink>
+                <NavLink to="/editpricing" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Pricing</NavLink>
+                <div className="profile-item profile-delete" onClick={() => console.log("Delete acc")}>
                     Delete your account
-                </Link>
+                </div>
 
             </div>
         );

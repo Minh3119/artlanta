@@ -12,61 +12,64 @@ public class UserDAO extends DBContext {
     // TODO: Just use getOne bro, no need for getOneToEdit()
 
     // public User getOneToEdit(int userID) {
-    //     User user = null;
-    //     try {
-    //         String sql = """
-    //                     SELECT * FROM Users WHERE ID = ?
-    //                     """;
-    //         PreparedStatement st = connection.prepareStatement(sql);
-    //         st.setInt(1, userID);
-    //         ResultSet rs = st.executeQuery();
-            
-    //         if (rs.next()) {
-    //             user = new User(
-    //                 rs.getInt("ID"),
-    //                 rs.getString("Username"),
-    //                 rs.getString("Email"),
-    //                 rs.getString("PasswordHash"),
-    //                 rs.getString("FullName"),
-    //                 rs.getString("Bio"),
-    //                 rs.getString("AvatarURL"),
-    //                 rs.getBoolean("Gender"),
-    //                 rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-    //                 rs.getString("Location"),
-    //                 rs.getString("Role"),
-    //                 rs.getString("Status"),
-    //                 rs.getString("Language"),
-    //                 rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-    //                 rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-    //                 rs.getBoolean("IsFlagged")
-    //             );
-    //         }
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return user;
+    // User user = null;
+    // try {
+    // String sql = """
+    // SELECT * FROM Users WHERE ID = ?
+    // """;
+    // PreparedStatement st = connection.prepareStatement(sql);
+    // st.setInt(1, userID);
+    // ResultSet rs = st.executeQuery();
+
+    // if (rs.next()) {
+    // user = new User(
+    // rs.getInt("ID"),
+    // rs.getString("Username"),
+    // rs.getString("Email"),
+    // rs.getString("PasswordHash"),
+    // rs.getString("FullName"),
+    // rs.getString("Bio"),
+    // rs.getString("AvatarURL"),
+    // rs.getBoolean("Gender"),
+    // rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() :
+    // null,
+    // rs.getString("Location"),
+    // rs.getString("Role"),
+    // rs.getString("Status"),
+    // rs.getString("Language"),
+    // rs.getTimestamp("CreatedAt") != null ?
+    // rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+    // rs.getTimestamp("LastLogin") != null ?
+    // rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+    // rs.getBoolean("IsFlagged")
+    // );
+    // }
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // }
+    // return user;
     // }
 
     public void updateUser(User user) {
         try {
             String sql = """
-                        UPDATE Users SET 
-                        Username = ?, 
-                        Email = ?,
-                        FullName = ?, 
-                        Bio = ?,
-                        AvatarURL = ?, 
-                        Gender = ?, 
-                        DOB = ?, 
-                        Location = ?,
-                        Role = ?,
-                        Status = ?,
-                        Language = ?,
-                        LastLogin = ?,
-                        IsFlagged = ?,
-                        IsPrivate = ?
-                        WHERE ID = ?
-                        """;
+                    UPDATE Users SET
+                    Username = ?,
+                    Email = ?,
+                    FullName = ?,
+                    Bio = ?,
+                    AvatarURL = ?,
+                    Gender = ?,
+                    DOB = ?,
+                    Location = ?,
+                    Role = ?,
+                    Status = ?,
+                    Language = ?,
+                    LastLogin = ?,
+                    IsFlagged = ?,
+                    IsPrivate = ?
+                    WHERE ID = ?
+                    """;
 
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, user.getUsername());
@@ -84,7 +87,7 @@ public class UserDAO extends DBContext {
             st.setBoolean(13, user.isFlagged());
             st.setBoolean(14, user.isPrivate());
             st.setInt(15, user.getID());
-            
+
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,24 +102,23 @@ public class UserDAO extends DBContext {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 User user = new User(
-                    rs.getInt("ID"),
-                    rs.getString("Username"),
-                    rs.getString("Email"),
-                    rs.getString("PasswordHash"),
-                    rs.getString("FullName"),
-                    rs.getString("Bio"),
-                    rs.getString("AvatarURL"),
-                    rs.getBoolean("Gender"),
-                    rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                    rs.getString("Location"),
-                    rs.getString("Role"),
-                    rs.getString("Status"),
-                    rs.getString("Language"),
-                    rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                    rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged"),
-                    rs.getBoolean("IsPrivate")
-                );
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate"));
                 list.add(user);
             }
             rs.close();
@@ -136,24 +138,23 @@ public class UserDAO extends DBContext {
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 user = new User(
-                    rs.getInt("ID"),
-                    rs.getString("Username"),
-                    rs.getString("Email"),
-                    rs.getString("PasswordHash"),
-                    rs.getString("FullName"),
-                    rs.getString("Bio"),
-                    rs.getString("AvatarURL"),
-                    rs.getBoolean("Gender"),
-                    rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                    rs.getString("Location"),
-                    rs.getString("Role"),
-                    rs.getString("Status"),
-                    rs.getString("Language"),
-                    rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                    rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged"),
-                    rs.getBoolean("IsPrivate")
-                );
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate"));
             }
             rs.close();
             st.close();
@@ -170,27 +171,26 @@ public class UserDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, role.toUpperCase());
             ResultSet rs = st.executeQuery();
-            
+
             while (rs.next()) {
                 User user = new User(
-                    rs.getInt("ID"),
-                    rs.getString("Username"),
-                    rs.getString("Email"),
-                    rs.getString("PasswordHash"),
-                    rs.getString("FullName"),
-                    rs.getString("Bio"),
-                    rs.getString("AvatarURL"),
-                    rs.getBoolean("Gender"),
-                    rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                    rs.getString("Location"),
-                    rs.getString("Role"),
-                    rs.getString("Status"),
-                    rs.getString("Language"),
-                    rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                    rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                    rs.getBoolean("IsFlagged"),
-                    rs.getBoolean("IsPrivate")
-                );
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate"));
                 list.add(user);
             }
             rs.close();
