@@ -2,6 +2,7 @@ package dal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,36 @@ public class PostDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    
+    //especially for get the autogenID
+    public int createPostReturnID(Post post) {
+        int postID=0;
+        try {
+            String sql = """
+                    INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?);
+                    """;
+            PreparedStatement st = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            st.setInt(1, post.getUserID());
+            st.setString(2, post.getTitle());
+            st.setString(3, post.getContent());
+            st.setBoolean(4, post.isDraft());
+            st.setString(5, post.getVisibility());
+            st.setObject(6, LocalDateTime.now());
+            st.executeUpdate();
+            
+            //return the auto-geng ID
+            ResultSet rs = st.getGeneratedKeys();
+            if (rs.next()) {
+                postID = rs.getInt(1);
+            }
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return postID;
+    }
+    
 
     public List<Post> getAllPosts() {
         List<Post> posts = new ArrayList<>();
