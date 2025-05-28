@@ -20,12 +20,7 @@ class EditProfileComponent extends React.Component {
         gender: "",
         dob: "",
         email: "",
-        social: [
-            {
-                platform: "",
-                link: ""
-            }
-        ],
+        social: [],
         location: "",
         description: ""
     }
@@ -142,7 +137,7 @@ class EditProfileComponent extends React.Component {
                 ...this.state.social,
                 {
                     platform: newPlatform,
-                    link: newLink,
+                    url: newLink,
                 }
             ]
         })
@@ -227,15 +222,15 @@ class EditProfileComponent extends React.Component {
                     //     location: data.location || '',
                     //     description: data.description || ''
                     // },
-                    logo: data.avatarURLs || 'https://defaultimage.png',
-                    username: data.username || 'Guest',
-                    fullname: data.fullname || '',
-                    gender: data.gender || 'Male',
-                    dob: (new Date(data.dob)).toISOString().split('T')[0],
-                    email: data.email || '',
-                    social: Array.isArray(data.social) ? data.social : [],
-                    location: data.location || '',
-                    description: data.description || ''
+                    logo: data.response.avatarUrl || 'https://defaultimage.png',
+                    username: data.response.username || 'Guest',
+                    fullname: data.response.fullname || '',
+                    gender: data.response.gender || 'Male',
+                    dob: data.response.dob ? (new Date(data.response.dob)).toISOString().split('T')[0] : '',
+                    email: data.response.email || '',
+                    social: Array.isArray(data.response.social) ? data.response.social : [],
+                    location: data.response.location || '',
+                    description: data.response.bio || ''
                 });
             })
             .catch(error => {
