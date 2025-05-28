@@ -32,6 +32,7 @@ CREATE TABLE Users (
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT GETDATE(),
     LastLogin DATETIME,
+    IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
 
@@ -56,6 +57,7 @@ CREATE TABLE Posts (
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME,
+    IsFlagged BOOLEAN DEFAULT 0,
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
@@ -284,36 +286,39 @@ GO
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt, DOB)
 VALUES
-('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://res-console.cloudinary.com/drlgu6lyi/thumbnails/v1/image/upload/v1742189906/c3JnZGhibHQ2OHBiZTFlaW1vd2I=/drilldown', 'ACTIVE', 'CLIENT', 0, '2025-02-28', '1975-01-12'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01', '1988-03-22'),
-('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01', '1992-07-15'),
-('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01', '1985-11-30'),
-('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04', '1990-04-08'),
-('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05', '1995-06-20'),
-('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04', '1998-09-18'),
-('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07', '1993-03-11'),
-('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-08', '1987-07-21'),
-('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05', '1991-02-14'),
-('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'kevin.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-10', '1996-01-09'),
-('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11', '1994-10-05'),
-('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'brian.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12', '1982-05-16'),
-('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'amanda.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-13', '1997-08-30'),
-('karen_yoga', 'karen.yoga@yogalife.com', 'yog4pass', 'Karen', 'Hướng dẫn viên yoga.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-22', '1989-06-01'),
-('tom_cars', 'tom.cars@auto.com', 'c@rlover', 'Tom', 'Sưu tầm siêu xe.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'BANNED', 'CLIENT', 1, '2025-03-15', '1980-12-03'),
-('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16', '1979-09-29'),
-('ryan_gamer', 'ryan.gamer@gamemail.com', 'g@m3rpass', 'Ryan', 'Stream game hằng đêm.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'CLIENT', 1, '2025-03-17', '2000-04-23'),
-('adam_smith', 'adam.smith@finance.com', 'Fin@nc3Gur#', 'Adam', 'Chuyên gia tài chính và đầu tư.', 'adam.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-18', '1984-03-10'),
-('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'STAFF', 1, '2025-03-19', '1993-12-11'),
-('carter_music', 'carter.music@melody.com', 'MusiC!an#99', 'Carter', 'Nghệ sĩ piano và sáng tác nhạc.', 'carter.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-20', '1990-05-24'),
-('daniel.photography', 'daniel.photo@shutter.com', 'Ph0t0Mast3r!', 'Daniel', 'Nhiếp ảnh gia chuyên nghiệp.', 'daniel.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-21', '1986-07-14'),
-('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'STAFF', 0, '2025-03-22', '1992-08-03'),
-('frank_eng.ineer', 'frank.engineer@tech.com', 'Eng!neerG33k', 'Frank', 'Kỹ sư phần mềm AI.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJFNw2dvGVLIG-Qh559mcsfcLRIwXZyXPAA&s', 'ACTIVE', 'ADMIN', 1, '2025-03-22', '1983-02-02'),
-('geo.rge_dev', 'george.dev@coding.com', 'C0d3Rul3s!', 'George', 'Fullstack developer.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYuP4IuXCruH6lqkPEfXG4f4aQE0hZ5e-1xUWrS5ZHRoCvopYXQENKSFI8LBBrp1vSNE&usqp=CAU', 'ACTIVE', 'CLIENT', 1, '2025-03-22', '1991-09-01');
+('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
+('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01'),
+('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
+('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
+('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
+('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
+('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
+('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
+('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05'),
+('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'kevin.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-10'),
+('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11'),
+('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'brian.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12'),
+('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'amanda.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-13'),
+('karen_yoga', 'karen.yoga@yogalife.com', 'yog4pass', 'Karen', 'Hướng dẫn viên yoga.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-22'),
+('tom_cars', 'tom.cars@auto.com', 'c@rlover', 'Tom', 'Sưu tầm siêu xe.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'BANNED', 'CLIENT', 1, '2025-03-15'),
+('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16'),
+('ryan_gamer', 'ryan.gamer@gamemail.com', 'g@m3rpass', 'Ryan', 'Stream game hằng đêm.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'CLIENT', 1, '2025-03-17'),
+('adam_smith', 'adam.smith@finance.com', 'Fin@nc3Gur#', 'Adam', 'Chuyên gia tài chính và đầu tư.', 'adam.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-18'),
+('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'STAFF', 1, '2025-03-19'),
+('carter_music', 'carter.music@melody.com', 'MusiC!an#99', 'Carter', 'Nghệ sĩ piano và sáng tác nhạc.', 'carter.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-20'),
+('daniel.photography', 'daniel.photo@shutter.com', 'Ph0t0Mast3r!', 'Daniel', 'Nhiếp ảnh gia chuyên nghiệp.', 'daniel.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-21'),
+('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'STAFF', 0, '2025-03-22'),
+('frank_eng.ineer', 'frank.engineer@tech.com', 'Eng!neerG33k', 'Frank', 'Kỹ sư phần mềm AI.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJFNw2dvGVLIG-Qh559mcsfcLRIwXZyXPAA&s', 'ACTIVE', 'ADMIN', 1, '2025-03-22'),
+('geo.rge_dev', 'george.dev@coding.com', 'C0d3Rul3s!', 'George', 'Fullstack developer.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYuP4IuXCruH6lqkPEfXG4f4aQE0hZ5e-1xUWrS5ZHRoCvopYXQENKSFI8LBBrp1vSNE&usqp=CAU', 'ACTIVE', 'CLIENT', 1, '2025-03-22'),
+('harry.sports', 'harry.sports@fitness.com', 'F1tn3sP@ss!', 'Harry', 'Huấn luyện viên thể hình.', 'https://www.caythuocdangian.com/wp-content/uploads/avatar-anime-1.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
+('isabe.lla_fashion', 'isabella.fashion@trend.com', 'Tr3ndyL00k!', 'Isabella', 'Fashionista và blogger.', NULL, 'ACTIVE', 'CLIENT', 0, '2025-03-06'),
+('jack_gaming', 'jack.gaming@stream.com', 'G@mingLif3!', 'Jack', 'Game thủ eSports.', 'jack.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-07');
 
 
 
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
-(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'cover1.jpg', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
+(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
 (2, 'Portrait Sketches', 'Chuyên về phác thảo chân dung.', 'cover2.jpg', 'Triển lãm tranh tại gallery HN 2023', '2025-04-02'),
 (3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'cover3.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
 (4, 'Anime Style Works', 'Tác phẩm theo phong cách anime.', 'cover4.jpg', 'Top 10 nghệ sĩ trẻ năm 2023', '2025-04-04'),
@@ -325,7 +330,7 @@ INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, Cre
 (10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu khác nhau.', 'cover10.jpg', 'Tác phẩm trưng bày tại bảo tàng', '2025-04-10');
 
 
-INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsDeleted) VALUES
+INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, UpdatedAt, IsFlagged) VALUES
 (1, 'Bài viết giới thiệu', 'Đây là bài giới thiệu đầu tiên.', 0, 'PUBLIC', '2025-04-10', NULL, 0),
 (2, 'Quá trình sáng tác', 'Chia sẻ quá trình làm tranh.', 0, 'PUBLIC', '2025-04-11', NULL, 0),
 (3, 'Mẹo vẽ phong cảnh', 'Hướng dẫn vẽ phong cảnh cơ bản.', 1, 'PRIVATE', '2025-04-12', NULL, 0),
@@ -339,7 +344,7 @@ INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, Updat
 
 
 
-INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsDeleted) VALUES
+INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, IsFlagged) VALUES
 (1, 2, 'Bài viết rất hữu ích!', NULL, NULL, '2025-04-20', 0),
 (1, 3, 'Mình thích phần hướng dẫn.', NULL, NULL, '2025-04-20', 0),
 (2, 4, 'Cảm ơn bạn đã chia sẻ.', NULL, NULL, '2025-04-21', 0),
