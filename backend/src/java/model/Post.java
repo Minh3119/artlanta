@@ -2,6 +2,7 @@ package model;
 
 import java.time.LocalDateTime;
 
+
 public class Post {
     private int ID;
     private int userID;
@@ -13,9 +14,9 @@ public class Post {
     private LocalDateTime updatedAt;
     private boolean isFlagged;
 
-    public Post(int iD, int userID, String title, String content, boolean isDraft, String visibility,
+    public Post(int ID, int userID, String title, String content, boolean isDraft, String visibility,
             LocalDateTime createdAt, LocalDateTime updatedAt, boolean isFlagged) {
-        ID = iD;
+        this.ID = ID;
         this.userID = userID;
         this.title = title;
         this.content = content;
@@ -61,6 +62,4 @@ public class Post {
     public boolean isFlagged() {
         return isFlagged;
     }
-    
-
 }

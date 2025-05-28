@@ -1,8 +1,7 @@
 import React from "react";
 import UserProfileTabsComponent from "./userProfileTabsComponent";
 import { Outlet } from "react-router-dom";
-
-// import { toast } from "react-toastify";
+import "../../styles/userProfile.scss";
 
 class UserSettingComponent extends React.Component {
     componentDidMount() {

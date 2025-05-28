@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import model.SocialLink;
 
-import model.User;
 
 public class SocialDAO extends DBContext{
     public List<SocialLink> getByUserId(int userID) {
