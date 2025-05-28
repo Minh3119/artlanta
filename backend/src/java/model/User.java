@@ -21,7 +21,7 @@ public class User {
     private LocalDateTime lastLogin;
     private boolean isFlagged;
     private boolean isPrivate;
-    
+
     public User(int ID, String username, String email, String passwordHash, String fullName, String bio,
             String avatarURL, boolean gender, LocalDateTime DOB, String location, String role, String status,
             String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged, boolean isPrivate) {
