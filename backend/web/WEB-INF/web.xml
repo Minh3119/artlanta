@@ -8,6 +8,10 @@
         <servlet-name>CreatePost</servlet-name>
         <servlet-class>controller.Post.CreatePost</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ViewPost</servlet-name>
+        <servlet-class>controller.Post.ViewPost</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
@@ -15,5 +19,9 @@
     <servlet-mapping>
         <servlet-name>CreatePost</servlet-name>
         <url-pattern>/api/post/create</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewPost</servlet-name>
+        <url-pattern>/api/post</url-pattern>
     </servlet-mapping>
 </web-app>

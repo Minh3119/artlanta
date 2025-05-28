@@ -34,7 +34,7 @@ public class PostDAO extends DBContext {
     public List<Post> getAllPosts() {
         List<Post> posts = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Posts WHERE IsDeleted = 0 ORDER BY CreatedAt DESC";
+            String sql = "SELECT * FROM Posts";
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             
@@ -48,7 +48,7 @@ public class PostDAO extends DBContext {
                     rs.getString("Visibility"),
                     rs.getTimestamp("CreatedAt").toLocalDateTime(),
                     rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                    rs.getBoolean("IsDeleted")
+                    rs.getBoolean("IsFlagged")
                 );
                 posts.add(post);
             }
