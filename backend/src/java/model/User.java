@@ -44,10 +44,6 @@ public class User {
         this.isPrivate = isPrivate;
     }
 
-    public User() {
-
-    }
-
     public int getID() {
         return ID;
     }
@@ -120,7 +116,6 @@ public class User {
         this.username = username;
     }
 
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -148,7 +143,6 @@ public class User {
     public void setDOB(LocalDateTime dOB) {
         DOB = dOB;
     }
-
 
     public void setLocation(String location) {
         this.location = location;
