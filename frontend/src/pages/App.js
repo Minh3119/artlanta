@@ -4,33 +4,27 @@ import '../styles/createPost.scss';
 import { ToastContainer } from 'react-toastify';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserSettingComponent from '../components/UserProfileEdit/userSettingComponent.js';
-import UserProfilePage from "../pages/ArtistExplore.js"
-import CreatePostComponent from "../components/PostControl/createPostComponent.js";
+import UserProfilePage from "./UserProfile.js"
+import SessionTest from "../pages/SessionTest.js"
+import Artists from "./Artists.js"
+import CreatePostComponent from '../components/PostControl/createPostComponent.js';
 
 //import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
-    // <BrowserRouter>
-    //   <Routes>
-    //     <Route exact path="/home" element={<UserSettingComponent />} />
-    //     <Route path="/user" element={<UserProfilePage />} />
-    //     <Route path="/createpost" element={<CreatePostComponent />} />
-    //     <Route path="/home/editprofile"
-    //       element={<EditProfileComponent />} />
-    //     <Route path="/editpassword"
-    //       element={<EditPasswordComponent />} />
-    //     <Route path="/editnotification"
-    //       element={<EditNotificationComponent />} />
-    //     <Route path="/editpricing"
-    //       element={<EditPricingComponent />} />
-    //   </Routes>
-    // </BrowserRouter >
-
-    // <CreatePostComponent />
     <>
-      {/* <UserSettingComponent /> */}
-      <CreatePostComponent />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/*" element={<UserSettingComponent />}>
+
+          </Route>
+          <Route path="/user/:userId" element={<UserProfilePage />} />
+          <Route path="/artists" element={<Artists />} />
+          <Route path="/sessiontest" element={<SessionTest />} />
+          <Route path="/createpost" element={<CreatePostComponent />} />
+        </Routes>
+      </BrowserRouter >
       <ToastContainer />
     </>
 

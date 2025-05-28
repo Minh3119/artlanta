@@ -1,100 +1,124 @@
 package controller.Post;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import dal.PostDAO;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Map;
 import model.Post;
+import org.json.JSONObject;
+import util.JsonUtil;
 import validation.EnvConfig;
 
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,
-    maxFileSize = 1024 * 1024 * 10,   
-    maxRequestSize = 1024 * 1024 * 50   
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
 )
 public class CreatePost extends HttpServlet {
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        out.println("<h1>API is working</h1>");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JsonUtil.writeJsonError(response, "POST method required");
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
+        boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
+        try {
 
-        Part filePart = request.getPart("file");
-        //test session
-        PostDAO pd = new PostDAO();
-        HttpSession session = request.getSession();
-        EnvConfig config= new EnvConfig(getServletContext());
-        
-        session.setAttribute("userID", 11);
-        String imageUrl = null;
-        if (filePart != null && filePart.getSize() > 0) {
-            try (InputStream fileStream = filePart.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-
-                byte[] data = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, bytesRead);
-                }
-                byte[] fileBytes = buffer.toByteArray();
-
-                Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                        "cloud_name", config.getProperty("my_cloud_name"),
-                        "api_key", config.getProperty("my_key"),
-                        "api_secret", config.getProperty("my_secret")
-                ));
-
-                Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("resource_type", "image"));
-                imageUrl = uploadResult.get("secure_url").toString();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi upload ảnh lên Cloudinary: " + e.getMessage());
+            if (title == null || title.trim().isEmpty()
+                    || content == null || content.trim().isEmpty()
+                    || visibility == null || visibility.trim().isEmpty()) {
+                JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
-        }
 
-        int userID=11;
-        Post post = new Post(userID, title, content, imageUrl, visibility);
-        try {
+            Integer userID = (Integer) request.getSession().getAttribute("userID");
+            userID=10;
+            if (userID == null) {
+                JsonUtil.writeJsonError(response, "User not logged in");
+                return;
+            }
+
+            Part filePart = request.getPart("file");
+            String imageUrl = null;
+            if (filePart != null && filePart.getSize() > 0) {
+                try (InputStream fileStream = filePart.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+                    byte[] data = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+                    byte[] fileBytes = buffer.toByteArray();
+
+                    EnvConfig config = new EnvConfig(getServletContext());
+                    Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+                            "cloud_name", config.getProperty("my_cloud_name"),
+                            "api_key", config.getProperty("my_key"),
+                            "api_secret", config.getProperty("my_secret")
+                    ));
+
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("resource_type", "image"));
+                    imageUrl = uploadResult.get("secure_url").toString();
+                } catch (Exception e) {
+                    JsonUtil.writeJsonError(response, "Error uploading image: " + e.getMessage());
+                    return;
+                }
+            }
+
+            Post post = new Post(
+                    0,
+                    userID,
+                    title,
+                    content,
+                    isDraft,
+                    visibility,
+                    LocalDateTime.now(),
+                    null, 
+                    false 
+            );
+
+            PostDAO pd = new PostDAO();
             pd.createPost(post);
+
+            JSONObject jsonPost = new JSONObject();
+            jsonPost.put("title", post.getTitle());
+            jsonPost.put("content", post.getContent());
+            jsonPost.put("visibility", post.getVisibility());
+            jsonPost.put("isDraft", post.isDraft());
+            if (imageUrl != null) {
+                jsonPost.put("imageUrl", imageUrl);
+            }
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", jsonPost);
+
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+
         } catch (Exception e) {
             e.printStackTrace();
+            JsonUtil.writeJsonError(response, "Error creating post: " + e.getMessage());
         }
-
     }
-
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 }

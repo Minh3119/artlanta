@@ -1,11 +1,9 @@
 package util;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import org.json.JSONObject;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 public class JsonUtil {
 	public static void writeJsonResponse(HttpServletResponse response, JSONObject jsonObject) throws IOException {
