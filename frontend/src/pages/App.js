@@ -12,6 +12,7 @@ import HomePage from './HomePage.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+import PostListPage from "./Post.js"
 //import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/sessiontest" element={<SessionTest />} />
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/homepage" element={<HomePage/>} />
+          <Route path="/post" element={<PostListPage />} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />

@@ -1,80 +1,76 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-class PostListPage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      posts: [],
-      loading: false,
+const PostListPage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:9999/backend/api/post', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+       
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setPosts(data.response || []);
+        setLoading(false);
+      } catch (err) {
+        toast.error('Failed to load posts: ' + err.message);
+        setLoading(false);
+      }
     };
-  }
 
-  componentDidMount() {
-    this.fetchPosts();
-  }
+    fetchPosts();
+  }, []);
 
-  async fetchPosts() {
-    this.setState({ loading: true });
-    try {
-      const res = await fetch('/api/post', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        toast.error(err.message || 'Failed to load posts');
-        this.setState({ loading: false });
-        return;
-      }
-
-      const data = await res.json();
-      if (data.response && Array.isArray(data.response)) {
-        this.setState({ posts: data.response, loading: false });
-      } else {
-        toast.error('Invalid response format');
-        this.setState({ loading: false });
-      }
-    } catch (error) {
-      toast.error('Error fetching posts: ' + error.message);
-      this.setState({ loading: false });
-    }
-  }
-
-  render() {
-    const { posts, loading } = this.state;
-
+  if (loading) {
     return (
-      <>
-        <h1>All Posts</h1>
-        {loading ? (
-          <p>Loading posts...</p>
-        ) : (
-          <div>
-            {posts.length === 0 ? (
-              <p>No posts found.</p>
-            ) : (
-              posts.map(post => (
-                <div key={post.id} style={{ border: '1px solid #ccc', margin: 10, padding: 10 }}>
-                  <h3>{post.title}</h3>
-                  <p><b>User ID:</b> {post.userId}</p>
-                  <p><b>Content:</b> {post.content}</p>
-                  <p><b>Draft:</b> {post.isDraft ? 'Yes' : 'No'}</p>
-                  <p><b>Visibility:</b> {post.visibility}</p>
-                  <p><b>Created At:</b> {post.createdAt}</p>
-                  <p><b>Updated At:</b> {post.updatedAt || 'N/A'}</p>
-                  <p><b>Deleted:</b> {post.isDeleted ? 'Yes' : 'No'}</p>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-        <ToastContainer />
-      </>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+      </div>
     );
   }
-}
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold text-gray-900">All Posts</h1>
+        </div>
+
+        {posts.length === 0 ? (
+          <div className="text-center text-gray-500">No posts found.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {posts.map(post => (
+              <div
+                key={post.id}
+                className="bg-white shadow-md rounded-lg p-6 border border-gray-200"
+              >
+                <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
+                <p className="text-gray-700 mb-1"><strong>User ID:</strong> {post.userId}</p>
+                <p className="text-gray-700 mb-1"><strong>Content:</strong> {post.content}</p>
+                <p className="text-gray-700 mb-1"><strong>Draft:</strong> {post.isDraft ? 'Yes' : 'No'}</p>
+                <p className="text-gray-700 mb-1"><strong>Visibility:</strong> {post.visibility}</p>
+                <p className="text-gray-700 mb-1"><strong>Created At:</strong> {post.createdAt}</p>
+                <p className="text-gray-700 mb-1"><strong>Updated At:</strong> {post.updatedAt || 'N/A'}</p>
+                <p className="text-gray-700"><strong>Deleted:</strong> {post.isDeleted ? 'Yes' : 'No'}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <ToastContainer />
+    </div>
+  );
+};
 
 export default PostListPage;

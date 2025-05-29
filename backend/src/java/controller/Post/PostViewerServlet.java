@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class ViewPost extends HttpServlet {
+public class PostViewerServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
