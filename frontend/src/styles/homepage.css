@@ -1,0 +1,25 @@
+.homepage-container {
+    height: auto;
+}
+
+.sidebar-container {
+    border-right: 1px solid rgb(235, 238, 240);
+    height: 100vh;
+}
+
+.nav-container, .logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.logo-container {
+    margin-top: 20px;
+}
+
+.nav-container {
+    align-items: center;
+    flex-direction: column;
+
+    margin-top: 80%;
+    gap: 2em;
+}
