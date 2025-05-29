@@ -11,7 +11,7 @@ const Artists = () => {
     useEffect(() => {
         const fetchArtists = async () => {
             try {
-                // Fetch all artists (you'll need to create this endpoint)
+                // Fetch all artists
                 const response = await fetch('http://localhost:9999/backend/api/user?role=CLIENT', {
                     method: 'GET',
                     credentials: 'include',
@@ -34,16 +34,16 @@ const Artists = () => {
                         headers: { 'Content-Type': 'application/json' },
                     }).then(res => res.json())
                 );
-
                 const portfolioResults = await Promise.all(portfolioPromises);
+
                 const portfolioMap = {};
                 portfolioResults.forEach((result, index) => {
                     if (!result.error) {
                         portfolioMap[artistsList[index].id] = result.response;
                     }
                 });
-
                 setPortfolios(portfolioMap);
+
                 setLoading(false);
             } catch (error) {
                 toast.error('Failed to load artists');
