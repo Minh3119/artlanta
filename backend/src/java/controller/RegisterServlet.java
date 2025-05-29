@@ -32,11 +32,27 @@ public class RegisterServlet extends HttpServlet {
         }
 
         JSONObject body = new JSONObject(jsonBuilder.toString());
+        String email = body.optString("email");
+        String username = body.optString("username");
+        String password = body.optString("password");
+        
         UserDAO dao = new UserDAO();
         JSONObject res = new JSONObject();
         
+        if (dao.checkUserExistsByEmail(email)) {
+            res.put("success", false);
+            res.put("message", "Email đã tồn tại");
+        }
         
+        else if (dao.checkUserExistsByUserName(username)) {
+            res.put("success", false);
+            res.put("message", "Username đã tồn tại");
+        } else {
+            res.put("success", true);
+            dao.registerUser(username,email,password);
+        }
         
+        response.getWriter().write(res.toString());
     }
 
     @Override

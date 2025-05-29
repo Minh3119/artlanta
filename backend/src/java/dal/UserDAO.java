@@ -54,8 +54,7 @@ public class UserDAO extends DBContext {
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM Users WHERE Status = 'ACTIVE";
-        try (PreparedStatement stmt = connection.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 User user = new User(
                         rs.getInt("ID"),
@@ -154,7 +153,7 @@ public class UserDAO extends DBContext {
         }
         return list;
     }
-    
+
     public User getUserByEmailAndPassword(String email, String password) {
         User user = null;
         try {
@@ -199,7 +198,7 @@ public class UserDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, username);
             ResultSet rs = st.executeQuery();
-            exists = rs.next(); 
+            exists = rs.next();
             rs.close();
             st.close();
         } catch (SQLException e) {
@@ -215,12 +214,29 @@ public class UserDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, email);
             ResultSet rs = st.executeQuery();
-            exists = rs.next(); 
+            exists = rs.next();
             rs.close();
             st.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return exists;
+    }
+
+    public void registerUser(String username, String email, String passwordHash) {
+        String sql = """
+        INSERT INTO Users (Username, Email, PasswordHash, Gender, Role, Status, Language, IsPrivate, IsFlagged)
+        VALUES (?, ?, ?, 0, 'CLIENT', 'ACTIVE', 'vn', 0, 0)
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, email);
+            st.setString(3, passwordHash);
+
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

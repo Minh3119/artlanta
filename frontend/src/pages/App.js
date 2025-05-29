@@ -17,6 +17,7 @@ import EditNotificationComponent from '../components/UserProfileEdit/editNotific
 import EditPricingComponent from '../components/UserProfileEdit/editPricingComponent.js';
 import DeleteAccountComponent from '../components/UserProfileEdit/deleteAccountComponent.js';
 import Login from './Login.js';
+import Register from './Register.js';
 
 //import { ToastContainer } from 'react-toastify';
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/homepage" element={<HomePage/>} />
           <Route path="/login" element={<Login/>} />
+          <Route path="/register" element={<Register/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />

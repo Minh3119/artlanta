@@ -1,15 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import "../../styles/styles.css";
+import "../../styles/login.css";
 import SocialLogin from "./SocialLogin.js";
 import InputField from "./InputField";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,15 +18,14 @@ export default function LoginCard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include"
       });
-
-      console.log("Sending:", { email, password });
 
       if (!res.ok) {
         const errorText = await res.text();
         setMessage(`API Error: ${res.status} - ${errorText}`);
         return;
-      } 
+      }
 
       const data = await res.json();
 
@@ -45,6 +44,7 @@ export default function LoginCard() {
   return (
     <div className="login-card">
       <h2 className="form-title">Log in with</h2>
+      {message && <p className="message">{message}</p>}
 
       <SocialLogin></SocialLogin>
 
@@ -78,9 +78,8 @@ export default function LoginCard() {
       </form>
 
       <p className="signup-text">
-        Don't have an account? <a href="#!">Sign up</a>
+        Don't have an account? <Link to="/register">Sign up</Link>
       </p>
-      {message && <p className="message">{message}</p>}
     </div>
   );
 }

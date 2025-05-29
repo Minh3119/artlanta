@@ -1,6 +1,6 @@
 import React from 'react';
 import LoginCard from '../components/Login/LoginCard';
-import "../styles/styles.css";
+import "../styles/login.css";
 
 export default function Login() {
     return (
