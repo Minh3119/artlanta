@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "../../styles/login.css";
 import SocialLogin from "./SocialLogin.js";
 import InputField from "./InputField";
@@ -10,6 +10,18 @@ export default function LoginCard() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.style.display = "flex";
+    document.body.style.alignItems = "center";
+    document.body.style.justifyContent = "center";
+    document.body.style.minHeight = "100vh";
+    document.body.style.background = "#5F41E4";
+
+    return () => {
+      document.body.removeAttribute("style");
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

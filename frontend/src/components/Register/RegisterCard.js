@@ -1,5 +1,5 @@
 import InputField from ".././Login/InputField.js";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useNavigate,Link } from "react-router-dom";
 
 export default function RegisterCard() {
@@ -9,6 +9,18 @@ export default function RegisterCard() {
   const [cpassword, setCPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); 
+
+    useEffect(() => {
+      document.body.style.display = "flex";
+      document.body.style.alignItems = "center";
+      document.body.style.justifyContent = "center";
+      document.body.style.minHeight = "100vh";
+      document.body.style.background = "#5F41E4";
+  
+      return () => {
+        document.body.removeAttribute("style");
+      };
+    }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
