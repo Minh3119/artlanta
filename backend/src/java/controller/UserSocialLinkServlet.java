@@ -44,6 +44,7 @@ public class UserSocialLinkServlet extends HttpServlet {
 
         UserSocialLinkDAO dao = new UserSocialLinkDAO();
         List<UserSocialLink> links = dao.getByUserId(userId);
+        dao.closeConnection();
 
         // Create JSON response
         JSONArray jsonLinks = new JSONArray();
