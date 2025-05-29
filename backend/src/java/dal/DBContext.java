@@ -6,27 +6,31 @@ import java.sql.SQLException;
 
 public class DBContext {
     protected Connection connection;
-
+    
     public DBContext() {
         try {
-            System.out.println("Initializing DBContext...");
-            // Edit URL , username, password to authenticate with your MS SQL Server
-            String url = "jdbc:mysql://localhost:3306/Artlanta?useSSL=false";
+            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false";
             String username = "root";
             String password = "1234";
-            System.out.println("Loading JDBC driver...");
-            //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Class.forName("com.mysql.cj.jdbc.Driver");  // ERROR: java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver
-            System.out.println("Driver loaded successfully.");
-            System.out.println("Connecting to database...");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Database connection established.");
-        } catch (ClassNotFoundException ex) {
-            System.err.println("JDBC Driver not found: " + ex.getMessage());
-            ex.printStackTrace();
-        } catch (SQLException ex) {
-            System.err.println("SQL Exception: " + ex.getMessage());
-            ex.printStackTrace();
+        } catch (ClassNotFoundException | SQLException e) {
+            System.err.println("Error Connecting to Database: " + e.getMessage());
+            throw new RuntimeException("Database connection failed", e);
+        }
+    }
+    
+    public Connection getConnection() {
+        return connection;
+    }
+    
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
         }
     }
 

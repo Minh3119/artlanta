@@ -55,6 +55,8 @@
         width: 70%;
         background-color: rgb(233, 226, 226);
         overflow-y: scroll;
+        overflow-x: hidden;
+        
 
         .profile-header{
             display: flex;
@@ -75,7 +77,7 @@
             display: flex;
             align-items: center;
             height: 20%;
-            margin: 0 10px;
+            margin: 0 20px;
             .profile-detail-photo-edit{
                 height: 100%;
                 width: 100%;
@@ -113,6 +115,7 @@
         input{
             border: none;
             height: 30px;
+            margin: 5px 20px;
         }
         .name-container{
             margin-top: 10px;
@@ -124,18 +127,26 @@
         }
         .gender-container{
             display: flex;
+            align-items: center;
             margin-top: 10px;
             margin-right: 10px;
         }
         .dob-container{
             display: flex;
+            align-items: center;
+            gap: 9px;
             margin-top: 10px;
-            margin-right: 10px;
+            input{
+                margin: 0 0;
+            }
         }
         .email-container{
             margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             input{
-                
+                margin:0 0;
                 width: 80%;
             }
             button{
@@ -160,11 +171,15 @@
                     display: flex;
                     justify-content: center;
                     gap: 1.5%;
+                    
                     .social-platform{
                         width: 20%;
                     }
                     .social-link{
                         width: 60%;
+                    }
+                    input{
+                        margin: 0 0;
                     }
                     button{
                         text-align: center;
@@ -233,7 +248,7 @@
                             text-decoration: none;
                             font-weight: bolder;
                             font-size: 80%;
-                            color: rgb(6, 152, 152);
+                            color: rgb(10, 116, 116);
                             
                             
                         }
@@ -259,12 +274,18 @@
             display: flex;
             margin-top: 10px;
             margin-right: 10px;
+            align-items: center;
+            input{
+                margin: 0 10px;
+            }
         }
         .bio-container{
             height: 20%;
             textarea{
                 width: 90%;
-                height: auto;
+                height: 80%;
+                resize: none;
+                margin: 5px 20px;
             }
         }
         .profile-button{

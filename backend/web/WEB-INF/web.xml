@@ -26,6 +26,6 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>CreatePost</servlet-name>
-        <url-pattern>/api/create-post</url-pattern>
+        <url-pattern>/api/post/create</url-pattern>
     </servlet-mapping>
 </web-app>

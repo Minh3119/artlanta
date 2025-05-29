@@ -1,52 +1,35 @@
 package controller.Post;
 
-import java.io.IOException;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import dal.PostDAO;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Map;
 import model.Post;
-import validation.EnvConfig;
 import org.json.JSONObject;
 import util.JsonUtil;
-import jakarta.servlet.annotation.WebServlet;
+import validation.EnvConfig;
 
-@WebServlet("/api/post/create")
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 2,
-    maxFileSize = 1024 * 1024 * 10,   
-    maxRequestSize = 1024 * 1024 * 50   
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
 )
 public class CreatePost extends HttpServlet {
-
-    private void setCorsHeaders(HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Max-Age", "3600");
-    }
-
-    @Override
-    protected void doOptions(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        setCorsHeaders(response);
-        response.setStatus(HttpServletResponse.SC_OK);
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        setCorsHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         JsonUtil.writeJsonError(response, "POST method required");
@@ -55,38 +38,32 @@ public class CreatePost extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        setCorsHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+        String visibility = request.getParameter("visibility");
+        boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
         try {
-            // Get parameters
-            String title = request.getParameter("title");
-            String content = request.getParameter("content");
-            String visibility = request.getParameter("visibility");
-            boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
 
-            // Validate required fields
-            if (title == null || title.trim().isEmpty() || 
-                content == null || content.trim().isEmpty() ||
-                visibility == null || visibility.trim().isEmpty()) {
+            if (title == null || title.trim().isEmpty()
+                    || content == null || content.trim().isEmpty()
+                    || visibility == null || visibility.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
 
-            // Get user from session
             Integer userID = (Integer) request.getSession().getAttribute("userID");
+            userID=10;
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
             }
 
-            // Handle file upload if present
             Part filePart = request.getPart("file");
             String imageUrl = null;
             if (filePart != null && filePart.getSize() > 0) {
-                try (InputStream fileStream = filePart.getInputStream(); 
-                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                try (InputStream fileStream = filePart.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
 
                     byte[] data = new byte[1024];
                     int bytesRead;
@@ -110,24 +87,21 @@ public class CreatePost extends HttpServlet {
                 }
             }
 
-            // Create post object
             Post post = new Post(
-                0, // ID will be generated by database
-                userID,
-                title,
-                content,
-                isDraft,
-                visibility,
-                LocalDateTime.now(),
-                null, // UpdatedAt is null for new post
-                false // IsDeleted is false for new post
+                    0,
+                    userID,
+                    title,
+                    content,
+                    isDraft,
+                    visibility,
+                    LocalDateTime.now(),
+                    null, 
+                    false 
             );
 
-            // Save post to database
             PostDAO pd = new PostDAO();
             pd.createPost(post);
 
-            // Create success response
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
@@ -147,5 +121,4 @@ public class CreatePost extends HttpServlet {
             JsonUtil.writeJsonError(response, "Error creating post: " + e.getMessage());
         }
     }
-
 }

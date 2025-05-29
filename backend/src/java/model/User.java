@@ -20,10 +20,11 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
     private boolean isFlagged;
-    
+    private boolean isPrivate;
+
     public User(int ID, String username, String email, String passwordHash, String fullName, String bio,
             String avatarURL, boolean gender, LocalDateTime DOB, String location, String role, String status,
-            String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged) {
+            String language, LocalDateTime createdAt, LocalDateTime lastLogin, boolean isFlagged, boolean isPrivate) {
         this.ID = ID;
         this.username = username;
         this.email = email;
@@ -40,6 +41,7 @@ public class User {
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
         this.isFlagged = isFlagged;
+        this.isPrivate = isPrivate;
     }
 
     public int getID() {
@@ -106,6 +108,10 @@ public class User {
         return isFlagged;
     }
 
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -164,6 +170,10 @@ public class User {
 
     public void setFlagged(boolean isFlagged) {
         this.isFlagged = isFlagged;
+    }
+
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
 }
