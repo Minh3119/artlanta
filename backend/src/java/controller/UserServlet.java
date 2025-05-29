@@ -29,6 +29,7 @@ public class UserServlet extends HttpServlet {
         // If role parameter is present, return all users with that role
         if (roleParam != null && !roleParam.isEmpty()) {
             List<User> users = dao.getByRole(roleParam);
+            dao.closeConnection();
             JSONArray jsonUsers = new JSONArray();
             
             for (User user : users) {
@@ -76,6 +77,8 @@ public class UserServlet extends HttpServlet {
         }
 
         request.getSession().setAttribute("lastUsername", user.getUsername());
+
+        dao.closeConnection();
 
         // Respond
         JSONObject jsonUser = new JSONObject();
