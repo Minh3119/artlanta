@@ -20,6 +20,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
 import util.EnvReader;
+import dal.UserDAO;
+import model.User;
 
 @WebServlet(name = "GoogleOAuthCallbackServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthCallbackServlet extends HttpServlet {
@@ -40,29 +42,23 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
         String code = request.getParameter("code");
         String error = request.getParameter("error");
 
-        if (error != null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(new JSONObject().put("error", error).toString());
-            return;
-        }
-
-        if (code == null || code.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(new JSONObject().put("error", "Thiếu authensition code.").toString());
+        if (error != null || code == null || code.isEmpty()) {
+            response.sendRedirect("http://localhost:3000/login?error=oauth_failed");
             return;
         }
 
         try {
-            URL url = new URL("https://oauth2.googleapis.com/token");
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            // Exchange code for token
+            URL tokenUrl = new URL("https://oauth2.googleapis.com/token");
+            HttpURLConnection connect = (HttpURLConnection) tokenUrl.openConnection();
             connect.setRequestMethod("POST");
             connect.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connect.setDoOutput(true);
 
-            String data = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8.toString())
+            String data = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
                     + "&client_id=" + CLIENT_ID_GOOGLE
                     + "&client_secret=" + CLIENT_SECRET_GOOGLE
-                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI_GOOGLE, StandardCharsets.UTF_8.toString())
+                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI_GOOGLE, StandardCharsets.UTF_8)
                     + "&grant_type=authorization_code";
 
             try (OutputStream os = connect.getOutputStream()) {
@@ -70,33 +66,23 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
                 os.flush();
             }
 
-            int responseCode = connect.getResponseCode();
-
-            if (responseCode != 200) {
-                StringBuilder errorResponse = new StringBuilder();
-                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connect.getErrorStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = errorReader.readLine()) != null) {
-                        errorResponse.append(line);
-                    }
-                }
-
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write(new JSONObject().put("error", "Token exchange failed").put("details", errorResponse.toString()).toString());
+            if (connect.getResponseCode() != 200) {
+                response.sendRedirect("http://localhost:3000/login?error=token_exchange_failed");
                 return;
             }
 
-            StringBuilder token = new StringBuilder();
+            StringBuilder tokenResponse = new StringBuilder();
             try (BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8))) {
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    token.append(inputLine);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    tokenResponse.append(line);
                 }
             }
 
-            JSONObject tokenJson = new JSONObject(token.toString());
+            JSONObject tokenJson = new JSONObject(tokenResponse.toString());
             String accessToken = tokenJson.getString("access_token");
 
+            // Get user info from Google
             URL userInfoUrl = new URL("https://www.googleapis.com/oauth2/v2/userinfo");
             HttpURLConnection userInfoConn = (HttpURLConnection) userInfoUrl.openConnection();
             userInfoConn.setRequestMethod("GET");
@@ -104,24 +90,30 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
 
             StringBuilder userInfo = new StringBuilder();
             try (BufferedReader in = new BufferedReader(new InputStreamReader(userInfoConn.getInputStream(), StandardCharsets.UTF_8))) {
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    userInfo.append(inputLine);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    userInfo.append(line);
                 }
             }
 
             JSONObject userInfoJson = new JSONObject(userInfo.toString());
+            String email = userInfoJson.getString("email");
+            String name = userInfoJson.getString("name");
 
-            HttpSession session = request.getSession();
-            session.setAttribute("userEmail", userInfoJson.getString("email"));
-            session.setAttribute("userName", userInfoJson.getString("name"));
-            session.setAttribute("userInfo", userInfoJson.toString());
+            // Check user in database (or insert new user if needed)
+//            UserDAO dao = new UserDAO();
+//            User user = dao.findUserByEmail(email);
+//            if (user == null) {
+//                user = dao.createUserFromOAuth(email, name);
+//            }
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(userInfoJson.toString());
+            String frontendRedirect = "http://localhost:3000/oauth-success?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                    + "&name=" + URLEncoder.encode(name, StandardCharsets.UTF_8);
+            response.sendRedirect(frontendRedirect);
+
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
+            e.printStackTrace();
+            response.sendRedirect("http://localhost:3000/login?error=server_error");
         }
     }
 }
