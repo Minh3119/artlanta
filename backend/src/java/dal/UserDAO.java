@@ -154,5 +154,73 @@ public class UserDAO extends DBContext {
         }
         return list;
     }
+    
+    public User getUserByEmailAndPassword(String email, String password) {
+        User user = null;
+        try {
+            String sql = "SELECT * FROM Users WHERE Email = ? AND PasswordHash = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, email);
+            st.setString(2, password);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                user = new User(
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate")
+                );
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 
+    public boolean checkUserExistsByUserName(String username) {
+        boolean exists = false;
+        try {
+            String sql = "SELECT * FROM Users WHERE Username = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, username);
+            ResultSet rs = st.executeQuery();
+            exists = rs.next(); 
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return exists;
+    }
+
+    public boolean checkUserExistsByEmail(String email) {
+        boolean exists = false;
+        try {
+            String sql = "SELECT * FROM Users WHERE Email = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            exists = rs.next(); 
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return exists;
+    }
 }
