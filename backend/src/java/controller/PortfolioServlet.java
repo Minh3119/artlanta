@@ -42,6 +42,7 @@ public class PortfolioServlet extends HttpServlet {
 
         PortfolioDAO dao = new PortfolioDAO();
         Portfolio portfolio = dao.getByArtistId(artistId);
+        dao.closeConnection();
         if (portfolio == null) {
             JsonUtil.writeJsonError(response, "Portfolio not found");
             return;
