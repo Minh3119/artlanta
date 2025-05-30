@@ -9,69 +9,26 @@ import model.User;
 
 public class UserDAO extends DBContext {
 
-    // TODO: Just use getOne bro, no need for getOneToEdit()
-
-    // public User getOneToEdit(int userID) {
-    // User user = null;
-    // try {
-    // String sql = """
-    // SELECT * FROM Users WHERE ID = ?
-    // """;
-    // PreparedStatement st = connection.prepareStatement(sql);
-    // st.setInt(1, userID);
-    // ResultSet rs = st.executeQuery();
-
-    // if (rs.next()) {
-    // user = new User(
-    // rs.getInt("ID"),
-    // rs.getString("Username"),
-    // rs.getString("Email"),
-    // rs.getString("PasswordHash"),
-    // rs.getString("FullName"),
-    // rs.getString("Bio"),
-    // rs.getString("AvatarURL"),
-    // rs.getBoolean("Gender"),
-    // rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() :
-    // null,
-    // rs.getString("Location"),
-    // rs.getString("Role"),
-    // rs.getString("Status"),
-    // rs.getString("Language"),
-    // rs.getTimestamp("CreatedAt") != null ?
-    // rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-    // rs.getTimestamp("LastLogin") != null ?
-    // rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-    // rs.getBoolean("IsFlagged")
-    // );
-    // }
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-    // return user;
-    // }
-
     public void updateUser(User user) {
-        try {
-            String sql = """
-                    UPDATE Users SET
-                    Username = ?,
-                    Email = ?,
-                    FullName = ?,
-                    Bio = ?,
-                    AvatarURL = ?,
-                    Gender = ?,
-                    DOB = ?,
-                    Location = ?,
-                    Role = ?,
-                    Status = ?,
-                    Language = ?,
-                    LastLogin = ?,
-                    IsFlagged = ?,
-                    IsPrivate = ?
-                    WHERE ID = ?
-                    """;
-
-            PreparedStatement st = connection.prepareStatement(sql);
+        String sql = """
+                UPDATE Users SET
+                Username = ?,
+                Email = ?,
+                FullName = ?,
+                Bio = ?,
+                AvatarURL = ?,
+                Gender = ?,
+                DOB = ?,
+                Location = ?,
+                Role = ?,
+                Status = ?,
+                Language = ?,
+                LastLogin = ?,
+                IsFlagged = ?,
+                IsPrivate = ?
+                WHERE ID = ?
+                """;
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, user.getUsername());
             st.setString(2, user.getEmail());
             st.setString(3, user.getFullName());
@@ -97,9 +54,7 @@ public class UserDAO extends DBContext {
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM Users WHERE Status = 'ACTIVE";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 User user = new User(
                         rs.getInt("ID"),
@@ -121,8 +76,6 @@ public class UserDAO extends DBContext {
                         rs.getBoolean("IsPrivate"));
                 list.add(user);
             }
-            rs.close();
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -131,10 +84,83 @@ public class UserDAO extends DBContext {
 
     public User getOne(int userID) {
         User user = null;
-        try {
-            String sql = "SELECT * FROM Users WHERE ID = ?";
-            PreparedStatement st = connection.prepareStatement(sql);
+        String sql = "SELECT * FROM Users WHERE ID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, userID);
+            st.closeOnCompletion();
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    user = new User(
+                            rs.getInt("ID"),
+                            rs.getString("Username"),
+                            rs.getString("Email"),
+                            rs.getString("PasswordHash"),
+                            rs.getString("FullName"),
+                            rs.getString("Bio"),
+                            rs.getString("AvatarURL"),
+                            rs.getBoolean("Gender"),
+                            rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                            rs.getString("Location"),
+                            rs.getString("Role"),
+                            rs.getString("Status"),
+                            rs.getString("Language"),
+                            rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                            rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                            rs.getBoolean("IsFlagged"),
+                            rs.getBoolean("IsPrivate"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    public List<User> getByRole(String role) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE Role = ? AND Status = 'ACTIVE'";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, role.toUpperCase());
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                            rs.getInt("ID"),
+                            rs.getString("Username"),
+                            rs.getString("Email"),
+                            rs.getString("PasswordHash"),
+                            rs.getString("FullName"),
+                            rs.getString("Bio"),
+                            rs.getString("AvatarURL"),
+                            rs.getBoolean("Gender"),
+                            rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                            rs.getString("Location"),
+                            rs.getString("Role"),
+                            rs.getString("Status"),
+                            rs.getString("Language"),
+                            rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                            rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                            rs.getBoolean("IsFlagged"),
+                            rs.getBoolean("IsPrivate"));
+                    list.add(user);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public User getUserByEmailAndPassword(String email, String password) {
+        User user = null;
+        try {
+            String sql = "SELECT * FROM Users WHERE Email = ? AND PasswordHash = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, email);
+            st.setString(2, password);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 user = new User(
@@ -154,7 +180,8 @@ public class UserDAO extends DBContext {
                         rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
                         rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
                         rs.getBoolean("IsFlagged"),
-                        rs.getBoolean("IsPrivate"));
+                        rs.getBoolean("IsPrivate")
+                );
             }
             rs.close();
             st.close();
@@ -164,41 +191,52 @@ public class UserDAO extends DBContext {
         return user;
     }
 
-    public List<User> getByRole(String role) {
-        List<User> list = new ArrayList<>();
+    public boolean checkUserExistsByUserName(String username) {
+        boolean exists = false;
         try {
-            String sql = "SELECT * FROM Users WHERE Role = ? AND Status = 'ACTIVE'";
+            String sql = "SELECT * FROM Users WHERE Username = ?";
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setString(1, role.toUpperCase());
+            st.setString(1, username);
             ResultSet rs = st.executeQuery();
-
-            while (rs.next()) {
-                User user = new User(
-                        rs.getInt("ID"),
-                        rs.getString("Username"),
-                        rs.getString("Email"),
-                        rs.getString("PasswordHash"),
-                        rs.getString("FullName"),
-                        rs.getString("Bio"),
-                        rs.getString("AvatarURL"),
-                        rs.getBoolean("Gender"),
-                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                        rs.getString("Location"),
-                        rs.getString("Role"),
-                        rs.getString("Status"),
-                        rs.getString("Language"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                        rs.getBoolean("IsFlagged"),
-                        rs.getBoolean("IsPrivate"));
-                list.add(user);
-            }
+            exists = rs.next();
             rs.close();
             st.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return exists;
     }
 
+    public boolean checkUserExistsByEmail(String email) {
+        boolean exists = false;
+        try {
+            String sql = "SELECT * FROM Users WHERE Email = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            exists = rs.next();
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return exists;
+    }
+
+    public void registerUser(String username, String email, String passwordHash) {
+        String sql = """
+        INSERT INTO Users (Username, Email, PasswordHash, Gender, Role, Status, Language, IsPrivate, IsFlagged)
+        VALUES (?, ?, ?, 0, 'CLIENT', 'ACTIVE', 'vn', 0, 0)
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, email);
+            st.setString(3, passwordHash);
+
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
