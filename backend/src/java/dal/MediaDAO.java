@@ -7,8 +7,10 @@ package dal;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 import model.Media;
-import model.PostMedia;
+import model.PortfolioMedia;
 
 /**
  *
@@ -53,5 +55,30 @@ public class MediaDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> getPortfolioMediaURLs(int artistId) {
+        List<String> mediaURLs = new ArrayList<>();
+        try {
+            String sql = """
+                    SELECT m.URL 
+                    FROM Media m 
+                    JOIN PortfolioMedia pm ON m.ID = pm.MediaID 
+                    WHERE pm.ArtistID = ?
+                    """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, artistId);
+            ResultSet rs = st.executeQuery();
+            
+            while (rs.next()) {
+                mediaURLs.add(rs.getString("URL"));
+            }
+            
+            rs.close();
+            st.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mediaURLs;
     }
 }
