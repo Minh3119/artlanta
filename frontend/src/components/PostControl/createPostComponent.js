@@ -136,7 +136,8 @@ class CreatePostComponent extends React.Component {
                                 :
                                 <img src={this.state.filePreview} alt="image" />
                         }
-                        <input type="file" className="file" accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
+                        <label for="file" className="file-label" tabIndex="0">File</label>
+                        <input type="file" id="file" hidden accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <textarea className="content" placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
                             <option value="PUBLIC">Public</option>

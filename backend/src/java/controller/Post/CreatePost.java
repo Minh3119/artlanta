@@ -90,7 +90,21 @@ public class CreatePost extends HttpServlet {
                 }
             }
 
-            Post post = new Post(
+//            Post post = new Post(
+//                    0,
+//                    userID,
+//                    title,
+//                    content,
+//                    false,
+//                    visibility,
+//                    LocalDateTime.now(),
+//                    null,
+//                    false
+//            );
+//            Media media = new Media(0, imageUrl);
+
+            PostDAO pd = new PostDAO();
+            pd.createPost(new Post(
                     0,
                     userID,
                     title,
@@ -100,14 +114,7 @@ public class CreatePost extends HttpServlet {
                     LocalDateTime.now(),
                     null,
                     false
-            );
-            Media media = new Media(0, imageUrl);
-            
-            PostDAO pd = new PostDAO();
-            int postID=pd.createPostReturnID(post);
-            MediaDAO md = new MediaDAO();
-            int mediaID=md.createMediaReturnID(media);
-            md.createPostMedia(postID,mediaID);
+            ), new Media(0, imageUrl));
 
 //            Test API
 //            JSONObject jsonPost = new JSONObject();
