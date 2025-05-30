@@ -2,53 +2,126 @@ package dal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import model.Media;
 import model.Post;
-
 
 public class PostDAO extends DBContext {
 
-    public void createPost(Post post) {
+    public void createPost(Post post, Media media) throws SQLException {
+        PreparedStatement pstPost = null, pstMedia = null, pstPostMedia = null;
+
         try {
-            String sql = """
-                    INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?);
-                    """;
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, post.getUserID());
-            st.setString(2, post.getTitle());
-            st.setString(3, post.getContent());
-            st.setBoolean(4, post.isDraft());
-            st.setString(5, post.getVisibility());
-            st.setObject(6, LocalDateTime.now());
-            st.executeUpdate();
-            st.close();
+            connection.setAutoCommit(false);
+            pstPost = connection.prepareStatement("""
+                                                insert into Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt)
+                                                VALUES (?, ?, ?, ?, ?, ?);
+                                                """,
+                    Statement.RETURN_GENERATED_KEYS);
+
+            pstPost.setInt(1, post.getUserID());
+            pstPost.setString(2, post.getTitle());
+            pstPost.setString(3, post.getContent());
+            pstPost.setBoolean(4, post.isDraft());
+            pstPost.setString(5, post.getVisibility());
+            pstPost.setObject(6, LocalDateTime.now());
+            pstPost.executeUpdate();
+            ResultSet rsPost = pstPost.getGeneratedKeys();
+            rsPost.next();
+            int postId = rsPost.getInt(1);
+
+            pstMedia = connection.prepareStatement("""
+                                                 insert into Media(URL)
+                                                 values(?);
+                                                 """,
+                    Statement.RETURN_GENERATED_KEYS);
+            pstMedia.setString(1, media.getURL());
+            pstMedia.executeUpdate();
+            ResultSet rsMedia = pstMedia.getGeneratedKeys();
+            rsMedia.next();
+            int mediaId = rsMedia.getInt(1);
+
+            pstPostMedia = connection.prepareStatement("""
+                                                      insert into PostMedia(PostID,MediaID)
+                                                      values(?,?);
+                                                      """,
+                    Statement.RETURN_GENERATED_KEYS);
+            pstPostMedia.setInt(1, postId);
+            pstPostMedia.setInt(2, mediaId);
+            pstPostMedia.executeUpdate();
+
+            connection.commit();
         } catch (SQLException e) {
+            if (connection != null) {
+                connection.rollback();
+            }
             e.printStackTrace();
+        } finally {
+            if (pstPostMedia != null) {
+                pstPostMedia.close();
+            }
+            if (pstMedia != null) {
+                pstMedia.close();
+            }
+            if (pstPost != null) {
+                pstPost.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
         }
     }
 
+    //especially for get the autogenID
+//    public int createPostReturnID(Post post) {
+//        int postID=0;
+//        try {
+//            String sql = """
+//                    INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt)
+//                    VALUES (?, ?, ?, ?, ?, ?);
+//                    """;
+//            PreparedStatement st = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+//            st.setInt(1, post.getUserID());
+//            st.setString(2, post.getTitle());
+//            st.setString(3, post.getContent());
+//            st.setBoolean(4, post.isDraft());
+//            st.setString(5, post.getVisibility());
+//            st.setObject(6, LocalDateTime.now());
+//            st.executeUpdate();
+//            
+//            //return the auto-geng ID
+//            ResultSet rs = st.getGeneratedKeys();
+//            if (rs.next()) {
+//                postID = rs.getInt(1);
+//            }
+//            st.close();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return postID;
+//    }
     public List<Post> getAllPosts() {
         List<Post> posts = new ArrayList<>();
         try {
             String sql = "SELECT * FROM Posts WHERE IsDeleted = 0 ORDER BY CreatedAt DESC";
             PreparedStatement st = connection.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
-            
+
             while (rs.next()) {
                 Post post = new Post(
-                    rs.getInt("ID"),
-                    rs.getInt("UserID"),
-                    rs.getString("Title"),
-                    rs.getString("Content"),
-                    rs.getBoolean("IsDraft"),
-                    rs.getString("Visibility"),
-                    rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                    rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                    rs.getBoolean("IsDeleted")
+                        rs.getInt("ID"),
+                        rs.getInt("UserID"),
+                        rs.getString("Title"),
+                        rs.getString("Content"),
+                        rs.getBoolean("IsDraft"),
+                        rs.getString("Visibility"),
+                        rs.getTimestamp("CreatedAt").toLocalDateTime(),
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("IsDeleted")
                 );
                 posts.add(post);
             }
@@ -67,18 +140,18 @@ public class PostDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, userID);
             ResultSet rs = st.executeQuery();
-            
+
             while (rs.next()) {
                 Post post = new Post(
-                    rs.getInt("ID"),
-                    rs.getInt("UserID"),
-                    rs.getString("Title"),
-                    rs.getString("Content"),
-                    rs.getBoolean("IsDraft"),
-                    rs.getString("Visibility"),
-                    rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                    rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                    rs.getBoolean("IsDeleted")
+                        rs.getInt("ID"),
+                        rs.getInt("UserID"),
+                        rs.getString("Title"),
+                        rs.getString("Content"),
+                        rs.getBoolean("IsDraft"),
+                        rs.getString("Visibility"),
+                        rs.getTimestamp("CreatedAt").toLocalDateTime(),
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("IsDeleted")
                 );
                 posts.add(post);
             }
@@ -97,18 +170,18 @@ public class PostDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, postID);
             ResultSet rs = st.executeQuery();
-            
+
             if (rs.next()) {
                 post = new Post(
-                    rs.getInt("ID"),
-                    rs.getInt("UserID"),
-                    rs.getString("Title"),
-                    rs.getString("Content"),
-                    rs.getBoolean("IsDraft"),
-                    rs.getString("Visibility"),
-                    rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                    rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                    rs.getBoolean("IsDeleted")
+                        rs.getInt("ID"),
+                        rs.getInt("UserID"),
+                        rs.getString("Title"),
+                        rs.getString("Content"),
+                        rs.getBoolean("IsDraft"),
+                        rs.getString("Visibility"),
+                        rs.getTimestamp("CreatedAt").toLocalDateTime(),
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("IsDeleted")
                 );
             }
             rs.close();
@@ -169,18 +242,18 @@ public class PostDAO extends DBContext {
             st.setString(1, "%" + keyword + "%");
             st.setString(2, "%" + keyword + "%");
             ResultSet rs = st.executeQuery();
-            
+
             while (rs.next()) {
                 Post post = new Post(
-                    rs.getInt("ID"),
-                    rs.getInt("UserID"),
-                    rs.getString("Title"),
-                    rs.getString("Content"),
-                    rs.getBoolean("IsDraft"),
-                    rs.getString("Visibility"),
-                    rs.getTimestamp("CreatedAt").toLocalDateTime(),
-                    rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                    rs.getBoolean("IsDeleted")
+                        rs.getInt("ID"),
+                        rs.getInt("UserID"),
+                        rs.getString("Title"),
+                        rs.getString("Content"),
+                        rs.getBoolean("IsDraft"),
+                        rs.getString("Visibility"),
+                        rs.getTimestamp("CreatedAt").toLocalDateTime(),
+                        rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("IsDeleted")
                 );
                 posts.add(post);
             }

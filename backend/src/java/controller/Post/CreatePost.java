@@ -2,6 +2,7 @@ package controller.Post;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import dal.MediaDAO;
 import dal.PostDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -15,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Map;
+import model.Media;
 import model.Post;
+import model.PostMedia;
 import org.json.JSONObject;
 import util.JsonUtil;
 import validation.EnvConfig;
@@ -43,7 +46,7 @@ public class CreatePost extends HttpServlet {
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
-        boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
+//        boolean isDraft = Boolean.parseBoolean(request.getParameter("isDraft"));
         try {
 
             if (title == null || title.trim().isEmpty()
@@ -54,7 +57,7 @@ public class CreatePost extends HttpServlet {
             }
 
             Integer userID = (Integer) request.getSession().getAttribute("userID");
-            userID=10;
+            userID = 10;
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
@@ -87,35 +90,44 @@ public class CreatePost extends HttpServlet {
                 }
             }
 
-            Post post = new Post(
+//            Post post = new Post(
+//                    0,
+//                    userID,
+//                    title,
+//                    content,
+//                    false,
+//                    visibility,
+//                    LocalDateTime.now(),
+//                    null,
+//                    false
+//            );
+//            Media media = new Media(0, imageUrl);
+
+            PostDAO pd = new PostDAO();
+            pd.createPost(new Post(
                     0,
                     userID,
                     title,
                     content,
-                    isDraft,
+                    false,
                     visibility,
                     LocalDateTime.now(),
-                    null, 
-                    false 
-            );
+                    null,
+                    false
+            ), new Media(0, imageUrl));
 
-            PostDAO pd = new PostDAO();
-            pd.createPost(post);
-
-            JSONObject jsonPost = new JSONObject();
-            jsonPost.put("title", post.getTitle());
-            jsonPost.put("content", post.getContent());
-            jsonPost.put("visibility", post.getVisibility());
-            jsonPost.put("isDraft", post.isDraft());
-            if (imageUrl != null) {
-                jsonPost.put("imageUrl", imageUrl);
-            }
-
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("response", jsonPost);
-
-            JsonUtil.writeJsonResponse(response, jsonResponse);
-
+//            Test API
+//            JSONObject jsonPost = new JSONObject();
+//            jsonPost.put("title", post.getTitle());
+//            jsonPost.put("content", post.getContent());
+//            jsonPost.put("visibility", post.getVisibility());
+//            jsonPost.put("isDraft", post.isDraft());
+//            if (imageUrl != null) {
+//                jsonPost.put("imageUrl", imageUrl);
+//            }
+//            JSONObject jsonResponse = new JSONObject();
+//            jsonResponse.put("response", postID);
+//            JsonUtil.writeJsonResponse(response, jsonResponse);
         } catch (Exception e) {
             e.printStackTrace();
             JsonUtil.writeJsonError(response, "Error creating post: " + e.getMessage());
