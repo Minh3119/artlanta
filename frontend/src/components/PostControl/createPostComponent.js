@@ -142,7 +142,11 @@ class CreatePostComponent extends React.Component {
                             <option value="PUBLIC">Public</option>
                             <option value="PRIVATE">Private</option>
                         </select>
-                        <button onClick={this.handleSubmit}>Post</button>
+
+                    </div>
+                    <div className="post-button">
+                        <button onClick={this.handleSubmit}>Create</button>
+                        <button>Cancel</button>
                     </div>
 
 
