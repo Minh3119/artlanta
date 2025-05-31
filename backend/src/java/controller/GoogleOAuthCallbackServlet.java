@@ -21,10 +21,18 @@ import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
 import util.EnvReader;
 import dal.UserDAO;
+import java.security.SecureRandom;
 import model.User;
 
 @WebServlet(name = "GoogleOAuthCallbackServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthCallbackServlet extends HttpServlet {
+
+    private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+    private static final String NUMBER = "0123456789";
+    private static final String SPECIAL_CHAR = "!@#$%";
+
+    private static final String PASSWORD_ALLOW_BASE = CHAR_LOWER + CHAR_UPPER + NUMBER + SPECIAL_CHAR;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -97,23 +105,43 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
             }
 
             JSONObject userInfoJson = new JSONObject(userInfo.toString());
+            JSONObject res = new JSONObject();
+            UserDAO userDao = new UserDAO();
             String email = userInfoJson.getString("email");
             String name = userInfoJson.getString("name");
 
-            // Check user in database (or insert new user if needed)
-//            UserDAO dao = new UserDAO();
-//            User user = dao.findUserByEmail(email);
-//            if (user == null) {
-//                user = dao.createUserFromOAuth(email, name);
-//            }
-
-            String frontendRedirect = "http://localhost:3000/oauth-success?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
-                    + "&name=" + URLEncoder.encode(name, StandardCharsets.UTF_8);
-            response.sendRedirect(frontendRedirect);
-
+            if (!userDao.checkUserExistsByEmail(email)) {
+                String password = generateRandomPassword(10);
+                userDao.registerUser(name, email, password);
+            }
+            
+            User user = userDao.getUserByEmail(email);
+            
+            HttpSession session = request.getSession(true);
+            session.setAttribute("user", user);
+            response.sendRedirect("http://localhost:3000/");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("http://localhost:3000/login?error=server_error");
         }
+    }
+
+    private String generateRandomPassword(int length) {
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = secureRandom.nextInt(PASSWORD_ALLOW_BASE.length());
+            password.append(PASSWORD_ALLOW_BASE.charAt(index));
+        }
+
+        return password.toString();
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 }
