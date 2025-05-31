@@ -1,4 +1,4 @@
-package controller.post;
+package controller.Post;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -60,17 +60,6 @@ public class CreatePost extends HttpServlet {
                 "api_key", config.getProperty("my_key"),
                 "api_secret", config.getProperty("my_secret")
         ));
-        Post post = new Post(
-                0,
-                10,
-                title,
-                content,
-                false,
-                visibility,
-                LocalDateTime.now(),
-                null,
-                false
-        );
         try {
 
             if (title == null || title.trim().isEmpty()) {
@@ -100,7 +89,7 @@ public class CreatePost extends HttpServlet {
                         Map<String, Object> uploadResult = cloudinary.uploader().upload(
                                 fileBytes, ObjectUtils.asMap("resource_type", "image"));
 
-                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString()));
+                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(),"",null));
 
                     } catch (Exception e) {
                         JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
@@ -109,17 +98,6 @@ public class CreatePost extends HttpServlet {
                 }
             }
 
-            post = new Post(
-                    0,
-                    userID,
-                    title,
-                    content,
-                    false,
-                    visibility,
-                    LocalDateTime.now(),
-                    null,
-                    false
-            );
 //            Media media = new Media(0, imageUrl);
             PostDAO pd = new PostDAO();
             pd.createPost(new Post(

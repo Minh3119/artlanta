@@ -1,4 +1,4 @@
-package controller.post;
+package controller.Post;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -41,14 +41,14 @@ public class UpdatePost extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         try {
-            String rawPostID = request.getParameter("postID");
-            if (rawPostID == null || rawPostID.trim().isEmpty()) {
-                JsonUtil.writeJsonError(response, "Thiếu tham số postID");
-                return;
-            }
+//            String rawPostID = request.getParameter("postID");
+//            if (rawPostID == null || rawPostID.trim().isEmpty()) {
+//                JsonUtil.writeJsonError(response, "Thiếu tham số postID");
+//                return;
+//            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=10;
+            int postID=11;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -74,7 +74,7 @@ public class UpdatePost extends HttpServlet {
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
-            jsonPost.put("visibility", post.getVisibility());
+            jsonPost.put("visibility", post.getVisibility().equals("PUBLIC")? "Public":"Private");
 
             JSONArray imageArr = new JSONArray();
             for (Media media : imageList) {
@@ -139,7 +139,7 @@ public class UpdatePost extends HttpServlet {
                         Map<String, Object> uploadResult = cloudinary.uploader().upload(
                                 fileBytes, ObjectUtils.asMap("resource_type", "image"));
 
-                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString()));
+                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(),"",null));
 
                     } catch (Exception e) {
                         JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());

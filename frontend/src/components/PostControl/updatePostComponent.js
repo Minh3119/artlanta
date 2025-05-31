@@ -177,9 +177,9 @@ class UpdatePostComponent extends React.Component {
             })
             .then(data => {
                 this.setState({
-                    title: data.response.title || "",
-                    content: data.response.content || "",
-                    visibility: (data.response.visibility).equal("PUBLIC") ? "Public" : "Private",
+                    title: data.response.title || "dcm",
+                    content: data.response.content || "dcm",
+                    visibility: data.response.visibility || "Public",
                     filePreview: Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [],
                 });
             })

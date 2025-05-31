@@ -87,4 +87,22 @@ public class MediaDAO extends DBContext {
         }
         return mediaList;
     }
+    public List<Media> getPostMediaByID(int postID) {
+        List<Media> list=new ArrayList<>();
+        try {
+            String sql = """
+                       select pm.PostID,m.URL from postmedia as pm join media as m on pm.MediaID=m.ID
+                       where pm.PostID=?;
+                       """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, postID);
+            ResultSet rs = st.executeQuery();
+            while(rs.next()){
+                list.add(new Media(0, rs.getString("URL"),"",null));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

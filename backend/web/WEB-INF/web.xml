@@ -6,11 +6,11 @@
     </servlet>
     <servlet>
         <servlet-name>CreatePost</servlet-name>
-        <servlet-class>controller.post.CreatePost</servlet-class>
+        <servlet-class>controller.Post.CreatePost</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UpdatePost</servlet-name>
-        <servlet-class>controller.post.UpdatePost</servlet-class>
+        <servlet-class>controller.Post.UpdatePost</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
