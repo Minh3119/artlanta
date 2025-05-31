@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Media;
 import model.Post;
+import util.JsonUtil;
 
 public class PostDAO extends DBContext {
 
@@ -167,9 +168,10 @@ public class PostDAO extends DBContext {
 
     public Post getPost(int postID) {
         Post post = null;
+        String sql = "SELECT * FROM Posts WHERE ID = ?";
         try {
-            String sql = "SELECT * FROM Posts WHERE ID = ? AND IsDeleted = 0";
             PreparedStatement st = connection.prepareStatement(sql);
+
             st.setInt(1, postID);
             ResultSet rs = st.executeQuery();
 
@@ -183,11 +185,9 @@ public class PostDAO extends DBContext {
                         rs.getString("Visibility"),
                         rs.getTimestamp("CreatedAt").toLocalDateTime(),
                         rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
-                        rs.getBoolean("IsDeleted")
+                        rs.getBoolean("IsFlagged")
                 );
             }
-            rs.close();
-            st.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

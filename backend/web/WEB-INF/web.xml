@@ -6,7 +6,11 @@
     </servlet>
     <servlet>
         <servlet-name>CreatePost</servlet-name>
-        <servlet-class>controller.Post.CreatePost</servlet-class>
+        <servlet-class>controller.post.CreatePost</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdatePost</servlet-name>
+        <servlet-class>controller.post.UpdatePost</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
@@ -15,5 +19,9 @@
     <servlet-mapping>
         <servlet-name>CreatePost</servlet-name>
         <url-pattern>/api/post/create</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdatePost</servlet-name>
+        <url-pattern>/api/post/update</url-pattern>
     </servlet-mapping>
 </web-app>

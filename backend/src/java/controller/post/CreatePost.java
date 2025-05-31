@@ -1,4 +1,4 @@
-package controller.Post;
+package controller.post;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -73,9 +73,7 @@ public class CreatePost extends HttpServlet {
         );
         try {
 
-            if (title == null || title.trim().isEmpty()
-                    || content == null || content.trim().isEmpty()
-                    || visibility == null || visibility.trim().isEmpty()) {
+            if (title == null || title.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
