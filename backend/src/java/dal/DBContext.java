@@ -18,6 +18,13 @@ public class DBContext {
             ex.printStackTrace();
         }
     }
+    public void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Connection getConnection() {
         return connection;

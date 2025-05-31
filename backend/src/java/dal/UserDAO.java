@@ -239,4 +239,12 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
+    public void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
