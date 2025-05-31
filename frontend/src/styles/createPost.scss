@@ -3,16 +3,16 @@
     width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #000000;
+    background-color: #00000039;
     .post-popup {
         min-width: 40%;
-        // min-height: 50%;
         max-height: 500px;
         max-width: 500px;
         border-radius: 10px;
-        background-color: rgba(245, 245, 245, 0.798);
+        background-color: rgb(245, 245, 245);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -22,6 +22,7 @@
         .post-header{
             margin-top: 20px;
             color: black;
+            font-size: 150%;
             font-weight: bolder;
         }
         .post-form{
@@ -30,65 +31,111 @@
             align-items: left;
             width: 70%;
             height: 90%;
+            height: fit-content;
             gap: 10px;
-            .title{
-                width: 100%;
-                min-height: 15%;
-                border: none;
-                color: black;
-                border-radius: 10px;
-                padding-left: 10px;
+
+            .image-container{
+                display: inline-block;
+                .image-wrapper{
+                    position: relative;
+                    display: inline-block;
+                    img{
+                        display: block;
+                        border-radius: 10px;
+                        max-height: 300px;
+                        max-width: 100%;
+                        width: fit-content;
+                        margin: 10px 0;
+                    }
+                    button{
+                        position: absolute;
+                        top:50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                        border: 2px solid orange;
+                        background-color: rgba(0, 0, 0, 0.645);
+                        color: white;
+                        font-weight: bolder;
+                    }
+                }
+                .image-wrapper:hover{
+                button{
+                    opacity: 1 !important;
+                    pointer-events: auto !important;
+                }
+            }
+            }
+            
+            .title-container{
+                .title{
+                    width: 100%;
+                    min-height: 15%;
+                    color: black;
+                    border-radius: 10px;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    border:2px solid silver;
+                }
+                p{
+                    margin-top: 2px;
+                    margin-bottom: 0;
+                    width: 10%;
+                    padding-left: 10px;
+                    font-size: 60%;
+                }
             }
             .file-label{
-                width: 30%;
-                padding-left: 10px;
-                background-color: aquamarine;
-                border-radius: 5px;
-            }
-            img{
-                border-radius: 10px;
-                max-height: 200px;
-                margin: 10px 0;
-            }
-            textarea{
-                background-color: white;
-                width: 100%;
-                min-height: 5%;
-                border: none;
-                color: black;
-                border-radius: 10px;
+                font-size: 90%;
+                width: fit-content;
                 padding:0 10px;
+                background-color: transparent;
+                border-radius: 5px;
+                border: 2px solid orange;
+                transition: box-shadow 0.4s ease, color 0.5s ease;
+            }
+            .file-label:hover{
+                box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
+                color: orange;
+            }
+            .content-container{
+                textarea{
+                    background-color: white;
+                    width: 100%;
+                    min-height: 5%;
+                    color: black;
+                    border-radius: 10px;
+                    padding:0 10px;
+                    border:2px solid silver;
+                }
+                p{
+                    margin-bottom: 0;
+                    width: 15%;
+                    padding-left: 10px;
+                    font-size: 60%;
+                }
+
             }
             select{
-                // padding: 12px 16px;
-                padding-left: 10px;
-                width: 50%;
-                border-radius: 12px;
-                border: 1.5px solid rgba(255 255 255 / 0.6);
-                background-color: #FFFFFF1A;
+                border-radius: 5px;
+                border: 2px solid orange;
+                background-color: transparent;
                 color: #000000;
-                font-size: 1rem;
-                appearance: none; //DELETE the arrow
+                font-size: 90%;
+                width: fit-content;
+                appearance:none;
+                padding: 0 10px;
                 cursor: pointer;
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                box-shadow: 0 8px 32px 0 rgba(31 38 135 / 0.37);
-                margin: 0 5px;  
-                background-repeat: no-repeat;
-                // background-position:
-                //   calc(100% - 20px) calc(1em + 3px),
-                //   calc(100% - 14px) calc(1em + 3px);
-                background-size: 7px 7px;
-                transition: border-color 0.7s ease, box-shadow 0.7s ease,background-color 0.7s ease;
+                transition: box-shadow 0.4s ease,color 0.5s ease;
 
                 option{
-                background-color: #282c34;
+                    background-color: #2f2c2b;
                 }
             }
             select:hover{
-                background-color: #00000070;
-                border-color: rgba(255 255 255 / 0.9);
-                box-shadow: 0 12px 48px 0 rgba(31 38 135 / 0.6);
+                box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
+                color: orange;
             }
         }
         .post-button{
@@ -99,11 +146,10 @@
             justify-content: center;
             gap: 10px;
             button{
-            // background-color: aquamarine;
             width: 20%;
             height: 30px;
             border-radius: 10px;
-            font-size: 50%;
+            font-size: 70%;
             font-family: "Open Sans", sans-serif;
             
         }
