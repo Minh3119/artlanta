@@ -2,6 +2,8 @@ import React from "react";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Heaer";
 import ArtistPost from "../components/HomePage/AritistPost";
+import Footer from "../components/HomePage/Footer";
+
 
 export default function HomePage() {
   return (
@@ -16,6 +18,8 @@ export default function HomePage() {
       </div>
 
       <ArtistPost></ArtistPost>
+
+      <Footer></Footer>
     </div>
   );
 }

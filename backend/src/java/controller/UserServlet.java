@@ -37,10 +37,9 @@ public class UserServlet extends HttpServlet {
                 jsonUser.put("id", user.getID());
                 jsonUser.put("username", user.getUsername());
                 jsonUser.put("displayName", user.getFullName());
-                jsonUser.put("bio", user.getBio());
                 jsonUser.put("avatarUrl", user.getAvatarURL());
-                jsonUser.put("location", user.getLocation());
-                jsonUser.put("language", user.getLanguage());
+                jsonUser.put("gender", user.getGender());
+                jsonUser.put("role", user.getRole());
                 jsonUser.put("createdAt", user.getCreatedAt().toString());
                 jsonUsers.put(jsonUser);
             }
@@ -71,6 +70,7 @@ public class UserServlet extends HttpServlet {
         }
 
         User user = dao.getOne(userId);
+        dao.closeConnection();
         if (user == null) {
             JsonUtil.writeJsonError(response, "User not found");
             return;
@@ -78,16 +78,17 @@ public class UserServlet extends HttpServlet {
 
         request.getSession().setAttribute("lastUsername", user.getUsername());
 
-        dao.closeConnection();
 
         // Respond
         JSONObject jsonUser = new JSONObject();
         jsonUser.put("id", user.getID());
         jsonUser.put("username", user.getUsername());
-        jsonUser.put("fullname", user.getFullName());
+        jsonUser.put("displayName", user.getFullName());
         jsonUser.put("bio", user.getBio());
         jsonUser.put("avatarUrl", user.getAvatarURL());
+        jsonUser.put("gender", user.getGender());
         jsonUser.put("location", user.getLocation());
+        jsonUser.put("role", user.getRole());
         jsonUser.put("language", user.getLanguage());
         jsonUser.put("createdAt", user.getCreatedAt().toString());
 
