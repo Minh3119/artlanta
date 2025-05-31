@@ -48,7 +48,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=11;
+            int postID=13;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();

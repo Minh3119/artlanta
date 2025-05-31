@@ -115,6 +115,8 @@ class UpdatePostComponent extends React.Component {
         const files = Array.from(e.target.files);
         const validFiles = [];
 
+        document.getElementsByClassName("file")[0].value = "";
+
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
                 toast.error(`File "${file.name}" wrong format (only PNG or JPG)`, {
@@ -169,18 +171,33 @@ class UpdatePostComponent extends React.Component {
     handleOnChangeVisible = (e) => {
         this.setState({ visibility: e.target.value });
     }
+
+    //componentDidMount call when the component loading first time
+    //  fetchin api from server -> data
+    //      Get the old URL -> fetching each URL -> URL file -> .blob() tranform into Blob -> file property data -> new File([blob], filename, option)
+    //  setState data
     componentDidMount = () => {
         fetch('http://localhost:9999/backend/api/post/update')
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch post data');
                 return response.json();
             })
-            .then(data => {
+            .then(async data => {
+                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
+
+                const filesFromUrls = await Promise.all(
+                    previewUrls.map(async (url, index) => {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        return new File([blob], `image_${index}.jpg`, { type: blob.type });
+                    })
+                );
                 this.setState({
                     title: data.response.title || "dcm",
                     content: data.response.content || "dcm",
                     visibility: data.response.visibility || "Public",
-                    filePreview: Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [],
+                    file: filesFromUrls,
+                    filePreview: previewUrls,
                 });
             })
             .catch(error => {
@@ -248,7 +265,6 @@ class UpdatePostComponent extends React.Component {
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
                         </div>
                         {
-                            // this.state.filePreview != null ?
                             this.state.filePreview.map((item, index) => {
                                 return (
                                     <div className="image-container" key={index}>
@@ -259,13 +275,11 @@ class UpdatePostComponent extends React.Component {
                                     </div>
                                 )
                             })
-                            // :
-                            // null
 
 
                         }
                         <label for="file" className="file-label">File</label>
-                        <input type="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
+                        <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
                             <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                             <p>{String(this.state.content.length).padStart(4, '0')}/1000</p>
