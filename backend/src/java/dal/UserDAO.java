@@ -222,6 +222,42 @@ public class UserDAO extends DBContext {
         }
         return exists;
     }
+    
+    public User getUserByEmail(String email) {
+                User user = null;
+        try {
+            String sql = "SELECT * FROM Users WHERE Email = ?";
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                user = new User(
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate")
+                );
+            }
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 
     public void registerUser(String username, String email, String passwordHash) {
         String sql = """

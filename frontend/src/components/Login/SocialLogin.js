@@ -1,10 +1,42 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+
 const SocialLogin = () => {
-  
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleGoogleLogin =  async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:8080/backend/api/oauth2callbackgoogle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        setMessage(`API Error: ${res.status} - ${errorText}`);
+        return;
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        setMessage("Login success");
+        navigate("/");
+      } else {
+        setMessage(data.message || "Login failed");
+      }
+    } catch (error) {
+      setMessage(`Network error: ${error.message}`);
+    }
+  }
 
   return (
-    <div className="social-login">
+    <>
+        <div className="social-login">
       <button className="social-button">
-        <a href="#!" className="social-button__link">
+        <a href="https://accounts.google.com/o/oauth2/auth?client_id=612749939529-nubjikfjccj44tqlandplnec64gtse32.apps.googleusercontent.com&redirect_uri=http://localhost:8080/backend/api/oauth2callbackgoogle&response_type=code&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&access_type=online" className="social-button__link">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 48 48"
@@ -30,20 +62,9 @@ const SocialLogin = () => {
           Google
         </a>
       </button>
-      {/* <button className="social-button">
-        <a href="https://github.com/login/oauth/authorize?client_id=Ov23litLrhiCQ8SMvVyY&redirect_uri=http://localhost:8080/backend/api/oauth2callbackgithub&scope=user:email" className="social-button__link">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="black"
-            height="24"
-          >
-            <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.92.58.11.79-.25.79-.56v-2.13c-3.2.69-3.87-1.55-3.87-1.55-.53-1.35-1.29-1.71-1.29-1.71-1.06-.73.08-.71.08-.71 1.17.08 1.79 1.21 1.79 1.21 1.04 1.78 2.73 1.27 3.4.97.1-.75.41-1.27.75-1.56-2.56-.29-5.26-1.28-5.26-5.72 0-1.26.45-2.3 1.2-3.11-.12-.3-.52-1.52.11-3.17 0 0 .98-.31 3.2 1.18a11.1 11.1 0 0 1 2.91-.39c.99 0 2 .13 2.91.39 2.22-1.49 3.2-1.18 3.2-1.18.63 1.65.23 2.87.11 3.17.75.81 1.2 1.85 1.2 3.11 0 4.45-2.7 5.42-5.28 5.7.42.36.8 1.07.8 2.16v3.2c0 .31.21.68.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" />
-          </svg>
-          Github
-        </a>
-      </button> */}
     </div>
+    {message && <p className="message">{message}</p>}
+    </>
   );
 };
 export default SocialLogin;
