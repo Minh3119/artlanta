@@ -501,4 +501,27 @@ INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
 (5, 9), -- 3D Modeling Portfolio
 (5, 10);
 
+-- Sample Social Links data
+INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
+(1, 'Instagram', 'https://instagram.com/john_doe_art', '2025-03-01'),
+(1, 'Twitter', 'https://twitter.com/john_doe_creates', '2025-03-01'),
+(1, 'ArtStation', 'https://artstation.com/john_doe_portfolio', '2025-03-01'),
+(2, 'Instagram', 'https://instagram.com/jane_smith_writes', '2025-03-02'),
+(2, 'Facebook', 'https://facebook.com/jane.smith.writer', '2025-03-02'),
+(3, 'DeviantArt', 'https://deviantart.com/alice_wonder_art', '2025-03-03'),
+(3, 'Instagram', 'https://instagram.com/alice_creates', '2025-03-03'),
+(4, 'ArtStation', 'https://artstation.com/bob_builder_designs', '2025-03-04'),
+(5, 'Twitter', 'https://twitter.com/charlie_dev_codes', '2025-03-05'),
+(5, 'GitHub', 'https://github.com/charlie_dev', '2025-03-05'),
+(6, 'Instagram', 'https://instagram.com/emma_artist_gallery', '2025-03-06'),
+(6, 'DeviantArt', 'https://deviantart.com/emma_artist', '2025-03-06'),
+(6, 'ArtStation', 'https://artstation.com/emma_portfolio', '2025-03-06'),
+(7, 'Twitch', 'https://twitch.tv/david_gamer_live', '2025-03-07'),
+(7, 'YouTube', 'https://youtube.com/david_gamer', '2025-03-07'),
+(8, 'Instagram', 'https://instagram.com/sophia_travels', '2025-03-08'),
+(8, 'Facebook', 'https://facebook.com/sophia.travel.blog', '2025-03-08'),
+(9, 'Twitter', 'https://twitter.com/michael_gaming', '2025-03-09'),
+(10, 'LinkedIn', 'https://linkedin.com/in/david-tech', '2025-03-10'),
+(11, 'GitHub', 'https://github.com/kevin_coder', '2025-03-11');
+
 

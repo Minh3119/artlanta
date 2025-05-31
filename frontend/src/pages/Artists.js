@@ -67,7 +67,7 @@ const Artists = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="text-left mb-12">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Hire the best artists
+                        Find the best artists
                     </h1>
                     <p className="text-xl text-gray-600">
                         Work with top-quality freelance drawing artists who will get your project done just right.

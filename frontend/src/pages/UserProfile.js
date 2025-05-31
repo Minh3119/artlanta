@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ImageViewerModal from '../components/UserProfileView/ImageViewerModal';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -9,6 +10,9 @@ const UserProfilePage = () => {
 	const [portfolioData, setPortfolioData] = useState(null);
 	const [socialLinks, setSocialLinks] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [currentImageIndex, setCurrentImageIndex] = useState(0);
+	const [allImages, setAllImages] = useState([]);
+	const [showModal, setShowModal] = useState(false);
 
 	useEffect(() => {
 		const fetchAllData = async () => {
@@ -34,6 +38,20 @@ const UserProfilePage = () => {
 				const portfolioData = await portfolioRes.json();
 				if (!portfolioData.error) {
 					setPortfolioData(portfolioData.response);
+					// Create unified list of images starting with cover
+					const images = [
+						{
+							url: portfolioData.response.coverUrl,
+							isCover: true,
+							title: portfolioData.response.title,
+							description: portfolioData.response.description
+						},
+						...(portfolioData.response.media || []).map(media => ({
+							...media,
+							isCover: false
+						}))
+					];
+					setAllImages(images);
 				}
 
 				// Fetch social links
@@ -77,6 +95,28 @@ const UserProfilePage = () => {
 		}
 	};
 
+	const handleNextImage = () => {
+		if (currentImageIndex < allImages.length - 1) {
+			setCurrentImageIndex(prev => prev + 1);
+		}
+	};
+
+	const handlePreviousImage = () => {
+		if (currentImageIndex > 0) {
+			setCurrentImageIndex(prev => prev - 1);
+		}
+	};
+
+	const handleCloseViewer = () => {
+		setShowModal(false);
+	};
+
+	const handleImageClick = () => {
+		if (!allImages[currentImageIndex].isCover) {
+			setShowModal(true);
+		}
+	};
+
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
@@ -96,25 +136,16 @@ const UserProfilePage = () => {
 		);
 	}
 
+	const currentImage = allImages[currentImageIndex];
+
 	return (
-		<div className="min-h-screen bg-white">
-			<div className="max-w-4xl mx-auto py-12 px-4">
-				<div className="bg-white shadow-lg rounded-lg overflow-hidden">
-					<div className="relative h-48 bg-gray-100">
-						{portfolioData?.coverUrl ? (
-							<img
-								src={portfolioData.coverUrl}
-								alt="Cover"
-								className="w-full h-full object-cover"
-							/>
-						) : (
-							<div className="w-full h-full bg-gray-200"></div>
-						)}
-					</div>
-					
-					<div className="relative px-6 pt-16 pb-8">
-						<div className="absolute -top-16 left-6">
-							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100">
+		<div className="min-h-screen bg-gray-50">
+			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[50vh]">
+					{/* Left Column - User Info */}
+					<div className="bg-white rounded-3xl shadow-lg p-8">
+						<div className="flex items-start space-x-4">
+							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
 								{userData.avatarUrl ? (
 									<img
 										src={userData.avatarUrl}
@@ -129,30 +160,30 @@ const UserProfilePage = () => {
 									</div>
 								)}
 							</div>
+							<div className="flex-1">
+								<h1 className="text-3xl font-bold text-gray-900">
+									{userData.displayName || userData.username}
+								</h1>
+								{userData.username && userData.displayName && (
+									<p className="text-lg text-gray-500">@{userData.username}</p>
+								)}
+							</div>
 						</div>
 
-						<div className="mt-2">
-							<h1 className="text-3xl font-bold text-gray-900">
-								{userData.displayName || userData.username}
-								{userData.username && userData.displayName && (
-									<span className="text-lg font-normal text-gray-500 ml-2">@{userData.username}</span>
-								)}
-							</h1>
-							{userData.bio && (
-								<p className="mt-4 text-gray-600">{userData.bio}</p>
-							)}
-						</div>
+						{userData.bio && (
+							<p className="mt-6 text-gray-600 text-lg">{userData.bio}</p>
+						)}
 
 						{/* Social Links */}
 						{socialLinks.length > 0 && (
-							<div className="mt-4 flex flex-wrap gap-3">
+							<div className="mt-6 flex flex-wrap gap-3">
 								{socialLinks.map((link) => (
 									<a
 										key={link.id}
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+										className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
 									>
 										<span className="mr-2">{getSocialIcon(link.platform)}</span>
 										<span className="text-sm text-gray-700">{link.platform}</span>
@@ -161,7 +192,7 @@ const UserProfilePage = () => {
 							</div>
 						)}
 
-						<div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-6 border-t border-gray-200 pt-6">
+						<div className="mt-8 grid grid-cols-2 gap-6">
 							{userData.location && (
 								<div>
 									<h3 className="text-sm font-medium text-gray-500">Location</h3>
@@ -181,39 +212,20 @@ const UserProfilePage = () => {
 								</p>
 							</div>
 						</div>
+					</div>
 
-						{/* Portfolio Section */}
+					{/* Right Column - Portfolio Cover */}
+					<div className="relative h-full">
 						{portfolioData && (
-							<div className="mt-8 border-t border-gray-200 pt-8">
-								<h2 className="text-2xl font-bold text-gray-900 mb-4">Portfolio</h2>
-								{portfolioData.title && (
-									<h3 className="text-xl font-semibold text-gray-800 mb-2">{portfolioData.title}</h3>
-								)}
-								{portfolioData.description && (
-									<p className="text-gray-600 mb-4">{portfolioData.description}</p>
-								)}
-								{portfolioData.achievements && (
-									<div className="mt-4">
-										<h4 className="text-lg font-semibold text-gray-800 mb-2">Achievements</h4>
-										<p className="text-gray-600">{portfolioData.achievements}</p>
-									</div>
-								)}
-							</div>
-						)}
-
-						{userData.artworks && (
-							<div className="mt-8">
-								<h2 className="text-xl font-bold text-gray-900 mb-4">Artworks</h2>
-								<div className="grid grid-cols-3 gap-4">
-									{userData.artworks.map((artwork, index) => (
-										<div key={index} className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden">
-											<img
-												src={artwork.imageUrl}
-												alt={artwork.title}
-												className="w-full h-full object-cover"
-											/>
-										</div>
-									))}
+							<div className="relative h-full rounded-3xl overflow-hidden shadow-xl">
+								<img
+									src={portfolioData.coverUrl}
+									alt="Portfolio Cover"
+									className="w-full h-full object-cover"
+								/>
+								<div className="absolute bottom-0 left-0 p-8 text-white bg-gradient-to-t from-black/70 to-transparent w-full">
+									<h2 className="text-3xl font-bold mb-2">{portfolioData.title}</h2>
+									<p className="text-lg">{portfolioData.description}</p>
 								</div>
 							</div>
 						)}
@@ -221,6 +233,18 @@ const UserProfilePage = () => {
 				</div>
 			</div>
 			<ToastContainer />
+
+			{/* Image Viewer Modal */}
+			{showModal && currentImage && !currentImage.isCover && (
+				<ImageViewerModal
+					imageUrl={currentImage.url}
+					onClose={handleCloseViewer}
+					onPrevious={currentImageIndex > 0 ? handlePreviousImage : undefined}
+					onNext={currentImageIndex < allImages.length - 1 ? handleNextImage : undefined}
+					hasPrevious={currentImageIndex > 0}
+					hasNext={currentImageIndex < allImages.length - 1}
+				/>
+			)}
 		</div>
 	);
 };
