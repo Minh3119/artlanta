@@ -1,6 +1,6 @@
 import React from "react";
 
-import '../../styles/createPost.scss';
+import '../../styles/post.scss';
 
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
@@ -62,6 +62,30 @@ class CreatePostComponent extends React.Component {
                 })
             )
     };
+    handleCancel = () => {
+        toast.error("The process has been canceled!", {
+            toastId: "cancel",
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            className: "toast-complete"
+        });
+        this.setState({
+            title: '',
+            content: '',
+            file: [],
+            filePreview: [],
+            visibility: 'PUBLIC',
+            // isImage: false,
+            isLoading: false,
+            isPosting: false,
+        })
+    }
     handleRemoveImage = (index) => {
         const newFile = [...this.state.file];
         const newPreview = [...this.state.filePreview];
@@ -147,8 +171,8 @@ class CreatePostComponent extends React.Component {
         this.setState({ visibility: e.target.value });
     }
     handleSubmit = async () => {
-        if (!(this.state.title.trim()) && !(this.state.content.trim())) {
-            toast.error("Title and content cannot be blank");
+        if (!(this.state.title.trim())) {
+            toast.error("Title cannot be blank");
             return;
         }
         const formData = new FormData();
@@ -226,7 +250,7 @@ class CreatePostComponent extends React.Component {
                         <label for="file" className="file-label">File</label>
                         <input type="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
-                            <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
+                            <textarea className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                             <p>{String(this.state.content.length).padStart(4, '0')}/1000</p>
                         </div>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
@@ -237,7 +261,7 @@ class CreatePostComponent extends React.Component {
                     </div>
                     <div className="post-button">
                         <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Create</button>
-                        <button style={{ backgroundColor: "lightcoral" }}>Cancel</button>
+                        <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
                     </div>
 
 
