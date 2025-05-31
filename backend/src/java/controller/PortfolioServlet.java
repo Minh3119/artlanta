@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import model.Media;
 import model.Portfolio;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -47,7 +48,7 @@ public class PortfolioServlet extends HttpServlet {
         MediaDAO mediaDao = new MediaDAO();
         
         Portfolio portfolio = portfolioDao.getByArtistId(artistId);
-        List<String> mediaUrls = mediaDao.getPortfolioMediaURLs(artistId);
+        List<Media> mediaList = mediaDao.getPortfolioMedia(artistId);
         
         portfolioDao.closeConnection();
         mediaDao.closeConnection();
@@ -66,12 +67,17 @@ public class PortfolioServlet extends HttpServlet {
         jsonPortfolio.put("achievements", portfolio.getAchievements());
         jsonPortfolio.put("createdAt", portfolio.getCreatedAt().toString());
         
-        // Add media URLs array
-        JSONArray mediaUrlsArray = new JSONArray();
-        for (String url : mediaUrls) {
-            mediaUrlsArray.put(url);
+        // Add media array with full objects
+        JSONArray mediaArray = new JSONArray();
+        for (Media media : mediaList) {
+            JSONObject mediaObj = new JSONObject();
+            mediaObj.put("id", media.getID());
+            mediaObj.put("url", media.getURL());
+            mediaObj.put("description", media.getDescription());
+            mediaObj.put("createdAt", media.getCreatedAt().toString());
+            mediaArray.put(mediaObj);
         }
-        jsonPortfolio.put("mediaUrls", mediaUrlsArray);
+        jsonPortfolio.put("media", mediaArray);
 
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", jsonPortfolio);

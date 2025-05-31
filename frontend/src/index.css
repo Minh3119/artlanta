@@ -19,4 +19,5 @@ body {
 #root {
     display: flex;
     flex-direction: column;
+    background-color: rgb(249, 250, 251); /* bg-gray-50 */
 }

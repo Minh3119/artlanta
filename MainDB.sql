@@ -475,4 +475,30 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, Reference
 (10, 9, 'Logo Design', 'Thiết kế logo công ty.', 'http://ref9.com', '2025-04-28', 'REJECTED'),
 (1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
 
+-- Sample Media data with real, lightweight image URLs
+INSERT INTO Media (URL, Description, CreatedAt) VALUES
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png', 'Cute character illustration', '2025-04-01'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png', 'Nature-themed character', '2025-04-01'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png', 'Water-themed artwork', '2025-04-02'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png', 'Fire-themed character', '2025-04-02'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png', 'Flying creature artwork', '2025-04-03'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png', 'Water beast artwork', '2025-04-03'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png', 'Psychic character concept', '2025-04-04'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png', 'Mythical creature design', '2025-04-04'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/384.png', 'Dragon character concept', '2025-04-05'),
+('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/249.png', 'Legendary beast design', '2025-04-05');
+
+-- Link Media to Portfolios
+INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
+(1, 1), -- Digital Art Collection
+(1, 2),
+(2, 3), -- Portrait Sketches
+(2, 4),
+(3, 1), -- Landscape Paintings
+(3, 2),
+(3, 3), -- Anime Style Works
+(3, 4),
+(5, 9), -- 3D Modeling Portfolio
+(5, 10);
+
 

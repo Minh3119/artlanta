@@ -57,11 +57,11 @@ public class MediaDAO extends DBContext {
         }
     }
 
-    public List<String> getPortfolioMediaURLs(int artistId) {
-        List<String> mediaURLs = new ArrayList<>();
+    public List<Media> getPortfolioMedia(int artistId) {
+        List<Media> mediaList = new ArrayList<>();
         try {
             String sql = """
-                    SELECT m.URL 
+                    SELECT m.* 
                     FROM Media m 
                     JOIN PortfolioMedia pm ON m.ID = pm.MediaID 
                     WHERE pm.ArtistID = ?
@@ -71,7 +71,13 @@ public class MediaDAO extends DBContext {
             ResultSet rs = st.executeQuery();
             
             while (rs.next()) {
-                mediaURLs.add(rs.getString("URL"));
+                Media media = new Media(
+                    rs.getInt("ID"),
+                    rs.getString("URL"),
+                    rs.getString("Description"),
+                    rs.getTimestamp("CreatedAt")
+                );
+                mediaList.add(media);
             }
             
             rs.close();
@@ -79,6 +85,6 @@ public class MediaDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return mediaURLs;
+        return mediaList;
     }
 }
