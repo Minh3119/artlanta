@@ -74,6 +74,7 @@ public class PostDAO extends DBContext {
                 pstPost.close();
             }
             if (connection != null) {
+                connection.setAutoCommit(true);
                 connection.close();
             }
         }

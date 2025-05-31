@@ -48,7 +48,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=13;
+            int postID=20;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -64,14 +64,13 @@ public class UpdatePost extends HttpServlet {
                 imageList = new ArrayList<>();
             }
 
-            if (post.getTitle() == null || post.getTitle().trim().isEmpty()
-                    || post.getContent() == null || post.getContent().trim().isEmpty()
-                    || post.getVisibility() == null || post.getVisibility().trim().isEmpty()) {
+            if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Thiếu dữ liệu: title, content hoặc visibility");
                 return;
             }
 
             JSONObject jsonPost = new JSONObject();
+            jsonPost.put("postID", post.getID());
             jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
             jsonPost.put("visibility", post.getVisibility().equals("PUBLIC")? "Public":"Private");
@@ -96,6 +95,12 @@ public class UpdatePost extends HttpServlet {
 
     }
 
+    //doPost
+    //catching the data from UI
+    //uploading the file into Cloudinary
+    //URL gen
+    //deletePost -> PostMedia delete -> Media delete according to postID
+    //re-insert into db
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -104,6 +109,8 @@ public class UpdatePost extends HttpServlet {
         //        Declaration
         Collection<Part> parts = request.getParts();
         List<Media> imageUrl = new ArrayList<>();
+        String raw_ID = request.getParameter("postID");
+        int postID;
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
@@ -114,6 +121,7 @@ public class UpdatePost extends HttpServlet {
                 "api_secret", config.getProperty("my_secret")
         ));
         try {
+            postID=Integer.parseInt(raw_ID);
             if (title == null || title.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
@@ -148,6 +156,8 @@ public class UpdatePost extends HttpServlet {
                 }
             }
             PostDAO pd = new PostDAO();
+            MediaDAO md = new MediaDAO();
+            md.deleteMediaByPostID(postID);
             pd.createPost(new Post(
                     0,
                     userID,

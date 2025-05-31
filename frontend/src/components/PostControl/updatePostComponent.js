@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 class UpdatePostComponent extends React.Component {
     state = {
+        postID: 0,
         title: '',
         content: '',
         file: [],
@@ -193,6 +194,7 @@ class UpdatePostComponent extends React.Component {
                     })
                 );
                 this.setState({
+                    postID: data.response.postID,
                     title: data.response.title || "dcm",
                     content: data.response.content || "dcm",
                     visibility: data.response.visibility || "Public",
@@ -210,6 +212,7 @@ class UpdatePostComponent extends React.Component {
             return;
         }
         const formData = new FormData();
+        formData.append("postID", this.state.postID);
         formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
