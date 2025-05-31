@@ -37,7 +37,7 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String fullPath = getServletContext().getRealPath("/WEB-INF/env.txt");
+        String fullPath = getServletContext().getRealPath("/WEB-INF/config.properties");
         EnvReader.loadEnv(fullPath);
 
         String CLIENT_ID_GOOGLE = EnvReader.getEnv("CLIENT_ID_GOOGLE");
