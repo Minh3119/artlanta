@@ -102,7 +102,6 @@ class CreatePostComponent extends React.Component {
                 body: formData
             });
             console.log('Response:', res);
-            // const result = await res.json();
             if (res.ok) {
                 this.setState({
                     title: '',
@@ -124,28 +123,35 @@ class CreatePostComponent extends React.Component {
     render() {
         return (
             <div className="create-post-container">
-                <div className="post-header">
-                    Create Post
+                <div className="post-popup">
+                    <div className="post-header">
+                        Create Post
+                    </div>
+
+                    <div className="post-form">
+                        <input type="text" className="title" placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
+                        {
+                            !(this.state.isImage) ?
+                                null
+                                :
+                                <img src={this.state.filePreview} alt="image" />
+                        }
+                        <label for="file" className="file-label" tabIndex="0">File</label>
+                        <input type="file" id="file" hidden accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
+                        <textarea className="content" placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
+                        <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
+                            <option value="PUBLIC">Public</option>
+                            <option value="PRIVATE">Private</option>
+                        </select>
+
+                    </div>
+                    <div className="post-button">
+                        <button onClick={this.handleSubmit}>Create</button>
+                        <button>Cancel</button>
+                    </div>
+
+
                 </div>
-
-                <div className="post-form">
-                    <input type="text" className="title" placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
-                    {
-                        !(this.state.isImage) ?
-                            null
-                            :
-                            <img src={this.state.filePreview} alt="image" />
-                    }
-                    <input type="file" className="file" accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
-                    <textarea className="content" placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
-                    <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
-                        <option value="PUBLIC">Public</option>
-                        <option value="PRIVATE">Private</option>
-                    </select>
-                    <button onClick={this.handleSubmit}>Post</button>
-                </div>
-
-
             </div>
         )
     }
