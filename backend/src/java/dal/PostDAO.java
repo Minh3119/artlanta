@@ -12,7 +12,7 @@ import model.Post;
 
 public class PostDAO extends DBContext {
 
-    public void createPost(Post post, Media media) throws SQLException {
+    public void createPost(Post post, List<Media> list) throws SQLException {
         PreparedStatement pstPost = null, pstMedia = null, pstPostMedia = null;
 
         try {
@@ -39,20 +39,22 @@ public class PostDAO extends DBContext {
                                                  values(?);
                                                  """,
                     Statement.RETURN_GENERATED_KEYS);
-            pstMedia.setString(1, media.getURL());
-            pstMedia.executeUpdate();
-            ResultSet rsMedia = pstMedia.getGeneratedKeys();
-            rsMedia.next();
-            int mediaId = rsMedia.getInt(1);
-
             pstPostMedia = connection.prepareStatement("""
                                                       insert into PostMedia(PostID,MediaID)
                                                       values(?,?);
                                                       """,
                     Statement.RETURN_GENERATED_KEYS);
-            pstPostMedia.setInt(1, postId);
-            pstPostMedia.setInt(2, mediaId);
-            pstPostMedia.executeUpdate();
+            for (Media m : list) {
+                pstMedia.setString(1, m.getURL());
+                pstMedia.executeUpdate();
+                ResultSet rsMedia = pstMedia.getGeneratedKeys();
+                rsMedia.next();
+                int mediaId = rsMedia.getInt(1);
+
+                pstPostMedia.setInt(1, postId);
+                pstPostMedia.setInt(2, mediaId);
+                pstPostMedia.executeUpdate();
+            }
 
             connection.commit();
         } catch (SQLException e) {

@@ -63,8 +63,8 @@ class CreatePostComponent extends React.Component {
             )
     };
     handleRemoveImage = (index) => {
-        const newFile = this.state.file;
-        const newPreview = this.state.filePreview;
+        const newFile = [...this.state.file];
+        const newPreview = [...this.state.filePreview];
 
         newFile.splice(index, 1);
         newPreview.splice(index, 1);
@@ -84,7 +84,7 @@ class CreatePostComponent extends React.Component {
     handleFileChange = async (e) => {
         const acceptedTypes = ['image/png', 'image/jpeg'];
         const options = {
-            maxSizeMB: 0.5,
+            maxSizeMB: 0.4,
             maxWidthOrHeight: 1024,
             useWebWorker: true,
         };
@@ -147,18 +147,22 @@ class CreatePostComponent extends React.Component {
         this.setState({ visibility: e.target.value });
     }
     handleSubmit = async () => {
-        if (!(this.state.title.trim()) || !(this.state.content.trim())) {
-            toast.error("Tiêu đề và nội dung không được để trống");
+        if (!(this.state.title.trim()) && !(this.state.content.trim())) {
+            toast.error("Title and content cannot be blank");
             return;
         }
         const formData = new FormData();
         formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
-            formData.append("file", this.state.file);
+            const images = this.state.file;
+            images.forEach((file, index) => {
+                formData.append("file[]", file);
+            })
+
         }
         formData.append("visibility", this.state.visibility);
-
+        console.log("form: ", formData);
         try {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/create', {
@@ -170,8 +174,8 @@ class CreatePostComponent extends React.Component {
                 this.setState({
                     title: '',
                     content: '',
-                    file: null,
-                    filePreview: null,
+                    file: [],
+                    filePreview: [],
                     visibility: 'PUBLIC',
                     // isImage: false,
                     isPosting: false,
@@ -199,28 +203,30 @@ class CreatePostComponent extends React.Component {
 
                     <div className="post-form">
                         <div className="title-container">
-                            <input type="text" className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
+                            <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
                         </div>
                         {
+                            // this.state.filePreview != null ?
                             this.state.filePreview.map((item, index) => {
                                 return (
                                     <div className="image-container" key={index}>
                                         <div className="image-wrapper">
                                             <img src={item} alt="post-image" />
-                                            <button onClick={(index) => { this.handleRemoveImage(index) }}>Remove</button>
+                                            <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
                                         </div>
                                     </div>
                                 )
                             })
-
+                            // :
+                            // null
 
 
                         }
                         <label for="file" className="file-label">File</label>
-                        <input type="file" id="file" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
+                        <input type="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
-                            <textarea className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
+                            <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                             <p>{String(this.state.content.length).padStart(4, '0')}/1000</p>
                         </div>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
