@@ -48,7 +48,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=20;
+            int postID=27;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -157,8 +157,8 @@ public class UpdatePost extends HttpServlet {
             }
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
-            md.deleteMediaByPostID(postID);
-            pd.createPost(new Post(
+            
+            pd.updatePost(new Post(
                     0,
                     userID,
                     title,
@@ -168,7 +168,8 @@ public class UpdatePost extends HttpServlet {
                     LocalDateTime.now(),
                     null,
                     false
-            ), imageUrl);
+            ),postID);
+            md.deleteMediaByPostID(postID,imageUrl);
 
         } catch (Exception e) {
             e.printStackTrace();

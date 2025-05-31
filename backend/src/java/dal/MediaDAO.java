@@ -116,39 +116,49 @@ public class MediaDAO extends DBContext {
     //delete data according to the media list
     //delete the post accoriding to postID
     //commit
-    public void deleteMediaByPostID(int postID) throws SQLException {
-        PreparedStatement pstMedia = null,pstPost=null;
+    public void deleteMediaByPostID(int postID,  List<Media> list) throws SQLException {
+        PreparedStatement pstMedia = null, pstPostMedia = null;
 
         try {
             connection.setAutoCommit(false);
+            //delete
             pstMedia = connection.prepareStatement("""
-                                                 select m.ID,m.URL from Media as m join PostMedia as pm on m.ID=pm.MediaID
-                                                   where pm.postId=?
-                                                 """);
-
+                                                       delete FROM Media WHERE ID IN (SELECT MediaID FROM PostMedia WHERE PostID = ?);
+                                                       """);
             pstMedia.setInt(1, postID);
-            ResultSet rs = pstMedia.executeQuery();
-            List<Integer> mediaID = new ArrayList<>();
-            while (rs.next()) {
-                mediaID.add(rs.getInt("ID"));
+            pstMedia.executeUpdate();
+
+            pstPostMedia = connection.prepareStatement("""
+                                                 delete from PostMedia where PostID=?
+                                                 """);
+
+            pstPostMedia.setInt(1, postID);
+            pstPostMedia.executeUpdate();
+            
+            
+            //re-insert
+            pstMedia = connection.prepareStatement("""
+                                                 insert into Media(URL)
+                                                 values(?);
+                                                 """,
+                    Statement.RETURN_GENERATED_KEYS);
+            pstPostMedia = connection.prepareStatement("""
+                                                      insert into PostMedia(PostID,MediaID)
+                                                      values(?,?);
+                                                      """,
+                    Statement.RETURN_GENERATED_KEYS);
+            for (Media m : list) {
+                pstMedia.setString(1, m.getURL());
+                pstMedia.executeUpdate();
+                ResultSet rsMedia = pstMedia.getGeneratedKeys();
+                rsMedia.next();
+                int mediaID = rsMedia.getInt(1);
+
+                pstPostMedia.setInt(1, postID);
+                pstPostMedia.setInt(2, mediaID);
+                pstPostMedia.executeUpdate();
             }
 
-            if (!mediaID.isEmpty()) {
-                pstMedia = connection.prepareStatement("DELETE FROM Media WHERE ID IN ("
-                        + mediaID.stream().map(id -> "?").collect(Collectors.joining(",")) + ")");
-                for (int i = 0; i < mediaID.size(); i++) {
-                    pstMedia.setInt(i + 1, mediaID.get(i));
-                }
-                pstMedia.executeUpdate();
-            }
-            
-            pstPost = connection.prepareStatement("""
-                                                 delete from Posts where ID=?
-                                                 """);
-            
-            pstPost.setInt(1,postID);
-            pstPost.executeUpdate();
-            
             connection.commit();
         } catch (SQLException e) {
             if (connection != null) {

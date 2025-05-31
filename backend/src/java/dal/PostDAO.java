@@ -195,7 +195,7 @@ public class PostDAO extends DBContext {
         return post;
     }
 
-    public void updatePost(Post post) {
+    public void updatePost(Post post,int postID) {
         try {
             String sql = """
                     UPDATE Posts 
@@ -204,15 +204,15 @@ public class PostDAO extends DBContext {
                         IsDraft = ?, 
                         Visibility = ?,
                         UpdatedAt = ?
-                    WHERE ID = ? AND IsDeleted = 0
+                    WHERE ID = ? AND IsFlagged = 0
                     """;
             PreparedStatement st = connection.prepareStatement(sql);
             st.setString(1, post.getTitle());
             st.setString(2, post.getContent());
             st.setBoolean(3, post.isDraft());
             st.setString(4, post.getVisibility());
-            st.setObject(5, LocalDateTime.now());
-            st.setInt(6, post.getID());
+            st.setObject(5, null);
+            st.setInt(6, postID);
             st.executeUpdate();
             st.close();
         } catch (SQLException e) {
