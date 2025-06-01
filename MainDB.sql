@@ -22,7 +22,7 @@ CREATE TABLE Users (
     PasswordHash VARCHAR(255) NOT NULL,
     FullName VARCHAR(100),
     Bio VARCHAR(255),
-    AvatarURL VARCHAR(255),
+    AvatarURL VARCHAR(255) DEFAULT 'https://upload.wikimedia.org/wikipedia/commons/3/38/Solid_white_bordered.png',
     Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
     DOB DATETIME,
     Location VARCHAR(255),
@@ -340,12 +340,12 @@ DELIMITER ;
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
-('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Lập trình viên yêu thích AI', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'CLIENT', 0, '2025-02-28'),
+('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Graphic Designer', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-02-28'),
 ('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
-('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Yêu thích du lịch và chụp ảnh', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-01'),
+('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
-('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
+('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
 ('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
 ('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
 ('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
@@ -477,16 +477,16 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, Reference
 
 -- Sample Media data with real, lightweight image URLs
 INSERT INTO Media (URL, Description, CreatedAt) VALUES
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png', 'Cute character illustration', '2025-04-01'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png', 'Nature-themed character', '2025-04-01'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png', 'Water-themed artwork', '2025-04-02'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png', 'Fire-themed character', '2025-04-02'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png', 'Flying creature artwork', '2025-04-03'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png', 'Water beast artwork', '2025-04-03'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png', 'Psychic character concept', '2025-04-04'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png', 'Mythical creature design', '2025-04-04'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/384.png', 'Dragon character concept', '2025-04-05'),
-('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/249.png', 'Legendary beast design', '2025-04-05');
+('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration', '2025-04-01'),
+('https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', 'Nature-themed character', '2025-04-01'),
+('https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', 'Water-themed artwork', '2025-04-02'),
+('https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', 'Fire-themed character', '2025-04-02'),
+('https://i.pinimg.com/736x/7e/4a/71/7e4a71b6f79187f77289beaa1e1d476c.jpg', 'Flying creature artwork', '2025-04-03'),
+('https://i.pinimg.com/736x/8b/d6/5a/8bd65ab420e51f0a9706fffa96d9f54d.jpg', 'Water beast artwork', '2025-04-03'),
+('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept', '2025-04-04'),
+('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design', '2025-04-04'),
+('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept', '2025-04-05'),
+('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design', '2025-04-05');
 
 -- Link Media to Portfolios
 INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
@@ -500,5 +500,61 @@ INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
 (3, 4),
 (5, 9), -- 3D Modeling Portfolio
 (5, 10);
+
+-- Sample Social Links data
+INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
+(1, 'Instagram', 'https://instagram.com/john_doe_art', '2025-03-01'),
+(1, 'Twitter', 'https://twitter.com/john_doe_creates', '2025-03-01'),
+(1, 'ArtStation', 'https://artstation.com/john_doe_portfolio', '2025-03-01'),
+(2, 'Instagram', 'https://instagram.com/jane_smith_writes', '2025-03-02'),
+(2, 'Facebook', 'https://facebook.com/jane.smith.writer', '2025-03-02'),
+(3, 'DeviantArt', 'https://deviantart.com/alice_wonder_art', '2025-03-03'),
+(3, 'Instagram', 'https://instagram.com/alice_creates', '2025-03-03'),
+(4, 'ArtStation', 'https://artstation.com/bob_builder_designs', '2025-03-04'),
+(5, 'Twitter', 'https://twitter.com/charlie_dev_codes', '2025-03-05'),
+(5, 'GitHub', 'https://github.com/charlie_dev', '2025-03-05'),
+(6, 'Instagram', 'https://instagram.com/emma_artist_gallery', '2025-03-06'),
+(6, 'DeviantArt', 'https://deviantart.com/emma_artist', '2025-03-06'),
+(6, 'ArtStation', 'https://artstation.com/emma_portfolio', '2025-03-06'),
+(7, 'Twitch', 'https://twitch.tv/david_gamer_live', '2025-03-07'),
+(7, 'YouTube', 'https://youtube.com/david_gamer', '2025-03-07'),
+(8, 'Instagram', 'https://instagram.com/sophia_travels', '2025-03-08'),
+(8, 'Facebook', 'https://facebook.com/sophia.travel.blog', '2025-03-08'),
+(9, 'Twitter', 'https://twitter.com/michael_gaming', '2025-03-09'),
+(10, 'LinkedIn', 'https://linkedin.com/in/david-tech', '2025-03-10'),
+(11, 'GitHub', 'https://github.com/kevin_coder', '2025-03-11');
+
+
+-- giả sử post ID 1 có 3 ảnh
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(1, 1),
+(1, 2),
+(1, 3);
+
+-- post ID 2 có 2 ảnh
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(2, 4),
+(2, 5);
+
+-- post ID 3 có 1 ảnh
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(3, 6);
+
+-- post ID 4 có 2 ảnh
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(4, 7),
+(4, 8);
+
+-- post ID 5 có 2 ảnh
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(5, 9),
+(5, 10);
+
+INSERT INTO PostMedia (PostID, MediaID) VALUES
+(6, 2);
+
+
+
+
 
 
