@@ -34,12 +34,61 @@ import validation.EnvConfig;
 )
 public class UpdatePost extends HttpServlet {
 
+    //deleteImageFromCloudinary
+    //get URL-> split by / -> select the public_ID -> remove .png and .jsp
+    //destroy
+    private void deleteImageFromCloudinary(Cloudinary cloudinary, HttpServletResponse response, List<Media> oldImages) {
+        for (Media media : oldImages) {
+            try {
+                String imageUrl = media.getURL();
+
+                String[] parts = imageUrl.split("/");
+                String publicIdWithExtension = parts[parts.length - 1];
+                String publicId = publicIdWithExtension.split("\\.")[0];
+
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private List<Media> uploadImagesToCloudinary(Collection<Part> parts, Cloudinary cloudinary, HttpServletResponse response) throws IOException {
+        List<Media> imageUrl = new ArrayList<>();
+
+        for (Part part : parts) {
+            if (part.getName().equals("file[]") && part.getSize() > 0) {
+                try (InputStream fileStream = part.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+                    byte[] data = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+                    byte[] fileBytes = buffer.toByteArray();
+
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                            fileBytes, ObjectUtils.asMap("resource_type", "image"));
+
+                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), "", null));
+
+                } catch (Exception e) {
+                    JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
+                    return null;
+                }
+            }
+        }
+
+        return imageUrl;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
+
         try {
 //            String rawPostID = request.getParameter("postID");
 //            if (rawPostID == null || rawPostID.trim().isEmpty()) {
@@ -48,7 +97,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=29;
+            int postID = 30;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -64,14 +113,14 @@ public class UpdatePost extends HttpServlet {
                 imageList = new ArrayList<>();
             }
 
-            if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
+            if (post.getContent() == null || post.getContent().trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Title cannot be empty");
                 return;
             }
 
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("postID", post.getID());
-            jsonPost.put("title", post.getTitle());
+//            jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
             jsonPost.put("visibility", post.getVisibility().toUpperCase());
 
@@ -109,12 +158,14 @@ public class UpdatePost extends HttpServlet {
         //        Declaration
         Collection<Part> parts = request.getParts();
         List<Media> imageUrl = new ArrayList<>();
+        PostDAO pd = new PostDAO();
+        MediaDAO md = new MediaDAO();
         String raw_ID = request.getParameter("postID");
         int postID;
-        String title = request.getParameter("title");
+//        String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
-        
+
         EnvConfig config = new EnvConfig(getServletContext());
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", config.getProperty("my_cloud_name"),
@@ -122,8 +173,8 @@ public class UpdatePost extends HttpServlet {
                 "api_secret", config.getProperty("my_secret")
         ));
         try {
-            postID=Integer.parseInt(raw_ID);
-            if (title == null || title.trim().isEmpty()) {
+            postID = Integer.parseInt(raw_ID);
+            if (content == null || content.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
@@ -133,44 +184,25 @@ public class UpdatePost extends HttpServlet {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
             }
-            for (Part part : parts) {
-                if (part.getName().equals("file[]") && part.getSize() > 0) {
+            List<Media> oldImages = md.getPostMediaByID(postID);
+            deleteImageFromCloudinary(cloudinary, response, oldImages);
 
-                    try (InputStream fileStream = part.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-
-                        byte[] data = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
-                            buffer.write(data, 0, bytesRead);
-                        }
-                        byte[] fileBytes = buffer.toByteArray();
-
-                        Map<String, Object> uploadResult = cloudinary.uploader().upload(
-                                fileBytes, ObjectUtils.asMap("resource_type", "image"));
-
-                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(),"",null));
-
-                    } catch (Exception e) {
-                        JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
-                        return;
-                    }
-                }
+            imageUrl = uploadImagesToCloudinary(parts, cloudinary, response);
+            if (imageUrl == null) {
+                return;
             }
-            PostDAO pd = new PostDAO();
-            MediaDAO md = new MediaDAO();
-            
+
             pd.updatePost(new Post(
                     0,
                     userID,
-                    title,
                     content,
                     false,
                     visibility,
                     LocalDateTime.now(),
                     null,
                     false
-            ),postID);
-            md.deleteMediaByPostID(postID,imageUrl);
+            ), postID);
+            md.deleteMediaByPostID(postID, imageUrl);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -35,6 +35,9 @@
             font-size: 150%;
             font-weight: bolder;
             text-align: center;
+            text-align: center;
+            width: 40%;
+            border-bottom: 2px solid orange;
             // margin-top: 10px;
         }
         .post-form{
@@ -138,6 +141,9 @@
             color: black;
             font-size: 150%;
             font-weight: bolder;
+            text-align: center;
+            width: 40%;
+            border-bottom: 2px solid orange;
         }
         .post-form{
             display: flex;
@@ -175,11 +181,11 @@
                     }
                 }
                 .image-wrapper:hover{
-                button{
-                    opacity: 1 !important;
-                    pointer-events: auto !important;
+                    button{
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                    }
                 }
-            }
             }
             
             .title-container{
@@ -232,6 +238,7 @@
 
             }
             select{
+                outline: none;
                 border-radius: 5px;
                 border: 2px solid orange;
                 background-color: transparent;
@@ -251,6 +258,7 @@
                 box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
                 color: orange;
             }
+
         }
         .post-button{
             width: 100%;
