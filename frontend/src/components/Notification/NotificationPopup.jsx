@@ -12,14 +12,14 @@ function NotificationPopup({ userId }) {
 
   // Fetch notifications on mount or when userId changes
   useEffect(() => {
-    fetch(`/api/notifications?userId=${userId}`)
+    fetch(`backend/api/notifications?userId=${userId}`)
       .then(res => res.json())
       .then(data => setNotifications(data));
   }, [userId]);
 
   // Mark notification as read
   const markAsRead = (id) => {
-    fetch("/api/notifications", {
+    fetch("backend/api/notifications", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `action=markAsRead&ID=${id}&isRead=true`

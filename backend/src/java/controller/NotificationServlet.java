@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Notification;
-import com.google.gson.Gson;
 import dal.NotificationDAO;
 
 /**
@@ -48,8 +47,11 @@ public class NotificationServlet extends HttpServlet {
             throws ServletException, IOException {
                 response.setContentType("application/json;charset=UTF-8");
                 String userIdParam = request.getParameter("userId");
+                System.out.println("GET request received for userId: " + userIdParam);
+                
                 try (PrintWriter out = response.getWriter()) {
                     if (userIdParam == null) {
+                        System.out.println("Error: userId is null");
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         out.print("{\"error\": \"User ID is required\"}");
                         return;
@@ -58,6 +60,7 @@ public class NotificationServlet extends HttpServlet {
                     try {
                         userId = Integer.parseInt(userIdParam);
                     } catch (NumberFormatException e) {
+                        System.out.println("Error: Invalid userId format: " + userIdParam);
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         out.print("{\"error\": \"Invalid User ID format\"}");
                         return;
@@ -65,11 +68,48 @@ public class NotificationServlet extends HttpServlet {
 
                     NotificationDAO notificationDAO = new NotificationDAO();
                     List<Notification> notifications = notificationDAO.getNotifications(userId);
+                    System.out.println("Retrieved " + notifications.size() + " notifications for userId: " + userId);
 
-                    Gson gson = new Gson();
-                    String json = gson.toJson(notifications);
+                    StringBuilder jsonBuilder = new StringBuilder("[");
+                    for (int i = 0; i < notifications.size(); i++) {
+                        if (i > 0) {
+                            jsonBuilder.append(",");
+                        }
+                        Notification n = notifications.get(i);
+                        jsonBuilder.append("{")
+                            .append("\"id\":").append(n.getID()).append(",")
+                            .append("\"userId\":").append(n.getUserID()).append(",")
+                            .append("\"type\":\"").append(escapeJson(n.getType())).append("\",")
+                            .append("\"content\":\"").append(escapeJson(n.getContent())).append("\",")
+                            .append("\"postId\":").append(n.getPostID() != null ? n.getPostID() : "null").append(",")
+                            .append("\"isRead\":").append(n.isRead()).append(",")
+                            .append("\"createdAt\":\"").append(n.getCreatedAt().toString()).append("\"")
+                            .append("}");
+                    }
+                    jsonBuilder.append("]");
+                    
+                    String json = jsonBuilder.toString();
+                    System.out.println("Sending JSON response: " + json);
                     out.write(json);
- }
+                } catch (Exception e) {
+                    System.out.println("Error in doGet: " + e.getMessage());
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.getWriter().print("{\"error\": \"Internal server error: " + e.getMessage() + "\"}");
+                }
+    }
+
+    private String escapeJson(String input) {
+        if (input == null) {
+            return "";
+        }
+        return input.replace("\\", "\\\\")
+                   .replace("\"", "\\\"")
+                   .replace("\b", "\\b")
+                   .replace("\f", "\\f")
+                   .replace("\n", "\\n")
+                   .replace("\r", "\\r")
+                   .replace("\t", "\\t");
     }
 
     /**
@@ -88,14 +128,20 @@ public class NotificationServlet extends HttpServlet {
                 String type = request.getParameter("type");
                 String content = request.getParameter("content");
                 String postIdParam = request.getParameter("postId");
-
                 String action = request.getParameter("action");
 
+                System.out.println("POST request received with parameters:");
+                System.out.println("userId: " + userIdParam);
+                System.out.println("type: " + type);
+                System.out.println("content: " + content);
+                System.out.println("postId: " + postIdParam);
+                System.out.println("action: " + action);
+
                 try (PrintWriter out = response.getWriter()) {
-                    
                     NotificationDAO notificationDAO = new NotificationDAO();
 
-                    if ( userIdParam == null || type == null || content == null) {
+                    if (userIdParam == null || type == null || content == null) {
+                        System.out.println("Error: Missing required fields");
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         out.print("{\"error\": \"Missing required fields\"}");
                         return;
@@ -105,6 +151,7 @@ public class NotificationServlet extends HttpServlet {
                     try {
                         userId = Integer.parseInt(userIdParam);
                     } catch (NumberFormatException e) {
+                        System.out.println("Error: Invalid userId format: " + userIdParam);
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         out.print("{\"error\": \"Invalid User ID format\"}");
                         return;
@@ -116,6 +163,7 @@ public class NotificationServlet extends HttpServlet {
                         try {
                             postId = Integer.parseInt(postIdParam);
                         } catch (NumberFormatException e) {
+                            System.out.println("Error: Invalid postId format: " + postIdParam);
                             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                             out.print("{\"error\": \"Invalid Post ID format\"}");
                             return;
@@ -126,9 +174,11 @@ public class NotificationServlet extends HttpServlet {
                     }
 
                     if (success) {
+                        System.out.println("Notification saved successfully");
                         response.setStatus(HttpServletResponse.SC_CREATED);
                         out.print("{\"message\": \"Notification saved successfully\"}");
                     } else {
+                        System.out.println("Error: Failed to save notification");
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         out.print("{\"error\": \"Failed to save notification\"}");
                     }
@@ -138,6 +188,7 @@ public class NotificationServlet extends HttpServlet {
                         String isReadParam = request.getParameter("isRead");
 
                         if (idParam == null || isReadParam == null) {
+                            System.out.println("Error: Missing ID or isRead parameter");
                             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                             out.print("{\"error\": \"Missing ID or isRead parameter\"}");
                             return;
@@ -150,6 +201,7 @@ public class NotificationServlet extends HttpServlet {
                             id = Integer.parseInt(idParam);
                             isRead = Boolean.parseBoolean(isReadParam);
                         } catch (NumberFormatException e) {
+                            System.out.println("Error: Invalid ID or isRead format");
                             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                             out.print("{\"error\": \"Invalid ID or isRead format\"}");
                             return;
@@ -157,13 +209,20 @@ public class NotificationServlet extends HttpServlet {
 
                         boolean marked = notificationDAO.markAsRead(id, isRead);
                         if (marked) {
+                            System.out.println("Notification marked as read successfully");
                             response.setStatus(HttpServletResponse.SC_OK);
                             out.print("{\"message\": \"Notification marked as read\"}");
                         } else {
+                            System.out.println("Error: Failed to mark notification as read");
                             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                             out.print("{\"error\": \"Failed to mark notification as read\"}");
                         }
                     }
+                } catch (Exception e) {
+                    System.out.println("Error in doPost: " + e.getMessage());
+                    e.printStackTrace();
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    response.getWriter().print("{\"error\": \"Internal server error: " + e.getMessage() + "\"}");
                 }
     }
 
