@@ -13,6 +13,8 @@ import util.JsonUtil;
 @WebServlet("/api/follow-count/*")
 public class FollowCountServlet extends HttpServlet {
     
+    private FollowDAO followDAO = new FollowDAO();
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -39,16 +41,16 @@ public class FollowCountServlet extends HttpServlet {
             return;
         }
         
-        FollowDAO followDAO = new FollowDAO();
-        int followersCount = followDAO.getFollowersCount(userId);
-        int followingCount = followDAO.getFollowingCount(userId);
+        // Get follower and following counts using separate methods
+        int followers = followDAO.countFollowers(userId);
+        int following = followDAO.countFollowing(userId);
         
         // Create JSON response
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("success", true);
         JSONObject data = new JSONObject();
-        data.put("followers", followersCount);
-        data.put("following", followingCount);
+        data.put("followers", followers);
+        data.put("following", following);
         jsonResponse.put("response", data);
         
         response.getWriter().write(jsonResponse.toString());
