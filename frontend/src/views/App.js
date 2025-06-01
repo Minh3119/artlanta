@@ -1,21 +1,17 @@
-//import logo from './logo.svg';
-import '../styles/App.scss';
-import UserSettingComponent from '../components/UserProfileEdit/userSettingComponent';
-import CreatePostComponent from '../components/PostControl/createPostComponent';
-import { ToastContainer } from 'react-toastify';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import UserProfile from './pages/UserProfile';
+import Home from './pages/Home';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        {/* <HomeComponent /> */}
-        {/* <UserSettingComponent /> */}
-        <CreatePostComponent />
-
-      </header>
-      <ToastContainer />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
+export default App; 
