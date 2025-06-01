@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AvatarImage from '../components/UserProfileView/AvatarImage';
+import FollowerList from '../components/FollowControl/FollowerList';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -27,19 +28,24 @@ const UserProfilePage = () => {
 					headers: { 'Content-Type': 'application/json' },
 				});
 
+				console.log('Current user response status:', currentUserRes.status);
+
 				if (!currentUserRes.ok) {
-					throw new Error(`Failed to fetch current user: ${currentUserRes.statusText}`);
-				}
-
-				let currentUserData;
-				try {
-					currentUserData = await currentUserRes.json();
-				} catch (e) {
-					throw new Error('Invalid response format for current user');
-				}
-
-				if (!currentUserData.error) {
-					setCurrentUser(currentUserData.response);
+					console.error('Failed to fetch current user:', currentUserRes.statusText);
+					// Don't throw error, just log it
+				} else {
+					try {
+						const currentUserData = await currentUserRes.json();
+						console.log('Current user data:', currentUserData);
+						
+						if (!currentUserData.error) {
+							setCurrentUser(currentUserData.response);
+						} else {
+							console.error('Error in current user data:', currentUserData.error);
+						}
+					} catch (e) {
+						console.error('Error parsing current user response:', e);
+					}
 				}
 
 				// Fetch user data
@@ -310,15 +316,18 @@ const UserProfilePage = () => {
 								{userData.username && userData.displayName && (
 									<p className="text-lg text-gray-500">@{userData.username}</p>
 								)}
-								{/* Follow counts */}
-								<div className="mt-2 flex space-x-4">
-									<div className="text-base">
-										<span className="font-semibold text-gray-900">{followCounts.followers}</span>
-										<span className="text-gray-500"> followers</span>
-									</div>
-									<div className="text-base">
-										<span className="font-semibold text-gray-900">{followCounts.following}</span>
-										<span className="text-gray-500"> following</span>
+								<div className="flex items-center space-x-4">
+									<FollowerList 
+										userId={userId} 
+										count={followCounts.followers}
+										isOwnProfile={currentUser?.id === parseInt(userId)}
+									/>
+									<div className="w-px h-6 bg-gray-200"></div>
+									<div className="follower-list">
+										<button className="flex flex-col items-center">
+											<span className="font-semibold text-gray-900 text-base">{followCounts.following}</span>
+											<span className="text-gray-500 text-xs">following</span>
+										</button>
 									</div>
 								</div>
 							</div>
@@ -326,6 +335,14 @@ const UserProfilePage = () => {
 
 						{/* Follow/Edit Profile Button */}
 						<div className="mt-4">
+							{console.log('Debug values:', {
+								currentUser,
+								userId,
+								currentUserId: currentUser?.id,
+								parsedUserId: parseInt(userId),
+								isInteger: Number.isInteger(currentUser?.id),
+								isParseInteger: Number.isInteger(parseInt(userId))
+							})}
 							{currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id !== parseInt(userId) ? (
 								<button
 									onClick={handleFollow}
