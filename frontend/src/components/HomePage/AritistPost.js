@@ -54,6 +54,7 @@ export default function ArtistPost({ refetch, openDeletePopup, openUpdatePopup }
                                     <OptionsDropdown
                                         openUpdatePopup={openUpdatePopup}
                                         openDeletePopup={openDeletePopup}
+                                        post={post}
                                     />
                                 </div>
 

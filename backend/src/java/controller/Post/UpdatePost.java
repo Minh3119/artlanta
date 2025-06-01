@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import model.PostMedia;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
+import util.SessionUtil;
 import validation.EnvConfig;
 
 @MultipartConfig(
@@ -88,6 +90,8 @@ public class UpdatePost extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        String raw_postID= request.getParameter("postID");
+        int postID;
 
         try {
 //            String rawPostID = request.getParameter("postID");
@@ -97,7 +101,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID = 30;
+            postID= Integer.parseInt(raw_postID);
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -157,6 +161,7 @@ public class UpdatePost extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         //        Declaration
         Collection<Part> parts = request.getParts();
+        HttpSession session = request.getSession();
         List<Media> imageUrl = new ArrayList<>();
         PostDAO pd = new PostDAO();
         MediaDAO md = new MediaDAO();
@@ -178,8 +183,7 @@ public class UpdatePost extends HttpServlet {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
-            Integer userID = (Integer) request.getSession().getAttribute("userID");
-            userID = 10;
+            Integer userID = SessionUtil.getCurrentUserId(session);
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;

@@ -202,7 +202,8 @@ class CreatePostComponent extends React.Component {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/create', {
                 method: "POST",
-                body: formData
+                body: formData,
+                credentials: 'include'
             });
             console.log('Response:', res);
             if (res.ok) {

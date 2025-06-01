@@ -23,7 +23,6 @@ import java.util.Map;
 import model.Media;
 import model.Post;
 import model.PostMedia;
-import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
@@ -80,9 +79,8 @@ public class CreatePost extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         //        Declaration
-        Collection<Part> parts = request.getParts(); 
+        Collection<Part> parts = request.getParts();
         HttpSession session = request.getSession();
-        User user = session.getAttribute("user");
         List<Media> imageUrl = new ArrayList<>();
 //        String title = request.getParameter("title");
         String content = request.getParameter("content");
@@ -100,8 +98,7 @@ public class CreatePost extends HttpServlet {
                 return;
             }
 
-            
-            int userID= user.getID();
+            Integer userID = SessionUtil.getCurrentUserId(session);
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;

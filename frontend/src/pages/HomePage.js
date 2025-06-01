@@ -9,15 +9,38 @@ import DeletePostComponent from "../components/PostControl/deletePostComponent";
 
 
 export default function HomePage() {
+  const [isRefresh, setIsRefresh] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const openCreatePopup = () => setIsCreateOpen(true);
-  const closeCreatePopup = () => setIsCreateOpen(false);
+  const openCreatePopup = () => {
+    setIsCreateOpen(true);
+    setIsRefresh(true);
+  };
+  const closeCreatePopup = () => {
+    setIsCreateOpen(false);
+    setIsRefresh(false);
+  };
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const openUpdatePopup = () => setIsUpdateOpen(true);
-  const closeUpdatePopup = () => setIsUpdateOpen(false);
+  const [updatePostID, setUpdatePostID] = useState(0);
+  const openUpdatePopup = (postID) => {
+    setUpdatePostID(postID);
+    setIsUpdateOpen(true);
+    setIsRefresh(true);
+  };
+  const closeUpdatePopup = () => {
+    setIsUpdateOpen(false);
+    setIsRefresh(false);
+  };
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const openDeletePopup = () => setIsDeleteOpen(true);
-  const closeDeletePopup = () => setIsDeleteOpen(false);
+  const [deletePostID, setDeletePostID] = useState(0);
+  const openDeletePopup = (postID) => {
+    setDeletePostID(postID);
+    setIsDeleteOpen(true);
+    setIsRefresh(true);
+  };
+  const closeDeletePopup = () => {
+    setIsDeleteOpen(false);
+    setIsRefresh(false);
+  };
 
 
   return (
@@ -32,7 +55,7 @@ export default function HomePage() {
       </div>
 
       <ArtistPost
-        refetch={isCreateOpen}
+        refetch={isRefresh}
         openUpdatePopup={openUpdatePopup}
         openDeletePopup={openDeletePopup}
       />
@@ -43,6 +66,7 @@ export default function HomePage() {
       {isCreateOpen ?
         < CreatePostComponent
           closeCreatePopup={closeCreatePopup}
+
         />
         :
         null
@@ -50,6 +74,7 @@ export default function HomePage() {
       {isUpdateOpen ?
         < UpdatePostComponent
           closeUpdatePopup={closeUpdatePopup}
+          updatePostID={updatePostID}
         />
         :
         null
@@ -57,6 +82,7 @@ export default function HomePage() {
       {isDeleteOpen ?
         < DeletePostComponent
           closeDeletePopup={closeDeletePopup}
+          deletePostID={deletePostID}
         />
         :
         null

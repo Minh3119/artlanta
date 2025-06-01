@@ -185,7 +185,9 @@ class UpdatePostComponent extends React.Component {
     //      Get the old URL -> fetching each URL -> URL file -> .blob() tranform into Blob -> file property data -> new File([blob], filename, option)
     //  setState data
     componentDidMount = () => {
-        fetch('http://localhost:9999/backend/api/post/update')
+        fetch(`http://localhost:9999/backend/api/post/update?postID=${this.props.updatePostID}`, {
+            credentials: 'include'
+        })
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch post data');
                 return response.json();
@@ -219,7 +221,7 @@ class UpdatePostComponent extends React.Component {
             return;
         }
         const formData = new FormData();
-        formData.append("postID", this.state.postID);
+        formData.append("postID", this.props.updatePostID);
         formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
@@ -235,7 +237,8 @@ class UpdatePostComponent extends React.Component {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/update', {
                 method: "POST",
-                body: formData
+                body: formData,
+                credentials: 'include'
             });
             console.log('Response:', res);
             if (res.ok) {

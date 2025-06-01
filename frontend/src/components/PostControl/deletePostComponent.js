@@ -35,17 +35,43 @@ class DeletePostComponent extends React.Component {
             })
         }
     }
+    handleCancel = () => {
+        toast.error("The process has been canceled!", {
+            toastId: "cancel",
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            className: "toast-complete"
+        });
+        this.setState({
+            title: '',
+            content: '',
+            file: [],
+            filePreview: [],
+            visibility: 'PUBLIC',
+            // isImage: false,
+            isLoading: false,
+            isPosting: false,
+        })
+        this.props.closeDeletePopup();
+    }
     handleSubmit = async () => {
         if ((this.state.result) === (this.state.script)) {
             const formData = new FormData();
-            formData.append("postID", this.props.postID); //get from post detail
+            formData.append("postID", this.props.deletePostID); //get from post detail
             try {
                 this.setState({ isDelete: true });
                 const res = await fetch('http://localhost:9999/backend/api/post/delete', {
                     method: "POST",
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
-                console.log('Response:', res);
+                console.log('Response:', this.props.deletePostID);
                 if (res.ok) {
                     this.setState({
                         result: "",
@@ -95,6 +121,8 @@ class DeletePostComponent extends React.Component {
     }
     componentDidMount = () => {
         this.generateAndSaveScript();
+        console.log(this.props.deletePostID);
+
     }
     render() {
         return (
@@ -117,10 +145,17 @@ class DeletePostComponent extends React.Component {
                     <div className="post-form">
                         <p>Text exactly like this script:</p>
                         <div className="post-input">
-                            <textarea className="confirm-script" disabled type="text" readOnly placeholder={this.state.script}>
+                            <textarea className="confirm-script" disabled readOnly placeholder={this.state.script}>
 
                             </textarea>
-                            <input className="confirm-result" type="text" placeholder="Input the script" value={this.state.result} onChange={(e) => this.handleOnChangeResult(e)} />
+                            <input className="confirm-result" autoFocus type="text" placeholder="Input the script" value={this.state.result}
+                                onChange={(e) => this.handleOnChangeResult(e)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        this.handleSubmit();
+                                    }
+                                }}
+                            />
                             <div className="post-button">
                                 <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Confirm</button>
                                 <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>

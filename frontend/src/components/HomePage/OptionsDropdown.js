@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import dotsIcon from "../../assets/images/dots.svg";
 
-const OptionsDropdown = ({ openDeletePopup, openUpdatePopup }) => {
+const OptionsDropdown = ({ openDeletePopup, openUpdatePopup, post }) => {
   const [showMenu, setShowMenu] = useState(false);
 
 
@@ -13,7 +13,14 @@ const OptionsDropdown = ({ openDeletePopup, openUpdatePopup }) => {
     console.log(`Clicked: ${option}`);
     setShowMenu(false);
   };
-
+  const handleOptionClickUpdate = (postID) => {
+    setShowMenu(!showMenu);
+    openUpdatePopup(postID);
+  }
+  const handleOptionClickDelete = (postID) => {
+    setShowMenu(!showMenu);
+    openDeletePopup(postID);
+  }
   return (
     <div className="relative inline-block text-left">
       <button onClick={handleToggle} className="dots-btn">
@@ -25,10 +32,10 @@ const OptionsDropdown = ({ openDeletePopup, openUpdatePopup }) => {
           <button onClick={() => handleOptionClick('save')} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
             Lưu
           </button>
-          <button onClick={() => openUpdatePopup()} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
+          <button onClick={() => handleOptionClickUpdate(post.postID)} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
             Sửa bài viết
           </button>
-          <button onClick={() => openDeletePopup()} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
+          <button onClick={() => handleOptionClickDelete(post.postID)} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
             Xóa bài viết
           </button>
           <button onClick={() => handleOptionClick('block')} className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-800 rounded">
