@@ -9,8 +9,12 @@
         <servlet-class>controller.Post.CreatePost</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ViewPost</servlet-name>
-        <servlet-class>controller.Post.PostViewerServlet</servlet-class>
+        <servlet-name>UpdatePost</servlet-name>
+        <servlet-class>controller.Post.UpdatePost</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeletePost</servlet-name>
+        <servlet-class>controller.Post.DeletePost</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
@@ -21,7 +25,11 @@
         <url-pattern>/api/post/create</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>PostViewerServlet</servlet-name>
-        <url-pattern>/api/post</url-pattern>
+        <servlet-name>UpdatePost</servlet-name>
+        <url-pattern>/api/post/update</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeletePost</servlet-name>
+        <url-pattern>/api/post/delete</url-pattern>
     </servlet-mapping>
 </web-app>
