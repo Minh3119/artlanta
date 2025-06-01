@@ -34,6 +34,35 @@ import validation.EnvConfig;
 )
 public class CreatePost extends HttpServlet {
 
+    private List<Media> uploadImagesToCloudinary(Collection<Part> parts, Cloudinary cloudinary, HttpServletResponse response) throws IOException {
+        List<Media> imageUrl = new ArrayList<>();
+
+        for (Part part : parts) {
+            if (part.getName().equals("file[]") && part.getSize() > 0) {
+                try (InputStream fileStream = part.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+                    byte[] data = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+                    byte[] fileBytes = buffer.toByteArray();
+
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                            fileBytes, ObjectUtils.asMap("resource_type", "image"));
+
+                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), "", null));
+
+                } catch (Exception e) {
+                    JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
+                    return null;
+                }
+            }
+        }
+
+        return imageUrl;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,7 +80,7 @@ public class CreatePost extends HttpServlet {
         Collection<Part> parts = request.getParts();
 
         List<Media> imageUrl = new ArrayList<>();
-        String title = request.getParameter("title");
+//        String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
         EnvConfig config = new EnvConfig(getServletContext());
@@ -62,7 +91,7 @@ public class CreatePost extends HttpServlet {
         ));
         try {
 
-            if (title == null || title.trim().isEmpty()) {
+            if (content == null || content.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
@@ -74,36 +103,13 @@ public class CreatePost extends HttpServlet {
                 return;
             }
 
-            for (Part part : parts) {
-                if (part.getName().equals("file[]") && part.getSize() > 0) {
-
-                    try (InputStream fileStream = part.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-
-                        byte[] data = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = fileStream.read(data, 0, data.length)) != -1) {
-                            buffer.write(data, 0, bytesRead);
-                        }
-                        byte[] fileBytes = buffer.toByteArray();
-
-                        Map<String, Object> uploadResult = cloudinary.uploader().upload(
-                                fileBytes, ObjectUtils.asMap("resource_type", "image"));
-
-                        imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(),"",null));
-
-                    } catch (Exception e) {
-                        JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
-                        return;
-                    }
-                }
-            }
+            imageUrl = uploadImagesToCloudinary(parts, cloudinary, response);
 
 //            Media media = new Media(0, imageUrl);
             PostDAO pd = new PostDAO();
             pd.createPost(new Post(
                     0,
                     userID,
-                    title,
                     content,
                     false,
                     visibility,
@@ -111,7 +117,6 @@ public class CreatePost extends HttpServlet {
                     null,
                     false
             ), imageUrl);
-
 
         } catch (Exception e) {
             e.printStackTrace();
