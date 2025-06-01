@@ -216,6 +216,9 @@ class CreatePostComponent extends React.Component {
                     isPosting: false,
                 });
                 toast.success("Đăng bài thành công!");
+
+                this.props.closeCreatePopup();
+
             } else {
                 toast.error("Đăng bài không thành công, vui lòng thử lại sau.");
             }

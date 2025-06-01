@@ -11,6 +11,7 @@ export default function HomePage() {
   const openCreatePopup = () => setIsCreateOpen(true);
   const closeCreatePopup = () => setIsCreateOpen(false);
 
+
   return (
     <div className="homepage-container">
       <Header openCreatePopup={openCreatePopup} />
@@ -22,13 +23,17 @@ export default function HomePage() {
         Artwork Posts
       </div>
 
-      <ArtistPost></ArtistPost>
+      <ArtistPost
+        refetch={isCreateOpen}
+      />
 
       <Footer></Footer>
 
       {/* callComponent */}
       {isCreateOpen ?
-        < CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        < CreatePostComponent
+          closeCreatePopup={closeCreatePopup}
+        />
         :
         null
       }
