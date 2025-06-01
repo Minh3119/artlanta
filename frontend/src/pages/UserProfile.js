@@ -283,7 +283,8 @@ const UserProfilePage = () => {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[50vh]">
+				{/* This checks if there's portfolio, if no, then center left column */}
+				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8 h-[50vh]`}>
 					{/* Left Column - User Info */}
 					<div className="bg-white rounded-3xl shadow-lg p-8">
 						<div className="flex items-start space-x-4">
@@ -359,10 +360,10 @@ const UserProfilePage = () => {
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+										className="group inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors no-underline"
 									>
 										<span className="mr-2">{getSocialIcon(link.platform)}</span>
-										<span className="text-sm text-gray-700">{link.platform}</span>
+										<span className="text-sm text-gray-700 group-hover:underline">{link.platform}</span>
 									</a>
 								))}
 							</div>
