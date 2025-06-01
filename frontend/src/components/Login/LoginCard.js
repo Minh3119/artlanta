@@ -1,5 +1,5 @@
 import React from "react";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import "../../styles/login.css";
 import SocialLogin from "./SocialLogin.js";
 import InputField from "./InputField";
@@ -12,14 +12,14 @@ export default function LoginCard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.display = "flex";
-    document.body.style.alignItems = "center";
-    document.body.style.justifyContent = "center";
-    document.body.style.minHeight = "100vh";
-    document.body.style.background = "#5F41E4";
-
+    const root = document.getElementById("root");
+    if (root) {
+      root.classList.add("log-root");
+    }
     return () => {
-      document.body.removeAttribute("style");
+      if (root) {
+        root.classList.remove("log-root");
+      }
     };
   }, []);
 
@@ -30,12 +30,12 @@ export default function LoginCard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include"
+        credentials: "include",
       });
 
       if (!res.ok) {
         const errorText = await res.text();
-        setMessage(`API Error: ${res.status} - ${errorText}`);
+        console.error(`API Error: ${res.status} - ${errorText}`);
         return;
       }
 
@@ -45,10 +45,9 @@ export default function LoginCard() {
         setMessage("Login success");
         navigate("/");
       } else {
-        setMessage(data.message || "Login failed");
+        setMessage("Login failed");
       }
     } catch (error) {
-      setMessage(`Network error: ${error.message}`);
       console.error("Login error:", error);
     }
   };
@@ -81,9 +80,7 @@ export default function LoginCard() {
           onChange={(e) => setPassword(e.target.value)}
           required
         ></InputField>
-        <a href="#!" className="forgot-pass-link">
-          Forgot password?
-        </a>
+        <Link to="/passforget" className="forgot-pass-link">Forgot password?</Link>
         <button type="submit" className="login-button">
           Log in
         </button>
