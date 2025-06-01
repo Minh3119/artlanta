@@ -9,15 +9,20 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Notification;
+import com.google.gson.Gson;
+import dal.NotificationDAO;
 
 /**
  *
  * @author nvg
  */
+
+@WebServlet(name = "Notification", urlPatterns = {"/api/notifications"})
 public class NotificationServlet extends HttpServlet {
 
     /**
@@ -29,22 +34,6 @@ public class NotificationServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet NotificationServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet NotificationServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -58,14 +47,30 @@ public class NotificationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int userId = Integer.parseInt(request.getParameter("userId"));
+                response.setContentType("application/json;charset=UTF-8");
+                String userIdParam = request.getParameter("userId");
+                try (PrintWriter out = response.getWriter()) {
+                    if (userIdParam == null) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        out.print("{\"error\": \"User ID is required\"}");
+                        return;
+                    }
+                    int userId;
+                    try {
+                        userId = Integer.parseInt(userIdParam);
+                    } catch (NumberFormatException e) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        out.print("{\"error\": \"Invalid User ID format\"}");
+                        return;
+                    }
 
-        UserDAO dao = new UserDAO();
-        List<Notification> notifications = dao.getAllNotifications(userId);
+                    NotificationDAO notificationDAO = new NotificationDAO();
+                    List<Notification> notifications = notificationDAO.getNotifications(userId);
 
-        response.setContentType("application/json");
-        com.google.gson.Gson gson = new com.google.gson.Gson();
-        response.getWriter().write(gson.toJson(notifications));
+                    Gson gson = new Gson();
+                    String json = gson.toJson(notifications);
+                    out.write(json);
+;                }
     }
 
     /**
@@ -79,15 +84,88 @@ public class NotificationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int userId = Integer.parseInt(request.getParameter("userId"));
-        String type = request.getParameter("type");
-        String content = request.getParameter("content");
+                response.setContentType("application/json;charset=UTF-8");
+                String userIdParam = request.getParameter("userId");
+                String type = request.getParameter("type");
+                String content = request.getParameter("content");
+                String postIdParam = request.getParameter("postId");
 
-        UserDAO dao = new UserDAO();
-        boolean success = dao.saveNotification(userId, type, content);
+                String action = request.getParameter("action");
 
-        response.setContentType("application/json");
-        response.getWriter().write("{\"success\":" + success + "}");
+                try (PrintWriter out = response.getWriter()) {
+                    
+                    NotificationDAO notificationDAO = new NotificationDAO();
+
+                    if ( userIdParam == null || type == null || content == null) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        out.print("{\"error\": \"Missing required fields\"}");
+                        return;
+                    }
+
+                    int userId;
+                    try {
+                        userId = Integer.parseInt(userIdParam);
+                    } catch (NumberFormatException e) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        out.print("{\"error\": \"Invalid User ID format\"}");
+                        return;
+                    }
+
+                    boolean success;
+                    if (postIdParam != null && !postIdParam.isEmpty()) {
+                        int postId;
+                        try {
+                            postId = Integer.parseInt(postIdParam);
+                        } catch (NumberFormatException e) {
+                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            out.print("{\"error\": \"Invalid Post ID format\"}");
+                            return;
+                        }
+                        success = notificationDAO.saveNotification(userId, postId, type, content);
+                    } else {
+                        success = notificationDAO.saveNotification(userId, type, content);
+                    }
+
+                    if (success) {
+                        response.setStatus(HttpServletResponse.SC_CREATED);
+                        out.print("{\"message\": \"Notification saved successfully\"}");
+                    } else {
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        out.print("{\"error\": \"Failed to save notification\"}");
+                    }
+
+                    if("markAsRead".equals(action)) {
+                        String idParam = request.getParameter("ID");
+                        String isReadParam = request.getParameter("isRead");
+
+                        if (idParam == null || isReadParam == null) {
+                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            out.print("{\"error\": \"Missing ID or isRead parameter\"}");
+                            return;
+                        }
+
+                        int id;
+                        boolean isRead;
+
+                        try {
+                            id = Integer.parseInt(idParam);
+                            isRead = Boolean.parseBoolean(isReadParam);
+                        } catch (NumberFormatException e) {
+                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                            out.print("{\"error\": \"Invalid ID or isRead format\"}");
+                            return;
+                        }
+
+                        boolean marked = notificationDAO.markAsRead(id, isRead);
+                        if (marked) {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            out.print("{\"message\": \"Notification marked as read\"}");
+                        } else {
+                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                            out.print("{\"error\": \"Failed to mark notification as read\"}");
+                        }
+                    }
+                }
     }
 
     /**

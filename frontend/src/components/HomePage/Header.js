@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
@@ -5,8 +6,12 @@ import search from "../../assets/images/search.svg";
 import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
+import NotificationPopup from "../Notification/NotificationPopup";
 
 export default function Header() {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const userId = 123; // Replace with actual userId from context or props
+
   return (
     <div className="header-container">
       <div className="header-logo">
@@ -41,9 +46,17 @@ export default function Header() {
         <img src={search} alt="" className="search-icon"></img>
       </div>
       <div className="header-icons">
-        <Link to="#">
-          <img src={noti} alt="noti"></img>
-        </Link>
+        <span
+          style={{ position: "relative", cursor: "pointer" }}
+          onClick={() => setShowNotifications((prev) => !prev)}
+        >
+          <img src={noti} alt="noti" />
+          {showNotifications && (
+            <div style={{ position: "absolute", top: "40px", right: 0, zIndex: 1000 }}>
+              <NotificationPopup userId={userId} />
+            </div>
+          )}
+        </span>
         <Link to="#">
           <img src={chat} alt="chat"></img>
         </Link>
