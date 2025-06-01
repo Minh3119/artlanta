@@ -50,6 +50,7 @@ export default function RegisterCard() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        setMessage(data.message || `API Error: ${res.status}`);
         console.error(data.message || `API Error: ${res.status}`);
         return;
       }
