@@ -37,6 +37,7 @@ public class PostViewerServlet extends HttpServlet {
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("postID", post.getID());
             jsonPost.put("mediaURL", mediaUrls);
+            jsonPost.put("authorID", post.getUserID());
             jsonPost.put("authorAvatar", author.getAvatarURL());
             jsonPost.put("authorUN", author.getUsername());
             jsonPost.put("authorFN", author.getFullName());

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/AritistPost";
@@ -9,6 +9,19 @@ import DeletePostComponent from "../components/PostControl/deletePostComponent";
 
 
 export default function HomePage() {
+  const [currentID, setCurrentID] = useState(0);
+
+  useEffect(() => {
+    fetch("http://localhost:9999/backend/api/user/userid", {
+      credentials: "include"
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCurrentID(data.response.userID);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   const [isRefresh, setIsRefresh] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const openCreatePopup = () => {
@@ -56,6 +69,7 @@ export default function HomePage() {
 
       <ArtistPost
         refetch={isRefresh}
+        currentID={currentID}
         openUpdatePopup={openUpdatePopup}
         openDeletePopup={openDeletePopup}
       />
