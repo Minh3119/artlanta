@@ -10,7 +10,12 @@ import NotificationPopup from "../Notification/NotificationPopup";
 
 export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
-  const userId = 123; // Replace with actual userId from context or props
+  const userId = 123; // Mock user ID, replace with actual user ID from context or props
+
+  // Function to open the create popup
+  const openCreatePopup = () => {
+    alert("Create popup clicked!");
+  };
 
   return (
     <div className="header-container">

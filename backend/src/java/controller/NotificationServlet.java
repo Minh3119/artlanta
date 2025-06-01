@@ -4,7 +4,6 @@
  */
 package controller;
 
-import dal.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -70,7 +69,7 @@ public class NotificationServlet extends HttpServlet {
                     Gson gson = new Gson();
                     String json = gson.toJson(notifications);
                     out.write(json);
-;                }
+ }
     }
 
     /**
