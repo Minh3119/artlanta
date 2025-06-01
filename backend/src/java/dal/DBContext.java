@@ -6,27 +6,31 @@ import java.sql.SQLException;
 
 public class DBContext {
     protected Connection connection;
-
+    
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/Artlanta?useSSL=false&allowPublicKeyRetrieval=true";;
+            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false";
             String username = "root";
-            String password = "12345";
+            String password = "123456789";
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
-        } catch (ClassNotFoundException | SQLException ex) {
-            ex.printStackTrace();
+        } catch (ClassNotFoundException | SQLException e) {
+            System.err.println("Error Connecting to Database: " + e.getMessage());
+            throw new RuntimeException("Database connection failed", e);
         }
     }
-    public void closeConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
+    
     public Connection getConnection() {
         return connection;
+    }
+    
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+        }
     }
 }
