@@ -335,14 +335,6 @@ const UserProfilePage = () => {
 
 						{/* Follow/Edit Profile Button */}
 						<div className="mt-4">
-							{console.log('Debug values:', {
-								currentUser,
-								userId,
-								currentUserId: currentUser?.id,
-								parsedUserId: parseInt(userId),
-								isInteger: Number.isInteger(currentUser?.id),
-								isParseInteger: Number.isInteger(parseInt(userId))
-							})}
 							{currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id !== parseInt(userId) ? (
 								<button
 									onClick={handleFollow}
