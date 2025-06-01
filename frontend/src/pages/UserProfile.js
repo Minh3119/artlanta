@@ -380,23 +380,9 @@ const UserProfilePage = () => {
 
 						{/* Additional info */}
 						<div className="mt-8 grid grid-cols-2 gap-6">
-							{userData.location && (
-								<div>
-									<h3 className="text-sm font-medium text-gray-500">Location</h3>
-									<p className="mt-1 text-sm text-gray-900">{userData.location}</p>
-								</div>
-							)}
-							{userData.language && (
-								<div>
-									<h3 className="text-sm font-medium text-gray-500">Language</h3>
-									<p className="mt-1 text-sm text-gray-900">{userData.language}</p>
-								</div>
-							)}
 							<div>
 								<h3 className="text-sm font-medium text-gray-500">Member since</h3>
-								<p className="mt-1 text-sm text-gray-900">
-									{formatDate(userData.createdAt)}
-								</p>
+								<p className="mt-1 text-sm text-gray-900">{formatDate(userData.createdAt)}</p>
 							</div>
 						</div>
 						
