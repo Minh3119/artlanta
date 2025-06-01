@@ -27,9 +27,25 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const currentUserData = await currentUserRes.json();
-				if (!currentUserData.error) {
-					setCurrentUser(currentUserData.response);
+
+				console.log('Current user response status:', currentUserRes.status);
+
+				if (!currentUserRes.ok) {
+					console.error('Failed to fetch current user:', currentUserRes.statusText);
+					// Don't throw error, just log it
+				} else {
+					try {
+						const currentUserData = await currentUserRes.json();
+						console.log('Current user data:', currentUserData);
+						
+						if (!currentUserData.error) {
+							setCurrentUser(currentUserData.response);
+						} else {
+							console.error('Error in current user data:', currentUserData.error);
+						}
+					} catch (e) {
+						console.error('Error parsing current user response:', e);
+					}
 				}
 
 				// Fetch user data
@@ -38,35 +54,78 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const userData = await userRes.json();
+
+				if (!userRes.ok) {
+					throw new Error(`Failed to fetch user data: ${userRes.statusText}`);
+				}
+
+				let userData;
+				try {
+					userData = await userRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for user data');
+				}
+
 				if (userData.error) {
 					throw new Error(userData.error);
 				}
 				setUserData(userData.response);
 
-				// Fetch portfolio data
-				const portfolioRes = await fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
-					method: 'GET',
-					credentials: 'include',
-					headers: { 'Content-Type': 'application/json' },
-				});
-				const portfolioData = await portfolioRes.json();
-				if (!portfolioData.error) {
+				// Fetch portfolio data with timeout
+				const portfolioRes = await Promise.race([
+					fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
+						method: 'GET',
+						credentials: 'include',
+						headers: { 'Content-Type': 'application/json' },
+					}),
+					new Promise((_, reject) => 
+						setTimeout(() => reject(new Error('Portfolio request timeout')), 5000)
+					)
+				]);
+
+				if (!portfolioRes.ok) {
+					throw new Error(`Failed to fetch portfolio: ${portfolioRes.statusText}`);
+				}
+
+				let portfolioData;
+				try {
+					portfolioData = await portfolioRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for portfolio data');
+				}
+
+				if (!portfolioData.error && portfolioData.response) {
 					setPortfolioData(portfolioData.response);
-					// Create unified list of images starting with cover
-					const images = [
-						{
-							url: portfolioData.response.coverUrl,
-							isCover: true,
-							title: portfolioData.response.title,
-							description: portfolioData.response.description
-						},
-						...(portfolioData.response.media || []).map(media => ({
-							...media,
-							isCover: false
-						}))
-					];
-					setAllImages(images);
+					// Safely create unified list of images
+					try {
+						const images = [];
+						if (portfolioData.response.coverUrl) {
+							images.push({
+								url: portfolioData.response.coverUrl,
+								isCover: true,
+								title: portfolioData.response.title || '',
+								description: portfolioData.response.description || ''
+							});
+						}
+						
+						if (Array.isArray(portfolioData.response.media)) {
+							const mediaImages = portfolioData.response.media
+								.filter(media => media && typeof media === 'object')
+								.map(media => ({
+									...media,
+									isCover: false,
+									url: media.url || '',
+									title: media.title || '',
+									description: media.description || ''
+								}));
+							images.push(...mediaImages);
+						}
+						
+						setAllImages(images);
+					} catch (error) {
+						console.error('Error processing portfolio images:', error);
+						setAllImages([]);
+					}
 				}
 
 				// Fetch social links
@@ -75,9 +134,20 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const linksData = await linksRes.json();
+
+				if (!linksRes.ok) {
+					throw new Error(`Failed to fetch social links: ${linksRes.statusText}`);
+				}
+
+				let linksData;
+				try {
+					linksData = await linksRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for social links');
+				}
+
 				if (!linksData.error) {
-					setSocialLinks(linksData.response);
+					setSocialLinks(linksData.response || []);
 				}
 
 				// Fetch follow counts
@@ -86,14 +156,26 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const followData = await followRes.json();
+
+				if (!followRes.ok) {
+					throw new Error(`Failed to fetch follow counts: ${followRes.statusText}`);
+				}
+
+				let followData;
+				try {
+					followData = await followRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for follow counts');
+				}
+
 				if (!followData.error) {
-					setFollowCounts(followData.response);
+					setFollowCounts(followData.response || { followers: 0, following: 0 });
 				}
 
 				setLoading(false);
 			} catch (error) {
-				toast.error(error.message);
+				console.error('Error in fetchAllData:', error);
+				toast.error(error.message || 'An unexpected error occurred');
 				setLoading(false);
 			}
 		};
@@ -165,6 +247,24 @@ const UserProfilePage = () => {
 		}
 	};
 
+	const formatDate = (dateString) => {
+		if (!dateString) return 'Not available';
+		try {
+			const date = new Date(dateString);
+			if (isNaN(date.getTime())) {
+				return 'Invalid date';
+			}
+			return date.toLocaleDateString(undefined, {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			});
+		} catch (error) {
+			console.error('Error formatting date:', error);
+			return 'Date format error';
+		}
+	};
+
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
@@ -189,75 +289,71 @@ const UserProfilePage = () => {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[50vh]">
+				{/* This checks if there's portfolio, if no, then center left column */}
+				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8 h-[50vh]`}>
 					{/* Left Column - User Info */}
 					<div className="bg-white rounded-3xl shadow-lg p-8">
-						<div className="flex items-start justify-between w-full">
-							<div className="flex items-start space-x-4">
-								<div className="flex flex-col items-center">
-									<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
-										{userData.avatarUrl ? (
-											<AvatarImage 
-												avatarUrl={userData.avatarUrl}
-												displayName={userData.displayName || userData.username}
-												size="md"
-											/>
-										) : (
-											<AvatarImage 
-												displayName={userData.displayName || userData.username}
-												size="md"
-											/>
-										)}
-									</div>
-								</div>
-								<div className="flex-1">
-									{/* User Name */}
-									<h1 className="text-3xl font-bold text-gray-900">
-										{userData.displayName || userData.username}
-									</h1>
-									{userData.username && userData.displayName && (
-										<p className="text-lg text-gray-500 mb-4">@{userData.username}</p>
-									)}
-									{/* Follow counts moved under username */}
-									<div className="flex items-center space-x-4">
-										<FollowerList 
-											userId={userId} 
-											count={followCounts.followers}
-											isOwnProfile={currentUser?.id === parseInt(userId)}
-										/>
-										<div className="w-px h-6 bg-gray-200"></div>
-										<div className="follower-list">
-											<button className="flex flex-col items-center">
-												<span className="font-semibold text-gray-900 text-base">{followCounts.following}</span>
-												<span className="text-gray-500 text-xs">following</span>
-											</button>
-										</div>
+						<div className="flex items-start space-x-4">
+							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
+								{userData.avatarUrl ? (
+									<AvatarImage 
+										avatarUrl={userData.avatarUrl}
+										displayName={userData.displayName || userData.username}
+										size="md"
+									/>
+								) : (
+									<AvatarImage 
+										displayName={userData.displayName || userData.username}
+										size="md"
+									/>
+								)}
+							</div>
+							<div className="flex-1">
+								{/* User Name */}
+								<h1 className="text-3xl font-bold text-gray-900">
+									{userData.displayName || userData.username}
+								</h1>
+								{userData.username && userData.displayName && (
+									<p className="text-lg text-gray-500">@{userData.username}</p>
+								)}
+								<div className="flex items-center space-x-4">
+									<FollowerList 
+										userId={userId} 
+										count={followCounts.followers}
+										isOwnProfile={currentUser?.id === parseInt(userId)}
+									/>
+									<div className="w-px h-6 bg-gray-200"></div>
+									<div className="follower-list">
+										<button className="flex flex-col items-center">
+											<span className="font-semibold text-gray-900 text-base">{followCounts.following}</span>
+											<span className="text-gray-500 text-xs">following</span>
+										</button>
 									</div>
 								</div>
 							</div>
+						</div>
 
-							{/* Follow/Edit Profile Button */}
-							<div className="mt-4">
-								{currentUser && currentUser.id !== parseInt(userId) ? (
-									<button
-										onClick={handleFollow}
-										className={`px-8 py-2.5 rounded-full font-medium text-sm transition-colors ${
-											isFollowing
-												? 'bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-600'
-												: 'bg-[#5F41E4] text-white hover:bg-[#4F35C6]'
-										}`}
-									>
-										{isFollowing ? 'Following' : 'Follow'}
-									</button>
-								) : currentUser && currentUser.id === parseInt(userId) ? (
-									<button
-										onClick={() => navigate('/settings/profile')}
-										className="px-8 py-2.5 rounded-full font-medium text-sm bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
-									>
-										Edit Profile
-									</button>
-								) : null}
-							</div>
+						{/* Follow/Edit Profile Button */}
+						<div className="mt-4">
+							{currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id !== parseInt(userId) ? (
+								<button
+									onClick={handleFollow}
+									className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+										isFollowing
+											? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+											: 'bg-blue-600 text-white hover:bg-blue-700'
+									}`}
+								>
+									{isFollowing ? 'Following' : 'Follow'}
+								</button>
+							) : currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id === parseInt(userId) ? (
+								<button
+									onClick={() => navigate('/settings/profile')}
+									className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+								>
+									Edit Profile
+								</button>
+							) : null}
 						</div>
 
 						{userData.bio && (
@@ -273,10 +369,10 @@ const UserProfilePage = () => {
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+										className="group inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors no-underline"
 									>
 										<span className="mr-2">{getSocialIcon(link.platform)}</span>
-										<span className="text-sm text-gray-700">{link.platform}</span>
+										<span className="text-sm text-gray-700 group-hover:underline">{link.platform}</span>
 									</a>
 								))}
 							</div>
@@ -299,7 +395,7 @@ const UserProfilePage = () => {
 							<div>
 								<h3 className="text-sm font-medium text-gray-500">Member since</h3>
 								<p className="mt-1 text-sm text-gray-900">
-									{userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'Not available'}
+									{formatDate(userData.createdAt)}
 								</p>
 							</div>
 						</div>
