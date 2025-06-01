@@ -1,25 +1,267 @@
-.homepage-container {
-    height: auto;
+.header-container,
+.header-logo,
+.header-navbar,
+.header-icons,
+.header-more {
+    display: flex;
+    align-items: center;
 }
 
-.sidebar-container {
-    border-right: 1px solid rgb(235, 238, 240);
-    height: 100vh;
+.header-container {
+    padding: 0 25px;
+    gap: 40px;
+
+    position: fixed;
+    top: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    background-color: white;
+
+    z-index: 9999;
 }
 
-.nav-container, .logo-container {
+.artistpost-user__username,
+.artistpost-user__email {
+    text-decoration: none;
+}
+
+.artistpost-user__username {
+    color: black;
+    font-weight: 800;
+}
+
+.artistpost-user__email {
+    color: #6C7A9C;
+    font-size: 14px;
+} 
+
+.header-container a {
+    text-decoration: none;
+    color: #111111;
+    font-weight: 500;
+
+    vertical-align: middle;
+}
+
+.header-navbar {
+      gap: 20px;
+}
+
+.header-navbar__container {
+    display: flex;
+    align-items: center;
+
+    padding: 10px 30px;
+    border-radius: 40px;
+}
+
+.header-navbar__container img {
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+
+.header-navbar__container p {
+    margin-bottom: 0;
+}
+
+.header-navbar__container.active {
+    background-color: black;
+}
+
+.header-navbar__container.active p {
+    color: white;
+}
+
+.header-search {
+    width: 1200px;
+    height: 44px;
+
+    position: relative;
+}
+
+.header-text-input {
+    border-radius: 50px;
+    padding: 0 10px 0 40px;
+}
+
+.search-icon {
+    position: absolute;
+    top: 32%;
+    left: 1%;
+}
+
+.header-text-input {
+    width: 100%;
+    height: 100%;
+}
+
+.header-more, .header-icons {
+    gap: 30px;
+    margin-left: auto;
+}
+
+
+.homepage-time, .homepage-title {
+    color: #111111;
+    font-weight: 600;
+
     display: flex;
     justify-content: center;
 }
 
-.logo-container {
-    margin-top: 20px;
+.homepage-time {
+    margin-top: 75px;
+    font-size: 20px;
+
 }
 
-.nav-container {
-    align-items: center;
-    flex-direction: column;
+.homepage-title {
+    font-size: 30px;
+}
 
-    margin-top: 80%;
-    gap: 2em;
+.homepage-post__container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.artistpost-container {
+    background-color: #E6EEFA;
+    padding: 20px 25px;
+
+    border-radius: 30px;
+}
+
+.artistpost-info {
+    display: flex;
+    gap: 20px;
+
+    margin-bottom: 30px;
+}
+
+.artistpost-user {
+    display: flex;
+    flex-direction: column;
+}
+
+.artistpost-content {
+    color: #000000;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.artistpost-morecontent {
+    width: 100%;
+    height: 80%;
+    position: relative;
+}
+
+.post-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    object-fit: cover;
+}
+
+.artistpost-react {
+    position: absolute;
+    bottom: 0;
+}
+
+.artistpost-react {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    padding: 15px 20px 25px;
+
+    background-color: transparent;
+    backdrop-filter: blur(10px);
+    border-radius: 30px;
+}
+
+.artistpost-react__count,
+.artistpost-react__uncount,
+.artistpost-react__comment,
+.artistpost-react__like {
+    display: flex;
+    align-items: center;
+}
+
+.comment-count, .like-count {
+    margin-bottom: 0;
+    color: white;
+}
+
+.artistpost-react__count,
+.artistpost-react__uncount {
+    gap: 10px;
+}
+
+.artistpost-react__comment,
+.artistpost-react__like {
+    gap: 5px;
+}
+
+/* .homepage-question__container {
+    display: flex;
+    justify-content: end;
+}
+
+.homepage-question {
+    display: inline-block;
+} */
+
+.homepage-question a {
+    width: 100%;
+    height: 100%;
+
+    position: fixed;
+    top: 50%;
+    left: 95%;
+    z-index: 9999;
+}
+
+.homepage-footer {
+    margin-top: 50px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-img {
+    width: 30px;
+    height: 30px;
+}
+
+.footer-hi,
+.footer-bye,
+.footer-back__inner {
+    color: #111111;
+
+}
+
+.footer-hi,
+.footer-back__inner {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.footer-bye {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.footer-back__inner {
+    text-decoration: none;
+}
+
+.footer-back {
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: #EFEFEF;
 }
