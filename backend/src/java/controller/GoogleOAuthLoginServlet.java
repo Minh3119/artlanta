@@ -23,6 +23,7 @@ import util.EnvReader;
 import dal.UserDAO;
 import java.security.SecureRandom;
 import model.User;
+import util.SessionUtil;
 
 @WebServlet(name = "GoogleOAuthLoginServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthLoginServlet extends HttpServlet {
@@ -118,7 +119,8 @@ public class GoogleOAuthLoginServlet extends HttpServlet {
             User user = userDao.getUserByEmail(email);
             
             HttpSession session = request.getSession(true);
-            session.setAttribute("user", user);
+            int userId = userDao.getUserIdByEmail(email);
+            SessionUtil.storeUserInSession(session,userId);
             response.sendRedirect("http://localhost:3000/");
         } catch (Exception e) {
             e.printStackTrace();
