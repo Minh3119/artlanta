@@ -16,6 +16,10 @@
         <servlet-name>DeletePost</servlet-name>
         <servlet-class>controller.Post.DeletePost</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PostViewerServlet</servlet-name>
+        <servlet-class>controller.Post.PostViewerServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
@@ -31,5 +35,9 @@
     <servlet-mapping>
         <servlet-name>DeletePost</servlet-name>
         <url-pattern>/api/post/delete</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PostViewerServlet</servlet-name>
+        <url-pattern>/api/post/view</url-pattern>
     </servlet-mapping>
 </web-app>
