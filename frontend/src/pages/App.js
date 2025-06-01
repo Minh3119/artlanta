@@ -30,7 +30,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/*" element={<UserSettingComponent />}>
+          <Route path="/*" element={<HomePage />}>
 
           </Route>
           <Route path="/user/:userId" element={<UserProfilePage />} />

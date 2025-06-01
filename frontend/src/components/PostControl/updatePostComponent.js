@@ -1,6 +1,6 @@
 import React from "react";
 import '../../styles/post.scss';
-
+import logo from '../../assets/images/arlanta.svg';
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 class UpdatePostComponent extends React.Component {
@@ -261,7 +261,13 @@ class UpdatePostComponent extends React.Component {
             <div className="create-post-container"
                 onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
-                    <div>Loading...</div>
+                    <div className="loading-container">
+                        <span>Loading ...</span>
+                        <img
+                            src={logo}
+                            alt="Loading..."
+                            className="loading-spinner"
+                        /></div>
                     : null}
                 <div className="post-popup"
                     onClick={(e) => e.stopPropagation()}
@@ -275,20 +281,22 @@ class UpdatePostComponent extends React.Component {
                             <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
                         </div> */}
-                        {
-                            this.state.filePreview.map((item, index) => {
-                                return (
-                                    <div className="image-container" key={index}>
-                                        <div className="image-wrapper">
-                                            <img src={item} alt="post-image" />
-                                            <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                        <div className="image-list">
+                            {
+                                this.state.filePreview.map((item, index) => {
+                                    return (
+                                        <div className="image-container" key={index}>
+                                            <div className="image-wrapper">
+                                                <img src={item} alt="post-image" />
+                                                <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            })
+                                    )
+                                })
 
 
-                        }
+                            }
+                        </div>
                         <label for="file" className="file-label">File</label>
                         <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
