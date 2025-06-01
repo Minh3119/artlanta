@@ -18,9 +18,18 @@ html, body {
   width: 100%;
   padding: 0.6rem;
 }
+
+.log-root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #5F41E4 !important;
+}
+
 .login-container {
   margin: 0 auto;
-  max-width: 410px;
+  min-width: 410px;
   padding: 2rem 1.5rem;
   border-radius: 0.5rem;
   background: #fff;

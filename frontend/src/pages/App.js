@@ -20,6 +20,7 @@ import UpdatePostComponent from '../components/PostControl/updatePostComponent.j
 import DeletePostComponent from '../components/PostControl/deletePostComponent.js';
 import Login from './Login.js';
 import Register from './Register.js';
+import PassForget from './PassForget.js';
 
 //import { ToastContainer } from 'react-toastify';
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/passforget" element={<PassForget/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />

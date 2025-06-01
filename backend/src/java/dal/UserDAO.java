@@ -225,9 +225,9 @@ public class UserDAO extends DBContext {
         }
         return exists;
     }
-    
+
     public User getUserByEmail(String email) {
-                User user = null;
+        User user = null;
         try {
             String sql = "SELECT * FROM Users WHERE Email = ?";
             PreparedStatement st = connection.prepareStatement(sql);
@@ -276,6 +276,20 @@ public class UserDAO extends DBContext {
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean updatePasswordHashByEmail(String email, String newHash) {
+        String sql = "UPDATE Users SET PasswordHash = ? WHERE Email = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, newHash);
+            st.setString(2, email);
+            st.executeUpdate();
+            
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

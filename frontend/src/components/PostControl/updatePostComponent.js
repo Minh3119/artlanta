@@ -6,7 +6,7 @@ import imageCompression from 'browser-image-compression';
 class UpdatePostComponent extends React.Component {
     state = {
         postID: 0,
-        title: '',
+        // title: '',
         content: '',
         file: [],
         filePreview: [],
@@ -18,36 +18,37 @@ class UpdatePostComponent extends React.Component {
     }
     handleCloseTab = () => {
         //logic lay thay doi props isUpdateOpen
-
+        console.log("out create");
     }
-    handleOnChangeTitle = (e) => {
-        this.state.title.length <= 100 ?
-            (
-                this.setState({
-                    title: e.target.value
-                })
-            )
-            :
-            (
-                toast.error('title too long!', {
-                    toastId: "fullname-toast",
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    className: "toast-complete"
-                })
-            )
-    };
+    // handleOnChangeTitle = (e) => {
+    //     this.state.title.length <= 100 ?
+    //         (
+    //             this.setState({
+    //                 title: e.target.value
+    //             })
+    //         )
+    //         :
+    //         (
+    //             toast.error('title too long!', {
+    //                 toastId: "fullname-toast",
+    //                 position: "top-right",
+    //                 autoClose: 3000,
+    //                 hideProgressBar: false,
+    //                 closeOnClick: false,
+    //                 pauseOnHover: true,
+    //                 draggable: true,
+    //                 progress: undefined,
+    //                 theme: "light",
+    //                 className: "toast-complete"
+    //             })
+    //         )
+    // };
     handleOnChangeContent = (e) => {
-        this.state.content.length <= 1000 ?
+        const newContent = e.target.value;
+        newContent.length <= 750 ?
             (
                 this.setState({
-                    content: e.target.value
+                    content: newContent
                 })
             )
             :
@@ -211,8 +212,8 @@ class UpdatePostComponent extends React.Component {
             });
     }
     handleSubmit = async () => {
-        if (!(this.state.title.trim())) {
-            toast.error("Title cannot be blank");
+        if (!(this.state.content.trim())) {
+            toast.error("Content cannot be blank");
             return;
         }
         const formData = new FormData();
@@ -245,32 +246,35 @@ class UpdatePostComponent extends React.Component {
                     // isImage: false,
                     isPosting: false,
                 });
-                toast.success("Đăng bài thành công!");
+                toast.success("Update completed!");
             } else {
-                toast.error("Đăng bài không thành công, vui lòng thử lại sau.");
+                toast.error("Update error, try again later.");
             }
         }
         catch (er) {
-            this.setState({ message: "Không kết nối được đến server." });
+            this.setState({ message: "cannot connect to the server" });
             console.log("server error!", er);
         }
     }
     render() {
         return (
-            <div className="create-post-container">
+            <div className="create-post-container"
+                onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
                     <div>Loading...</div>
                     : null}
-                <div className="post-popup">
+                <div className="post-popup"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="post-header">
                         Edit Post
                     </div>
 
                     <div className="post-form">
-                        <div className="title-container">
+                        {/* <div className="title-container">
                             <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
-                        </div>
+                        </div> */}
                         {
                             this.state.filePreview.map((item, index) => {
                                 return (
@@ -289,7 +293,7 @@ class UpdatePostComponent extends React.Component {
                         <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
                             <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
-                            <p>{String(this.state.content.length).padStart(4, '0')}/1000</p>
+                            <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
                         </div>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
                             <option value="PUBLIC">Public</option>

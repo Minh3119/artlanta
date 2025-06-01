@@ -1,11 +1,22 @@
+#root{
+    padding: 0 0;
+    margin: 0 0;
+}
+
 .delete-post-container{
-    width: 100%;
-    height: 100vh;
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #00000039;
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: 100%;
+    height: 100vh;
 
     .post-popup{
         min-width: 40%;
@@ -24,6 +35,9 @@
             font-size: 150%;
             font-weight: bolder;
             text-align: center;
+            text-align: center;
+            width: 40%;
+            border-bottom: 2px solid orange;
             // margin-top: 10px;
         }
         .post-form{
@@ -102,7 +116,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #00000039;
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.512);
+    transition: background-color 0.6s ease;
     .post-popup {
         min-width: 40%;
         max-height: 500px;
@@ -115,11 +135,15 @@
         gap:20px;
         mask-image: radial-gradient(circle at top right, black 98%, transparent 100%);
         overflow-y: auto;
+        z-index: 10;
         .post-header{
             margin-top: 20px;
             color: black;
             font-size: 150%;
             font-weight: bolder;
+            text-align: center;
+            width: 40%;
+            border-bottom: 2px solid orange;
         }
         .post-form{
             display: flex;
@@ -157,11 +181,11 @@
                     }
                 }
                 .image-wrapper:hover{
-                button{
-                    opacity: 1 !important;
-                    pointer-events: auto !important;
+                    button{
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                    }
                 }
-            }
             }
             
             .title-container{
@@ -214,6 +238,7 @@
 
             }
             select{
+                outline: none;
                 border-radius: 5px;
                 border: 2px solid orange;
                 background-color: transparent;
@@ -233,6 +258,7 @@
                 box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
                 color: orange;
             }
+
         }
         .post-button{
             width: 100%;

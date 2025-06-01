@@ -32,6 +32,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         JSONObject body = new JSONObject(jsonBuilder.toString());
+        
         String email = body.optString("email");
         String username = body.optString("username");
         String password = body.optString("password");

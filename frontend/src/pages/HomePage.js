@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/AritistPost";
 import Footer from "../components/HomePage/Footer";
+import CreatePostComponent from "../components/PostControl/createPostComponent";
 
 
 export default function HomePage() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const openCreatePopup = () => setIsCreateOpen(true);
+  const closeCreatePopup = () => setIsCreateOpen(false);
+
   return (
     <div className="homepage-container">
-      <Header></Header>
+      <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">
         March 22, 2023
@@ -20,6 +25,13 @@ export default function HomePage() {
       <ArtistPost></ArtistPost>
 
       <Footer></Footer>
+
+      {/* callComponent */}
+      {isCreateOpen ?
+        < CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        :
+        null
+      }
     </div>
   );
 }

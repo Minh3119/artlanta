@@ -30,12 +30,12 @@ export default function Header() {
             <p className="header-navbar__title">Today</p>
           </div>
         </Link>
-        <Link to="#">
-          <div className="header-navbar__container">
-            <p className="header-navbar__title">Create</p>
-            <img src={arrowDown} alt=""></img>
-          </div>
-        </Link>
+        <div className="header-navbar__container"
+          onClick={openCreatePopup}
+          style={{ cursor: "pointer" }}>
+          <p className="header-navbar__title">Create</p>
+          <img src={arrowDown} alt=""></img>
+        </div>
       </div>
       <div className="header-search">
         <input
