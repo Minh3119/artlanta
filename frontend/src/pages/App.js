@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import '../styles/App.scss';
-import '../styles/createPost.scss';
+import '../styles/post.scss';
 import { ToastContainer } from 'react-toastify';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserSettingComponent from '../components/UserProfileEdit/userSettingComponent.js';
@@ -16,6 +16,8 @@ import EditPasswordComponent from '../components/UserProfileEdit/editPasswordCom
 import EditNotificationComponent from '../components/UserProfileEdit/editNotificationComponent.js';
 import EditPricingComponent from '../components/UserProfileEdit/editPricingComponent.js';
 import DeleteAccountComponent from '../components/UserProfileEdit/deleteAccountComponent.js';
+import UpdatePostComponent from '../components/PostControl/updatePostComponent.js';
+import DeletePostComponent from '../components/PostControl/deletePostComponent.js';
 import Login from './Login.js';
 import Register from './Register.js';
 import PassForget from './PassForget.js';
@@ -34,9 +36,11 @@ function App() {
           <Route path="/artists" element={<Artists />} />
           <Route path="/sessiontest" element={<SessionTest />} />
           <Route path="/createpost" element={<CreatePostComponent />} />
-          <Route path="/homepage" element={<HomePage/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/register" element={<Register/>} />
+          <Route path="/editpost" element={<UpdatePostComponent />} />
+          <Route path="/deletepost" element={<DeletePostComponent />} />
+          <Route path="/homepage" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/passforget" element={<PassForget/>} />
         </Routes>
       </BrowserRouter >

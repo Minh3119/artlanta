@@ -32,16 +32,75 @@ import validation.EnvConfig;
         maxFileSize = 1024 * 1024 * 10,
         maxRequestSize = 1024 * 1024 * 50
 )
-public class CreatePost extends HttpServlet {
+public class UpdatePost extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        JsonUtil.writeJsonError(response, "POST method required");
+        
+        try {
+//            String rawPostID = request.getParameter("postID");
+//            if (rawPostID == null || rawPostID.trim().isEmpty()) {
+//                JsonUtil.writeJsonError(response, "Thiếu tham số postID");
+//                return;
+//            }
+
+//            int postID = Integer.parseInt(rawPostID.trim());
+            int postID=27;
+
+            PostDAO pd = new PostDAO();
+            MediaDAO md = new MediaDAO();
+
+            Post post = pd.getPost(postID);
+            if (post == null) {
+                JsonUtil.writeJsonError(response, "Không tìm thấy bài viết với postID = " + postID);
+                return;
+            }
+
+            List<Media> imageList = md.getPostMediaByID(postID);
+            if (imageList == null) {
+                imageList = new ArrayList<>();
+            }
+
+            if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
+                JsonUtil.writeJsonError(response, "Thiếu dữ liệu: title, content hoặc visibility");
+                return;
+            }
+
+            JSONObject jsonPost = new JSONObject();
+            jsonPost.put("postID", post.getID());
+            jsonPost.put("title", post.getTitle());
+            jsonPost.put("content", post.getContent());
+            jsonPost.put("visibility", post.getVisibility().equals("PUBLIC")? "Public":"Private");
+
+            JSONArray imageArr = new JSONArray();
+            for (Media media : imageList) {
+                imageArr.put(media.getURL());
+            }
+            jsonPost.put("imageUrl", imageArr);
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", jsonPost);
+
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+
+        } catch (NumberFormatException e) {
+            JsonUtil.writeJsonError(response, "postID phải là số hợp lệ");
+        } catch (Exception e) {
+            JsonUtil.writeJsonError(response, "Lỗi máy chủ: " + e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
+    //doPost
+    //catching the data from UI
+    //uploading the file into Cloudinary
+    //URL gen
+    //deletePost -> PostMedia delete -> Media delete according to postID
+    //re-insert into db
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,8 +108,9 @@ public class CreatePost extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         //        Declaration
         Collection<Part> parts = request.getParts();
-
         List<Media> imageUrl = new ArrayList<>();
+        String raw_ID = request.getParameter("postID");
+        int postID;
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
@@ -61,19 +121,17 @@ public class CreatePost extends HttpServlet {
                 "api_secret", config.getProperty("my_secret")
         ));
         try {
-
+            postID=Integer.parseInt(raw_ID);
             if (title == null || title.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
-
             Integer userID = (Integer) request.getSession().getAttribute("userID");
             userID = 10;
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
             }
-
             for (Part part : parts) {
                 if (part.getName().equals("file[]") && part.getSize() > 0) {
 
@@ -97,10 +155,10 @@ public class CreatePost extends HttpServlet {
                     }
                 }
             }
-
-//            Media media = new Media(0, imageUrl);
             PostDAO pd = new PostDAO();
-            pd.createPost(new Post(
+            MediaDAO md = new MediaDAO();
+            
+            pd.updatePost(new Post(
                     0,
                     userID,
                     title,
@@ -110,8 +168,8 @@ public class CreatePost extends HttpServlet {
                     LocalDateTime.now(),
                     null,
                     false
-            ), imageUrl);
-
+            ),postID);
+            md.deleteMediaByPostID(postID,imageUrl);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,4 +192,10 @@ public class CreatePost extends HttpServlet {
 //        jsonResponse.put("response", jsonPost);
 //        JsonUtil.writeJsonResponse(response, jsonResponse);
     }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }
