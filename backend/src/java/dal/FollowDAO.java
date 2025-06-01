@@ -3,6 +3,8 @@ package dal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import model.Follow;
 
 public class FollowDAO extends DBContext {
@@ -36,6 +38,21 @@ public class FollowDAO extends DBContext {
     // Count followers of a user
     public int countFollowers(int userId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Count how many users this user is following
+    public int countFollowing(int userId) {
+        String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -87,5 +104,35 @@ public class FollowDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // Get both follower and following counts
+    public Map<String, Integer> getFollowerCounts(int userId) {
+        Map<String, Integer> counts = new HashMap<>();
+        String followersSql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
+        String followingSql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
+        
+        try {
+            // Get followers count
+            PreparedStatement ps = connection.prepareStatement(followersSql);
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                counts.put("followers", rs.getInt(1));
+            }
+            
+            // Get following count
+            ps = connection.prepareStatement(followingSql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                counts.put("following", rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            counts.put("followers", 0);
+            counts.put("following", 0);
+        }
+        return counts;
     }
 }

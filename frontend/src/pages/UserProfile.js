@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AvatarImage from '../components/UserProfileView/AvatarImage';
+import FollowerList from '../components/FollowControl/FollowerList';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -191,64 +192,67 @@ const UserProfilePage = () => {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-[50vh]">
 					{/* Left Column - User Info */}
 					<div className="bg-white rounded-3xl shadow-lg p-8">
-						<div className="flex items-start space-x-4">
-							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
-								{userData.avatarUrl ? (
-									<AvatarImage 
-										avatarUrl={userData.avatarUrl}
-										displayName={userData.displayName || userData.username}
-										size="md"
-									/>
-								) : (
-									<AvatarImage 
-										displayName={userData.displayName || userData.username}
-										size="md"
-									/>
-								)}
-							</div>
-							<div className="flex-1">
-								{/* User Name */}
-								<h1 className="text-3xl font-bold text-gray-900">
-									{userData.displayName || userData.username}
-								</h1>
-								{userData.username && userData.displayName && (
-									<p className="text-lg text-gray-500">@{userData.username}</p>
-								)}
-								{/* Follow counts */}
-								<div className="mt-2 flex space-x-4">
-									<div className="text-base">
-										<span className="font-semibold text-gray-900">{followCounts.followers}</span>
-										<span className="text-gray-500"> followers</span>
-									</div>
-									<div className="text-base">
-										<span className="font-semibold text-gray-900">{followCounts.following}</span>
-										<span className="text-gray-500"> following</span>
+						<div className="flex items-start justify-between w-full">
+							<div className="flex items-start space-x-4">
+								<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
+									{userData.avatarUrl ? (
+										<AvatarImage 
+											avatarUrl={userData.avatarUrl}
+											displayName={userData.displayName || userData.username}
+											size="md"
+										/>
+									) : (
+										<AvatarImage 
+											displayName={userData.displayName || userData.username}
+											size="md"
+										/>
+									)}
+								</div>
+								<div className="flex-1">
+									{/* User Name */}
+									<h1 className="text-3xl font-bold text-gray-900">
+										{userData.displayName || userData.username}
+									</h1>
+									{userData.username && userData.displayName && (
+										<p className="text-lg text-gray-500">@{userData.username}</p>
+									)}
+									{/* Follow counts */}
+									<div className="mt-4 flex items-center space-x-6">
+										<FollowerList 
+											userId={userId} 
+											count={followCounts.followers}
+											isOwnProfile={currentUser?.id === parseInt(userId)}
+										/>
+										<button className="flex flex-col items-center">
+											<span className="font-semibold text-gray-900 text-lg">{followCounts.following}</span>
+											<span className="text-gray-500 text-sm">following</span>
+										</button>
 									</div>
 								</div>
 							</div>
-						</div>
 
-						{/* Follow/Edit Profile Button */}
-						<div className="mt-4">
-							{currentUser && currentUser.id !== parseInt(userId) ? (
-								<button
-									onClick={handleFollow}
-									className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-										isFollowing
-											? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-											: 'bg-blue-600 text-white hover:bg-blue-700'
-									}`}
-								>
-									{isFollowing ? 'Following' : 'Follow'}
-								</button>
-							) : currentUser && currentUser.id === parseInt(userId) ? (
-								<button
-									onClick={() => navigate('/settings/profile')}
-									className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-								>
-									Edit Profile
-								</button>
-							) : null}
+							{/* Follow/Edit Profile Button */}
+							<div className="mt-4">
+								{currentUser && currentUser.id !== parseInt(userId) ? (
+									<button
+										onClick={handleFollow}
+										className={`px-8 py-2.5 rounded-full font-medium text-sm transition-colors ${
+											isFollowing
+												? 'bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-600'
+												: 'bg-[#5F41E4] text-white hover:bg-[#4F35C6]'
+										}`}
+									>
+										{isFollowing ? 'Following' : 'Follow'}
+									</button>
+								) : currentUser && currentUser.id === parseInt(userId) ? (
+									<button
+										onClick={() => navigate('/settings/profile')}
+										className="px-8 py-2.5 rounded-full font-medium text-sm bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+									>
+										Edit Profile
+									</button>
+								) : null}
+							</div>
 						</div>
 
 						{userData.bio && (

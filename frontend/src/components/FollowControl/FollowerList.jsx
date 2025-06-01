@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './FollowerList.scss';
-import FollowerCount from './FollowerCount';
 
-const FollowerList = ({ userId, isOwnProfile }) => {
+const FollowerList = ({ userId, count, isOwnProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +21,7 @@ const FollowerList = ({ userId, isOwnProfile }) => {
 
   const fetchFollowers = () => {
     setIsLoading(true);
-    fetch(`/api/follow?type=list&userId=${userId}`, {
+    fetch(`http://localhost:9999/backend/api/follow?type=list&userId=${userId}`, {
       credentials: 'include',
     })
       .then((res) => {
@@ -45,8 +44,7 @@ const FollowerList = ({ userId, isOwnProfile }) => {
   };
 
   const handleTogglePopup = () => {
-    if (!isOwnProfile) return; // Only allow opening if it's the user's own profile
-    if (!isOpen && !followers.length) {
+    if (!isOpen) {
       fetchFollowers();
     }
     setIsOpen(!isOpen);
@@ -56,13 +54,13 @@ const FollowerList = ({ userId, isOwnProfile }) => {
     <div className="follower-list">
       <button
         onClick={handleTogglePopup}
-        className={`follower-list__button ${isOwnProfile ? 'follower-list__button--interactive' : ''}`}
-        disabled={!isOwnProfile}
+        className="flex flex-col items-center hover:opacity-75 transition-opacity"
       >
-        <FollowerCount userId={userId} />
+        <span className="font-semibold text-gray-900 text-lg">{count}</span>
+        <span className="text-gray-500 text-sm">followers</span>
       </button>
 
-      {isOpen && isOwnProfile && (
+      {isOpen && (
         <>
           <div className="follower-list__overlay" onClick={() => setIsOpen(false)} />
           
@@ -95,7 +93,7 @@ const FollowerList = ({ userId, isOwnProfile }) => {
                   {followers.map((follower) => (
                     <li key={follower.id} className="follower-list__item">
                       <a
-                        href={`/profile/${follower.followerId}`}
+                        href={`/user/${follower.followerId}`}
                         className="follower-list__link"
                       >
                         <div className="follower-list__avatar">
