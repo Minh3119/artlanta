@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AvatarImage from '../components/UserProfileView/AvatarImage';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
+	const navigate = useNavigate();
 	const [userData, setUserData] = useState(null);
 	const [portfolioData, setPortfolioData] = useState(null);
 	const [socialLinks, setSocialLinks] = useState([]);
@@ -13,10 +14,23 @@ const UserProfilePage = () => {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [allImages, setAllImages] = useState([]);
 	const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
+	const [currentUser, setCurrentUser] = useState(null);
+	const [isFollowing, setIsFollowing] = useState(false);
 
 	useEffect(() => {
 		const fetchAllData = async () => {
 			try {
+				// Fetch current logged-in user first
+				const currentUserRes = await fetch('http://localhost:9999/backend/api/current-user', {
+					method: 'GET',
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				const currentUserData = await currentUserRes.json();
+				if (!currentUserData.error) {
+					setCurrentUser(currentUserData.response);
+				}
+
 				// Fetch user data
 				const userRes = await fetch(`http://localhost:9999/backend/api/user/${userId}`, {
 					method: 'GET',
@@ -118,6 +132,37 @@ const UserProfilePage = () => {
 		}
 	};
 
+	const handleFollow = async () => {
+		try {
+			if (!currentUser) {
+				// Redirect to login if not logged in
+				navigate('/login');
+				return;
+			}
+
+			const response = await fetch(`http://localhost:9999/backend/api/follow/${userId}`, {
+				method: isFollowing ? 'DELETE' : 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+			});
+
+			const data = await response.json();
+			if (data.error) {
+				throw new Error(data.error);
+			}
+
+			// Toggle following state and update follow counts
+			setIsFollowing(!isFollowing);
+			setFollowCounts(prev => ({
+				...prev,
+				followers: isFollowing ? prev.followers - 1 : prev.followers + 1
+			}));
+
+			toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
+		} catch (error) {
+			toast.error(error.message);
+		}
+	};
 
 	if (loading) {
 		return (
@@ -181,6 +226,29 @@ const UserProfilePage = () => {
 									</div>
 								</div>
 							</div>
+						</div>
+
+						{/* Follow/Edit Profile Button */}
+						<div className="mt-4">
+							{currentUser && currentUser.id !== parseInt(userId) ? (
+								<button
+									onClick={handleFollow}
+									className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+										isFollowing
+											? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+											: 'bg-blue-600 text-white hover:bg-blue-700'
+									}`}
+								>
+									{isFollowing ? 'Following' : 'Follow'}
+								</button>
+							) : currentUser && currentUser.id === parseInt(userId) ? (
+								<button
+									onClick={() => navigate('/settings/profile')}
+									className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+								>
+									Edit Profile
+								</button>
+							) : null}
 						</div>
 
 						{userData.bio && (
