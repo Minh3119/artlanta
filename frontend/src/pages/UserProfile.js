@@ -13,6 +13,7 @@ const UserProfilePage = () => {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [allImages, setAllImages] = useState([]);
 	const [showModal, setShowModal] = useState(false);
+	const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
 
 	useEffect(() => {
 		const fetchAllData = async () => {
@@ -63,6 +64,17 @@ const UserProfilePage = () => {
 				const linksData = await linksRes.json();
 				if (!linksData.error) {
 					setSocialLinks(linksData.response);
+				}
+
+				// Fetch follow counts
+				const followRes = await fetch(`http://localhost:9999/backend/api/follow-count/${userId}`, {
+					method: 'GET',
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				const followData = await followRes.json();
+				if (!followData.error) {
+					setFollowCounts(followData.response);
 				}
 
 				setLoading(false);
@@ -161,12 +173,24 @@ const UserProfilePage = () => {
 								)}
 							</div>
 							<div className="flex-1">
+								{/* User Name */}
 								<h1 className="text-3xl font-bold text-gray-900">
 									{userData.displayName || userData.username}
 								</h1>
 								{userData.username && userData.displayName && (
 									<p className="text-lg text-gray-500">@{userData.username}</p>
 								)}
+								{/* Follow counts */}
+								<div className="mt-2 flex space-x-4">
+									<div className="text-base">
+										<span className="font-semibold text-gray-900">{followCounts.followers}</span>
+										<span className="text-gray-500"> followers</span>
+									</div>
+									<div className="text-base">
+										<span className="font-semibold text-gray-900">{followCounts.following}</span>
+										<span className="text-gray-500"> following</span>
+									</div>
+								</div>
 							</div>
 						</div>
 
