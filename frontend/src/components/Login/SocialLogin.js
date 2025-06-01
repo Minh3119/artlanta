@@ -30,8 +30,8 @@ const SocialLogin = () => {
           Google
         </a>
       </button>
-      {/* <button className="social-button">
-        <a href="https://github.com/login/oauth/authorize?client_id=Ov23litLrhiCQ8SMvVyY&redirect_uri=http://localhost:8080/backend/api/oauth2callbackgithub&scope=user:email" className="social-button__link">
+      <button className="social-button">
+        <a href="https://github.com/login/oauth/authorize?client_id=Ov23litLrhiCQ8SMvVyY&redirect_uri=http://localhost:9999/backend/api/oauth2callbackgithub&scope=user:email" className="social-button__link">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ const SocialLogin = () => {
           </svg>
           Github
         </a>
-      </button> */}
+      </button>
     </div>
   );
 };
