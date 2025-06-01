@@ -26,7 +26,18 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const currentUserData = await currentUserRes.json();
+
+				if (!currentUserRes.ok) {
+					throw new Error(`Failed to fetch current user: ${currentUserRes.statusText}`);
+				}
+
+				let currentUserData;
+				try {
+					currentUserData = await currentUserRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for current user');
+				}
+
 				if (!currentUserData.error) {
 					setCurrentUser(currentUserData.response);
 				}
@@ -37,35 +48,78 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const userData = await userRes.json();
+
+				if (!userRes.ok) {
+					throw new Error(`Failed to fetch user data: ${userRes.statusText}`);
+				}
+
+				let userData;
+				try {
+					userData = await userRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for user data');
+				}
+
 				if (userData.error) {
 					throw new Error(userData.error);
 				}
 				setUserData(userData.response);
 
-				// Fetch portfolio data
-				const portfolioRes = await fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
-					method: 'GET',
-					credentials: 'include',
-					headers: { 'Content-Type': 'application/json' },
-				});
-				const portfolioData = await portfolioRes.json();
-				if (!portfolioData.error) {
+				// Fetch portfolio data with timeout
+				const portfolioRes = await Promise.race([
+					fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
+						method: 'GET',
+						credentials: 'include',
+						headers: { 'Content-Type': 'application/json' },
+					}),
+					new Promise((_, reject) => 
+						setTimeout(() => reject(new Error('Portfolio request timeout')), 5000)
+					)
+				]);
+
+				if (!portfolioRes.ok) {
+					throw new Error(`Failed to fetch portfolio: ${portfolioRes.statusText}`);
+				}
+
+				let portfolioData;
+				try {
+					portfolioData = await portfolioRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for portfolio data');
+				}
+
+				if (!portfolioData.error && portfolioData.response) {
 					setPortfolioData(portfolioData.response);
-					// Create unified list of images starting with cover
-					const images = [
-						{
-							url: portfolioData.response.coverUrl,
-							isCover: true,
-							title: portfolioData.response.title,
-							description: portfolioData.response.description
-						},
-						...(portfolioData.response.media || []).map(media => ({
-							...media,
-							isCover: false
-						}))
-					];
-					setAllImages(images);
+					// Safely create unified list of images
+					try {
+						const images = [];
+						if (portfolioData.response.coverUrl) {
+							images.push({
+								url: portfolioData.response.coverUrl,
+								isCover: true,
+								title: portfolioData.response.title || '',
+								description: portfolioData.response.description || ''
+							});
+						}
+						
+						if (Array.isArray(portfolioData.response.media)) {
+							const mediaImages = portfolioData.response.media
+								.filter(media => media && typeof media === 'object')
+								.map(media => ({
+									...media,
+									isCover: false,
+									url: media.url || '',
+									title: media.title || '',
+									description: media.description || ''
+								}));
+							images.push(...mediaImages);
+						}
+						
+						setAllImages(images);
+					} catch (error) {
+						console.error('Error processing portfolio images:', error);
+						setAllImages([]);
+					}
 				}
 
 				// Fetch social links
@@ -74,9 +128,20 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const linksData = await linksRes.json();
+
+				if (!linksRes.ok) {
+					throw new Error(`Failed to fetch social links: ${linksRes.statusText}`);
+				}
+
+				let linksData;
+				try {
+					linksData = await linksRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for social links');
+				}
+
 				if (!linksData.error) {
-					setSocialLinks(linksData.response);
+					setSocialLinks(linksData.response || []);
 				}
 
 				// Fetch follow counts
@@ -85,14 +150,26 @@ const UserProfilePage = () => {
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
 				});
-				const followData = await followRes.json();
+
+				if (!followRes.ok) {
+					throw new Error(`Failed to fetch follow counts: ${followRes.statusText}`);
+				}
+
+				let followData;
+				try {
+					followData = await followRes.json();
+				} catch (e) {
+					throw new Error('Invalid response format for follow counts');
+				}
+
 				if (!followData.error) {
-					setFollowCounts(followData.response);
+					setFollowCounts(followData.response || { followers: 0, following: 0 });
 				}
 
 				setLoading(false);
 			} catch (error) {
-				toast.error(error.message);
+				console.error('Error in fetchAllData:', error);
+				toast.error(error.message || 'An unexpected error occurred');
 				setLoading(false);
 			}
 		};
@@ -164,6 +241,24 @@ const UserProfilePage = () => {
 		}
 	};
 
+	const formatDate = (dateString) => {
+		if (!dateString) return 'Not available';
+		try {
+			const date = new Date(dateString);
+			if (isNaN(date.getTime())) {
+				return 'Invalid date';
+			}
+			return date.toLocaleDateString(undefined, {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			});
+		} catch (error) {
+			console.error('Error formatting date:', error);
+			return 'Date format error';
+		}
+	};
+
 	if (loading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
@@ -230,7 +325,7 @@ const UserProfilePage = () => {
 
 						{/* Follow/Edit Profile Button */}
 						<div className="mt-4">
-							{currentUser && currentUser.id !== parseInt(userId) ? (
+							{currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id !== parseInt(userId) ? (
 								<button
 									onClick={handleFollow}
 									className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
@@ -241,7 +336,7 @@ const UserProfilePage = () => {
 								>
 									{isFollowing ? 'Following' : 'Follow'}
 								</button>
-							) : currentUser && currentUser.id === parseInt(userId) ? (
+							) : currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id === parseInt(userId) ? (
 								<button
 									onClick={() => navigate('/settings/profile')}
 									className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
@@ -290,7 +385,7 @@ const UserProfilePage = () => {
 							<div>
 								<h3 className="text-sm font-medium text-gray-500">Member since</h3>
 								<p className="mt-1 text-sm text-gray-900">
-									{userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'Not available'}
+									{formatDate(userData.createdAt)}
 								</p>
 							</div>
 						</div>
