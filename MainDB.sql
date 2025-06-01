@@ -345,7 +345,7 @@ VALUES
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
-('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'avatar6.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
+('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'picture.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
 ('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
 ('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
 ('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ImageViewerModal from '../components/UserProfileView/ImageViewerModal';
+import AvatarImage from '../components/UserProfileView/AvatarImage';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -12,7 +12,6 @@ const UserProfilePage = () => {
 	const [loading, setLoading] = useState(true);
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [allImages, setAllImages] = useState([]);
-	const [showModal, setShowModal] = useState(false);
 	const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
 
 	useEffect(() => {
@@ -119,15 +118,6 @@ const UserProfilePage = () => {
 		}
 	};
 
-	const handleCloseViewer = () => {
-		setShowModal(false);
-	};
-
-	const handleImageClick = () => {
-		if (!allImages[currentImageIndex].isCover) {
-			setShowModal(true);
-		}
-	};
 
 	if (loading) {
 		return (
@@ -159,17 +149,16 @@ const UserProfilePage = () => {
 						<div className="flex items-start space-x-4">
 							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
 								{userData.avatarUrl ? (
-									<img
-										src={userData.avatarUrl}
-										alt={userData.displayName || userData.username}
-										className="w-full h-full object-cover"
+									<AvatarImage 
+										avatarUrl={userData.avatarUrl}
+										displayName={userData.displayName || userData.username}
+										size="md"
 									/>
 								) : (
-									<div className="w-full h-full bg-gray-200 flex items-center justify-center">
-										<span className="text-4xl text-gray-400">
-											{(userData.displayName || userData.username)?.charAt(0).toUpperCase()}
-										</span>
-									</div>
+									<AvatarImage 
+										displayName={userData.displayName || userData.username}
+										size="md"
+									/>
 								)}
 							</div>
 							<div className="flex-1">
@@ -303,18 +292,6 @@ const UserProfilePage = () => {
 				</div>
 			</div>
 			<ToastContainer />
-
-			{/* Image Viewer Modal */}
-			{showModal && currentImage && !currentImage.isCover && (
-				<ImageViewerModal
-					imageUrl={currentImage.url}
-					onClose={handleCloseViewer}
-					onPrevious={currentImageIndex > 0 ? handlePreviousImage : undefined}
-					onNext={currentImageIndex < allImages.length - 1 ? handleNextImage : undefined}
-					hasPrevious={currentImageIndex > 0}
-					hasNext={currentImageIndex < allImages.length - 1}
-				/>
-			)}
 		</div>
 	);
 };

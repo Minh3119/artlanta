@@ -12,7 +12,7 @@ const Artists = () => {
         const fetchArtists = async () => {
             try {
                 // Fetch all artists
-                const response = await fetch('http://localhost:9999/backend/api/user?role=CLIENT', {
+                const response = await fetch('http://localhost:9999/backend/api/user?role=ARTIST', {
                     method: 'GET',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },

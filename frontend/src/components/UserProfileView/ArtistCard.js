@@ -13,7 +13,7 @@ const ArtistCard = ({ artist, portfolio }) => {
                 
                 {/* Artist Avatar */}
                 <div className="absolute -bottom-6 left-4">
-                    <AvatarImage avatarUrl={artist.avatarUrl} displayName={artist.displayName} />
+                    <AvatarImage avatarUrl={artist.avatarUrl} displayName={artist.displayName} size='sm' />
                 </div>
             </div>
 
