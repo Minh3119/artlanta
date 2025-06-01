@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/homepage.css";
-import Header from "../components/HomePage/Heaer";
+import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/AritistPost";
 import Footer from "../components/HomePage/Footer";
 import CreatePostComponent from "../components/PostControl/createPostComponent";

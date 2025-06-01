@@ -37,7 +37,7 @@
             text-align: center;
             text-align: center;
             width: 40%;
-            border-bottom: 2px solid orange;
+            border-bottom: 2px solid #00A0FF;
             // margin-top: 10px;
         }
         .post-form{
@@ -66,7 +66,7 @@
                     font-weight: bolder;
                     border: none;
                     border-radius: 10px;
-                    background-color: orange;
+                    background-color: #00A0FF;
                     padding-top: 10px;
                 }
                 .confirm-script::placeholder{
@@ -87,7 +87,7 @@
                 }
                 input:focus{
                     outline: none;
-                    border: 2px solid orange;
+                    border: 2px solid #00A0FF;
                 }
                 .post-button{
                     width: 100%;
@@ -128,6 +128,7 @@
         max-height: 500px;
         max-width: 500px;
         border-radius: 10px;
+        border: 2px solid #00A0FF;
         background-color: rgb(245, 245, 245);
         display: flex;
         flex-direction: column;
@@ -143,7 +144,7 @@
             font-weight: bolder;
             text-align: center;
             width: 40%;
-            border-bottom: 2px solid orange;
+            border-bottom: 2px solid #00A0FF;
         }
         .post-form{
             display: flex;
@@ -174,7 +175,7 @@
                         transform: translate(-50%, -50%);
                         opacity: 0;
                         transition: opacity 0.3s ease;
-                        border: 2px solid orange;
+                        border: 2px solid #00A0FF;
                         background-color: rgba(0, 0, 0, 0.645);
                         color: white;
                         font-weight: bolder;
@@ -212,12 +213,12 @@
                 padding:0 10px;
                 background-color: transparent;
                 border-radius: 5px;
-                border: 2px solid orange;
+                border: 2px solid #00A0FF;
                 transition: box-shadow 0.4s ease, color 0.5s ease;
             }
             .file-label:hover{
                 box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
-                color: orange;
+                color: #00A0FF;
             }
             .content-container{
                 textarea{
@@ -240,7 +241,7 @@
             select{
                 outline: none;
                 border-radius: 5px;
-                border: 2px solid orange;
+                border: 2px solid #00A0FF;
                 background-color: transparent;
                 color: #000000;
                 font-size: 90%;
@@ -256,7 +257,7 @@
             }
             select:hover{
                 box-shadow: 4px 4px 8px rgba(255, 103, 0, 0.3);
-                color: orange;
+                color: #00A0FF;
             }
 
         }
