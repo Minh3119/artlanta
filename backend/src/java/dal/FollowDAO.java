@@ -9,7 +9,7 @@ public class FollowDAO extends DBContext {
 
     // Follow a user (status always "accepted")
     public boolean follow(int followerId, int followingId) {
-        String sql = "INSERT INTO Follow (followerId, followingId, status, followAt) VALUES (?, ?, 'accepted', CURRENT_TIMESTAMP)";
+        String sql = "INSERT INTO Follows (followerId, followingId, status, followAt) VALUES (?, ?, 'ACCEPTED', CURRENT_TIMESTAMP)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, followerId);
             ps.setInt(2, followingId);
@@ -22,7 +22,7 @@ public class FollowDAO extends DBContext {
 
     // Unfollow a user
     public boolean unfollow(int followerId, int followingId) {
-        String sql = "DELETE FROM Follow WHERE followerId = ? AND followingId = ?";
+        String sql = "DELETE FROM Follows WHERE followerId = ? AND followingId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, followerId);
             ps.setInt(2, followingId);
@@ -35,7 +35,7 @@ public class FollowDAO extends DBContext {
 
     // Count followers of a user
     public int countFollowers(int userId) {
-        String sql = "SELECT COUNT(*) FROM Follow WHERE followingId = ? AND status = 'accepted'";
+        String sql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -51,7 +51,9 @@ public class FollowDAO extends DBContext {
     // View followers of a user
     public List<Follow> getFollowers(int userId) {
         List<Follow> followers = new ArrayList<>();
-        String sql = "SELECT * FROM Follow WHERE followingId = ? AND status = 'accepted'";
+        String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f " +
+                    "JOIN Users u ON f.followerId = u.ID " +
+                    "WHERE f.followingId = ? AND f.status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -62,11 +64,28 @@ public class FollowDAO extends DBContext {
                 f.setFollowingId(rs.getInt("followingId"));
                 f.setStatus(rs.getString("status"));
                 f.setFollowAt(rs.getTimestamp("followAt").toLocalDateTime());
+                f.setUsername(rs.getString("Username"));
+                f.setAvatarUrl(rs.getString("AvatarURL"));
                 followers.add(f);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return followers;
+    }
+
+    public boolean isFollowing(int followerId, int followingId) {
+        String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND followingId = ? AND status = 'ACCEPTED'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, followerId);
+            ps.setInt(2, followingId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -8,6 +8,8 @@ public class Follow {
     private int followingId;
     private String status;
     private LocalDateTime followAt;
+    private String username;
+    private String avatarUrl;
 
     public Follow() {
     }
@@ -58,5 +60,21 @@ public class Follow {
 
     public void setFollowAt(LocalDateTime followAt) {
         this.followAt = followAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

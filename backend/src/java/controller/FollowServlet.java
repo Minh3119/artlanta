@@ -44,6 +44,18 @@ public class FollowServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
+        
+        String type = request.getParameter("type");
+        int userId = Integer.parseInt(request.getParameter("userId"));
+
+        // Count endpoint is public
+        if ("count".equals(type)) {
+            int count = followDAO.countFollowers(userId);
+            out.print("{\"count\":" + count + "}");
+            return;
+        }
+
+        // All other operations require session
         HttpSession session = request.getSession(false);
         User user = (session != null) ? (User) session.getAttribute("account") : null;
         if (user == null) {
@@ -52,13 +64,7 @@ public class FollowServlet extends HttpServlet {
             return;
         }
 
-        String type = request.getParameter("type");
-        int userId = Integer.parseInt(request.getParameter("userId"));
-
-        if ("count".equals(type)) {
-            int count = followDAO.countFollowers(userId);
-            out.print("{\"count\":" + count + "}");
-        } else if ("list".equals(type)) {
+        if ("list".equals(type)) {
             List<Follow> followers = followDAO.getFollowers(userId);
             StringBuilder sb = new StringBuilder();
             sb.append("[");
@@ -68,11 +74,17 @@ public class FollowServlet extends HttpServlet {
                   .append(",\"followerId\":").append(f.getFollowerId())
                   .append(",\"followingId\":").append(f.getFollowingId())
                   .append(",\"status\":\"").append(f.getStatus()).append("\"")
-                  .append(",\"followAt\":\"").append(f.getFollowAt()).append("\"}");
+                  .append(",\"followAt\":\"").append(f.getFollowAt()).append("\"")
+                  .append(",\"username\":\"").append(f.getUsername()).append("\"")
+                  .append(",\"avatarUrl\":").append(f.getAvatarUrl() != null ? "\"" + f.getAvatarUrl() + "\"" : "null")
+                  .append("}");
                 if (i < followers.size() - 1) sb.append(",");
             }
             sb.append("]");
             out.print(sb.toString());
+        } else if ("status".equals(type)) {
+            boolean isFollowing = followDAO.isFollowing(user.getID(), userId);
+            out.print("{\"isFollowing\":" + isFollowing + "}");
         } else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("{\"error\":\"Invalid type\"}");

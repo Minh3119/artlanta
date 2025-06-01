@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import FollowerList from '../components/FollowControl/FollowerList';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -9,10 +10,22 @@ const UserProfilePage = () => {
 	const [portfolioData, setPortfolioData] = useState(null);
 	const [socialLinks, setSocialLinks] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [currentUserId, setCurrentUserId] = useState(null);
 
 	useEffect(() => {
 		const fetchAllData = async () => {
 			try {
+				// Fetch current user data first
+				const currentUserRes = await fetch('http://localhost:9999/backend/api/user/current', {
+					method: 'GET',
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json' },
+				});
+				const currentUserData = await currentUserRes.json();
+				if (!currentUserData.error) {
+					setCurrentUserId(currentUserData.response?.id);
+				}
+
 				// Fetch user data
 				const userRes = await fetch(`http://localhost:9999/backend/api/user/${userId}`, {
 					method: 'GET',
@@ -132,12 +145,18 @@ const UserProfilePage = () => {
 						</div>
 
 						<div className="mt-2">
-							<h1 className="text-3xl font-bold text-gray-900">
-								{userData.displayName || userData.username}
-								{userData.username && userData.displayName && (
-									<span className="text-lg font-normal text-gray-500 ml-2">@{userData.username}</span>
-								)}
-							</h1>
+							<div className="flex items-center gap-4">
+								<h1 className="text-3xl font-bold text-gray-900">
+									{userData.displayName || userData.username}
+									{userData.username && userData.displayName && (
+										<span className="text-lg font-normal text-gray-500 ml-2">@{userData.username}</span>
+									)}
+								</h1>
+								<FollowerList 
+									userId={parseInt(userId)} 
+									isOwnProfile={currentUserId === parseInt(userId)} 
+								/>
+							</div>
 							{userData.bio && (
 								<p className="mt-4 text-gray-600">{userData.bio}</p>
 							)}
