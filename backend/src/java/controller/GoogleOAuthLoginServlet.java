@@ -24,8 +24,8 @@ import dal.UserDAO;
 import java.security.SecureRandom;
 import model.User;
 
-@WebServlet(name = "GoogleOAuthCallbackServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
-public class GoogleOAuthCallbackServlet extends HttpServlet {
+@WebServlet(name = "GoogleOAuthLoginServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
+public class GoogleOAuthLoginServlet extends HttpServlet {
 
     private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
