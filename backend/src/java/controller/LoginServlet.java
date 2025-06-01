@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import model.User;
 import org.json.JSONObject;
+import util.SessionUtil;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/api/login"})
 public class LoginServlet extends HttpServlet {
@@ -44,7 +45,8 @@ public class LoginServlet extends HttpServlet {
             res.put("message", "Sai tài khoản hoặc mật khẩu");
         } else {
             HttpSession session = request.getSession(true);
-            session.setAttribute("user", user);
+            int userId = dao.getUserIdByEmail(email);
+            SessionUtil.storeUserInSession(session,userId);
             
             res.put("success", true);
             res.put("user", new JSONObject()
