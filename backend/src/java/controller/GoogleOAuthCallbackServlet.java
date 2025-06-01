@@ -20,14 +20,24 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
 import util.EnvReader;
+import dal.UserDAO;
+import java.security.SecureRandom;
+import model.User;
 
 @WebServlet(name = "GoogleOAuthCallbackServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthCallbackServlet extends HttpServlet {
 
+    private static final String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+    private static final String NUMBER = "0123456789";
+    private static final String SPECIAL_CHAR = "!@#$%";
+
+    private static final String PASSWORD_ALLOW_BASE = CHAR_LOWER + CHAR_UPPER + NUMBER + SPECIAL_CHAR;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String fullPath = getServletContext().getRealPath("/WEB-INF/env.txt");
+        String fullPath = getServletContext().getRealPath("/WEB-INF/config.properties");
         EnvReader.loadEnv(fullPath);
 
         String CLIENT_ID_GOOGLE = EnvReader.getEnv("CLIENT_ID_GOOGLE");
@@ -40,29 +50,23 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
         String code = request.getParameter("code");
         String error = request.getParameter("error");
 
-        if (error != null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(new JSONObject().put("error", error).toString());
-            return;
-        }
-
-        if (code == null || code.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write(new JSONObject().put("error", "Thiếu authensition code.").toString());
+        if (error != null || code == null || code.isEmpty()) {
+            response.sendRedirect("http://localhost:3000/login?error=oauth_failed");
             return;
         }
 
         try {
-            URL url = new URL("https://oauth2.googleapis.com/token");
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            // Exchange code for token
+            URL tokenUrl = new URL("https://oauth2.googleapis.com/token");
+            HttpURLConnection connect = (HttpURLConnection) tokenUrl.openConnection();
             connect.setRequestMethod("POST");
             connect.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connect.setDoOutput(true);
 
-            String data = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8.toString())
+            String data = "code=" + URLEncoder.encode(code, StandardCharsets.UTF_8)
                     + "&client_id=" + CLIENT_ID_GOOGLE
                     + "&client_secret=" + CLIENT_SECRET_GOOGLE
-                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI_GOOGLE, StandardCharsets.UTF_8.toString())
+                    + "&redirect_uri=" + URLEncoder.encode(REDIRECT_URI_GOOGLE, StandardCharsets.UTF_8)
                     + "&grant_type=authorization_code";
 
             try (OutputStream os = connect.getOutputStream()) {
@@ -70,33 +74,23 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
                 os.flush();
             }
 
-            int responseCode = connect.getResponseCode();
-
-            if (responseCode != 200) {
-                StringBuilder errorResponse = new StringBuilder();
-                try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(connect.getErrorStream(), StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = errorReader.readLine()) != null) {
-                        errorResponse.append(line);
-                    }
-                }
-
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write(new JSONObject().put("error", "Token exchange failed").put("details", errorResponse.toString()).toString());
+            if (connect.getResponseCode() != 200) {
+                response.sendRedirect("http://localhost:3000/login?error=token_exchange_failed");
                 return;
             }
 
-            StringBuilder token = new StringBuilder();
+            StringBuilder tokenResponse = new StringBuilder();
             try (BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8))) {
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    token.append(inputLine);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    tokenResponse.append(line);
                 }
             }
 
-            JSONObject tokenJson = new JSONObject(token.toString());
+            JSONObject tokenJson = new JSONObject(tokenResponse.toString());
             String accessToken = tokenJson.getString("access_token");
 
+            // Get user info from Google
             URL userInfoUrl = new URL("https://www.googleapis.com/oauth2/v2/userinfo");
             HttpURLConnection userInfoConn = (HttpURLConnection) userInfoUrl.openConnection();
             userInfoConn.setRequestMethod("GET");
@@ -104,24 +98,50 @@ public class GoogleOAuthCallbackServlet extends HttpServlet {
 
             StringBuilder userInfo = new StringBuilder();
             try (BufferedReader in = new BufferedReader(new InputStreamReader(userInfoConn.getInputStream(), StandardCharsets.UTF_8))) {
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    userInfo.append(inputLine);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    userInfo.append(line);
                 }
             }
 
             JSONObject userInfoJson = new JSONObject(userInfo.toString());
+            JSONObject res = new JSONObject();
+            UserDAO userDao = new UserDAO();
+            String email = userInfoJson.getString("email");
+            String name = userInfoJson.getString("name");
 
-            HttpSession session = request.getSession();
-            session.setAttribute("userEmail", userInfoJson.getString("email"));
-            session.setAttribute("userName", userInfoJson.getString("name"));
-            session.setAttribute("userInfo", userInfoJson.toString());
-
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(userInfoJson.toString());
+            if (!userDao.checkUserExistsByEmail(email)) {
+                String password = generateRandomPassword(10);
+                userDao.registerUser(name, email, password);
+            }
+            
+            User user = userDao.getUserByEmail(email);
+            
+            HttpSession session = request.getSession(true);
+            session.setAttribute("user", user);
+            response.sendRedirect("http://localhost:3000/");
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
+            e.printStackTrace();
         }
+    }
+
+    private String generateRandomPassword(int length) {
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = secureRandom.nextInt(PASSWORD_ALLOW_BASE.length());
+            password.append(PASSWORD_ALLOW_BASE.charAt(index));
+        }
+
+        return password.toString();
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 }
