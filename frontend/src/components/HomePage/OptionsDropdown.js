@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import dotsIcon from "../../assets/images/dots.svg";
 
-const OptionsDropdown = () => {
+const OptionsDropdown = ({ openDeletePopup, openUpdatePopup }) => {
   const [showMenu, setShowMenu] = useState(false);
+
 
   const handleToggle = () => {
     setShowMenu(!showMenu);
@@ -24,10 +25,10 @@ const OptionsDropdown = () => {
           <button onClick={() => handleOptionClick('save')} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
             Lưu
           </button>
-          <button onClick={() => handleOptionClick('notInterested')} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
-           Sửa bài viết
+          <button onClick={() => openUpdatePopup()} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
+            Sửa bài viết
           </button>
-          <button onClick={() => handleOptionClick('mute')} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
+          <button onClick={() => openDeletePopup()} className="block w-full text-left px-4 py-2 hover:bg-gray-800 rounded">
             Xóa bài viết
           </button>
           <button onClick={() => handleOptionClick('block')} className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-800 rounded">

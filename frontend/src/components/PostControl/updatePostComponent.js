@@ -19,6 +19,7 @@ class UpdatePostComponent extends React.Component {
     handleCloseTab = () => {
         //logic lay thay doi props isUpdateOpen
         console.log("out create");
+        this.props.closeUpdatePopup();
     }
     // handleOnChangeTitle = (e) => {
     //     this.state.title.length <= 100 ?
@@ -90,6 +91,7 @@ class UpdatePostComponent extends React.Component {
             isLoading: false,
             isPosting: false,
         })
+        this.props.closeUpdatePopup();
     }
     handleRemoveImage = (index) => {
         const newFile = [...this.state.file];
@@ -247,6 +249,7 @@ class UpdatePostComponent extends React.Component {
                     isPosting: false,
                 });
                 toast.success("Update completed!");
+                this.props.closeUpdatePopup();
             } else {
                 toast.error("Update error, try again later.");
             }

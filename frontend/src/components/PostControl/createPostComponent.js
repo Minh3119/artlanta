@@ -220,11 +220,11 @@ class CreatePostComponent extends React.Component {
                 this.props.closeCreatePopup();
 
             } else {
-                toast.error("Đăng bài không thành công, vui lòng thử lại sau.");
+                toast.error("Create post error, try again later.");
             }
         }
         catch (er) {
-            this.setState({ message: "Không kết nối được đến server." });
+            this.setState({ message: "Cannot connect to the server." });
             console.log("server error!", er);
         }
     }

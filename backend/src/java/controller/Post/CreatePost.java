@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,9 +23,11 @@ import java.util.Map;
 import model.Media;
 import model.Post;
 import model.PostMedia;
+import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
+import util.SessionUtil;
 import validation.EnvConfig;
 
 @MultipartConfig(
@@ -77,8 +80,9 @@ public class CreatePost extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         //        Declaration
-        Collection<Part> parts = request.getParts();
-
+        Collection<Part> parts = request.getParts(); 
+        HttpSession session = request.getSession();
+        User user = session.getAttribute("user");
         List<Media> imageUrl = new ArrayList<>();
 //        String title = request.getParameter("title");
         String content = request.getParameter("content");
@@ -96,8 +100,8 @@ public class CreatePost extends HttpServlet {
                 return;
             }
 
-            Integer userID = (Integer) request.getSession().getAttribute("userID");
-            userID = 10;
+            
+            int userID= user.getID();
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;

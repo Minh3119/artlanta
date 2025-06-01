@@ -11,6 +11,7 @@ class DeletePostComponent extends React.Component {
     handleCloseTab = () => {
         //logic lay thay doi props isDeleteOpen
         console.log("out create");
+        this.props.closeDeletePopup();
     }
     handleOnChangeResult = (e) => {
         const newRs = e.target.value;
@@ -51,6 +52,7 @@ class DeletePostComponent extends React.Component {
                         isDelete: false,
                     });
                     toast.success("Delete completed!");
+                    this.props.closeDeletePopup();
                 } else {
                     toast.error("Delete error, try again later");
                 }
