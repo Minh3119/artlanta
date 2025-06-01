@@ -1,6 +1,6 @@
 import React from "react";
 import '../../styles/post.scss';
-
+import logo from '../../assets/images/arlanta.svg';
 import { toast } from 'react-toastify';
 class DeletePostComponent extends React.Component {
     state = {
@@ -98,7 +98,13 @@ class DeletePostComponent extends React.Component {
         return (
             <div className="delete-post-container" onClick={this.handleCloseTab}>
                 {this.state.isDelete ?
-                    <div>Loading...</div>
+                    <div className="loading-container">
+                        <span>Loading ...</span>
+                        <img
+                            src={logo}
+                            alt="Loading..."
+                            className="loading-spinner"
+                        /></div>
                     : null}
                 <div className="post-popup"
                     onClick={(e) => e.stopPropagation()}
