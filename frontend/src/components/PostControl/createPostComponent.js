@@ -16,6 +16,10 @@ class CreatePostComponent extends React.Component {
         isPosting: false,
 
     }
+    handleCloseTab = () => {
+        //logic lay thay doi props isCreateOpen
+
+    }
     handleOnChangeTitle = (e) => {
         this.state.title.length <= 100 ?
             (

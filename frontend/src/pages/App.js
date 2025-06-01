@@ -17,6 +17,7 @@ import EditNotificationComponent from '../components/UserProfileEdit/editNotific
 import EditPricingComponent from '../components/UserProfileEdit/editPricingComponent.js';
 import DeleteAccountComponent from '../components/UserProfileEdit/deleteAccountComponent.js';
 import UpdatePostComponent from '../components/PostControl/updatePostComponent.js';
+import DeletePostComponent from '../components/PostControl/deletePostComponent.js';
 import Login from './Login.js';
 import Register from './Register.js';
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="/sessiontest" element={<SessionTest />} />
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/editpost" element={<UpdatePostComponent />} />
+          <Route path="/deletepost" element={<DeletePostComponent />} />
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

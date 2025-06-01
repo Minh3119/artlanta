@@ -12,6 +12,10 @@
         <servlet-name>UpdatePost</servlet-name>
         <servlet-class>controller.Post.UpdatePost</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DeletePost</servlet-name>
+        <servlet-class>controller.Post.DeletePost</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
@@ -23,5 +27,9 @@
     <servlet-mapping>
         <servlet-name>UpdatePost</servlet-name>
         <url-pattern>/api/post/update</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeletePost</servlet-name>
+        <url-pattern>/api/post/delete</url-pattern>
     </servlet-mapping>
 </web-app>

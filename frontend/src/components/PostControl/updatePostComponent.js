@@ -16,6 +16,10 @@ class UpdatePostComponent extends React.Component {
         isPosting: false,
 
     }
+    handleCloseTab = () => {
+        //logic lay thay doi props isUpdateOpen
+
+    }
     handleOnChangeTitle = (e) => {
         this.state.title.length <= 100 ?
             (
@@ -195,8 +199,8 @@ class UpdatePostComponent extends React.Component {
                 );
                 this.setState({
                     postID: data.response.postID,
-                    title: data.response.title || "dcm",
-                    content: data.response.content || "dcm",
+                    title: data.response.title || "",
+                    content: data.response.content || "",
                     visibility: data.response.visibility || "Public",
                     file: filesFromUrls,
                     filePreview: previewUrls,
