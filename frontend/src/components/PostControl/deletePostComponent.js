@@ -10,7 +10,7 @@ class DeletePostComponent extends React.Component {
     }
     handleCloseTab = () => {
         //logic lay thay doi props isDeleteOpen
-
+        console.log("out create");
     }
     handleOnChangeResult = (e) => {
         const newRs = e.target.value;
@@ -100,7 +100,9 @@ class DeletePostComponent extends React.Component {
                 {this.state.isDelete ?
                     <div>Loading...</div>
                     : null}
-                <div className="post-popup">
+                <div className="post-popup"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="post-header">
                         Are you sure want to delete this post?
                     </div>

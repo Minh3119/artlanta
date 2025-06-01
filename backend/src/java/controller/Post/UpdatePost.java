@@ -48,14 +48,14 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            int postID=27;
+            int postID=29;
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
 
             Post post = pd.getPost(postID);
             if (post == null) {
-                JsonUtil.writeJsonError(response, "Không tìm thấy bài viết với postID = " + postID);
+                JsonUtil.writeJsonError(response, "No post with postID = " + postID);
                 return;
             }
 
@@ -65,7 +65,7 @@ public class UpdatePost extends HttpServlet {
             }
 
             if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
-                JsonUtil.writeJsonError(response, "Thiếu dữ liệu: title, content hoặc visibility");
+                JsonUtil.writeJsonError(response, "Title cannot be empty");
                 return;
             }
 
@@ -73,7 +73,7 @@ public class UpdatePost extends HttpServlet {
             jsonPost.put("postID", post.getID());
             jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
-            jsonPost.put("visibility", post.getVisibility().equals("PUBLIC")? "Public":"Private");
+            jsonPost.put("visibility", post.getVisibility().toUpperCase());
 
             JSONArray imageArr = new JSONArray();
             for (Media media : imageList) {
@@ -87,9 +87,9 @@ public class UpdatePost extends HttpServlet {
             JsonUtil.writeJsonResponse(response, jsonResponse);
 
         } catch (NumberFormatException e) {
-            JsonUtil.writeJsonError(response, "postID phải là số hợp lệ");
+            JsonUtil.writeJsonError(response, "postID must be an integer >0");
         } catch (Exception e) {
-            JsonUtil.writeJsonError(response, "Lỗi máy chủ: " + e.getMessage());
+            JsonUtil.writeJsonError(response, "Server error: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -114,6 +114,7 @@ public class UpdatePost extends HttpServlet {
         String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
+        
         EnvConfig config = new EnvConfig(getServletContext());
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", config.getProperty("my_cloud_name"),

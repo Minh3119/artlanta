@@ -18,6 +18,8 @@ class CreatePostComponent extends React.Component {
     }
     handleCloseTab = () => {
         //logic lay thay doi props isCreateOpen
+        console.log("out create");
+        this.props.closeCreatePopup();
 
     }
     handleOnChangeTitle = (e) => {
@@ -220,11 +222,13 @@ class CreatePostComponent extends React.Component {
     }
     render() {
         return (
-            <div className="create-post-container">
+            <div className="create-post-container" onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
                     <div>Loading...</div>
                     : null}
-                <div className="post-popup">
+                <div className="post-popup"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="post-header">
                         Create Post
                     </div>
