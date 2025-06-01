@@ -1,12 +1,12 @@
 import React from "react";
 
-import '../../styles/createPost.scss';
+import '../../styles/post.scss';
 
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 class CreatePostComponent extends React.Component {
     state = {
-        title: '',
+        // title: '',
         content: '',
         file: [],
         filePreview: [],
@@ -16,34 +16,41 @@ class CreatePostComponent extends React.Component {
         isPosting: false,
 
     }
-    handleOnChangeTitle = (e) => {
-        this.state.title.length <= 100 ?
-            (
-                this.setState({
-                    title: e.target.value
-                })
-            )
-            :
-            (
-                toast.error('title too long!', {
-                    toastId: "fullname-toast",
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    className: "toast-complete"
-                })
-            )
-    };
+    handleCloseTab = () => {
+        //logic lay thay doi props isCreateOpen
+        console.log("out create");
+        this.props.closeCreatePopup();
+
+    }
+    // handleOnChangeTitle = (e) => {
+    //     this.state.title.length <= 100 ?
+    //         (
+    //             this.setState({
+    //                 title: e.target.value
+    //             })
+    //         )
+    //         :
+    //         (
+    //             toast.error('title too long!', {
+    //                 toastId: "fullname-toast",
+    //                 position: "top-right",
+    //                 autoClose: 3000,
+    //                 hideProgressBar: false,
+    //                 closeOnClick: false,
+    //                 pauseOnHover: true,
+    //                 draggable: true,
+    //                 progress: undefined,
+    //                 theme: "light",
+    //                 className: "toast-complete"
+    //             })
+    //         )
+    // };
     handleOnChangeContent = (e) => {
-        this.state.content.length <= 1000 ?
+        const newContent = e.target.value;
+        newContent.length <= 750 ?
             (
                 this.setState({
-                    content: e.target.value
+                    content: newContent
                 })
             )
             :
@@ -62,6 +69,31 @@ class CreatePostComponent extends React.Component {
                 })
             )
     };
+    handleCancel = () => {
+        toast.error("The process has been canceled!", {
+            toastId: "cancel",
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            className: "toast-complete"
+        });
+        this.setState({
+            // title: '',
+            content: '',
+            file: [],
+            filePreview: [],
+            visibility: 'PUBLIC',
+            // isImage: false,
+            isLoading: false,
+            isPosting: false,
+        })
+        this.props.closeCreatePopup();
+    }
     handleRemoveImage = (index) => {
         const newFile = [...this.state.file];
         const newPreview = [...this.state.filePreview];
@@ -91,6 +123,8 @@ class CreatePostComponent extends React.Component {
 
         const files = Array.from(e.target.files);
         const validFiles = [];
+
+        document.getElementsByClassName("file")[0].value = "";
 
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
@@ -147,12 +181,12 @@ class CreatePostComponent extends React.Component {
         this.setState({ visibility: e.target.value });
     }
     handleSubmit = async () => {
-        if (!(this.state.title.trim()) && !(this.state.content.trim())) {
-            toast.error("Title and content cannot be blank");
+        if (!(this.state.content.trim())) {
+            toast.error("Content cannot be blank");
             return;
         }
         const formData = new FormData();
-        formData.append("title", this.state.title);
+        // formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
             const images = this.state.file;
@@ -192,22 +226,23 @@ class CreatePostComponent extends React.Component {
     }
     render() {
         return (
-            <div className="create-post-container">
+            <div className="create-post-container" onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
                     <div>Loading...</div>
                     : null}
-                <div className="post-popup">
+                <div className="post-popup"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <div className="post-header">
                         Create Post
                     </div>
 
                     <div className="post-form">
-                        <div className="title-container">
+                        {/* <div className="title-container">
                             <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
-                        </div>
+                        </div> */}
                         {
-                            // this.state.filePreview != null ?
                             this.state.filePreview.map((item, index) => {
                                 return (
                                     <div className="image-container" key={index}>
@@ -218,16 +253,12 @@ class CreatePostComponent extends React.Component {
                                     </div>
                                 )
                             })
-                            // :
-                            // null
-
-
                         }
                         <label for="file" className="file-label">File</label>
-                        <input type="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
+                        <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
-                            <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
-                            <p>{String(this.state.content.length).padStart(4, '0')}/1000</p>
+                            <textarea className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
+                            <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
                         </div>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
                             <option value="PUBLIC">Public</option>
@@ -237,7 +268,7 @@ class CreatePostComponent extends React.Component {
                     </div>
                     <div className="post-button">
                         <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Create</button>
-                        <button style={{ backgroundColor: "lightcoral" }}>Cancel</button>
+                        <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
                     </div>
 
 

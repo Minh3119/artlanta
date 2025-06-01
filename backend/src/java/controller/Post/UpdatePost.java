@@ -32,7 +32,27 @@ import validation.EnvConfig;
         maxFileSize = 1024 * 1024 * 10,
         maxRequestSize = 1024 * 1024 * 50
 )
-public class CreatePost extends HttpServlet {
+public class UpdatePost extends HttpServlet {
+
+    //deleteImageFromCloudinary
+    //get URL-> split by / -> select the public_ID -> remove .png and .jsp
+    //destroy
+    private void deleteImageFromCloudinary(Cloudinary cloudinary, HttpServletResponse response, List<Media> oldImages) {
+        for (Media media : oldImages) {
+            try {
+                String imageUrl = media.getURL();
+
+                String[] parts = imageUrl.split("/");
+                String publicIdWithExtension = parts[parts.length - 1];
+                String publicId = publicIdWithExtension.split("\\.")[0];
+
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private List<Media> uploadImagesToCloudinary(Collection<Part> parts, Cloudinary cloudinary, HttpServletResponse response) throws IOException {
         List<Media> imageUrl = new ArrayList<>();
@@ -68,9 +88,68 @@ public class CreatePost extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        JsonUtil.writeJsonError(response, "POST method required");
+
+        try {
+//            String rawPostID = request.getParameter("postID");
+//            if (rawPostID == null || rawPostID.trim().isEmpty()) {
+//                JsonUtil.writeJsonError(response, "Thiếu tham số postID");
+//                return;
+//            }
+
+//            int postID = Integer.parseInt(rawPostID.trim());
+            int postID = 30;
+
+            PostDAO pd = new PostDAO();
+            MediaDAO md = new MediaDAO();
+
+            Post post = pd.getPost(postID);
+            if (post == null) {
+                JsonUtil.writeJsonError(response, "No post with postID = " + postID);
+                return;
+            }
+
+            List<Media> imageList = md.getPostMediaByID(postID);
+            if (imageList == null) {
+                imageList = new ArrayList<>();
+            }
+
+            if (post.getContent() == null || post.getContent().trim().isEmpty()) {
+                JsonUtil.writeJsonError(response, "Title cannot be empty");
+                return;
+            }
+
+            JSONObject jsonPost = new JSONObject();
+            jsonPost.put("postID", post.getID());
+//            jsonPost.put("title", post.getTitle());
+            jsonPost.put("content", post.getContent());
+            jsonPost.put("visibility", post.getVisibility().toUpperCase());
+
+            JSONArray imageArr = new JSONArray();
+            for (Media media : imageList) {
+                imageArr.put(media.getURL());
+            }
+            jsonPost.put("imageUrl", imageArr);
+
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", jsonPost);
+
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+
+        } catch (NumberFormatException e) {
+            JsonUtil.writeJsonError(response, "postID must be an integer >0");
+        } catch (Exception e) {
+            JsonUtil.writeJsonError(response, "Server error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
     }
 
+    //doPost
+    //catching the data from UI
+    //uploading the file into Cloudinary
+    //URL gen
+    //deletePost -> PostMedia delete -> Media delete according to postID
+    //re-insert into db
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -78,11 +157,15 @@ public class CreatePost extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         //        Declaration
         Collection<Part> parts = request.getParts();
-
         List<Media> imageUrl = new ArrayList<>();
+        PostDAO pd = new PostDAO();
+        MediaDAO md = new MediaDAO();
+        String raw_ID = request.getParameter("postID");
+        int postID;
 //        String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
+
         EnvConfig config = new EnvConfig(getServletContext());
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", config.getProperty("my_cloud_name"),
@@ -90,24 +173,26 @@ public class CreatePost extends HttpServlet {
                 "api_secret", config.getProperty("my_secret")
         ));
         try {
-
+            postID = Integer.parseInt(raw_ID);
             if (content == null || content.trim().isEmpty()) {
                 JsonUtil.writeJsonError(response, "Missing required fields");
                 return;
             }
-
             Integer userID = (Integer) request.getSession().getAttribute("userID");
             userID = 10;
             if (userID == null) {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
             }
+            List<Media> oldImages = md.getPostMediaByID(postID);
+            deleteImageFromCloudinary(cloudinary, response, oldImages);
 
             imageUrl = uploadImagesToCloudinary(parts, cloudinary, response);
+            if (imageUrl == null) {
+                return;
+            }
 
-//            Media media = new Media(0, imageUrl);
-            PostDAO pd = new PostDAO();
-            pd.createPost(new Post(
+            pd.updatePost(new Post(
                     0,
                     userID,
                     content,
@@ -116,7 +201,8 @@ public class CreatePost extends HttpServlet {
                     LocalDateTime.now(),
                     null,
                     false
-            ), imageUrl);
+            ), postID);
+            md.deleteMediaByPostID(postID, imageUrl);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,4 +225,10 @@ public class CreatePost extends HttpServlet {
 //        jsonResponse.put("response", jsonPost);
 //        JsonUtil.writeJsonResponse(response, jsonResponse);
     }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
 }

@@ -1,6 +1,6 @@
 import InputField from ".././Login/InputField.js";
-import { useState,useEffect } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function RegisterCard() {
   const [email, setEmail] = useState("");
@@ -8,26 +8,35 @@ export default function RegisterCard() {
   const [password, setPassword] = useState("");
   const [cpassword, setCPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      document.body.style.display = "flex";
-      document.body.style.alignItems = "center";
-      document.body.style.justifyContent = "center";
-      document.body.style.minHeight = "100vh";
-      document.body.style.background = "#5F41E4";
-  
-      return () => {
-        document.body.removeAttribute("style");
-      };
-    }, []);
+  useEffect(() => {
+    const root = document.getElementById("root");
+    if (root) {
+      root.classList.add("log-root");
+    }
+    return () => {
+      if (root) {
+        root.classList.remove("log-root");
+      }
+    };
+  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      setMessage(
+        "Password phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
+      );
+      return;
+    }
+
     if (password !== cpassword) {
-      setMessage("Passwords do not match");
-      setCPassword(""); 
+      setMessage("Password phải trùng với Confirm password");
+      setCPassword("");
       return;
     }
 
@@ -41,16 +50,16 @@ export default function RegisterCard() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setMessage(data.message || `API Error: ${res.status}`);
+        console.error(data.message || `API Error: ${res.status}`);
         return;
       }
 
       setMessage("Đăng ký thành công! Đang chuyển hướng...");
       setTimeout(() => {
-        navigate("/login"); 
+        navigate("/login");
       });
     } catch (error) {
-      setMessage(`Network error: ${error.message}`);
+      setMessage(`Network error`);
       console.error("Register error:", error);
     }
   };
@@ -75,7 +84,7 @@ export default function RegisterCard() {
         <InputField
           type="text"
           placeholder="Username"
-          icon= "view_timeline"
+          icon="view_timeline"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required

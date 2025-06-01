@@ -1,37 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 
 const SocialLogin = () => {
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-
-  const handleGoogleLogin =  async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:8080/backend/api/oauth2callbackgoogle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        setMessage(`API Error: ${res.status} - ${errorText}`);
-        return;
-      }
-
-      const data = await res.json();
-
-      if (data.success) {
-        setMessage("Login success");
-        navigate("/");
-      } else {
-        setMessage(data.message || "Login failed");
-      }
-    } catch (error) {
-      setMessage(`Network error: ${error.message}`);
-    }
-  }
-
   return (
     <>
         <div className="social-login">
@@ -63,7 +31,6 @@ const SocialLogin = () => {
         </a>
       </button>
     </div>
-    {message && <p className="message">{message}</p>}
     </>
   );
 };
