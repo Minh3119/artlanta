@@ -282,11 +282,29 @@ public class UserDAO extends DBContext {
             st.setString(1, newHash);
             st.setString(2, email);
             st.executeUpdate();
-            
+
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public int getUserIdByEmail(String email) {
+        int userId = -1; // giá trị mặc định nếu không tìm thấy
+        String sql = "SELECT ID FROM Users WHERE Email = ?";
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    userId = rs.getInt("ID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return userId;
     }
 }
