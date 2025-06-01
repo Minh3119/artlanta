@@ -44,6 +44,7 @@ const FollowerList = ({ userId, count, isOwnProfile }) => {
   };
 
   const handleTogglePopup = () => {
+    if (!isOwnProfile) return; // Don't do anything if not owner
     if (!isOpen) {
       fetchFollowers();
     }
@@ -51,23 +52,26 @@ const FollowerList = ({ userId, count, isOwnProfile }) => {
   };
 
   return (
-    <div className="follower-list">
+    <div className={`follower-list ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}>
       <button
         onClick={handleTogglePopup}
-        className="flex flex-col items-center hover:opacity-75 transition-opacity"
+        className={`flex flex-col items-center ${isOwnProfile ? 'hover:opacity-75' : ''}`}
+        disabled={!isOwnProfile}
       >
-        <span className="font-semibold text-gray-900 text-lg">{count}</span>
-        <span className="text-gray-500 text-sm">followers</span>
+        <span className="font-semibold text-gray-900 text-base">{count}</span>
+        <span className="text-gray-500 text-xs">followers</span>
       </button>
 
-      {isOpen && (
+      {isOpen && isOwnProfile && (
         <>
           <div className="follower-list__overlay" onClick={() => setIsOpen(false)} />
           
           <div ref={popupRef} className="follower-list__popup">
             <div className="follower-list__header">
               <div className="follower-list__header-content">
-                <h3 className="follower-list__header-content-title">Followers</h3>
+                <h3 className="follower-list__header-content-title">
+                  {count} {count === 1 ? 'Follower' : 'Followers'}
+                </h3>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="follower-list__close-button"
