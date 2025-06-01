@@ -1,11 +1,11 @@
 import React from "react";
-
 import '../../styles/post.scss';
 
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
-class CreatePostComponent extends React.Component {
+class UpdatePostComponent extends React.Component {
     state = {
+        postID: 0,
         // title: '',
         content: '',
         file: [],
@@ -17,10 +17,8 @@ class CreatePostComponent extends React.Component {
 
     }
     handleCloseTab = () => {
-        //logic lay thay doi props isCreateOpen
+        //logic lay thay doi props isUpdateOpen
         console.log("out create");
-        this.props.closeCreatePopup();
-
     }
     // handleOnChangeTitle = (e) => {
     //     this.state.title.length <= 100 ?
@@ -83,7 +81,7 @@ class CreatePostComponent extends React.Component {
             className: "toast-complete"
         });
         this.setState({
-            // title: '',
+            title: '',
             content: '',
             file: [],
             filePreview: [],
@@ -92,7 +90,6 @@ class CreatePostComponent extends React.Component {
             isLoading: false,
             isPosting: false,
         })
-        this.props.closeCreatePopup();
     }
     handleRemoveImage = (index) => {
         const newFile = [...this.state.file];
@@ -180,13 +177,48 @@ class CreatePostComponent extends React.Component {
     handleOnChangeVisible = (e) => {
         this.setState({ visibility: e.target.value });
     }
+
+    //componentDidMount call when the component loading first time
+    //  fetchin api from server -> data
+    //      Get the old URL -> fetching each URL -> URL file -> .blob() tranform into Blob -> file property data -> new File([blob], filename, option)
+    //  setState data
+    componentDidMount = () => {
+        fetch('http://localhost:9999/backend/api/post/update')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch post data');
+                return response.json();
+            })
+            .then(async data => {
+                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
+
+                const filesFromUrls = await Promise.all(
+                    previewUrls.map(async (url, index) => {
+                        const response = await fetch(url);
+                        const blob = await response.blob();
+                        return new File([blob], `image_${index}.jpg`, { type: blob.type });
+                    })
+                );
+                this.setState({
+                    postID: data.response.postID,
+                    title: data.response.title || "",
+                    content: data.response.content || "",
+                    visibility: data.response.visibility || "Public",
+                    file: filesFromUrls,
+                    filePreview: previewUrls,
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+    }
     handleSubmit = async () => {
         if (!(this.state.content.trim())) {
             toast.error("Content cannot be blank");
             return;
         }
         const formData = new FormData();
-        // formData.append("title", this.state.title);
+        formData.append("postID", this.state.postID);
+        formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
             const images = this.state.file;
@@ -199,7 +231,7 @@ class CreatePostComponent extends React.Component {
         console.log("form: ", formData);
         try {
             this.setState({ isPosting: true });
-            const res = await fetch('http://localhost:9999/backend/api/post/create', {
+            const res = await fetch('http://localhost:9999/backend/api/post/update', {
                 method: "POST",
                 body: formData
             });
@@ -214,19 +246,20 @@ class CreatePostComponent extends React.Component {
                     // isImage: false,
                     isPosting: false,
                 });
-                toast.success("Đăng bài thành công!");
+                toast.success("Update completed!");
             } else {
-                toast.error("Đăng bài không thành công, vui lòng thử lại sau.");
+                toast.error("Update error, try again later.");
             }
         }
         catch (er) {
-            this.setState({ message: "Không kết nối được đến server." });
+            this.setState({ message: "cannot connect to the server" });
             console.log("server error!", er);
         }
     }
     render() {
         return (
-            <div className="create-post-container" onClick={this.handleCloseTab}>
+            <div className="create-post-container"
+                onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
                     <div>Loading...</div>
                     : null}
@@ -234,7 +267,7 @@ class CreatePostComponent extends React.Component {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="post-header">
-                        Create Post
+                        Edit Post
                     </div>
 
                     <div className="post-form">
@@ -253,11 +286,13 @@ class CreatePostComponent extends React.Component {
                                     </div>
                                 )
                             })
+
+
                         }
                         <label for="file" className="file-label">File</label>
                         <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">
-                            <textarea className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
+                            <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                             <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
                         </div>
                         <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
@@ -267,7 +302,7 @@ class CreatePostComponent extends React.Component {
 
                     </div>
                     <div className="post-button">
-                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Create</button>
+                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Edit</button>
                         <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
                     </div>
 
@@ -278,4 +313,4 @@ class CreatePostComponent extends React.Component {
         )
     }
 }
-export default CreatePostComponent;
+export default UpdatePostComponent;
