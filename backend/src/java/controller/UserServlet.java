@@ -68,13 +68,6 @@ public class UserServlet extends HttpServlet {
                 return;
             }
 
-            try {
-                request.getSession().setAttribute("lastUsername", 
-                    result.getJSONObject("response").getString("username"));
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
-
             JsonUtil.writeJsonResponse(response, result);
         } catch (Exception e) {
             handleError(response, e);
