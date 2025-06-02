@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 public class JsonUtil {
 	public static void writeJsonResponse(HttpServletResponse response, JSONObject jsonObject) throws IOException {
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		out.write(jsonObject.toString());
 		out.flush();

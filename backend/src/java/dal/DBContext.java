@@ -9,7 +9,7 @@ public class DBContext {
     
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false";
+            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=5000&socketTimeout=10000";
             String username = "root";
             String password = "1234";
             Class.forName("com.mysql.cj.jdbc.Driver");

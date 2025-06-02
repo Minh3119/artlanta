@@ -1,18 +1,18 @@
-// ==================== Follower List Component ====================
-// Displays a list of users who follow the target user, with privacy controls
+// ==================== Following List Component ====================
+// Displays a list of users that the target user follows, with privacy controls
 import React, { useState, useEffect, useRef } from 'react';
-import './FollowerList.scss';
+import './FollowerList.scss'; // Reusing styles from FollowerList
 
-const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
+const FollowingList = ({ userId, count, isOwnProfile, isPrivate }) => {
   // -------------------- State Management --------------------
   const [isOpen, setIsOpen] = useState(false);
-  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const popupRef = useRef(null);
 
   // -------------------- Click Outside Handler --------------------
-  // Closes the follower list popup when clicking outside
+  // Closes the following list popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -25,10 +25,10 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
   }, []);
 
   // -------------------- Data Fetching --------------------
-  // Fetches the list of followers from the API
-  const fetchFollowers = () => {
+  // Fetches the list of users being followed from the API
+  const fetchFollowing = () => {
     setIsLoading(true);
-    fetch(`http://localhost:9999/backend/api/follow?type=list&userId=${userId}`, {
+    fetch(`http://localhost:9999/backend/api/follow?type=following&userId=${userId}`, {
       credentials: 'include',
     })
       .then((res) => {
@@ -36,16 +36,16 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
           if (res.status === 403) {
             throw new Error('This profile is private');
           }
-          throw new Error('Failed to fetch followers');
+          throw new Error('Failed to fetch following list');
         }
         return res.json();
       })
       .then((data) => {
-        setFollowers(data);
+        setFollowing(data);
         setError(null);
       })
       .catch((err) => {
-        console.error('Error fetching followers:', err);
+        console.error('Error fetching following list:', err);
         setError(err.message);
       })
       .finally(() => {
@@ -54,7 +54,7 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
   };
 
   // -------------------- Event Handlers --------------------
-  // Handles opening/closing the follower list popup
+  // Handles opening/closing the following list popup
   const handleTogglePopup = () => {
     if (isPrivate && !isOwnProfile) {
       setError('This profile is private');
@@ -62,7 +62,7 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
     }
     
     if (!isOpen) {
-      fetchFollowers();
+      fetchFollowing();
     }
     setIsOpen(!isOpen);
   };
@@ -70,17 +70,17 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
   // -------------------- Component Render --------------------
   return (
     <div className={`follower-list ${!isPrivate || isOwnProfile ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-      {/* Follower Count Button */}
+      {/* Following Count Button */}
       <button
         onClick={handleTogglePopup}
         className={`flex flex-col items-center ${!isPrivate || isOwnProfile ? 'hover:opacity-75' : ''}`}
         disabled={isPrivate && !isOwnProfile}
       >
         <span className="font-semibold text-gray-900 text-base">{count}</span>
-        <span className="text-gray-500 text-xs">followers</span>
+        <span className="text-gray-500 text-xs">following</span>
       </button>
 
-      {/* Follower List Popup */}
+      {/* Following List Popup */}
       {isOpen && (!isPrivate || isOwnProfile) && (
         <>
           {/* Overlay */}
@@ -92,7 +92,7 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
             <div className="follower-list__header">
               <div className="follower-list__header-content">
                 <h3 className="follower-list__header-content-title">
-                  {count} {count === 1 ? 'Follower' : 'Followers'}
+                  Following {count} {count === 1 ? 'User' : 'Users'}
                 </h3>
                 <button
                   onClick={() => setIsOpen(false)}
@@ -115,46 +115,46 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
               ) : error ? (
                 // Error State
                 <div className="follower-list__error">{error}</div>
-              ) : followers.length === 0 ? (
+              ) : following.length === 0 ? (
                 // Empty State
-                <div className="follower-list__empty">No followers yet</div>
+                <div className="follower-list__empty">Not following anyone yet</div>
               ) : (
-                // Follower List
+                // Following List
                 <ul className="follower-list__list">
-                  {followers.map((follower) => (
-                    <li key={follower.id} className="follower-list__item">
+                  {following.map((user) => (
+                    <li key={user.id} className="follower-list__item">
                       <a
-                        href={`/user/${follower.followerId}`}
+                        href={`/user/${user.followingId}`}
                         className="follower-list__link"
                       >
-                        {/* Follower Avatar */}
+                        {/* User Avatar */}
                         <div className="follower-list__avatar">
-                          {follower.avatarUrl ? (
+                          {user.avatarUrl ? (
                             <img
-                              src={follower.avatarUrl}
+                              src={user.avatarUrl}
                               alt=""
                               className="follower-list__avatar-img"
                             />
                           ) : (
                             <div className="follower-list__avatar-placeholder">
                               <span>
-                                {follower.username?.[0]?.toUpperCase() || '?'}
+                                {user.username?.[0]?.toUpperCase() || '?'}
                               </span>
                             </div>
                           )}
                         </div>
-                        {/* Follower Info */}
+                        {/* User Info */}
                         <div className="follower-list__user-info">
                           <p className="follower-list__user-info-name">
-                            {follower.username}
-                            {follower.isPrivate && (
+                            {user.username}
+                            {user.isPrivate && (
                               <span className="ml-2 text-xs text-gray-500">
                                 (Private)
                               </span>
                             )}
                           </p>
                           <p className="follower-list__user-info-date">
-                            Followed on {new Date(follower.followAt).toLocaleDateString()}
+                            Following since {new Date(user.followAt).toLocaleDateString()}
                           </p>
                         </div>
                       </a>
@@ -170,4 +170,4 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
   );
 };
 
-export default FollowerList; 
+export default FollowingList; 
