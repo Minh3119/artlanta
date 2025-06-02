@@ -12,6 +12,26 @@ export default function LoginCard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            method: "GET",
+            credentials: "include", // quan trọng để session được gửi đi
+          }
+        );
+        const data = await res.json();
+        if (data.loggedIn) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkLogin();
+
     const root = document.getElementById("root");
     if (root) {
       root.classList.add("log-root");
@@ -80,7 +100,9 @@ export default function LoginCard() {
           onChange={(e) => setPassword(e.target.value)}
           required
         ></InputField>
-        <Link to="/passforget" className="forgot-pass-link">Forgot password?</Link>
+        <Link to="/passforget" className="forgot-pass-link">
+          Forgot password?
+        </Link>
         <button type="submit" className="login-button">
           Log in
         </button>
