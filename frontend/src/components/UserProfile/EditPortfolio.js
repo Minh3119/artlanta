@@ -11,7 +11,6 @@ const EditPortfolio = ({
     const [isUploading, setIsUploading] = useState(false);
     const [originalPortfolioData, setOriginalPortfolioData] = useState(null);
 
-    // Store original data when component mounts
     useEffect(() => {
         if (portfolioData && !originalPortfolioData) {
             setOriginalPortfolioData({ ...portfolioData });
