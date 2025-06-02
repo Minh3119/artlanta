@@ -32,6 +32,10 @@
         <servlet-name>PostViewerServlet</servlet-name>
         <servlet-class>controller.Post.PostViewerServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UserIDServlet</servlet-name>
+        <servlet-class>controller.UserIDServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
@@ -51,5 +55,9 @@
     <servlet-mapping>
         <servlet-name>PostViewerServlet</servlet-name>
         <url-pattern>/api/post/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserIDServlet</servlet-name>
+        <url-pattern>/api/user/userid</url-pattern>
     </servlet-mapping>
 </web-app>

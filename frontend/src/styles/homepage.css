@@ -19,6 +19,7 @@
     background-color: white;
 
     z-index: 9999;
+    width: 100%;
 }
 
 .artistpost-user__username,
@@ -40,7 +41,6 @@
     text-decoration: none;
     color: #111111;
     font-weight: 500;
-
     vertical-align: middle;
 }
 

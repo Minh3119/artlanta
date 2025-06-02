@@ -4,6 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AvatarImage from '../components/UserProfileView/AvatarImage';
 import FollowerList from '../components/FollowControl/FollowerList';
+import FollowingList from '../components/FollowControl/FollowingList';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -28,20 +29,25 @@ const UserProfilePage = () => {
 					headers: { 'Content-Type': 'application/json' },
 				});
 
-				console.log('Current user response status:', currentUserRes.status);
-
-				if (!currentUserRes.ok) {
-					console.error('Failed to fetch current user:', currentUserRes.statusText);
-					// Don't throw error, just log it
-				} else {
+				let currentUserData = null;
+				if (currentUserRes.ok) {
 					try {
-						const currentUserData = await currentUserRes.json();
-						console.log('Current user data:', currentUserData);
-						
+						currentUserData = await currentUserRes.json();
 						if (!currentUserData.error) {
 							setCurrentUser(currentUserData.response);
-						} else {
-							console.error('Error in current user data:', currentUserData.error);
+							
+							// Check follow status only if we have a logged-in user
+							if (currentUserData.response) {
+								const followStatusRes = await fetch(`http://localhost:9999/backend/api/follow?type=status&userId=${userId}`, {
+									credentials: 'include',
+									headers: { 'Content-Type': 'application/json' },
+								});
+								
+								if (followStatusRes.ok) {
+									const followStatusData = await followStatusRes.json();
+									setIsFollowing(followStatusData.isFollowing);
+								}
+							}
 						}
 					} catch (e) {
 						console.error('Error parsing current user response:', e);
@@ -223,10 +229,11 @@ const UserProfilePage = () => {
 				return;
 			}
 
-			const response = await fetch(`http://localhost:9999/backend/api/follow/${userId}`, {
-				method: isFollowing ? 'DELETE' : 'POST',
+			const response = await fetch('http://localhost:9999/backend/api/follow', {
+				method: 'POST',
 				credentials: 'include',
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: `action=${isFollowing ? 'unfollow' : 'follow'}&targetId=${userId}`
 			});
 
 			const data = await response.json();
@@ -321,38 +328,41 @@ const UserProfilePage = () => {
 										userId={userId} 
 										count={followCounts.followers}
 										isOwnProfile={currentUser?.id === parseInt(userId)}
+										isPrivate={userData.isPrivate}
 									/>
 									<div className="w-px h-6 bg-gray-200"></div>
-									<div className="follower-list">
-										<button className="flex flex-col items-center">
-											<span className="font-semibold text-gray-900 text-base">{followCounts.following}</span>
-											<span className="text-gray-500 text-xs">following</span>
-										</button>
-									</div>
+									<FollowingList
+										userId={userId}
+										count={followCounts.following}
+										isOwnProfile={currentUser?.id === parseInt(userId)}
+										isPrivate={userData.isPrivate}
+									/>
 								</div>
 							</div>
 						</div>
 
 						{/* Follow/Edit Profile Button */}
 						<div className="mt-4">
-							{currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id !== parseInt(userId) ? (
-								<button
-									onClick={handleFollow}
-									className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-										isFollowing
-											? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-											: 'bg-blue-600 text-white hover:bg-blue-700'
-									}`}
-								>
-									{isFollowing ? 'Following' : 'Follow'}
-								</button>
-							) : currentUser && Number.isInteger(currentUser.id) && Number.isInteger(parseInt(userId)) && currentUser.id === parseInt(userId) ? (
-								<button
-									onClick={() => navigate('/settings/profile')}
-									className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-								>
-									Edit Profile
-								</button>
+							{currentUser ? (
+								currentUser.id !== parseInt(userId) ? (
+									<button
+										onClick={handleFollow}
+										className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+											isFollowing
+												? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+												: 'bg-blue-600 text-white hover:bg-blue-700'
+										}`}
+									>
+										{isFollowing ? 'Following' : 'Follow'}
+									</button>
+								) : (
+									<button
+										onClick={() => navigate('/settings/profile')}
+										className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+									>
+										Edit Profile
+									</button>
+								)
 							) : null}
 						</div>
 

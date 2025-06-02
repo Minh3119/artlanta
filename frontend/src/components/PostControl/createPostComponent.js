@@ -202,7 +202,8 @@ class CreatePostComponent extends React.Component {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/create', {
                 method: "POST",
-                body: formData
+                body: formData,
+                credentials: 'include'
             });
             console.log('Response:', res);
             if (res.ok) {
@@ -220,11 +221,11 @@ class CreatePostComponent extends React.Component {
                 this.props.closeCreatePopup();
 
             } else {
-                toast.error("Đăng bài không thành công, vui lòng thử lại sau.");
+                toast.error("Create post error, try again later.");
             }
         }
         catch (er) {
-            this.setState({ message: "Không kết nối được đến server." });
+            this.setState({ message: "Cannot connect to the server." });
             console.log("server error!", er);
         }
     }
