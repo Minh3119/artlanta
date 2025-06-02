@@ -34,6 +34,10 @@ class TestApi extends React.Component {
 		return (
 			<div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
 				<h1 className="text-2xl font-bold mb-4 text-center">React Class + Servlet</h1>
+				<NotificaitonPopup userId={this.props.userId} />
+				<p className="text-center mb-4">
+					Test the API by sending a message to the backend.
+				</p>
 				<form onSubmit={this.handleSubmit} className="space-y-4">
 					<div>
 						<input

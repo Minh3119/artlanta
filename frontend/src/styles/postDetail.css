@@ -1,0 +1,148 @@
+.postDetails-container {
+    height: 100%;
+}
+
+.postDetails-container .postcard-container {
+    border-radius: 30px;
+    border: 1px solid #d4d7e5;
+    height: 778px;
+    display: flex;
+    padding: 0;
+}
+
+.postDetails-container .homepage-title {
+    margin-bottom: 20px;
+}
+
+.postcard-img__container {
+    width: 50%;
+    height: 100%;
+}
+
+.postcard-img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 30px 0 0 30px;
+}
+
+.postComment-container {
+    width: 50%;
+    padding: 30px 25px;
+}
+
+.comment-user {
+    display: flex;
+    align-items: center;
+    gap:20px;
+}
+
+.userComment-logo__container {
+    position: relative;
+}
+
+.userComment-logo__container::after {
+    position: absolute;
+    content: "";
+    width: 58px;
+    height: 58px;
+    top: -9%;
+    left: -9%;
+    display: block;
+    background-color: transparent;
+
+    border: 3px solid #107bef;
+    border-radius: 50%;
+}
+
+.comment-form {
+    width: 100%;
+    position: relative;
+}
+
+.comment-form button {
+    position: absolute;
+    top: 12%;
+    right: 1%;
+
+    color: white;
+    font-weight: 600;
+    background-color: #107bef;
+    outline: none;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+}
+
+.comment-input {
+    border-radius: 50px;
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+}
+
+.comment-container {
+    overflow-y: auto;
+    height: 650px;
+}
+
+.comment-container::-webkit-scrollbar {
+  overflow: hidden;
+}
+
+.comment-part__container {
+    display: flex;
+    align-items: start;
+    gap: 15px;
+}
+
+.comment-content__container {
+    background-color: #eff2fc;
+    border-radius: 20px;
+    padding: 10px 20px;
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+}
+
+.comment-meta p {
+    margin-bottom: 0;
+}
+
+.comment-user {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.comment-date {
+    color: #9397ad;
+}
+
+.comment-react {
+    display: flex;
+    justify-content: end;
+    gap: 15px;
+    align-items: center;
+}
+
+.comment-react__like, .comment-react__replies {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comment-react__like p, .comment-react__replies p {
+    margin-bottom: 0;
+} 
+
+.comment-part__container.parent {
+    margin-top: 30px;
+}
+
+.comment-part__container.child {
+    margin-top: 15px;
+
+    width: 90%;
+    margin-left: auto;
+}

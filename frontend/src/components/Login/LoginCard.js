@@ -45,7 +45,7 @@ export default function LoginCard() {
         setMessage("Login success");
         navigate("/");
       } else {
-        setMessage("Login failed");
+        setMessage(data.message);
       }
     } catch (error) {
       console.error("Login error:", error);
