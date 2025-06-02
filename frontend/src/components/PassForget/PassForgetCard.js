@@ -48,7 +48,7 @@ export default function PassForgetCard() {
   const handleEmail = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8080/backend/api/forgetpass", {
+      const res = await fetch("http://localhost:9999/backend/api/forgetpass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step, email }),
