@@ -13,6 +13,27 @@ export default function PassForgetCard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const data = await res.json();
+        if (data.loggedIn) {
+          console.log(data);
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkLogin();
+
     const root = document.getElementById("root");
     if (root) {
       root.classList.add("log-root");
@@ -83,7 +104,7 @@ export default function PassForgetCard() {
       const res = await fetch("http://localhost:8080/backend/api/forgetpass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step, email , newPassword }),
+        body: JSON.stringify({ step, email, newPassword }),
       });
 
       const data = await res.json();

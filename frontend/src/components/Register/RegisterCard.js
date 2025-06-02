@@ -11,6 +11,27 @@ export default function RegisterCard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            method: "GET",
+            credentials: "include", 
+          }
+        );
+        const data = await res.json();
+        if (data.loggedIn) {
+          console.log(data);
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkLogin();
+
     const root = document.getElementById("root");
     if (root) {
       root.classList.add("log-root");
@@ -51,6 +72,7 @@ export default function RegisterCard() {
 
       if (!res.ok || !data.success) {
         setMessage(data.message || `API Error: ${res.status}`);
+        console.log(data);
         console.error(data.message || `API Error: ${res.status}`);
         return;
       }
