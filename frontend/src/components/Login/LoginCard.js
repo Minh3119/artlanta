@@ -18,7 +18,7 @@ export default function LoginCard() {
           "http://localhost:9999/backend/api/session/check",
           {
             method: "GET",
-            credentials: "include", // quan trọng để session được gửi đi
+            credentials: "include", 
           }
         );
         const data = await res.json();
@@ -63,6 +63,7 @@ export default function LoginCard() {
 
       if (data.success) {
         setMessage("Login success");
+        console.log(data);
         navigate("/");
       } else {
         setMessage(data.message);

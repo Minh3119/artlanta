@@ -19,11 +19,12 @@ export default function PassForgetCard() {
           "http://localhost:9999/backend/api/session/check",
           {
             method: "GET",
-            credentials: "include", // quan trọng để session được gửi đi
+            credentials: "include",
           }
         );
         const data = await res.json();
         if (data.loggedIn) {
+          console.log(data);
           navigate("/");
         }
       } catch (error) {

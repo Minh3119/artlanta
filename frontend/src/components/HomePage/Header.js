@@ -17,7 +17,7 @@ export default function Header() {
     try {
       const res = await fetch("http://localhost:9999/backend/api/logout", {
         method: "POST",
-        credentials: "include", // quan trọng để gửi cookie
+        credentials: "include",
       });
 
       const data = await res.json();
