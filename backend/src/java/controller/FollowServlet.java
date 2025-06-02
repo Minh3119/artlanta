@@ -1,5 +1,6 @@
 package controller;
 
+// Required imports for database operations, models, and servlets
 import dal.FollowDAO;
 import dal.UserDAO;
 import model.Follow;
@@ -13,17 +14,22 @@ import java.io.PrintWriter;
 import java.util.List;
 import util.SessionUtil;
 
+// Servlet mapping for follow-related API endpoints
 @WebServlet("/api/follow")
 public class FollowServlet extends HttpServlet {
 
+    // Database access objects for follow and user operations
     private FollowDAO followDAO = new FollowDAO();
     private UserDAO userDAO = new UserDAO();
 
+    // ==================== POST ENDPOINT ====================
+    // Handles follow/unfollow actions
     @Override
     protected void doPost(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
+        // Authentication check
         Integer userId = SessionUtil.getCurrentUserId(request.getSession(false));
         if (userId == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -31,6 +37,7 @@ public class FollowServlet extends HttpServlet {
             return;
         }
 
+        // Process follow/unfollow action
         String action = request.getParameter("action");
         int targetId = Integer.parseInt(request.getParameter("targetId"));
 
@@ -43,6 +50,8 @@ public class FollowServlet extends HttpServlet {
         out.print("{\"success\":" + result + "}");
     }
 
+    // ==================== GET ENDPOINT ====================
+    // Handles various follow-related queries (list, count, status)
     @Override
     protected void doGet(HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
@@ -51,7 +60,7 @@ public class FollowServlet extends HttpServlet {
         String type = request.getParameter("type");
         int targetUserId = Integer.parseInt(request.getParameter("userId"));
 
-        // Get target user to check privacy settings
+        // Get target user profile for privacy checks
         User targetUser = userDAO.getOne(targetUserId);
         if (targetUser == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -59,41 +68,45 @@ public class FollowServlet extends HttpServlet {
             return;
         }
 
-        // Count endpoint is public
+        // -------------------- Follower Count --------------------
+        // Public endpoint - returns total follower count
         if ("count".equals(type)) {
             int count = followDAO.countFollowers(targetUserId);
             out.print("{\"count\":" + count + "}");
             return;
         }
 
-        // Get current user if logged in
+        // Get current user for privacy checks
         Integer currentUserId = SessionUtil.getCurrentUserId(request.getSession(false));
 
+        // -------------------- Follower List --------------------
+        // Returns list of followers with privacy filtering
         if ("list".equals(type)) {
-            // Check if profile is private and if current user has access
+            // Privacy check for private profiles
             if (targetUser.isPrivate() && (currentUserId == null || !currentUserId.equals(targetUser.getID()))) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"error\":\"This profile is private\"}");
                 return;
             }
 
-            // Get followers and filter based on privacy settings
+            // Get and filter followers based on privacy settings
             List<Follow> followers = followDAO.getFollowers(targetUserId);
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             boolean first = true;
 
             for (Follow f : followers) {
-                // Get the follower's user data to check their privacy setting
+                // Get follower's privacy settings
                 User followerUser = userDAO.getOne(f.getFollowerId());
                 
-                // Skip private profiles unless the current user is the profile owner or the follower
+                // Skip private profiles unless viewer has permission
                 if (followerUser.isPrivate() && 
                     (currentUserId == null || 
                     (!currentUserId.equals(targetUserId) && !currentUserId.equals(followerUser.getID())))) {
                     continue;
                 }
 
+                // Build JSON response for each follower
                 if (!first) {
                     sb.append(",");
                 }
@@ -111,31 +124,35 @@ public class FollowServlet extends HttpServlet {
             }
             sb.append("]");
             out.print(sb.toString());
-        } else if ("following".equals(type)) {
-            // Check if profile is private and if current user has access
+        } 
+        // -------------------- Following List --------------------
+        // Returns list of users being followed with privacy filtering
+        else if ("following".equals(type)) {
+            // Privacy check for private profiles
             if (targetUser.isPrivate() && (currentUserId == null || !currentUserId.equals(targetUser.getID()))) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 out.print("{\"error\":\"This profile is private\"}");
                 return;
             }
 
-            // Get following list and filter based on privacy settings
+            // Get and filter following list based on privacy settings
             List<Follow> following = followDAO.getFollowing(targetUserId);
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             boolean first = true;
 
             for (Follow f : following) {
-                // Get the followed user's data to check their privacy setting
+                // Get followed user's privacy settings
                 User followedUser = userDAO.getOne(f.getFollowingId());
                 
-                // Skip private profiles unless the current user is the profile owner or the followed user
+                // Skip private profiles unless viewer has permission
                 if (followedUser.isPrivate() && 
                     (currentUserId == null || 
                     (!currentUserId.equals(targetUserId) && !currentUserId.equals(followedUser.getID())))) {
                     continue;
                 }
 
+                // Build JSON response for each followed user
                 if (!first) {
                     sb.append(",");
                 }
@@ -153,7 +170,10 @@ public class FollowServlet extends HttpServlet {
             }
             sb.append("]");
             out.print(sb.toString());
-        } else if ("status".equals(type)) {
+        }
+        // -------------------- Follow Status --------------------
+        // Checks if current user is following target user
+        else if ("status".equals(type)) {
             if (currentUserId == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 out.print("{\"error\":\"Not logged in\"}");

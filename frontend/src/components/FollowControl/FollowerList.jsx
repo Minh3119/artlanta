@@ -1,13 +1,18 @@
+// ==================== Follower List Component ====================
+// Displays a list of users who follow the target user, with privacy controls
 import React, { useState, useEffect, useRef } from 'react';
 import './FollowerList.scss';
 
 const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
+  // -------------------- State Management --------------------
   const [isOpen, setIsOpen] = useState(false);
   const [followers, setFollowers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const popupRef = useRef(null);
 
+  // -------------------- Click Outside Handler --------------------
+  // Closes the follower list popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -19,6 +24,8 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // -------------------- Data Fetching --------------------
+  // Fetches the list of followers from the API
   const fetchFollowers = () => {
     setIsLoading(true);
     fetch(`http://localhost:9999/backend/api/follow?type=list&userId=${userId}`, {
@@ -46,6 +53,8 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
       });
   };
 
+  // -------------------- Event Handlers --------------------
+  // Handles opening/closing the follower list popup
   const handleTogglePopup = () => {
     if (isPrivate && !isOwnProfile) {
       setError('This profile is private');
@@ -58,8 +67,10 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
     setIsOpen(!isOpen);
   };
 
+  // -------------------- Component Render --------------------
   return (
     <div className={`follower-list ${!isPrivate || isOwnProfile ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      {/* Follower Count Button */}
       <button
         onClick={handleTogglePopup}
         className={`flex flex-col items-center ${!isPrivate || isOwnProfile ? 'hover:opacity-75' : ''}`}
@@ -69,11 +80,15 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
         <span className="text-gray-500 text-xs">followers</span>
       </button>
 
+      {/* Follower List Popup */}
       {isOpen && (!isPrivate || isOwnProfile) && (
         <>
+          {/* Overlay */}
           <div className="follower-list__overlay" onClick={() => setIsOpen(false)} />
           
+          {/* Popup Content */}
           <div ref={popupRef} className="follower-list__popup">
+            {/* Header */}
             <div className="follower-list__header">
               <div className="follower-list__header-content">
                 <h3 className="follower-list__header-content-title">
@@ -90,16 +105,21 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
               </div>
             </div>
 
+            {/* Content Area */}
             <div className="follower-list__content">
+              {/* Loading State */}
               {isLoading ? (
                 <div className="follower-list__loading">
                   <div className="follower-list__loading-spinner" />
                 </div>
               ) : error ? (
+                // Error State
                 <div className="follower-list__error">{error}</div>
               ) : followers.length === 0 ? (
+                // Empty State
                 <div className="follower-list__empty">No followers yet</div>
               ) : (
+                // Follower List
                 <ul className="follower-list__list">
                   {followers.map((follower) => (
                     <li key={follower.id} className="follower-list__item">
@@ -107,6 +127,7 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
                         href={`/user/${follower.followerId}`}
                         className="follower-list__link"
                       >
+                        {/* Follower Avatar */}
                         <div className="follower-list__avatar">
                           {follower.avatarUrl ? (
                             <img
@@ -122,6 +143,7 @@ const FollowerList = ({ userId, count, isOwnProfile, isPrivate }) => {
                             </div>
                           )}
                         </div>
+                        {/* Follower Info */}
                         <div className="follower-list__user-info">
                           <p className="follower-list__user-info-name">
                             {follower.username}

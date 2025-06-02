@@ -7,9 +7,18 @@ import java.util.Map;
 import java.util.HashMap;
 import model.Follow;
 
+// ==================== Follow Data Access Object ====================
+// Handles all database operations related to follow functionality
 public class FollowDAO extends DBContext {
 
-    // Follow a user (status always "accepted")
+    // -------------------- Core Follow Actions --------------------
+    
+    /**
+     * Creates a new follow relationship between users
+     * @param followerId The user who is following
+     * @param followingId The user being followed
+     * @return boolean indicating success of the operation
+     */
     public boolean follow(int followerId, int followingId) {
         String sql = "INSERT INTO Follows (followerId, followingId, status, followAt) VALUES (?, ?, 'ACCEPTED', CURRENT_TIMESTAMP)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -22,7 +31,12 @@ public class FollowDAO extends DBContext {
         }
     }
 
-    // Unfollow a user
+    /**
+     * Removes a follow relationship between users
+     * @param followerId The user who is unfollowing
+     * @param followingId The user being unfollowed
+     * @return boolean indicating success of the operation
+     */
     public boolean unfollow(int followerId, int followingId) {
         String sql = "DELETE FROM Follows WHERE followerId = ? AND followingId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -35,7 +49,13 @@ public class FollowDAO extends DBContext {
         }
     }
 
-    // Count followers of a user
+    // -------------------- Follow Counts --------------------
+    
+    /**
+     * Counts how many followers a user has
+     * @param userId The user whose followers are being counted
+     * @return The number of followers
+     */
     public int countFollowers(int userId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -50,7 +70,11 @@ public class FollowDAO extends DBContext {
         return 0;
     }
 
-    // Count how many users this user is following
+    /**
+     * Counts how many users a user is following
+     * @param userId The user whose following count is being checked
+     * @return The number of users being followed
+     */
     public int countFollowing(int userId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -65,7 +89,13 @@ public class FollowDAO extends DBContext {
         return 0;
     }
 
-    // View followers of a user
+    // -------------------- Follow Lists --------------------
+    
+    /**
+     * Retrieves the list of followers for a user
+     * @param userId The user whose followers are being retrieved
+     * @return List of Follow objects containing follower information
+     */
     public List<Follow> getFollowers(int userId) {
         List<Follow> followers = new ArrayList<>();
         String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f " +
@@ -91,7 +121,11 @@ public class FollowDAO extends DBContext {
         return followers;
     }
 
-    // View users that a user follows
+    /**
+     * Retrieves the list of users that a user is following
+     * @param userId The user whose following list is being retrieved
+     * @return List of Follow objects containing following information
+     */
     public List<Follow> getFollowing(int userId) {
         List<Follow> following = new ArrayList<>();
         String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f " +
@@ -117,6 +151,14 @@ public class FollowDAO extends DBContext {
         return following;
     }
 
+    // -------------------- Follow Status --------------------
+    
+    /**
+     * Checks if one user is following another
+     * @param followerId The potential follower
+     * @param followingId The potential user being followed
+     * @return boolean indicating if the follow relationship exists
+     */
     public boolean isFollowing(int followerId, int followingId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND followingId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -132,7 +174,13 @@ public class FollowDAO extends DBContext {
         return false;
     }
 
-    // Get both follower and following counts
+    // -------------------- Aggregate Counts --------------------
+    
+    /**
+     * Gets both follower and following counts for a user
+     * @param userId The user whose counts are being retrieved
+     * @return Map containing both follower and following counts
+     */
     public Map<String, Integer> getFollowerCounts(int userId) {
         Map<String, Integer> counts = new HashMap<>();
         String followersSql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
