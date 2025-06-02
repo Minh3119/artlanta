@@ -216,7 +216,7 @@ class CreatePostComponent extends React.Component {
                     // isImage: false,
                     isPosting: false,
                 });
-                toast.success("Đăng bài thành công!");
+                toast.success("Create post completed!");
 
                 this.props.closeCreatePopup();
 
