@@ -9,7 +9,7 @@ import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
 import { useNavigate } from "react-router-dom";
 
-export default function Header() {
+export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
@@ -30,10 +30,6 @@ export default function Header() {
     } catch (err) {
       console.error("Logout request error:", err);
     }
-  };
-  // Function to open the create popup
-  const openCreatePopup = () => {
-    alert("Create popup clicked!");
   };
 
   return (
