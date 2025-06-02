@@ -102,36 +102,7 @@ const UserProfilePage = () => {
 
 				if (!portfolioData.error && portfolioData.response) {
 					setPortfolioData(portfolioData.response);
-					// Safely create unified list of images
-					try {
-						const images = [];
-						if (portfolioData.response.coverUrl) {
-							images.push({
-								url: portfolioData.response.coverUrl,
-								isCover: true,
-								title: portfolioData.response.title || '',
-								description: portfolioData.response.description || ''
-							});
-						}
-						
-						if (Array.isArray(portfolioData.response.media)) {
-							const mediaImages = portfolioData.response.media
-								.filter(media => media && typeof media === 'object')
-								.map(media => ({
-									...media,
-									isCover: false,
-									url: media.url || '',
-									title: media.title || '',
-									description: media.description || ''
-								}));
-							images.push(...mediaImages);
-						}
-						
-						setAllImages(images);
-					} catch (error) {
-						console.error('Error processing portfolio images:', error);
-						setAllImages([]);
-					}
+					setAllImagesFromPortfolioData(portfolioData.response);
 				}
 
 				// Fetch social links
@@ -190,6 +161,45 @@ const UserProfilePage = () => {
 			fetchAllData();
 		}
 	}, [userId]);
+
+	useEffect(() => {
+		if (portfolioData) {
+			setAllImagesFromPortfolioData(portfolioData);
+		}
+	}, [portfolioData]); // This will run whenever portfolioData changes
+
+	const setAllImagesFromPortfolioData = (portfolioData) => {
+		// Safely create unified list of images
+		try {
+			const images = [];
+			if (portfolioData.coverUrl) {
+				images.push({
+					url: portfolioData.coverUrl,
+					isCover: true,
+					title: portfolioData.title || '',
+					description: portfolioData.description || ''
+				});
+			}
+			
+			if (Array.isArray(portfolioData.media)) {
+				const mediaImages = portfolioData.media
+					.filter(media => media && typeof media === 'object')
+					.map(media => ({
+						...media,
+						isCover: false,
+						url: media.url || '',
+						title: media.title || '',
+						description: media.description || ''
+					}));
+				images.push(...mediaImages);
+			}
+			
+			setAllImages(images);
+		} catch (error) {
+			console.error('Error processing portfolio images:', error);
+			setAllImages([]);
+		}
+	}
 
 	const handleNextImage = () => {
 		if (currentImageIndex < allImages.length - 1) {
