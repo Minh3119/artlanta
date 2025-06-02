@@ -9,6 +9,8 @@ import jakarta.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import static util.SessionUtil.getCurrentUserId;
+import static util.SessionUtil.isLoggedIn;
 
 
 public class LikeServlet extends HttpServlet {
@@ -16,16 +18,17 @@ public class LikeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-
+    HttpSession session = request.getSession();
     response.setContentType("application/json;charset=UTF-8");
     PrintWriter out = response.getWriter();
     JSONObject jsonResponse = new JSONObject();
 
     try {
-        String userIdStr = request.getParameter("userId");
+       
         String postIdStr = request.getParameter("postId");
-
-        if (userIdStr == null || postIdStr == null) {
+	int userId = getCurrentUserId(session);
+		String  errorvString=Boolean.toString(isLoggedIn(session));
+        if (userId== 0 || postIdStr == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             jsonResponse.put("status", "error");
             jsonResponse.put("message", "Missing userId or postId");
@@ -33,9 +36,8 @@ public class LikeServlet extends HttpServlet {
             return;
         }
 
-        int userId = Integer.parseInt(userIdStr);
+        
         int postId = Integer.parseInt(postIdStr);
-
         LikesDAO likesDAO = new LikesDAO();
         boolean success = likesDAO.toggleLike(userId, postId);
 
@@ -45,6 +47,7 @@ public class LikeServlet extends HttpServlet {
 
     } catch (Exception e) {
         e.printStackTrace();
+			String  errorvString=Boolean.toString(isLoggedIn(session));
         jsonResponse.put("status", "error");
         jsonResponse.put("message", "Lỗi: " + e.getMessage());
     }

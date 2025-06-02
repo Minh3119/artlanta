@@ -1,6 +1,3 @@
-body {
-  padding-top: 70px; /* bằng chiều cao header */
-}
 .header-container,
 .header-logo,
 .header-navbar,
@@ -29,6 +26,7 @@ body {
 .artistpost-user__fullname {
     color: black;
     font-weight: 800;
+    text-decoration: none;
 }
 
 .artistpost-user__username {

@@ -27,7 +27,7 @@ export default function ArtistPost() {
     }, []);
 
     const handleLike = (postId) => {
-    const userId = 1; // sau này lấy từ context
+    const userId = 1; 
 
     fetch("http://localhost:9999/backend/api/like", {
         method: "POST",

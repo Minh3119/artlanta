@@ -21,7 +21,7 @@ import DeletePostComponent from '../components/PostControl/deletePostComponent.j
 import Login from './Login.js';
 import Register from './Register.js';
 import PassForget from './PassForget.js';
-
+import PostDetail from './PostDetail.js';
 import PostListPage from "./Post.js"
 //import { ToastContainer } from 'react-toastify';
 
@@ -44,6 +44,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/passforget" element={<PassForget/>} />
           <Route path="/post" element={<PostListPage />} />
+          <Route path="/postdetail" element={<PostDetail/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />
