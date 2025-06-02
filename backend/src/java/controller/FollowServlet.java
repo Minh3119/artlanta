@@ -3,6 +3,7 @@ package controller;
 // Required imports for database operations, models, and servlets
 import dal.FollowDAO;
 import dal.UserDAO;
+import dal.NotificationDAO;
 import model.Follow;
 import model.User;
 
@@ -21,6 +22,7 @@ public class FollowServlet extends HttpServlet {
     // Database access objects for follow and user operations
     private FollowDAO followDAO = new FollowDAO();
     private UserDAO userDAO = new UserDAO();
+    private NotificationDAO notificationDAO = new NotificationDAO();
 
     // ==================== POST ENDPOINT ====================
     // Handles follow/unfollow actions
@@ -44,8 +46,32 @@ public class FollowServlet extends HttpServlet {
         boolean result = false;
         if ("follow".equals(action)) {
             result = followDAO.follow(userId, targetId);
+            
+            // Add notification when follow is successful
+            if (result) {
+                // Get the follower's username
+                User follower = userDAO.getOne(userId);
+                if (follower != null) {
+                    // Create notification for the person being followed
+                    String notificationType = "follow";
+                    String notificationContent = follower.getUsername() + " started following you";
+                    notificationDAO.saveNotification(targetId, notificationType, notificationContent);
+                }
+            }
         } else if ("unfollow".equals(action)) {
             result = followDAO.unfollow(userId, targetId);
+            
+            // Add notification when unfollow is successful
+            if (result) {
+                // Get the unfollower's username
+                User unfollower = userDAO.getOne(userId);
+                if (unfollower != null) {
+                    // Create notification for the person being unfollowed
+                    String notificationType = "unfollow";
+                    String notificationContent = unfollower.getUsername() + " unfollowed you";
+                    notificationDAO.saveNotification(targetId, notificationType, notificationContent);
+                }
+            }
         }
         out.print("{\"success\":" + result + "}");
     }
