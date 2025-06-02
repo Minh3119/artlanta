@@ -15,7 +15,7 @@ const PortfolioDisplay = ({
 
     return (
         <div className="relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-xl aspect-square">
+            <div className="relative rounded-3xl overflow-auto shadow-xl aspect-square">
                 <img
                     className="w-full h-full object-cover"
                     src={currentImage.url}
