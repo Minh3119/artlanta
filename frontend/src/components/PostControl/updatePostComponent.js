@@ -309,7 +309,7 @@ class UpdatePostComponent extends React.Component {
                             <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
                             <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
                         </div>
-                        <select className="visibility" onChange={(event) => this.handleOnChangeVisible(event)}>
+                        <select className="visibility" value={this.state.visibility} onChange={(event) => this.handleOnChangeVisible(event)}>
                             <option value="PUBLIC">Public</option>
                             <option value="PRIVATE">Private</option>
                         </select>
