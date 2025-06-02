@@ -128,4 +128,25 @@ public class NotificationDAO extends DBContext{
         }
     }
 
+    public boolean deleteNotification(int ID) {
+        System.out.println("Deleting notification with ID: " + ID);
+        
+        String sql = "DELETE FROM Notifications WHERE ID = ?";
+        System.out.println("Executing SQL: " + sql);
+        System.out.println("Parameters: [" + ID + "]");
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, ID);
+            int rows = stmt.executeUpdate();
+            System.out.println("Rows affected: " + rows);
+            return rows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting notification: " + e.getMessage());
+            System.err.println("SQL State: " + e.getSQLState());
+            System.err.println("Error Code: " + e.getErrorCode());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
