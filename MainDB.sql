@@ -369,7 +369,8 @@ VALUES
 ('isabe.lla_fashion', 'isabella.fashion@trend.com', 'Tr3ndyL00k!', 'Isabella', 'Fashionista và blogger.', NULL, 'ACTIVE', 'CLIENT', 0, '2025-03-06'),
 ('jack_gaming', 'jack.gaming@stream.com', 'G@mingLif3!', 'Jack', 'Game thủ eSports.', 'jack.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-07');
 
-
+INSERT INTO Users (ID, Username, Email, PasswordHash, FullName, Status, Role, IsPrivate, CreatedAt)
+VALUES (123, 'testuser123', 'test123@email.com', 'testpass', 'Test User 123', 'ACTIVE', 'CLIENT', 0, NOW());
 
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
 (1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
@@ -524,6 +525,13 @@ INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
 (10, 'LinkedIn', 'https://linkedin.com/in/david-tech', '2025-03-10'),
 (11, 'GitHub', 'https://github.com/kevin_coder', '2025-03-11');
 
+
+INSERT INTO Notifications (UserID, Type, Content, PostID, IsRead, CreatedAt)
+VALUES
+(123, 'INFO', 'Welcome to Artlanta! This is your first notification.', NULL, 0, NOW()),
+(123, 'COMMENT', 'Someone commented on your post.', 1, 0, NOW()),
+(123, 'LIKE', 'Your post received a new like!', 2, 1, NOW()),
+(123, 'SYSTEM', 'Your profile was updated successfully.', NULL, 0, NOW());
 
 -- giả sử post ID 1 có 3 ảnh
 INSERT INTO PostMedia (PostID, MediaID) VALUES
