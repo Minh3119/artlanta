@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import model.SocialLink;
@@ -14,6 +15,7 @@ import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
+import util.SessionUtil;
 
 public class UserProfileEditServlet extends HttpServlet {
 
@@ -28,7 +30,8 @@ public class UserProfileEditServlet extends HttpServlet {
         UserDAO ud = new UserDAO();
         SocialDAO sd = new SocialDAO();
         String rawUserID = request.getParameter("id");
-        int userID = 10;
+        HttpSession session= request.getSession();
+        Integer userID= SessionUtil.getCurrentUserId(session);
         User user = ud.getOne(userID);
         List<SocialLink> social = sd.getByUserId(userID);
         int key=0;

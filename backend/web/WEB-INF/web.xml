@@ -21,8 +21,8 @@
         <servlet-class>controller.Post.PostViewerServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>LikeServlet</servlet-name>
-        <servlet-class>controller.Like.LikeServlet</servlet-class>
+        <servlet-name>UserIDServlet</servlet-name>
+        <servlet-class>controller.UserIDServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
@@ -47,5 +47,9 @@
     <servlet-mapping>
         <servlet-name>LikeServlet</servlet-name>
         <url-pattern>/api/like</url-pattern>
+        </servlet-mapping>
+         <servlet-mapping>
+        <servlet-name>UserIDServlet</servlet-name>
+        <url-pattern>/api/user/userid</url-pattern>
     </servlet-mapping>
 </web-app>

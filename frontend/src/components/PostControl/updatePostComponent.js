@@ -1,6 +1,6 @@
 import React from "react";
 import '../../styles/post.scss';
-
+import logo from '../../assets/images/arlanta.svg';
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 class UpdatePostComponent extends React.Component {
@@ -19,6 +19,7 @@ class UpdatePostComponent extends React.Component {
     handleCloseTab = () => {
         //logic lay thay doi props isUpdateOpen
         console.log("out create");
+        this.props.closeUpdatePopup();
     }
     // handleOnChangeTitle = (e) => {
     //     this.state.title.length <= 100 ?
@@ -90,6 +91,7 @@ class UpdatePostComponent extends React.Component {
             isLoading: false,
             isPosting: false,
         })
+        this.props.closeUpdatePopup();
     }
     handleRemoveImage = (index) => {
         const newFile = [...this.state.file];
@@ -183,7 +185,9 @@ class UpdatePostComponent extends React.Component {
     //      Get the old URL -> fetching each URL -> URL file -> .blob() tranform into Blob -> file property data -> new File([blob], filename, option)
     //  setState data
     componentDidMount = () => {
-        fetch('http://localhost:9999/backend/api/post/update')
+        fetch(`http://localhost:9999/backend/api/post/update?postID=${this.props.updatePostID}`, {
+            credentials: 'include'
+        })
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch post data');
                 return response.json();
@@ -217,7 +221,7 @@ class UpdatePostComponent extends React.Component {
             return;
         }
         const formData = new FormData();
-        formData.append("postID", this.state.postID);
+        formData.append("postID", this.props.updatePostID);
         formData.append("title", this.state.title);
         formData.append("content", this.state.content);
         if (this.state.file) {
@@ -233,7 +237,8 @@ class UpdatePostComponent extends React.Component {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/update', {
                 method: "POST",
-                body: formData
+                body: formData,
+                credentials: 'include'
             });
             console.log('Response:', res);
             if (res.ok) {
@@ -247,6 +252,7 @@ class UpdatePostComponent extends React.Component {
                     isPosting: false,
                 });
                 toast.success("Update completed!");
+                this.props.closeUpdatePopup();
             } else {
                 toast.error("Update error, try again later.");
             }
@@ -261,7 +267,13 @@ class UpdatePostComponent extends React.Component {
             <div className="create-post-container"
                 onClick={this.handleCloseTab}>
                 {this.state.isPosting ?
-                    <div>Loading...</div>
+                    <div className="loading-container">
+                        <span>Loading ...</span>
+                        <img
+                            src={logo}
+                            alt="Loading..."
+                            className="loading-spinner"
+                        /></div>
                     : null}
                 <div className="post-popup"
                     onClick={(e) => e.stopPropagation()}
@@ -275,20 +287,22 @@ class UpdatePostComponent extends React.Component {
                             <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
                             <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
                         </div> */}
-                        {
-                            this.state.filePreview.map((item, index) => {
-                                return (
-                                    <div className="image-container" key={index}>
-                                        <div className="image-wrapper">
-                                            <img src={item} alt="post-image" />
-                                            <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                        <div className="image-list">
+                            {
+                                this.state.filePreview.map((item, index) => {
+                                    return (
+                                        <div className="image-container" key={index}>
+                                            <div className="image-wrapper">
+                                                <img src={item} alt="post-image" />
+                                                <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            })
+                                    )
+                                })
 
 
-                        }
+                            }
+                        </div>
                         <label for="file" className="file-label">File</label>
                         <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
                         <div className="content-container">

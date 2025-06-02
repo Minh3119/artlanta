@@ -4,7 +4,7 @@ const SocialLogin = () => {
     <>
         <div className="social-login">
       <button className="social-button">
-        <a href="https://accounts.google.com/o/oauth2/auth?client_id=612749939529-nubjikfjccj44tqlandplnec64gtse32.apps.googleusercontent.com&redirect_uri=http://localhost:8080/backend/api/oauth2callbackgoogle&response_type=code&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&access_type=online" className="social-button__link">
+        <a href="https://accounts.google.com/o/oauth2/auth?client_id=612749939529-nubjikfjccj44tqlandplnec64gtse32.apps.googleusercontent.com&redirect_uri=http://localhost:9999/backend/api/oauth2callbackgoogle&response_type=code&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email&access_type=online" className="social-button__link">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 48 48"

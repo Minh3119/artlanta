@@ -12,7 +12,7 @@ import ques from "../../assets/images/question.svg";
 import dotsIcon from "../../assets/images/dots.svg";
 
 
-export default function ArtistPost() {
+export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup }) {
     const [posts, setPosts] = useState([]);
 
     const fetchPosts = () => {
@@ -24,7 +24,7 @@ export default function ArtistPost() {
 
     useEffect(() => {
         fetchPosts(); // gọi khi trang load
-    }, []);
+    }, [refetch]);
 
     const handleLike = (postId) => {
     const userId = 1; 
@@ -62,88 +62,82 @@ export default function ArtistPost() {
         1100: 1,
         700: 1,
     };
-    
-
     return (
-            <div className="row">
-                <div className="offset-1 col-10 homepage-post__container--masonry">
-                    <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="my-masonry-grid"
-                        columnClassName="my-masonry-grid_column"
-                        >
-                        {posts.map((post, index) => (
-                                        <div className="artistpost-container" key={post.id || index}>
-                                            <div className="artistpost-info">
-                                                <a href={`/user/${post.authorID}`}>
-                                                    <img
-                                                        src={post.authorAvatar}
-                                                        alt=""
-                                                        className="avatar-img"
-                                                        />
-                                                </a>           
-                                                <div className="artistpost-user">
-                                                    <a href={`/user/${post.authorID}`} className="artistpost-user__fullname">
+        <div className="row">
+            <div className="offset-2 col-8 homepage-post__container--masonry">
+                <Masonry
+                    breakpointCols={breakpointColumnsObj}
+                    className="my-masonry-grid"
+                    columnClassName="my-masonry-grid_column"
+                >
+                    {posts.map((post, index) => (
+                        <div className="artistpost-container" key={post.id || index}>
+                            <div className="artistpost-info">
+                                <img
+                                    src={post.authorAvatar}
+                                    alt=""
+                                    className="avatar-img"
+                                />
+                                <div className="artistpost-user">
+                                    <a href={`/user/${post.authorID}`} className="artistpost-user__fullname">
                                                         {post.authorFN} 
                                                     </a>
                                                     <a href={`/user/${post.authorID}`} className="artistpost-user__username">
                                                         {post.authorUN}
-                                                    </a>
-                                                </div>
-                                                <div className="dots-btn">
-                                                    <OptionsDropdown />
-                                                </div>
-                            
-                                            </div>
-                            
-                            
-                                            <p className="artistpost-content">{post.content}</p>
-                                            <div className="artistpost-morecontent">
-                                                <img
-                                                    src={
-                                                                    post.mediaURL && post.mediaURL.length > 0
-                                                                            ? post.mediaURL[0]
-                                                                            : postImg
-                                                    }
-                                                    alt="post-img"
-                                                    className="post-img"
-                                                    style={{height: "auto"}}
-                                                    />
-                                                <div className="artistpost-react">
-                                                    <div className="artistpost-react__count">
-                                                        <div className="artistpost-react__comment">
-                                                            <img src={comment} alt="comment" />
-                                                            <p className="comment-count">{post.commentCount}</p>
-                                                        </div>
-                                                        <div
-                                                            className="artistpost-react__like"
-                                                            onClick={() => handleLike(post.id)}
-                                                            style={{cursor: "pointer"}}
-                                                            >
-                                                            <img src={post.isLiked ? like : unlike} alt={post.isLiked ? "like" : "unlike"} />
-                                                            <p className="like-count">{post.likeCount}</p>
-                                                        </div>
+                                    </a>
+                                </div>
+                                <div className="dots-btn">
+                                    <OptionsDropdown
+                                        openUpdatePopup={openUpdatePopup}
+                                        openDeletePopup={openDeletePopup}
+                                        post={post}
+                                        currentID={currentID}
+                                    />
+                                </div>
 
-                            
-                            
-                                                    </div>
-                                                    <div className="artistpost-react__uncount">
-                                                        <a href="#!"><img src={share} alt="share" /></a>
-                                                        <a href="#!"><img src={save} alt="save" /></a>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            </div>
+
+
+                            <p className="artistpost-content">{post.content}</p>
+                            <div className="artistpost-morecontent">
+                                <img
+                                    src={
+                                        post.mediaURL && post.mediaURL.length > 0
+                                            ? post.mediaURL[0]
+                                            : postImg
+                                    }
+                                    alt="post-img"
+                                    className="post-img"
+                                    style={{ height: "auto" }}
+                                />
+                                <div className="artistpost-react">
+                                    <div className="artistpost-react__count">
+                                        <div className="artistpost-react__comment">
+                                            <img src={comment} alt="comment" />
+                                            <p className="comment-count">{post.commentCount}</p>
                                         </div>
-                                                ))}
-                    </Masonry>
-                </div>
-                <div className="col-2 homepage-question__container">
-                    <div className="homepage-question">
-                        <a href="#!">
-                            <img src={ques} alt="quesAi" />
-                        </a>
-                    </div>
+                                        <div className="artistpost-react__like">
+                                            <img src={like} alt="like" />
+                                            <p className="like-count">{post.likeCount}</p>
+                                        </div>
+                                    </div>
+                                    <div className="artistpost-react__uncount">
+                                        <a href="#!"><img src={share} alt="share" /></a>
+                                        <a href="#!"><img src={save} alt="save" /></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </Masonry>
+            </div>
+            <div className="col-2 homepage-question__container">
+                <div className="homepage-question">
+                    <a href="#!">
+                        <img src={ques} alt="quesAi" />
+                    </a>
                 </div>
             </div>
-            );
+        </div>
+    );
 }
