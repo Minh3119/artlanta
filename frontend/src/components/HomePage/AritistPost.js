@@ -11,7 +11,7 @@ import ques from "../../assets/images/question.svg";
 import dotsIcon from "../../assets/images/dots.svg";
 
 
-export default function ArtistPost({ refetch }) {
+export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup }) {
     const [posts, setPosts] = useState([]);
 
 
@@ -51,7 +51,12 @@ export default function ArtistPost({ refetch }) {
                                     </a>
                                 </div>
                                 <div className="dots-btn">
-                                    <OptionsDropdown />
+                                    <OptionsDropdown
+                                        openUpdatePopup={openUpdatePopup}
+                                        openDeletePopup={openDeletePopup}
+                                        post={post}
+                                        currentID={currentID}
+                                    />
                                 </div>
 
                             </div>

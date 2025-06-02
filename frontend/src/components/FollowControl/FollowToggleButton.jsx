@@ -11,7 +11,7 @@ const FollowToggleButton = ({ targetUserId }) => {
 
   const checkFollowStatus = () => {
     setIsLoading(true);
-    fetch(`/api/follow?type=status&userId=${targetUserId}`, {
+    fetch(`http://localhost:9999/backend/api/follow?type=status&userId=${targetUserId}`, {
       credentials: 'include',
     })
       .then((res) => {
@@ -42,7 +42,7 @@ const FollowToggleButton = ({ targetUserId }) => {
     setIsLoading(true);
     const action = isFollowing ? 'unfollow' : 'follow';
 
-    fetch('/api/follow', {
+    fetch('http://localhost:9999/backend/api/follow', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

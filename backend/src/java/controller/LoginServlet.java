@@ -47,7 +47,6 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             int userId = dao.getUserIdByEmail(email);
             SessionUtil.storeUserInSession(session,userId);
-            
             res.put("success", true);
             res.put("user", new JSONObject()
                     .put("id", user.getID())
