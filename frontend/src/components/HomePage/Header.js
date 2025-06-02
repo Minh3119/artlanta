@@ -7,10 +7,30 @@ import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
+  const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:9999/backend/api/logout", {
+        method: "POST",
+        credentials: "include", // quan trọng để gửi cookie
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        navigate("/login");
+        console.log(data);
+      } else {
+        console.error("Logout failed:", data.message);
+      }
+    } catch (err) {
+      console.error("Logout request error:", err);
+    }
+  };
   // Function to open the create popup
   const openCreatePopup = () => {
     alert("Create popup clicked!");
@@ -34,9 +54,11 @@ export default function Header() {
             <p className="header-navbar__title">Today</p>
           </div>
         </Link>
-        <div className="header-navbar__container"
+        <div
+          className="header-navbar__container"
           onClick={openCreatePopup}
-          style={{ cursor: "pointer" }}>
+          style={{ cursor: "pointer" }}
+        >
           <p className="header-navbar__title">Create</p>
           <img src={arrowDown} alt=""></img>
         </div>
@@ -57,7 +79,7 @@ export default function Header() {
         >
           <img src={noti} alt="noti" />
           {showNotifications && (
-            <NotificationPopup onClose={() => setShowNotifications(false)}/>
+            <NotificationPopup onClose={() => setShowNotifications(false)} />
           )}
         </div>
         <Link to="#">
@@ -71,6 +93,9 @@ export default function Header() {
           <Link to="#">
             <img src={arrowDown} alt="more"></img>
           </Link>
+          <button onClick={handleLogout} className="logout-button">
+            Log out
+          </button>
         </div>
       </div>
     </div>
