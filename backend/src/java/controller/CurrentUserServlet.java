@@ -1,17 +1,16 @@
 package controller;
 
-import org.json.JSONObject;
 import dal.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import model.User;
+import org.json.JSONObject;
 import util.JsonUtil;
 import util.SessionUtil;
-
-import java.io.IOException;
 
 @WebServlet(name = "CurrentUserServlet", urlPatterns = {"/api/current-user"})
 public class CurrentUserServlet extends HttpServlet {
@@ -21,6 +20,34 @@ public class CurrentUserServlet extends HttpServlet {
         this.userDAO = new UserDAO();
     }
 
+	/*  GET /api/current-user
+	
+		Returns the user data for the logged in user.
+	
+		Response JSON structure:
+		{
+		  "response": {
+			"role": "ARTIST",
+			"isMale": false,
+			"avatarUrl": "",
+			"fullName": "Johnny",
+			"bio": "Graphic Designer",
+			"language": "vn",
+			"id": 1,
+			"isPrivate": false,
+			"email": "john.doe1975@gmail.com",
+			"username": "john_doe",
+			"status": "ACTIVE",
+			"isFlagged": false
+		  }
+		}
+	
+		Notes:
+        - Returns 401 if "No user logged in".
+		- Returns 404 if "User not found".
+        - Returns 500 if there is any Exception in the process.
+		- Requires credentials:include
+	 */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
@@ -46,7 +73,7 @@ public class CurrentUserServlet extends HttpServlet {
                 userJson.put("fullName", user.getFullName());
                 userJson.put("bio", user.getBio());
                 userJson.put("avatarUrl", user.getAvatarURL());
-                userJson.put("gender", user.getGender());
+                userJson.put("isMale", user.getGender());
                 userJson.put("location", user.getLocation());
                 userJson.put("role", user.getRole());
                 userJson.put("status", user.getStatus());
