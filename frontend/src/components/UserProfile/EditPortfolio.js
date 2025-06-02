@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import imageCompression from 'browser-image-compression';
 
 const EditPortfolio = ({ 
     portfolioData, 
@@ -8,14 +9,33 @@ const EditPortfolio = ({
     userId 
 }) => {
     const [isUploading, setIsUploading] = useState(false);
+    const [originalPortfolioData, setOriginalPortfolioData] = useState(null);
+
+    // Store original data when component mounts
+    useEffect(() => {
+        if (portfolioData && !originalPortfolioData) {
+            setOriginalPortfolioData({ ...portfolioData });
+        }
+    }, [portfolioData, originalPortfolioData]);
 
     const handleImageUpload = async (e) => {
+        const options = {
+            maxSizeMB: 0.4,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+        };
+
         const file = e.target.files[0];
         if (!file) return;
 
         setIsUploading(true);
         const formData = new FormData();
-        formData.append('file[]', file);
+        try {
+            const compressedFile = await imageCompression(file, options);
+            formData.append('file[]', compressedFile);
+        } catch (err) {
+            console.error("Compress error:", file.name, err);
+        }
 
         try {
             const response = await fetch('http://localhost:9999/backend/api/upload', {
@@ -61,6 +81,14 @@ const EditPortfolio = ({
         } catch (error) {
             toast.error('Failed to update portfolio');
         }
+    };
+
+    const handleCancel = () => {
+        // Reset to original data
+        if (originalPortfolioData) {
+            setPortfolioData({ ...originalPortfolioData });
+        }
+        setIsEditingPortfolio(false);
     };
 
     return (
@@ -136,7 +164,7 @@ const EditPortfolio = ({
                         Save Changes
                     </button>
                     <button
-                        onClick={() => setIsEditingPortfolio(false)}
+                        onClick={handleCancel}
                         className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
                     >
                         Cancel
