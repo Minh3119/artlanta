@@ -20,6 +20,7 @@ import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
 
 function App() {
+  
   return (
     <>
       <BrowserRouter>

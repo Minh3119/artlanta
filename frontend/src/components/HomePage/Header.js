@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
@@ -5,8 +6,15 @@ import search from "../../assets/images/search.svg";
 import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
+import NotificationPopup from "../Notification/NotificationPopup";
 
-export default function Header({ openCreatePopup }) {
+export default function Header() {
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // Function to open the create popup
+  const openCreatePopup = () => {
+    alert("Create popup clicked!");
+  };
 
   return (
     <div className="header-container">
@@ -42,9 +50,16 @@ export default function Header({ openCreatePopup }) {
         <img src={search} alt="" className="search-icon"></img>
       </div>
       <div className="header-icons">
-        <Link to="#">
-          <img src={noti} alt="noti"></img>
-        </Link>
+        <div
+          className="notification-icon-wrapper"
+          style={{ position: "relative", display: "inline-block" }}
+          onClick={() => setShowNotifications((prev) => !prev)}
+        >
+          <img src={noti} alt="noti" />
+          {showNotifications && (
+            <NotificationPopup onClose={() => setShowNotifications(false)}/>
+          )}
+        </div>
         <Link to="#">
           <img src={chat} alt="chat"></img>
         </Link>
