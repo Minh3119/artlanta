@@ -1,5 +1,6 @@
 package controller.Post;
 
+import dal.LikesDAO;
 import dal.PostDAO;
 import dal.UserDAO;
 import jakarta.servlet.ServletException;
@@ -7,14 +8,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.Post;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
-
 import java.io.IOException;
 import java.util.List;
 import model.User;
+import static util.SessionUtil.getCurrentUserId;
 
 public class PostViewerServlet extends HttpServlet {
 
@@ -24,17 +26,19 @@ public class PostViewerServlet extends HttpServlet {
 
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-
+		HttpSession session = request.getSession(true);
 		UserDAO udao = new UserDAO();
 		PostDAO pdao = new PostDAO();
 		List<Post> posts = pdao.getAllPosts();
-		
+		LikesDAO ldao = new LikesDAO();
 		JSONArray jsonPosts = new JSONArray();
-
 		for (Post post : posts) {
 			User author = udao.getOne(post.getUserID()); // lấy user theo userID của post
+			boolean isLiked =ldao.isLiked(1, post.getID());
 			List<String> mediaUrls = pdao.getImageUrlsByPostId(post.getID());
 			JSONObject jsonPost = new JSONObject();
+			jsonPost.put("postID", post.getID());
+			jsonPost.put("authorID", post.getUserID());
 			jsonPost.put("mediaURL", mediaUrls);
 			jsonPost.put("authorAvatar", author.getAvatarURL());
 			jsonPost.put("authorUN", author.getUsername() );
@@ -46,6 +50,7 @@ public class PostViewerServlet extends HttpServlet {
 			jsonPost.put("updatedAt", post.getUpdatedAt() != null ? post.getUpdatedAt().toString() : JSONObject.NULL);
 			jsonPost.put("isFlagged", post.isFlagged());
 			jsonPost.put("likeCount", pdao.getLikeCount(post.getID()));
+			jsonPost.put("isLiked", isLiked); // thêm trường này
 			jsonPost.put("commentCount", pdao.getCommentCount(post.getID()));
 			jsonPosts.put(jsonPost);
 		}
