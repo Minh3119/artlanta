@@ -91,6 +91,32 @@ public class FollowDAO extends DBContext {
         return followers;
     }
 
+    // View users that a user follows
+    public List<Follow> getFollowing(int userId) {
+        List<Follow> following = new ArrayList<>();
+        String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f " +
+                    "JOIN Users u ON f.followingId = u.ID " +
+                    "WHERE f.followerId = ? AND f.status = 'ACCEPTED'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Follow f = new Follow();
+                f.setId(rs.getInt("id"));
+                f.setFollowerId(rs.getInt("followerId"));
+                f.setFollowingId(rs.getInt("followingId"));
+                f.setStatus(rs.getString("status"));
+                f.setFollowAt(rs.getTimestamp("followAt").toLocalDateTime());
+                f.setUsername(rs.getString("Username"));
+                f.setAvatarUrl(rs.getString("AvatarURL"));
+                following.add(f);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return following;
+    }
+
     public boolean isFollowing(int followerId, int followingId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND followingId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

@@ -7,7 +7,7 @@ const FollowerCount = ({ userId }) => {
 
   const fetchCount = () => {
     setIsLoading(true);
-    fetch(`/api/follow?type=count&userId=${userId}`, {
+    fetch(`http://localhost:9999/backend/api/follow?type=count&userId=${userId}`, {
       credentials: 'include',
     })
       .then((res) => {
