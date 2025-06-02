@@ -149,6 +149,10 @@
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
+   
+}
+.postdetail-link {
+     text-decoration:none;
 }
 
 .artistpost-morecontent {

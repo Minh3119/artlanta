@@ -1,5 +1,6 @@
 package util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,5 +19,9 @@ public class JsonUtil {
 		JSONObject json = new JSONObject();
 		json.put("error", errorMessage);
 		writeJsonResponse(response, json);
+	}
+
+	public static JSONObject parseRequestToJson(HttpServletRequest request) {
+		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
 	}
 }

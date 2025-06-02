@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import model.Comment;
 import model.Media;
 import model.Post;
 import model.User;
@@ -337,4 +338,84 @@ public class PostDAO extends DBContext {
 
 		return imageUrls;
 	}
+
+	public List<Comment> getCommentsByPostId(int postId) {
+		List<Comment> comments = new ArrayList<>();
+		String sql = """
+            SELECT * FROM Comments
+            WHERE PostID = ? AND IsFlagged = 0
+            ORDER BY CreatedAt ASC
+        """;
+
+		try (PreparedStatement ps = connection.prepareStatement(sql)) {
+			ps.setInt(1, postId);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				Comment c = new Comment(
+						rs.getInt("ID"),
+						rs.getInt("PostID"),
+						rs.getInt("UserID"),
+						rs.getString("Content"),
+						rs.getString("MediaURL"),
+						rs.getObject("ParentID") != null ? rs.getInt("ParentID") : null,
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getBoolean("IsFlagged")
+				);
+				comments.add(c);
+			}
+
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return comments;
+	}
+
+	public String getAvatarByPostId(int postId, int cmtId) {
+		String sql = "SELECT u.AvatarURL FROM Comments c JOIN Users u ON c.UserID = u.ID  JOIN Posts p on c.PostID=p.ID WHERE p.ID = ? AND c.ID=?";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, postId);
+			stmt.setInt(2, cmtId);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return rs.getString("AvatarURL");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	//getFNByPostId
+	public String getFNByPostId(int postId, int cmtId) {
+		String sql = "SELECT u.FullName FROM Comments c JOIN Users u ON c.UserID = u.ID  JOIN Posts p on c.PostID=p.ID WHERE p.ID = ? AND c.ID=?";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, postId);
+			stmt.setInt(2, cmtId);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				return rs.getString("FullName");
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public boolean insertComment(int postId, int userId, String content) {
+		String sql = "INSERT INTO Comments (PostID, UserID, Content) VALUES (?, ?, ?)";
+		try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+			stmt.setInt(1, postId);
+			stmt.setInt(2, userId);
+			stmt.setString(3, content);
+			int rowsInserted = stmt.executeUpdate();
+			return rowsInserted > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }
