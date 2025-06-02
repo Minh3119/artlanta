@@ -229,16 +229,35 @@ const UserProfilePage = () => {
 				return;
 			}
 
+			const isUnfollow = isFollowing;
 			const response = await fetch('http://localhost:9999/backend/api/follow', {
 				method: 'POST',
 				credentials: 'include',
 				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: `action=${isFollowing ? 'unfollow' : 'follow'}&targetId=${userId}`
+				body: `action=${isUnfollow ? 'unfollow' : 'follow'}&targetId=${userId}`
 			});
 
 			const data = await response.json();
 			if (data.error) {
 				throw new Error(data.error);
+			}
+
+			// Only send notifications when following (not unfollowing)
+			if (!isUnfollow) {
+				// 1. Notify the target user (the one being followed)
+				await fetch('http://localhost:9999/backend/api/notifications', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					credentials: 'include',
+					body: `userId=${userId}&type=follow&content=${currentUser.username} started following you`
+				});
+				// 2. Notify the current user (the follower)
+				await fetch('http://localhost:9999/backend/api/notifications', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					credentials: 'include',
+					body: `userId=${currentUser.id}&type=follow_success&content=You started following ${userData.displayName || userData.username}`
+				});
 			}
 
 			// Toggle following state and update follow counts
