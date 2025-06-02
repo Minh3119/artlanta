@@ -4,6 +4,7 @@ import '../styles/post.scss';
 import { ToastContainer } from 'react-toastify';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfilePage from "./UserProfile.js"
+import CurrentUserProfilePage from "./CurrentUserProfilePage.js"
 import SessionTest from "../pages/SessionTest.js"
 import Artists from "./Artists.js"
 import CreatePostComponent from '../components/PostControl/createPostComponent.js';
@@ -25,6 +26,7 @@ function App() {
           <Route path="/*" element={<HomePage />}>
 
           </Route>
+          <Route path="/profile" element={<CurrentUserProfilePage />} />
           <Route path="/user/:userId" element={<UserProfilePage />} />
           <Route path="/artists" element={<Artists />} />
           <Route path="/sessiontest" element={<SessionTest />} />
