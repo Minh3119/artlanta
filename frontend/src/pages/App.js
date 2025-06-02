@@ -38,7 +38,6 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/passforget" element={<PassForget/>} />
           <Route path="/post" element={<PostListPage />} />
-          <Route path="/postdetail" element={<PostDetail/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />
