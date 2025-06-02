@@ -10,7 +10,6 @@ import NotificationPopup from "../Notification/NotificationPopup";
 
 export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
-  const userId = 123; // Mock user ID, replace with actual user ID from context or props
 
   // Function to open the create popup
   const openCreatePopup = () => {
@@ -51,17 +50,16 @@ export default function Header() {
         <img src={search} alt="" className="search-icon"></img>
       </div>
       <div className="header-icons">
-        <span
-          style={{ position: "relative", cursor: "pointer" }}
+        <div
+          className="notification-icon-wrapper"
+          style={{ position: "relative", display: "inline-block" }}
           onClick={() => setShowNotifications((prev) => !prev)}
         >
           <img src={noti} alt="noti" />
           {showNotifications && (
-            <div style={{ position: "absolute", top: "40px", right: 0, zIndex: 1000 }}>
-              <NotificationPopup userId={userId} />
-            </div>
+            <NotificationPopup onClose={() => setShowNotifications(false)}/>
           )}
-        </span>
+        </div>
         <Link to="#">
           <img src={chat} alt="chat"></img>
         </Link>

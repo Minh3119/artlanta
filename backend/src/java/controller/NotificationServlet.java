@@ -123,109 +123,142 @@ public class NotificationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                response.setContentType("application/json;charset=UTF-8");
-                String userIdParam = request.getParameter("userId");
-                String type = request.getParameter("type");
-                String content = request.getParameter("content");
-                String postIdParam = request.getParameter("postId");
-                String action = request.getParameter("action");
+    response.setContentType("application/json;charset=UTF-8");
+    String userIdParam = request.getParameter("userId");
+    String type = request.getParameter("type");
+    String content = request.getParameter("content");
+    String postIdParam = request.getParameter("postId");
+    String action = request.getParameter("action");
 
-                System.out.println("POST request received with parameters:");
-                System.out.println("userId: " + userIdParam);
-                System.out.println("type: " + type);
-                System.out.println("content: " + content);
-                System.out.println("postId: " + postIdParam);
-                System.out.println("action: " + action);
+    System.out.println("POST request received with parameters:");
+    System.out.println("userId: " + userIdParam);
+    System.out.println("action: " + action);
 
-                try (PrintWriter out = response.getWriter()) {
-                    NotificationDAO notificationDAO = new NotificationDAO();
+    try (PrintWriter out = response.getWriter()) {
+        NotificationDAO notificationDAO = new NotificationDAO();
 
-                    if (userIdParam == null || type == null || content == null) {
-                        System.out.println("Error: Missing required fields");
-                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        out.print("{\"error\": \"Missing required fields\"}");
-                        return;
-                    }
+        // --- Handle delete action ---
+        if ("delete".equals(action)) {
+            String idParam = request.getParameter("ID");
+            
+            if (idParam == null) {
+                System.out.println("Error: Missing ID parameter for delete");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Missing ID parameter\"}");
+                return;
+            }
 
-                    int userId;
-                    try {
-                        userId = Integer.parseInt(userIdParam);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error: Invalid userId format: " + userIdParam);
-                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                        out.print("{\"error\": \"Invalid User ID format\"}");
-                        return;
-                    }
+            int id;
+            try {
+                id = Integer.parseInt(idParam);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Invalid ID format for delete");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Invalid ID format\"}");
+                return;
+            }
 
-                    boolean success;
-                    if (postIdParam != null && !postIdParam.isEmpty()) {
-                        int postId;
-                        try {
-                            postId = Integer.parseInt(postIdParam);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Error: Invalid postId format: " + postIdParam);
-                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                            out.print("{\"error\": \"Invalid Post ID format\"}");
-                            return;
-                        }
-                        success = notificationDAO.saveNotification(userId, postId, type, content);
-                    } else {
-                        success = notificationDAO.saveNotification(userId, type, content);
-                    }
+            boolean deleted = notificationDAO.deleteNotification(id);
+            if (deleted) {
+                System.out.println("Notification deleted successfully");
+                response.setStatus(HttpServletResponse.SC_OK);
+                out.print("{\"message\": \"Notification deleted successfully\"}");
+            } else {
+                System.out.println("Error: Failed to delete notification");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to delete notification\"}");
+            }
+            return;
+        }
 
-                    if (success) {
-                        System.out.println("Notification saved successfully");
-                        response.setStatus(HttpServletResponse.SC_CREATED);
-                        out.print("{\"message\": \"Notification saved successfully\"}");
-                    } else {
-                        System.out.println("Error: Failed to save notification");
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                        out.print("{\"error\": \"Failed to save notification\"}");
-                    }
+        // --- Handle markAsRead action ---
+        if ("markAsRead".equals(action)) {
+            String idParam = request.getParameter("ID");
+            String isReadParam = request.getParameter("isRead");
 
-                    if("markAsRead".equals(action)) {
-                        String idParam = request.getParameter("ID");
-                        String isReadParam = request.getParameter("isRead");
+            if (idParam == null || isReadParam == null) {
+                System.out.println("Error: Missing ID or isRead parameter");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Missing ID or isRead parameter\"}");
+                return;
+            }
 
-                        if (idParam == null || isReadParam == null) {
-                            System.out.println("Error: Missing ID or isRead parameter");
-                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                            out.print("{\"error\": \"Missing ID or isRead parameter\"}");
-                            return;
-                        }
+            int id;
+            boolean isRead;
 
-                        int id;
-                        boolean isRead;
+            try {
+                id = Integer.parseInt(idParam);
+                isRead = Boolean.parseBoolean(isReadParam);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Invalid ID or isRead format");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Invalid ID or isRead format\"}");
+                return;
+            }
 
-                        try {
-                            id = Integer.parseInt(idParam);
-                            isRead = Boolean.parseBoolean(isReadParam);
-                        } catch (NumberFormatException e) {
-                            System.out.println("Error: Invalid ID or isRead format");
-                            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                            out.print("{\"error\": \"Invalid ID or isRead format\"}");
-                            return;
-                        }
+            boolean marked = notificationDAO.markAsRead(id, isRead);
+            if (marked) {
+                System.out.println("Notification marked as read successfully");
+                response.setStatus(HttpServletResponse.SC_OK);
+                out.print("{\"message\": \"Notification marked as read\"}");
+            } else {
+                System.out.println("Error: Failed to mark notification as read");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                out.print("{\"error\": \"Failed to mark notification as read\"}");
+            }
+            return;
+        }
 
-                        boolean marked = notificationDAO.markAsRead(id, isRead);
-                        if (marked) {
-                            System.out.println("Notification marked as read successfully");
-                            response.setStatus(HttpServletResponse.SC_OK);
-                            out.print("{\"message\": \"Notification marked as read\"}");
-                        } else {
-                            System.out.println("Error: Failed to mark notification as read");
-                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                            out.print("{\"error\": \"Failed to mark notification as read\"}");
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("Error in doPost: " + e.getMessage());
-                    e.printStackTrace();
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    response.getWriter().print("{\"error\": \"Internal server error: " + e.getMessage() + "\"}");
-                }
+        // --- Normal notification creation below ---
+        if (userIdParam == null || type == null || content == null) {
+            System.out.println("Error: Missing required fields");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.print("{\"error\": \"Missing required fields\"}");
+            return;
+        }
+
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdParam);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Invalid userId format: " + userIdParam);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.print("{\"error\": \"Invalid User ID format\"}");
+            return;
+        }
+
+        boolean success;
+        if (postIdParam != null && !postIdParam.isEmpty()) {
+            int postId;
+            try {
+                postId = Integer.parseInt(postIdParam);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Invalid postId format: " + postIdParam);
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                out.print("{\"error\": \"Invalid Post ID format\"}");
+                return;
+            }
+            success = notificationDAO.saveNotification(userId, postId, type, content);
+        } else {
+            success = notificationDAO.saveNotification(userId, type, content);
+        }
+
+        if (success) {
+            System.out.println("Notification saved successfully");
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            out.print("{\"message\": \"Notification saved successfully\"}");
+        } else {
+            System.out.println("Error: Failed to save notification");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            out.print("{\"error\": \"Failed to save notification\"}");
+        }
+    } catch (Exception e) {
+        System.out.println("Error in doPost: " + e.getMessage());
+        e.printStackTrace();
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.getWriter().print("{\"error\": \"Internal server error: " + e.getMessage() + "\"}");
     }
-
+}
     /**
      * Returns a short description of the servlet.
      *

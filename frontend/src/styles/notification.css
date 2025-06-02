@@ -1,15 +1,17 @@
 .notification-popup-outer {
-  position: fixed;
-  top: 60px;
-  right: 30px;
+  position: absolute;
+  top: 36px; /* Adjust as needed to sit just below the icon */
+  right: 0;
   z-index: 2000;
   background: transparent;
+  width: 350px; /* Changed from min-width */
+  max-width: 90vw;
 }
 
 .notification-popup-inner {
   background: #181818;
   border-radius: 16px;
-  width: 350px;
+  width: 100%; /* Changed from fixed width */
   padding: 0 0 16px 0;
   box-shadow: 0 4px 32px rgba(0,0,0,0.4);
   color: #fff;
@@ -61,15 +63,14 @@
 }
 
 .notification-card-title {
-  font-size: 1.1rem;
-  font-weight: bold;
+  font-size: clamp(1rem, 2vw, 1.1rem);
   margin-bottom: 4px;
   color: #fff;
 }
 
 .notification-card-message {
   color: #fff;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
   margin-bottom: 6px;
   word-break: break-word;
 }
@@ -86,17 +87,20 @@
   gap: 12px;
 }
 
-.notification-card-dismiss {
-  color: #ff3333;
-  font-size: 0.95em;
-  cursor: pointer;
-  margin-right: 8px;
-}
-
 .notification-card-eye {
   color: #3fa9f5;
   font-size: 1.1em;
   cursor: pointer;
+}
+
+.notification-card-dismiss{
+  color: #ff3333;
+  background: none;
+  font-size: 0.95em;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-top: 3px;
+  border: none;
 }
 
 .notification-card-dropdown {
@@ -118,4 +122,69 @@
   cursor: pointer;
   padding: 0;
   margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .notification-popup-outer {
+    width: 300px;
+  }
+
+  .notification-popup-list {
+    max-height: 60vh; /* Adjust for smaller screens */
+  }
+
+  .notification-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .notification-card-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .notification-popup-outer {
+    position: fixed; /* Change to fixed for mobile */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    transform: none;
+  }
+
+  .notification-popup-inner {
+    border-radius: 16px 16px 0 0; /* Round only top corners */
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .notification-popup-header {
+    position: sticky;
+    top: 0;
+    background: #181818;
+    z-index: 1;
+  }
+
+  .notification-popup-footer {
+    position: sticky;
+    bottom: 0;
+    background: #181818;
+    padding: 12px 24px;
+    border-top: 1px solid #333;
+  }
+
+  .notification-card-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-popup-inner {
+    background: #181818;
+    border-color: #333;
+  }
 }
