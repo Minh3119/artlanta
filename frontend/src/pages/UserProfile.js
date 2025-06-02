@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import UserInfo from '../components/UserProfile/UserInfo';
 import EditPortfolio from '../components/UserProfile/EditPortfolio';
 import PortfolioDisplay from '../components/UserProfile/PortfolioDisplay';
+import Header from "../components/HomePage/Header";
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
@@ -89,7 +90,7 @@ const UserProfilePage = () => {
 					)
 				]);
 
-				if (!portfolioRes.ok) {
+				if (!portfolioRes.ok && userData.response.role === "ARTIST") {
 					throw new Error(`Failed to fetch portfolio: ${portfolioRes.statusText}`);
 				}
 
@@ -234,6 +235,9 @@ const UserProfilePage = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
+			<div className="mb-14">
+				<Header openCreatePopup={null} />
+			</div>
 			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8`}>
 					{/* Left Column - User Info */}

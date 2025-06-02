@@ -35,12 +35,12 @@ export default function Header({ openCreatePopup }) {
   return (
     <div className="header-container">
       <div className="header-logo">
-        <Link to="#">
+        <Link to="/">
           <img src={arlanta} alt="Artlanta" />
         </Link>
       </div>
       <div className="header-navbar">
-        <Link to="#">
+        <Link to="/">
           <div className="header-navbar__container">
             <p className="header-navbar__title">Home</p>
           </div>
@@ -83,7 +83,7 @@ export default function Header({ openCreatePopup }) {
         </Link>
 
         <div className="header-more">
-          <Link to="#">
+          <Link to="/profile">
             <img src={ava} alt="ava"></img>
           </Link>
           <Link to="#">
