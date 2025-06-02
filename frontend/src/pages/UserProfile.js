@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AvatarImage from '../components/UserProfileView/AvatarImage';
-import FollowerList from '../components/FollowControl/FollowerList';
-import FollowingList from '../components/FollowControl/FollowingList';
+import UserInfo from '../components/UserProfile/UserInfo';
+import EditPortfolio from '../components/UserProfile/EditPortfolio';
+import PortfolioDisplay from '../components/UserProfile/PortfolioDisplay';
 
 const UserProfilePage = () => {
 	const { userId } = useParams();
-	const navigate = useNavigate();
 	const [userData, setUserData] = useState(null);
 	const [portfolioData, setPortfolioData] = useState(null);
 	const [socialLinks, setSocialLinks] = useState([]);
@@ -192,24 +191,6 @@ const UserProfilePage = () => {
 		}
 	}, [userId]);
 
-	const getSocialIcon = (platform) => {
-		// You can replace these with actual icons from your preferred icon library
-		switch (platform.toLowerCase()) {
-			case 'instagram':
-				return '📸';
-			case 'twitter':
-				return '🐦';
-			case 'facebook':
-				return '👤';
-			case 'artstation':
-				return '🎨';
-			case 'deviantart':
-				return '🖼️';
-			default:
-				return '🔗';
-		}
-	};
-
 	const handleNextImage = () => {
 		if (currentImageIndex < allImages.length - 1) {
 			setCurrentImageIndex(prev => prev + 1);
@@ -219,57 +200,6 @@ const UserProfilePage = () => {
 	const handlePreviousImage = () => {
 		if (currentImageIndex > 0) {
 			setCurrentImageIndex(prev => prev - 1);
-		}
-	};
-
-	const handleFollow = async () => {
-		try {
-			if (!currentUser) {
-				// Redirect to login if not logged in
-				navigate('/login');
-				return;
-			}
-
-			const response = await fetch('http://localhost:9999/backend/api/follow', {
-				method: 'POST',
-				credentials: 'include',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: `action=${isFollowing ? 'unfollow' : 'follow'}&targetId=${userId}`
-			});
-
-			const data = await response.json();
-			if (data.error) {
-				throw new Error(data.error);
-			}
-
-			// Toggle following state and update follow counts
-			setIsFollowing(!isFollowing);
-			setFollowCounts(prev => ({
-				...prev,
-				followers: isFollowing ? prev.followers - 1 : prev.followers + 1
-			}));
-
-			toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
-		} catch (error) {
-			toast.error(error.message);
-		}
-	};
-
-	const formatDate = (dateString) => {
-		if (!dateString) return 'Not available';
-		try {
-			const date = new Date(dateString);
-			if (isNaN(date.getTime())) {
-				return 'Invalid date';
-			}
-			return date.toLocaleDateString(undefined, {
-				year: 'numeric',
-				month: 'long',
-				day: 'numeric'
-			});
-		} catch (error) {
-			console.error('Error formatting date:', error);
-			return 'Date format error';
 		}
 	};
 
@@ -292,268 +222,43 @@ const UserProfilePage = () => {
 		);
 	}
 
-	const currentImage = allImages[currentImageIndex];
-
 	return (
 		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-				{/* This checks if there's portfolio, if no, then center left column */}
 				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8`}>
 					{/* Left Column - User Info */}
-					<div className="bg-white rounded-3xl shadow-lg p-8">
-						<div className="flex items-start space-x-4">
-							<div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
-								{userData.avatarUrl ? (
-									<AvatarImage 
-										avatarUrl={userData.avatarUrl}
-										displayName={userData.displayName || userData.username}
-										size="md"
-									/>
-								) : (
-									<AvatarImage 
-										displayName={userData.displayName || userData.username}
-										size="md"
-									/>
-								)}
-							</div>
-							<div className="flex-1">
-								{/* User Name */}
-								<h1 className="text-3xl font-bold text-gray-900">
-									{userData.displayName || userData.username}
-								</h1>
-								{userData.username && userData.displayName && (
-									<p className="text-lg text-gray-500">@{userData.username}</p>
-								)}
-								<div className="flex items-center space-x-4">
-									<FollowerList 
-										userId={userId} 
-										count={followCounts.followers}
-										isOwnProfile={currentUser?.id === parseInt(userId)}
-										isPrivate={userData.isPrivate}
-									/>
-									<div className="w-px h-6 bg-gray-200"></div>
-									<FollowingList
-										userId={userId}
-										count={followCounts.following}
-										isOwnProfile={currentUser?.id === parseInt(userId)}
-										isPrivate={userData.isPrivate}
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* Follow/Edit Profile Button */}
-						<div className="mt-4">
-							{currentUser ? (
-								currentUser.id !== parseInt(userId) ? (
-									<button
-										onClick={handleFollow}
-										className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-											isFollowing
-												? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-												: 'bg-blue-600 text-white hover:bg-blue-700'
-										}`}
-									>
-										{isFollowing ? 'Following' : 'Follow'}
-									</button>
-								) : (
-									<div className="flex gap-4">
-										<button
-											onClick={() => navigate('/settings/profile')}
-											className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-										>
-											Edit Profile
-										</button>
-										<button
-											onClick={() => setIsEditingPortfolio(!isEditingPortfolio)}
-											className="flex-1 py-2 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-										>
-											{isEditingPortfolio ? 'Cancel Edit' : 'Edit Portfolio'}
-										</button>
-									</div>
-								)
-							) : null}
-						</div>
-
+					<div>
 						{!isEditingPortfolio ? (
-							<>
-								{userData.bio && (
-									<p className="mt-6 text-gray-600 text-lg">{userData.bio}</p>
-								)}
-
-								{/* Social Links */}
-								{socialLinks.length > 0 && (
-									<div className="mt-6 flex flex-wrap gap-3">
-										{socialLinks.map((link) => (
-											<a
-												key={link.id}
-												href={link.url}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="group inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors no-underline"
-											>
-												<span className="mr-2">{getSocialIcon(link.platform)}</span>
-												<span className="text-sm text-gray-700 group-hover:underline">{link.platform}</span>
-											</a>
-										))}
-									</div>
-								)}
-
-								{/* Additional info */}
-								<div className="mt-8 grid grid-cols-2 gap-6">
-									<div>
-										<h3 className="text-sm font-medium text-gray-500">Member since</h3>
-										<p className="mt-1 text-sm text-gray-900">{formatDate(userData.createdAt)}</p>
-									</div>
-								</div>
-								
-								{/* Achievements Section */}
-								{portfolioData?.achievements && (
-									<div className="mt-8">
-										<h3 className="text-lg font-semibold text-gray-900">🏆 Achievements </h3>
-										<div className="bg-gray-50 rounded-lg p-4">
-											<div className="flex items-start gap-3">
-												<p className="text-gray-700 whitespace-pre-wrap">{portfolioData.achievements}</p>
-											</div>
-										</div>
-									</div>
-								)}
-							</>
+							<UserInfo
+								userData={userData}
+								currentUser={currentUser}
+								followCounts={followCounts}
+								isFollowing={isFollowing}
+								setIsFollowing={setIsFollowing}
+								socialLinks={socialLinks}
+								portfolioData={portfolioData}
+								setIsEditingPortfolio={setIsEditingPortfolio}
+								isEditingPortfolio={isEditingPortfolio}
+								userId={userId}
+							/>
 						) : (
-							<div className="mt-6">
-								<h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Portfolio</h2>
-								<div className="space-y-6">
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Title</label>
-										<input
-											type="text"
-											value={portfolioData?.title || ''}
-											onChange={(e) => setPortfolioData(prev => ({ ...prev, title: e.target.value }))}
-											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-											placeholder="Portfolio title"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Description</label>
-										<textarea
-											value={portfolioData?.description || ''}
-											onChange={(e) => setPortfolioData(prev => ({ ...prev, description: e.target.value }))}
-											rows={4}
-											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-											placeholder="Portfolio description"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Cover Image URL</label>
-										<input
-											type="text"
-											value={portfolioData?.coverUrl || ''}
-											onChange={(e) => setPortfolioData(prev => ({ ...prev, coverUrl: e.target.value }))}
-											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-											placeholder="Cover image URL"
-										/>
-									</div>
-
-									<div>
-										<label className="block text-sm font-medium text-gray-700">Achievements</label>
-										<textarea
-											value={portfolioData?.achievements || ''}
-											onChange={(e) => setPortfolioData(prev => ({ ...prev, achievements: e.target.value }))}
-											rows={4}
-											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-											placeholder="List your achievements"
-										/>
-									</div>
-
-									<div className="flex gap-4">
-										<button
-											onClick={async () => {
-												try {
-													const response = await fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
-														method: 'PUT',
-														credentials: 'include',
-														headers: { 'Content-Type': 'application/json' },
-														body: JSON.stringify(portfolioData)
-													});
-
-													const data = await response.json();
-													if (!data.error) {
-														toast.success('Portfolio updated successfully!');
-														setIsEditingPortfolio(false);
-													} else {
-														toast.error(data.error);
-													}
-												} catch (error) {
-													toast.error('Failed to update portfolio');
-												}
-											}}
-											className="flex-1 py-2 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-										>
-											Save Changes
-										</button>
-										<button
-											onClick={() => setIsEditingPortfolio(false)}
-											className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-										>
-											Cancel
-										</button>
-									</div>
-								</div>
-							</div>
-						)}
-						
-					</div>
-
-					{/* Right Column - Portfolio Images */}
-					<div className="relative">
-						{allImages.length > 0 && (
-							<div className="relative rounded-3xl overflow-hidden shadow-xl aspect-[3/4]">
-								<img
-									className="w-full h-full object-cover"
-									src={currentImage.url}
-									alt={currentImage.title || "Portfolio Image"}
-								/>
-
-								{/* Overlay text */}
-								<div className="absolute bottom-0 left-0 p-8 text-white bg-gradient-to-t from-black/70 to-transparent w-full">
-									<h2 className="text-3xl font-bold mb-2">{currentImage.title || (currentImage.isCover ? portfolioData?.title : '')}</h2>
-									<p className="text-lg">{currentImage.description || (currentImage.isCover ? portfolioData?.description : '')}</p>
-								</div>
-								
-								{/* Navigation Controls */}
-								<div className="absolute top-8 left-8 right-8 flex justify-between items-center">
-									{/* Previous button */}
-									<button
-										onClick={handlePreviousImage}
-										disabled={currentImageIndex === 0}
-										className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50/90 text-gray-800 hover:bg-white transition-colors ${currentImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transform transition-transform'}`}
-									>
-										<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-										</svg>
-										Previous
-									</button>
-									{/* Image number */}
-									<div className="bg-gray-100/90 text-gray-800 px-4 py-2 rounded-lg">
-										{currentImageIndex + 1} / {allImages.length}
-									</div>
-									{/* Next button */}
-									<button
-										onClick={handleNextImage}
-										disabled={currentImageIndex === allImages.length - 1}
-										className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50/90 text-gray-800 hover:bg-white transition-colors ${currentImageIndex === allImages.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 transform transition-transform'}`}
-									>
-										Next
-										<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-										</svg>
-									</button>
-								</div>
-							</div>
+							<EditPortfolio
+								portfolioData={portfolioData}
+								setPortfolioData={setPortfolioData}
+								setIsEditingPortfolio={setIsEditingPortfolio}
+								userId={userId}
+							/>
 						)}
 					</div>
+
+					{/* Right Column - Portfolio Display */}
+					<PortfolioDisplay
+						allImages={allImages}
+						currentImageIndex={currentImageIndex}
+						handlePreviousImage={handlePreviousImage}
+						handleNextImage={handleNextImage}
+						portfolioData={portfolioData}
+					/>
 				</div>
 			</div>
 			<ToastContainer />
