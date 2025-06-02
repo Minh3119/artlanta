@@ -31,4 +31,21 @@ public class PortfolioDAO extends DBContext {
         }
         return null;
     }
+
+    public boolean update(Portfolio portfolio) {
+        String sql = "UPDATE Portfolio SET Title = ?, Description = ?, CoverURL = ?, Achievements = ? WHERE ArtistID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, portfolio.getTitle());
+            st.setString(2, portfolio.getDescription());
+            st.setString(3, portfolio.getCoverURL());
+            st.setString(4, portfolio.getAchievements());
+            st.setInt(5, portfolio.getArtistID());
+            
+            int rowsAffected = st.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating portfolio: " + e.getMessage());
+            return false;
+        }
+    }
 } 

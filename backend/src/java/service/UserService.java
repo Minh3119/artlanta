@@ -39,7 +39,6 @@ public class UserService {
         return jsonResponse;
     }
 
-    // Move the conversion methods here
     private JSONArray convertUsersToJsonArray(List<User> users) throws JSONException {
         if (users == null) {
             return new JSONArray();

@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.json.JSONObject;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 
 public class JsonUtil {
 	public static void writeJsonResponse(HttpServletResponse response, JSONObject jsonObject) throws IOException {
@@ -21,7 +23,24 @@ public class JsonUtil {
 		writeJsonResponse(response, json);
 	}
 
-	public static JSONObject parseRequestToJson(HttpServletRequest request) {
-		throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+	public static JSONObject parseRequestBody(HttpServletRequest request) throws IOException {
+		StringBuilder buffer = new StringBuilder();
+		String line;
+		try (BufferedReader reader = request.getReader()) {
+			while ((line = reader.readLine()) != null) {
+				buffer.append(line);
+			}
+		}
+
+		String data = buffer.toString();
+		if (data == null || data.trim().isEmpty()) {
+			return null;
+		}
+
+		try {
+			return new JSONObject(data);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
