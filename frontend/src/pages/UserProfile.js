@@ -18,6 +18,7 @@ const UserProfilePage = () => {
 	const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
 	const [currentUser, setCurrentUser] = useState(null);
 	const [isFollowing, setIsFollowing] = useState(false);
+	const [isEditingPortfolio, setIsEditingPortfolio] = useState(false);
 
 	useEffect(() => {
 		const fetchAllData = async () => {
@@ -297,7 +298,7 @@ const UserProfilePage = () => {
 		<div className="min-h-screen bg-gray-50">
 			<div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
 				{/* This checks if there's portfolio, if no, then center left column */}
-				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8 h-[50vh]`}>
+				<div className={`grid grid-cols-1 ${allImages.length > 0 ? 'md:grid-cols-2' : 'max-w-2xl mx-auto'} gap-8`}>
 					{/* Left Column - User Info */}
 					<div className="bg-white rounded-3xl shadow-lg p-8">
 						<div className="flex items-start space-x-4">
@@ -356,53 +357,148 @@ const UserProfilePage = () => {
 										{isFollowing ? 'Following' : 'Follow'}
 									</button>
 								) : (
-									<button
-										onClick={() => navigate('/settings/profile')}
-										className="w-full py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
-									>
-										Edit Profile
-									</button>
+									<div className="flex gap-4">
+										<button
+											onClick={() => navigate('/settings/profile')}
+											className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+										>
+											Edit Profile
+										</button>
+										<button
+											onClick={() => setIsEditingPortfolio(!isEditingPortfolio)}
+											className="flex-1 py-2 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+										>
+											{isEditingPortfolio ? 'Cancel Edit' : 'Edit Portfolio'}
+										</button>
+									</div>
 								)
 							) : null}
 						</div>
 
-						{userData.bio && (
-							<p className="mt-6 text-gray-600 text-lg">{userData.bio}</p>
-						)}
+						{!isEditingPortfolio ? (
+							<>
+								{userData.bio && (
+									<p className="mt-6 text-gray-600 text-lg">{userData.bio}</p>
+								)}
 
-						{/* Social Links */}
-						{socialLinks.length > 0 && (
-							<div className="mt-6 flex flex-wrap gap-3">
-								{socialLinks.map((link) => (
-									<a
-										key={link.id}
-										href={link.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="group inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors no-underline"
-									>
-										<span className="mr-2">{getSocialIcon(link.platform)}</span>
-										<span className="text-sm text-gray-700 group-hover:underline">{link.platform}</span>
-									</a>
-								))}
-							</div>
-						)}
+								{/* Social Links */}
+								{socialLinks.length > 0 && (
+									<div className="mt-6 flex flex-wrap gap-3">
+										{socialLinks.map((link) => (
+											<a
+												key={link.id}
+												href={link.url}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="group inline-flex items-center px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors no-underline"
+											>
+												<span className="mr-2">{getSocialIcon(link.platform)}</span>
+												<span className="text-sm text-gray-700 group-hover:underline">{link.platform}</span>
+											</a>
+										))}
+									</div>
+								)}
 
-						{/* Additional info */}
-						<div className="mt-8 grid grid-cols-2 gap-6">
-							<div>
-								<h3 className="text-sm font-medium text-gray-500">Member since</h3>
-								<p className="mt-1 text-sm text-gray-900">{formatDate(userData.createdAt)}</p>
-							</div>
-						</div>
-						
-						{/* Achievements Section */}
-						{portfolioData?.achievements && (
-							<div className="mt-8">
-								<h3 className="text-lg font-semibold text-gray-900">🏆 Achievements </h3>
-								<div className="bg-gray-50 rounded-lg p-4">
-									<div className="flex items-start gap-3">
-										<p className="text-gray-700 whitespace-pre-wrap">{portfolioData.achievements}</p>
+								{/* Additional info */}
+								<div className="mt-8 grid grid-cols-2 gap-6">
+									<div>
+										<h3 className="text-sm font-medium text-gray-500">Member since</h3>
+										<p className="mt-1 text-sm text-gray-900">{formatDate(userData.createdAt)}</p>
+									</div>
+								</div>
+								
+								{/* Achievements Section */}
+								{portfolioData?.achievements && (
+									<div className="mt-8">
+										<h3 className="text-lg font-semibold text-gray-900">🏆 Achievements </h3>
+										<div className="bg-gray-50 rounded-lg p-4">
+											<div className="flex items-start gap-3">
+												<p className="text-gray-700 whitespace-pre-wrap">{portfolioData.achievements}</p>
+											</div>
+										</div>
+									</div>
+								)}
+							</>
+						) : (
+							<div className="mt-6">
+								<h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Portfolio</h2>
+								<div className="space-y-6">
+									<div>
+										<label className="block text-sm font-medium text-gray-700">Title</label>
+										<input
+											type="text"
+											value={portfolioData?.title || ''}
+											onChange={(e) => setPortfolioData(prev => ({ ...prev, title: e.target.value }))}
+											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+											placeholder="Portfolio title"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-700">Description</label>
+										<textarea
+											value={portfolioData?.description || ''}
+											onChange={(e) => setPortfolioData(prev => ({ ...prev, description: e.target.value }))}
+											rows={4}
+											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+											placeholder="Portfolio description"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-700">Cover Image URL</label>
+										<input
+											type="text"
+											value={portfolioData?.coverUrl || ''}
+											onChange={(e) => setPortfolioData(prev => ({ ...prev, coverUrl: e.target.value }))}
+											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+											placeholder="Cover image URL"
+										/>
+									</div>
+
+									<div>
+										<label className="block text-sm font-medium text-gray-700">Achievements</label>
+										<textarea
+											value={portfolioData?.achievements || ''}
+											onChange={(e) => setPortfolioData(prev => ({ ...prev, achievements: e.target.value }))}
+											rows={4}
+											className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+											placeholder="List your achievements"
+										/>
+									</div>
+
+									<div className="flex gap-4">
+										<button
+											onClick={async () => {
+												try {
+													const response = await fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
+														method: 'PUT',
+														credentials: 'include',
+														headers: { 'Content-Type': 'application/json' },
+														body: JSON.stringify(portfolioData)
+													});
+
+													const data = await response.json();
+													if (!data.error) {
+														toast.success('Portfolio updated successfully!');
+														setIsEditingPortfolio(false);
+													} else {
+														toast.error(data.error);
+													}
+												} catch (error) {
+													toast.error('Failed to update portfolio');
+												}
+											}}
+											className="flex-1 py-2 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+										>
+											Save Changes
+										</button>
+										<button
+											onClick={() => setIsEditingPortfolio(false)}
+											className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+										>
+											Cancel
+										</button>
 									</div>
 								</div>
 							</div>
@@ -411,9 +507,9 @@ const UserProfilePage = () => {
 					</div>
 
 					{/* Right Column - Portfolio Images */}
-					<div className="relative h-[50vh]">
+					<div className="relative">
 						{allImages.length > 0 && (
-							<div className="relative h-full rounded-3xl overflow-hidden shadow-xl">
+							<div className="relative rounded-3xl overflow-hidden shadow-xl aspect-[3/4]">
 								<img
 									className="w-full h-full object-cover"
 									src={currentImage.url}
