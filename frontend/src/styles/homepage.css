@@ -10,29 +10,27 @@
 .header-container {
     padding: 0 25px;
     gap: 40px;
-
+    width:100%;
     position: fixed;
     top: 0;
     padding-top: 10px;
     padding-bottom: 10px;
-
     background-color: white;
-
     z-index: 9999;
     width: 100%;
 }
 
-.artistpost-user__username,
-.artistpost-user__email {
+.artistpost-user__username{
+    text-decoration: none;
+}
+
+.artistpost-user__fullname {
+    color: black;
+    font-weight: 800;
     text-decoration: none;
 }
 
 .artistpost-user__username {
-    color: black;
-    font-weight: 800;
-}
-
-.artistpost-user__email {
     color: #6C7A9C;
     font-size: 14px;
 } 
@@ -51,7 +49,6 @@
 .header-navbar__container {
     display: flex;
     align-items: center;
-
     padding: 10px 30px;
     border-radius: 40px;
 }
@@ -112,14 +109,14 @@
 }
 
 .homepage-time {
-    margin-top: 95px;
+    margin-top: 65px;
     font-size: 20px;
 
 }
 
 .homepage-title {
     font-size: 30px;
-    margin-bottom: 50px;
+    margin-bottom: 25px;
 }
 
 .homepage-post__container {
@@ -152,6 +149,10 @@
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
+   
+}
+.postdetail-link {
+     text-decoration:none;
 }
 
 .artistpost-morecontent {
@@ -176,12 +177,10 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-
-    padding: 15px 20px 25px;
-
-    background-color: transparent;
+    padding: 15px 20px 15px ;
+    background-color: rgba(20, 20, 20, 0.2);
     backdrop-filter: blur(10px);
-    border-radius: 30px;
+    border-radius: 0 0 30px 30px;
 }
 
 .artistpost-react__count,
@@ -250,6 +249,7 @@
 .footer-back__inner {
     font-weight: 500;
     margin-bottom: 3px;
+   
 }
 
 .footer-bye {
@@ -258,7 +258,7 @@
 }
 
 .footer-back__inner {
-    text-decoration: none;
+    text-decoration: none !important;
 }
 
 .footer-back {
@@ -311,3 +311,115 @@
   
 }
 
+.artist-link {
+a {
+          text-decoration: none; }
+  }
+
+  
+  
+  .post-detail-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.post-main {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 20px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.post-author .author-name {
+  font-weight: bold;
+  margin: 0;
+}
+
+.post-author .author-username {
+  font-size: 14px;
+  color: gray;
+  margin: 0;
+}
+
+.post-content {
+  margin-top: 12px;
+}
+
+.post-text {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.post-image {
+  margin-top: 10px;
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.post-comments {
+  margin-top: 30px;
+}
+
+.comment-heading {
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-body .comment-name {
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.comment-body .comment-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .post-detail-container {
+    padding: 12px;
+  }
+
+  .post-avatar,
+  .comment-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .post-text {
+    font-size: 15px;
+  }
+
+  .comment-text {
+    font-size: 14px;
+  }
+}

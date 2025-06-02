@@ -8,11 +8,11 @@ export default function Footer() {
       <p className="footer-hi">That's all for today!</p>
       <p className="footer-bye">Come back tomorrow for more inspiration</p>
 
-      <Link to="/homepage">
+      <a href="#">
         <div className="footer-back">
             <p className="footer-back__inner">Back to homepage top</p>
         </div>
-      </Link>
+      </a>
     </div>
   );
 }
