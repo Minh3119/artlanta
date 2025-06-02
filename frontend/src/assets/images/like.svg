@@ -1,17 +1,5 @@
-<svg width="25" height="22" viewBox="0 0 25 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g filter="url(#filter0_d_77_26)">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12.6804 2.68986L13.4527 1.86016C15.5853 -0.431006 19.0429 -0.431005 21.1755 1.86016C23.3081 4.15132 23.3081 7.86602 21.1755 10.1572L14.225 17.6245C13.3719 18.541 11.9889 18.541 11.1359 17.6245L4.18537 10.1572C2.05279 7.86602 2.05279 4.15132 4.18538 1.86016C6.31796 -0.431007 9.77556 -0.431005 11.9081 1.86016L12.6804 2.68986ZM17.7277 2.41304C17.3095 2.41304 16.9706 2.752 16.9706 3.17013C16.9706 3.58826 17.3095 3.92722 17.7277 3.92722C18.4245 3.92722 18.9895 4.49215 18.9895 5.18903C18.9895 5.60716 19.3284 5.94611 19.7466 5.94611C20.1647 5.94611 20.5037 5.60716 20.5037 5.18903C20.5037 3.65589 19.2608 2.41304 17.7277 2.41304Z" fill="white" fill-opacity="0.8" shape-rendering="crispEdges"/>
-</g>
-<defs>
-<filter id="filter0_d_77_26" x="-1.41406" y="0.141785" width="28.189" height="26.1701" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="4"/>
-<feGaussianBlur stdDeviation="2"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_77_26"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_77_26" result="shape"/>
-</filter>
-</defs>
+<svg width="26" height="26" viewBox="0 0 25 25" fill="#FF3040" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12.6804 5.68986L13.4527 4.86016C15.5853 2.56899 19.0429 2.56899 21.1755 4.86016C23.3081 7.15132 23.3081 10.866 21.1755 13.1572L14.225 20.6245C13.3719 21.541 11.9889 21.541 11.1359 20.6245L4.18537 13.1572C2.05279 10.866 2.05279 7.15132 4.18538 4.86016C6.31796 2.56899 9.77556 2.56899 11.9081 4.86016L12.6804 5.68986Z" fill="#FF3040" fill-opacity="0.8"/>
+  <circle cx="17.73" cy="6.17" r="1.1" fill="#FF3040" fill-opacity="0.8"/>
+  <circle cx="19.75" cy="8.19" r="0.8" fill="#FF3040" fill-opacity="0.8"/>
 </svg>

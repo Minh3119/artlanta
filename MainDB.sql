@@ -410,6 +410,9 @@ INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, Is
 
 
 INSERT INTO Likes (UserID, PostID, LikedAt) VALUES
+(1, 1, '2025-04-20'),
+(1, 2, '2025-04-20'),
+(1, 3, '2025-04-20'),
 (2, 1, '2025-04-20'),
 (3, 1, '2025-04-20'),
 (4, 2, '2025-04-21'),
@@ -419,7 +422,8 @@ INSERT INTO Likes (UserID, PostID, LikedAt) VALUES
 (8, 6, '2025-04-23'),
 (9, 7, '2025-04-23'),
 (10, 8, '2025-04-24'),
-(1, 9, '2025-04-24');
+(1, 9, '2025-04-24'),
+(9, 1, '2025-04-20');
 
 
 INSERT INTO SavedPost (UserID, PostID, SavedAt) VALUES

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
-import ArtistPost from "../components/HomePage/AritistPost";
+import ArtistPost from "../components/HomePage/ArtistPost";
 import Footer from "../components/HomePage/Footer";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
@@ -61,7 +61,7 @@ export default function HomePage() {
       <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">
-        March 22, 2023
+        {new Date().toLocaleDateString()}
       </div>
       <div className="homepage-title">
         Artwork Posts
