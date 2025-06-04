@@ -18,9 +18,9 @@ import Register from './Register.js';
 import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
-
+import MusicComponent from '../components/MusicBox/musicComponent.js';
 function App() {
-  
+
   return (
     <>
       <BrowserRouter>
@@ -35,12 +35,13 @@ function App() {
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/editpost" element={<UpdatePostComponent />} />
           <Route path="/deletepost" element={<DeletePostComponent />} />
+          <Route path="/music" element={<MusicComponent />} />
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/passforget" element={<PassForget/>} />
+          <Route path="/passforget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
-          <Route path="/post/:postID" element={<PostDetail/>} />
+          <Route path="/post/:postID" element={<PostDetail />} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />

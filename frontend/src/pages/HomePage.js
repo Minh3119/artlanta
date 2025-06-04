@@ -81,6 +81,7 @@ export default function HomePage() {
         < CreatePostComponent
           closeCreatePopup={closeCreatePopup}
 
+
         />
         :
         null
