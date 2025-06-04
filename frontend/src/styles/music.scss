@@ -5,7 +5,7 @@
     justify-content: center;
     align-items: center;
     .music-box{
-        background-color: black;
+        background-color: rgba(0, 0, 0, 0.882);
         color: white;
         width:30%;
         height: 30%;
@@ -14,6 +14,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        border-radius: 50px;
 
         .track-info{
             display: flex;
@@ -22,6 +23,52 @@
         .controls{
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+
+            .btn{
+                height: 48px;
+                width: 48px;
+                background-color: black;
+                border-radius: 50%;
+                color: white;
+                font-size: 80%;
+                transition: color 0.3s ease;
+                
+            }
+            .prev-btn{
+                background-color: transparent;
+            }
+            .play{
+                background-color: #24aefd;
+                height: 58px;
+                width: 58px;
+                font-size: 150%;
+            }
+            .next-btn{
+                background-color: transparent;
+            }
+            .prev-btn:hover{
+                animation: click 0.3s forwards normal;
+                color: bisque;
+            }
+            .play:hover{
+                color: cadetblue;
+            }
+            .next-btn:hover{
+                animation: click 0.3s forwards normal;
+                color: bisque;
+            }
+            @keyframes click {
+                0% {
+                    margin-bottom:0px  ;
+                }
+                100% {
+                    margin-bottom:10px  ;
+                }
+            }
+            
         }
         
     }
