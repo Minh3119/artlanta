@@ -85,7 +85,7 @@ public class CreatePost extends HttpServlet {
 //        String title = request.getParameter("title");
         String content = request.getParameter("content");
         String visibility = request.getParameter("visibility");
-        EnvConfig config = new EnvConfig(getServletContext());
+        EnvConfig config = new EnvConfig();
         Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", config.getProperty("my_cloud_name"),
                 "api_key", config.getProperty("my_key"),
