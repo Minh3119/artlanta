@@ -3,15 +3,17 @@ package dal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import validation.EnvConfig;
 
 public class DBContext {
     protected Connection connection;
     
     public DBContext() {
         try {
-            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-            String username = "root";
-            String password = "1234";
+            EnvConfig configReader = new EnvConfig();
+            String url = String.format("jdbc:%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
+            String username = configReader.getProperty("db_username", "root");
+            String password = configReader.getProperty("db_password", "1234");
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
