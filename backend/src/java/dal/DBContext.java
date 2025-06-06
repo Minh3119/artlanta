@@ -34,13 +34,4 @@ public class DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("Starting DBContext test...");
-        DBContext db = new DBContext();
-        if (db.connection != null) {
-            System.out.println("Connection is valid!");
-        } else {
-            System.out.println("Failed to establish connection.");
-        }
-    }
 }

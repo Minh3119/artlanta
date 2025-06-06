@@ -348,12 +348,12 @@ VALUES
 ('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
 ('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
 ('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
-('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'michael.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
+('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'https://i.pinimg.com/736x/07/d7/0f/07d70fb2938593e1f7320d36cddb40ea.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
 ('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05'),
-('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'kevin.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-10'),
+('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'https://i.pinimg.com/736x/9a/26/49/9a2649364cad50d23c3ebaef5441ec6e.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-10'),
 ('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11'),
-('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'brian.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12'),
-('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'amanda.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-13'),
+('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'https://i.pinimg.com/736x/c2/33/71/c23371ccc0ae7f835d61f479670bfdbe.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12'),
+('amanda_artist', 'amanda.artist@gmail.com', 'artsy123', 'Mandy', 'Họa sĩ vẽ tranh sơn dầu.', 'https://i.pinimg.com/736x/f5/6f/e4/f56fe431bb79703e3f18240321dfb09c.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-13'),
 ('karen_yoga', 'karen.yoga@yogalife.com', 'yog4pass', 'Karen', 'Hướng dẫn viên yoga.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-22'),
 ('tom_cars', 'tom.cars@auto.com', 'c@rlover', 'Tom', 'Sưu tầm siêu xe.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'BANNED', 'CLIENT', 1, '2025-03-15'),
 ('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16'),
@@ -392,7 +392,11 @@ INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, Updat
 (7, 'Nghệ thuật trừu tượng', 'Ý tưởng và cảm hứng.', 0, 'PRIVATE', '2025-04-16', NULL, 0),
 (8, 'Thiết kế nhân vật hoạt hình', 'Quy trình làm nhân vật.', 0, 'PUBLIC', '2025-04-17', NULL, 0),
 (9, 'Bộ sưu tập ảnh mới', 'Ảnh chụp tại Hà Nội.',0, 'PUBLIC', '2025-04-18', NULL, 0),
-(10, 'Kết hợp chất liệu', 'Kỹ thuật mixed media.', 0, 'PUBLIC', '2025-04-19', NULL, 0);
+(10, 'Kết hợp chất liệu', 'Kỹ thuật mixed media.', 0, 'PUBLIC', '2025-04-19', NULL, 0),
+(11, 'Đỉnh cao nghệ thuật mới', 'Đỉnh cao nghệ thuật mới', 0, 'PUBLIC', '2025-04-19', NULL, 0),
+(12, 'Tranh tôi mới ', 'Tranh tôi mới vẽ nè bro', 0, 'PUBLIC', '2025-04-19', NULL, 0),
+(13, 'Kết hợp chất liệu', 'Những tone màu hợp với nhau.', 0, 'PUBLIC', '2025-04-19', NULL, 0),
+(14, 'Kết hợp chất liệu', 'Các kỹ thuật vẽ phức tạp.', 0, 'PUBLIC', '2025-04-19', NULL, 0);
 
 
 
@@ -409,7 +413,11 @@ INSERT INTO Comments (PostID, UserID, Content, MediaURL, ParentID, CreatedAt, Is
 (9, 1, 'Bài viết rất đẹp!', NULL, NULL, '2025-04-24', 0);
 
 
+
 INSERT INTO Likes (UserID, PostID, LikedAt) VALUES
+(1, 1, '2025-04-20'),
+(1, 2, '2025-04-20'),
+(1, 3, '2025-04-20'),
 (2, 1, '2025-04-20'),
 (3, 1, '2025-04-20'),
 (4, 2, '2025-04-21'),
@@ -419,7 +427,8 @@ INSERT INTO Likes (UserID, PostID, LikedAt) VALUES
 (8, 6, '2025-04-23'),
 (9, 7, '2025-04-23'),
 (10, 8, '2025-04-24'),
-(1, 9, '2025-04-24');
+(1, 9, '2025-04-24'),
+(9, 1, '2025-04-20');
 
 
 INSERT INTO SavedPost (UserID, PostID, SavedAt) VALUES
@@ -484,7 +493,15 @@ INSERT INTO Media (URL, Description, CreatedAt) VALUES
 ('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept', '2025-04-04'),
 ('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design', '2025-04-04'),
 ('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept', '2025-04-05'),
-('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design', '2025-04-05');
+('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design', '2025-04-05'),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
+('https://i.pinimg.com/736x/48/8e/7a/488e7a5a24daf041c66b28f8f4895909.jpg', '', '2025-04-05'),
+('https://i.pinimg.com/736x/a5/dd/e6/a5dde6448aa477ab075975525ea93d52.jpg', '', '2025-04-05'),
+('https://i.pinimg.com/736x/70/d9/3f/70d93ffeccd4509b66f5fcaf86b914f7.jpg', '', '2025-04-05'),
+('https://i.pinimg.com/736x/8e/4a/3e/8e4a3ec21da25c06f1ded1ff1749403d.jpg', '', '2025-04-05'),
+('https://i.pinimg.com/736x/e5/98/21/e5982112c7c3091f1a61de2a2a157fe2.jpg', '', '2025-04-05'),
+('https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', '', '2025-04-05');
 
 -- Link Media to Portfolios
 INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
@@ -527,29 +544,24 @@ INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
 INSERT INTO PostMedia (PostID, MediaID) VALUES
 (1, 1),
 (1, 2),
-(1, 3);
-
--- post ID 2 có 2 ảnh
-INSERT INTO PostMedia (PostID, MediaID) VALUES
+(1, 3),
 (2, 4),
-(2, 5);
-
--- post ID 3 có 1 ảnh
-INSERT INTO PostMedia (PostID, MediaID) VALUES
-(3, 6);
-
--- post ID 4 có 2 ảnh
-INSERT INTO PostMedia (PostID, MediaID) VALUES
+(2, 5),
+(3, 6),
 (4, 7),
-(4, 8);
-
--- post ID 5 có 2 ảnh
-INSERT INTO PostMedia (PostID, MediaID) VALUES
+(4, 8),
 (5, 9),
-(5, 10);
-
-INSERT INTO PostMedia (PostID, MediaID) VALUES
-(6, 2);
+(5, 10),
+(6, 2),
+(8,11),
+(7,12),
+(9,13),
+(10,15),
+(10,14),
+(11,16),
+(12,17),
+(13,14),
+(14,18);
 
 
 

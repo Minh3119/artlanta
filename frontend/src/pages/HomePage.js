@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
-import ArtistPost from "../components/HomePage/AritistPost";
+import ArtistPost from "../components/HomePage/ArtistPost";
 import Footer from "../components/HomePage/Footer";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
-
+import { format } from 'date-fns';
 
 export default function HomePage() {
   const [currentID, setCurrentID] = useState(0);
@@ -55,13 +55,14 @@ export default function HomePage() {
     setIsRefresh(false);
   };
 
+  const today_formatted = format(new Date(), 'MMMM d, yyyy');
 
   return (
     <div className="homepage-container">
       <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">
-        March 22, 2023
+        <p>{today_formatted}</p>
       </div>
       <div className="homepage-title">
         Artwork Posts

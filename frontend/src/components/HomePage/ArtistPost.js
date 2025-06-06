@@ -5,27 +5,66 @@ import userLogo from "../../assets/images/userLogo.svg";
 import postImg from "../../assets/images/post-img.svg";
 import comment from "../../assets/images/Comment.svg";
 import like from "../../assets/images/like.svg";
+import unlike from "../../assets/images/unlike.svg";
 import save from "../../assets/images/save.svg";
 import share from "../../assets/images/share.svg";
 import ques from "../../assets/images/question.svg";
 import dotsIcon from "../../assets/images/dots.svg";
 
-
 export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup }) {
     const [posts, setPosts] = useState([]);
 
-
-    useEffect(() => {
-        fetch("http://localhost:9999/backend/api/post/view")
+    const fetchPosts = () => {
+        fetch("http://localhost:9999/backend/api/post/view", {
+            credentials: "include"
+        })
             .then((res) => res.json())
             .then((data) => setPosts(data.response))
             .catch((err) => console.error(err));
+    };
+
+    useEffect(() => {
+        fetchPosts(); // gọi khi trang load
     }, [refetch]);
+
+    const handleLike = (postId) => {
+        fetch(`http://localhost:9999/backend/api/like?postId=${postId}`, {
+            method: "GET",
+            credentials: "include"
+        })
+            .then(async (res) => {
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Lỗi server: ${res.status} - ${text}`);
+                }
+                return res.json();
+            })
+            .then((data) => {
+                if (data.status === "success") {
+                    setPosts(prevPosts =>
+                        prevPosts.map(post =>
+                            post.postID === postId
+                                ? {
+                                    ...post,
+                                    isLiked: data.newState,
+                                    likeCount: data.newState ? post.likeCount + 1 : post.likeCount - 1
+                                }
+                                : post
+                        )
+                    );
+                } else {
+                    console.error("Toggle like thất bại:", data.message);
+                }
+            })
+            .catch((err) => console.error("Lỗi khi gọi API like:", err));
+    };
+
     const breakpointColumnsObj = {
         default: 3,
-        1100: 2,
+        1100: 1,
         700: 1,
     };
+
     return (
         <div className="row">
             <div className="offset-2 col-8 homepage-post__container--masonry">
@@ -35,7 +74,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                     columnClassName="my-masonry-grid_column"
                 >
                     {posts.map((post, index) => (
-                        <div className="artistpost-container" key={post.id || index}>
+                        <div className="artistpost-container" key={post.postID}>
                             <div className="artistpost-info">
                                 <img
                                     src={post.authorAvatar}
@@ -43,10 +82,10 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                     className="avatar-img"
                                 />
                                 <div className="artistpost-user">
-                                    <a href="#!" className="artistpost-user__username">
+                                    <a href={`/user/${post.authorID}`} className="artistpost-user__fullname">
                                         {post.authorFN}
                                     </a>
-                                    <a href="#!" className="artistpost-user__email">
+                                    <a href={`/user/${post.authorID}`} className="artistpost-user__username">
                                         {post.authorUN}
                                     </a>
                                 </div>
@@ -58,31 +97,36 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                         currentID={currentID}
                                     />
                                 </div>
-
                             </div>
-
-
-                            <p className="artistpost-content">{post.content}</p>
+                            <a href={`/post/${post.postID}`} className="postdetail-link">
+                                <p className="artistpost-content">{post.content}</p>
+                            </a>
                             <div className="artistpost-morecontent">
+                            <a href={`/post/${post.postID}`} className="postdetail-link">
                                 <img
-                                    src={
-                                        post.mediaURL && post.mediaURL.length > 0
-                                            ? post.mediaURL[0]
-                                            : postImg
-                                    }
+                                    src={post.mediaURL[0]}
                                     alt="post-img"
                                     className="post-img"
                                     style={{ height: "auto" }}
                                 />
+                                </a>
                                 <div className="artistpost-react">
                                     <div className="artistpost-react__count">
                                         <div className="artistpost-react__comment">
+                                        <a href={`/post/${post.postID}`} className="postdetail-link">
                                             <img src={comment} alt="comment" />
+                                            </a>
                                             <p className="comment-count">{post.commentCount}</p>
                                         </div>
-                                        <div className="artistpost-react__like">
-                                            <img src={like} alt="like" />
-                                            <p className="like-count">{post.likeCount}</p>
+                                        <div
+                                            className="artistpost-react__like"
+                                            onClick={() => handleLike(post.postID)}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <a href={post.isLogged ? "#" : "/login"}>
+                                                <img src={post.isLiked ? like : unlike} alt="like" />
+                                            </a>
+                                            <p className="like-count">{post.likeCount} </p>
                                         </div>
                                     </div>
                                     <div className="artistpost-react__uncount">

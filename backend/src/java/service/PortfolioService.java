@@ -66,6 +66,19 @@ public class PortfolioService {
         return portfolioDAO.update(portfolio);
     }
 
+    public int extractArtistId(String pathInfo) {
+        if (pathInfo == null || pathInfo.length() <= 1) {
+            return -1;
+        }
+        
+        try {
+            int artistId = Integer.parseInt(pathInfo.substring(1));
+            return artistId > 0 ? artistId : -1;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     public void closeConnections() {
         try {
             portfolioDAO.closeConnection();
