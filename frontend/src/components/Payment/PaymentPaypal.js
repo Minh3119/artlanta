@@ -10,7 +10,7 @@ export default function PaymentPaypal() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    amount: "10.00", 
+                    amount: "50.00", 
                     currency: "USD"
                 })
             });

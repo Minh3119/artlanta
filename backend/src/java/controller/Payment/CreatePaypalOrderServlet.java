@@ -18,37 +18,35 @@ import util.EnvReader;
 
 @WebServlet("/api/create-paypal-order")
 public class CreatePaypalOrderServlet extends HttpServlet {
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         setCORSHeaders(resp);
-        
+
         String fullPath = getServletContext().getRealPath("/WEB-INF/config.properties");
         EnvReader.loadEnv(fullPath);
-        
+
         String paypalClientID = EnvReader.getEnv("paypal_client_id");
         String paypalSercet = EnvReader.getEnv("paypal_sercet");
-        String paypalBaseURL = EnvReader.getEnv("paypal_base_url"); 
-        
-        String accessToken = getAccessToken(paypalClientID,paypalSercet,paypalBaseURL);
+        String paypalBaseURL = EnvReader.getEnv("paypal_base_url");
+
+        String accessToken = getAccessToken(paypalClientID, paypalSercet, paypalBaseURL);
         if (accessToken == null) {
-            resp.setStatus(500);
-            resp.getWriter().write("{\"error\": \"Failed to get access token\"}");
+            getServletContext().log("Failed to get PayPal token");
             return;
         }
 
-        // Bước 2: Gửi request tạo order
-        String approvalUrl = createOrderAndGetApprovalUrl(accessToken,paypalBaseURL);
+        String approvalUrl = createOrderAndGetApprovalUrl(accessToken, paypalBaseURL, req);
 
         if (approvalUrl != null) {
             JSONObject responseJson = new JSONObject();
             responseJson.put("approvalUrl", approvalUrl);
             resp.getWriter().write(responseJson.toString());
         } else {
-            resp.setStatus(500);
-            resp.getWriter().write("{\"error\": \"Failed to create order\"}");
+            getServletContext().log("Failed to create order");
         }
     }
-    
+
     private void setCORSHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Headers", "*");
@@ -74,13 +72,15 @@ public class CreatePaypalOrderServlet extends HttpServlet {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) sb.append(line);
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
 
         JSONObject json = new JSONObject(sb.toString());
         return json.optString("access_token", null);
     }
 
-    private String createOrderAndGetApprovalUrl(String accessToken,String baseURL) throws IOException {
+    private String createOrderAndGetApprovalUrl(String accessToken, String baseURL, HttpServletRequest req) throws IOException {
         URL url = new URL(baseURL + "/v2/checkout/orders");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -92,9 +92,20 @@ public class CreatePaypalOrderServlet extends HttpServlet {
         JSONObject body = new JSONObject();
         body.put("intent", "CAPTURE");
 
+        BufferedReader readerFE = req.getReader();
+        StringBuilder bodyString = new StringBuilder();
+        String lineFE;
+        while ((lineFE = readerFE.readLine()) != null) {
+            bodyString.append(lineFE);
+        }
+
+        JSONObject requestBody = new JSONObject(bodyString.toString());
+        String amountValue = requestBody.optString("amount", "10.00");
+        String currencyCode = requestBody.optString("currency", "USD");
+        
         JSONObject amount = new JSONObject();
-        amount.put("currency_code", "USD");
-        amount.put("value", "10.00");
+        amount.put("currency_code", currencyCode);
+        amount.put("value", amountValue);
 
         JSONObject purchaseUnit = new JSONObject();
         purchaseUnit.put("amount", amount);
@@ -106,7 +117,7 @@ public class CreatePaypalOrderServlet extends HttpServlet {
 
         JSONObject appContext = new JSONObject();
         appContext.put("return_url", "http://localhost:3000/payment-success");
-        appContext.put("cancel_url", "http://localhost:3000/payment-cancel");
+        appContext.put("cancel_url", "http://localhost:3000/");
 
         body.put("application_context", appContext);
 
@@ -117,7 +128,9 @@ public class CreatePaypalOrderServlet extends HttpServlet {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) sb.append(line);
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
 
         JSONObject json = new JSONObject(sb.toString());
         JSONArray links = json.getJSONArray("links");
@@ -130,7 +143,7 @@ public class CreatePaypalOrderServlet extends HttpServlet {
         }
         return null;
     }
-    
+
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
