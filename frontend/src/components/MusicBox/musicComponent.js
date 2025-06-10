@@ -3,9 +3,61 @@ import YouTube from "react-youtube";
 import '../../styles/music.scss';
 class MusicComponent extends React.Component {
     state = {
+        player: null,
         volume: 100,
+        isPlaying: false,
     }
+    onPlayerReady = (event) => {
+        this.setState({ player: event.target });
+        event.target.setVolume(this.state.volume);
+    };
+    handlePause = () => {
+        if (this.state.player) {
+            this.state.player.pauseVideo();
+        }
+        this.setState({ isPlaying: false });
+    };
+
+    handlePlay = () => {
+        if (this.state.player) {
+            this.state.player.playVideo();
+        }
+        this.setState({ isPlaying: true });
+    };
+
+    handleNext = () => {
+        const { playlist, videoIndex, player } = this.state;
+        if (videoIndex < playlist.length - 1) {
+            const nextIndex = videoIndex + 1;
+            this.setState({ videoIndex: nextIndex }, () => {
+                player.loadVideoById(playlist[nextIndex]);
+            });
+        }
+    };
+
+    handlePrevious = () => {
+        const { playlist, videoIndex, player } = this.state;
+        if (videoIndex > 0) {
+            const prevIndex = videoIndex - 1;
+            this.setState({ videoIndex: prevIndex }, () => {
+                player.loadVideoById(playlist[prevIndex]);
+            });
+        }
+    };
+    handleVolumeChange = (event) => {
+        const newVolume = parseInt(event.target.value);
+        const { player } = this.state;
+        if (player) {
+            player.setVolume(newVolume);
+        }
+        this.setState({ volume: newVolume });
+    };
     render() {
+        const opts = {
+            height: '0',
+            width: '0',
+
+        };
         return (
             <div className="music-container">
                 <div className="music-box">
@@ -25,10 +77,24 @@ class MusicComponent extends React.Component {
                                 </option>
                             </select>
                             <div className="track-title" aria-live="polite">Track Title</div>
+                            <YouTube
+                                videoId="dQw4w9WgXcQ"
+                                opts={opts}
+                                onReady={this.onPlayerReady}
+                            />
                         </div>
                         <div className="controls">
                             <button className="btn prev-btn" aria-label="Previous Track" title="Previous">&#9664;&#9664;</button>
-                            <button className="btn play" aria-label="Play" title="Play">&#9658;</button>
+                            {
+                                this.state.isPlaying ?
+                                    <button className="btn play" aria-label="Pause" title="Pause"
+                                        onClick={this.handlePause}
+                                    >H</button>
+                                    :
+                                    <button className="btn play" aria-label="Play" title="Play"
+                                        onClick={this.handlePlay}
+                                    >&#9658;</button>
+                            }
                             <button className="btn next-btn" aria-label="Next Track" title="Next">&#9654;&#9654;</button>
 
                         </div>
@@ -40,7 +106,7 @@ class MusicComponent extends React.Component {
                         <div>
                             <input type="range" id="volume-control" min="0" max="100" step="1"
                                 value={this.state.volume} aria-label="Volume control"
-                                onChange={(e) => this.setState({ volume: e.target.value })} />
+                                onChange={(e) => this.handleVolumeChange(e)} />
                             <button className="btn mute-btn" aria-label="Audio" title="Audio">&#128265;</button>
                         </div>
                     </div>
