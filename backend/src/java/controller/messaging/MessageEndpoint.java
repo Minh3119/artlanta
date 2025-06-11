@@ -8,6 +8,7 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import org.json.JSONObject;
 
 
 @ServerEndpoint("/ws/message")
@@ -19,7 +20,8 @@ public class MessageEndpoint {
     @OnMessage
     public void onMessage(Session session, String msg) {
         try {
-            session.getBasicRemote().sendText("Server received: " + msg + "from" + session.getRequestURI());
+            JSONObject json = new JSONObject(msg);
+            session.getBasicRemote().sendText("Server received: " + json.getString("content") + " from " + session.getRequestURI());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -4,3 +4,4 @@ backend/nbproject/genfiles.properties
 /.scannerwork
 .env
 instructions.md
+.vscode/
