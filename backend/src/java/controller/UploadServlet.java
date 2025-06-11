@@ -40,7 +40,7 @@ public class UploadServlet extends HttpServlet {
         List<Media> uploadedImages = new ArrayList<>();
 
         try {
-            EnvConfig config = new EnvConfig(getServletContext());
+            EnvConfig config = new EnvConfig();
             Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
 				"cloud_name", config.getProperty("my_cloud_name"),
                 "api_key", config.getProperty("my_key"),
