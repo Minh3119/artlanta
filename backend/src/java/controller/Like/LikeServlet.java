@@ -13,7 +13,7 @@ import static util.SessionUtil.isLoggedIn;
 public class LikeServlet extends HttpServlet {
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		response.setContentType("application/json;charset=UTF-8");
