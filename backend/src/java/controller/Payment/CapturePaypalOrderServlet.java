@@ -14,6 +14,7 @@ import java.util.Base64;
 
 import org.json.JSONObject;
 import util.EnvReader;
+import validation.EnvConfig;
 
 @WebServlet("/api/capture-paypal-order")
 public class CapturePaypalOrderServlet extends HttpServlet {
@@ -21,12 +22,11 @@ public class CapturePaypalOrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         setCORSHeaders(resp);
         
-        String fullPath = getServletContext().getRealPath("/WEB-INF/config.properties");
-        EnvReader.loadEnv(fullPath);
+        EnvConfig configReader = new EnvConfig();
         
-        String paypalClientID = EnvReader.getEnv("paypal_client_id");
-        String paypalSercet = EnvReader.getEnv("paypal_sercet");
-        String paypalBaseURL = EnvReader.getEnv("paypal_base_url"); 
+        String paypalClientID = configReader.getProperty("paypal_client_id");
+        String paypalSercet = configReader.getProperty("paypal_sercet");
+        String paypalBaseURL = configReader.getProperty("paypal_base_url"); 
         
         String orderId = req.getParameter("token");
 

@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import util.EnvReader;
 import util.SessionUtil;
 import dal.UserDAO;
+import validation.EnvConfig;
 
 @WebServlet(name = "GoogleOAuthLoginServlet", urlPatterns = {"/api/oauth2callbackgoogle"})
 public class GoogleOAuthLoginServlet extends HttpServlet {            
@@ -32,12 +33,11 @@ public class GoogleOAuthLoginServlet extends HttpServlet {
         }
 
         try {
-            String fullPath = getServletContext().getRealPath("/WEB-INF/config.properties");
-            EnvReader.loadEnv(fullPath);
+            EnvConfig configReader = new EnvConfig();
 
-            String clientId = EnvReader.getEnv("CLIENT_ID_GOOGLE");
-            String clientSecret = EnvReader.getEnv("CLIENT_SECRET_GOOGLE");
-            String redirectUri = EnvReader.getEnv("REDIRECT_URI_GOOGLE");
+            String clientId = configReader.getProperty("CLIENT_ID_GOOGLE");
+            String clientSecret = configReader.getProperty("CLIENT_SECRET_GOOGLE");
+            String redirectUri = configReader.getProperty("REDIRECT_URI_GOOGLE");
 
             String accessToken = exchangeCodeForAccessToken(code, clientId, clientSecret, redirectUri);
             if (accessToken == null) {
