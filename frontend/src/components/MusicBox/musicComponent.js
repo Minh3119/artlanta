@@ -25,7 +25,7 @@ class MusicComponent extends React.Component {
         this.interval = setInterval(() => {
             const time = this.state.player.getCurrentTime();
             this.setState({ currentTime: time });
-        }, 500);
+        }, 800);
 
 
     };
@@ -114,6 +114,7 @@ class MusicComponent extends React.Component {
                         <div>Audio</div>
                         <div>Video</div>
                         <div>Setting</div>
+                        <div>X</div>
                     </nav>
                     <div className="music-control">
                         <div className="track-info">
@@ -127,7 +128,7 @@ class MusicComponent extends React.Component {
                             </select>
                             <div className="track-title">{this.state.musicTitle}</div>
                             <YouTube
-                                videoId="iK-Cji6J73Q"
+                                videoId="YzRyzWzTlI8"
                                 opts={opts}
                                 onReady={this.onPlayerReady}
                             />
@@ -155,8 +156,8 @@ class MusicComponent extends React.Component {
                                 min="0" max="100" step="1" />
                             <time className="progress-time" >{this.formatTime(this.state.musicDuration)}</time>
                         </div>
-                        <div>
-                            <input type="range" id="volume-control" min="0" max="100" step="1"
+                        <div className="volume-container">
+                            <input type="range" className="volume-control" min="0" max="100" step="1"
                                 value={this.state.volume}
                                 onChange={(e) => this.handleVolumeChange(e)} />
                             <button className="btn mute-btn" >&#128265;</button>
