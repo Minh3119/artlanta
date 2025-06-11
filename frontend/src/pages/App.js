@@ -18,16 +18,15 @@ import Register from './Register.js';
 import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
+import MessagesPage from './Messages.js';
+
 
 function App() {
-  
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/*" element={<HomePage />}>
-
-          </Route>
+          <Route path="/*" element={<HomePage />} />
           <Route path="/profile" element={<CurrentUserProfilePage />} />
           <Route path="/user/:userId" element={<UserProfilePage />} />
           <Route path="/artists" element={<Artists />} />
@@ -41,6 +40,8 @@ function App() {
           <Route path="/passforget" element={<PassForget/>} />
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail/>} />
+
+          <Route path="/messages" element={<MessagesPage/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />
