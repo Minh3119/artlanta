@@ -18,6 +18,8 @@ import Register from './Register.js';
 import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
+import Payment from './Payment.js';
+import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
 
 function App() {
   
@@ -41,6 +43,8 @@ function App() {
           <Route path="/passforget" element={<PassForget/>} />
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail/>} />
+          <Route path="/payment" element={<Payment/>}></Route>
+          <Route path="/payment-success" element={<PaymentSuccess/>} />
         </Routes>
       </BrowserRouter >
       <ToastContainer />
