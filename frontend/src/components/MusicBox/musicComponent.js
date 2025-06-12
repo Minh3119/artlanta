@@ -1,11 +1,24 @@
 import React from "react";
 import YouTube from "react-youtube";
+import { toast } from 'react-toastify';
 import '../../styles/music.scss';
 class MusicComponent extends React.Component {
     state = {
         player: null,
         volume: 100,
         isPlaying: false,
+        playlist: [
+            {
+                type: 'video',
+                ID: 'YzRyzWzTlI8'
+            }
+        ],
+        currentPlaylist: {
+            type: 'playlist',
+            ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
+            // type: 'video',
+            // ID: 'YzRyzWzTlI8'
+        },
         musicTitle: "",
         musicDuration: 0,
         currentTime: 0,
@@ -29,6 +42,17 @@ class MusicComponent extends React.Component {
 
 
     };
+    onPlayerStateChange = (event) => {
+        const YT = window.YT;
+        if (event.data === YT.PlayerState.PLAYING) {
+            setTimeout(() => {
+                this.setState({
+                    musicTitle: event.target.getVideoData().title,
+                    musicDuration: event.target.getDuration(),
+                })
+            }, 500);
+        }
+    }
     formatTime = (seconds) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -41,6 +65,28 @@ class MusicComponent extends React.Component {
         } else {
             return `${pad(m)}:${pad(s)}`;
         }
+    }
+    formatYoutubeID = (url) => {
+        const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
+        const videoRegex = /(?:v=|\/videos\/|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+
+        const isPlaylist = url.match(playlistRegex);
+        if (isPlaylist) {
+            return {
+                type: 'playlist',
+                ID: isPlaylist[1]
+            };
+        }
+
+        const isVideo = url.match(videoRegex);
+        if (isVideo) {
+            return {
+                type: 'video',
+                ID: isVideo[1]
+            };
+        }
+
+        return toast.error("Invalid YouTube URL");
     }
     handlePause = () => {
         if (this.state.player) {
@@ -57,22 +103,14 @@ class MusicComponent extends React.Component {
     };
 
     handleNext = () => {
-        const { playlist, videoIndex, player } = this.state;
-        if (videoIndex < playlist.length - 1) {
-            const nextIndex = videoIndex + 1;
-            this.setState({ videoIndex: nextIndex }, () => {
-                player.loadVideoById(playlist[nextIndex]);
-            });
+        if (this.state.player) {
+            this.state.player.nextVideo();
         }
     };
 
     handlePrevious = () => {
-        const { playlist, videoIndex, player } = this.state;
-        if (videoIndex > 0) {
-            const prevIndex = videoIndex - 1;
-            this.setState({ videoIndex: prevIndex }, () => {
-                player.loadVideoById(playlist[prevIndex]);
-            });
+        if (this.state.player) {
+            this.state.player.previousVideo();
         }
     };
     handleVolumeChange = (event) => {
@@ -91,7 +129,7 @@ class MusicComponent extends React.Component {
         this.setState({ currentTime: newTime });
     };
     render() {
-        const opts = {
+        const optsForVideo = {
             height: '0',
             width: '0',
             // height: '200px',
@@ -104,6 +142,20 @@ class MusicComponent extends React.Component {
                 rel: 0,
                 fs: 0,
                 disablekb: 1,
+            }
+
+        };
+        const optsForPlaylist = {
+            height: '200',
+            width: '200',
+            // height: '200px',
+            // width: '200px',
+            playerVars: {
+                autoplay: 1,
+                listType: 'playlist',
+                list: this.state.currentPlaylist.ID,
+                loop: 1,
+
             }
 
         };
@@ -127,14 +179,25 @@ class MusicComponent extends React.Component {
                                 </option>
                             </select>
                             <div className="track-title">{this.state.musicTitle}</div>
-                            <YouTube
-                                videoId="YzRyzWzTlI8"
-                                opts={opts}
-                                onReady={this.onPlayerReady}
-                            />
+                            {this.state.currentPlaylist.type === 'video' ?
+                                <YouTube
+                                    videoId={this.state.currentPlaylist.ID}
+                                    opts={optsForVideo}
+                                    onReady={this.onPlayerReady}
+                                    onStateChange={this.onPlayerStateChange}
+                                />
+                                :
+                                <YouTube
+
+                                    opts={optsForPlaylist}
+                                    onReady={this.onPlayerReady}
+                                    onStateChange={this.onPlayerStateChange}
+                                />
+
+                            }
                         </div>
                         <div className="controls">
-                            <button className="btn prev-btn">&#9664;&#9664;</button>
+                            <button className="btn prev-btn" onClick={this.handlePrevious}>&#9664;&#9664;</button>
                             {
                                 this.state.isPlaying ?
                                     <button className="btn pause"
@@ -145,7 +208,7 @@ class MusicComponent extends React.Component {
                                         onClick={this.handlePlay}
                                     >&#9658;</button>
                             }
-                            <button className="btn next-btn" >&#9654;&#9654;</button>
+                            <button className="btn next-btn" onClick={this.handleNext} >&#9654;&#9654;</button>
 
                         </div>
                         <div className="progress-bar">
