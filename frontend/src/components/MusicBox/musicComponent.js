@@ -53,6 +53,32 @@ class MusicComponent extends React.Component {
             }, 500);
         }
     }
+    onPlayerError = (event) => {
+        let errorMessage = "error";
+
+        switch (event.data) {
+            case 2:
+                errorMessage = "Wrong videoID format";
+                break;
+            case 5:
+                errorMessage = "HTML5 player error";
+                break;
+            case 100:
+                errorMessage = "Private video, cannot be played";
+                break;
+            case 101:
+            case 150:
+                errorMessage = "Video cannot be played in your area";
+                break;
+            default:
+                errorMessage = "Unknown error occurred";
+        }
+
+        this.setState({
+            musicTitle: errorMessage,
+            isPlaying: false,
+        });
+    }
     formatTime = (seconds) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -146,12 +172,12 @@ class MusicComponent extends React.Component {
 
         };
         const optsForPlaylist = {
-            height: '200',
-            width: '200',
+            height: '0',
+            width: '0',
             // height: '200px',
             // width: '200px',
             playerVars: {
-                autoplay: 1,
+                autoplay: 0,
                 listType: 'playlist',
                 list: this.state.currentPlaylist.ID,
                 loop: 1,
@@ -185,6 +211,7 @@ class MusicComponent extends React.Component {
                                     opts={optsForVideo}
                                     onReady={this.onPlayerReady}
                                     onStateChange={this.onPlayerStateChange}
+                                    onError={this.onPlayerError}
                                 />
                                 :
                                 <YouTube
@@ -192,6 +219,7 @@ class MusicComponent extends React.Component {
                                     opts={optsForPlaylist}
                                     onReady={this.onPlayerReady}
                                     onStateChange={this.onPlayerStateChange}
+                                    onError={this.onPlayerError}
                                 />
 
                             }
