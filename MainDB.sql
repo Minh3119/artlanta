@@ -336,6 +336,60 @@ END $$
 DELIMITER ;
 
 
+
+
+
+
+-- MESSAGING --
+-- SELECT * FROM Conversations WHERE User1ID = ? OR User2ID = ?;
+CREATE TABLE Conversations (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    User1ID INT,
+    User2ID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(User1ID) REFERENCES Users(ID),
+    FOREIGN KEY(User2ID) REFERENCES Users(ID),
+    UNIQUE (User1ID, User2ID)
+);
+
+CREATE TABLE Messages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ConversationID INT,
+    SenderID INT,
+    Content TEXT,
+    MediaURL VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
+    FOREIGN KEY(SenderID) REFERENCES Users(ID)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- SAMPLE DATA--
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
