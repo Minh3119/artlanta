@@ -4,6 +4,7 @@ import AvatarImage from '../UserProfileView/AvatarImage';
 import FollowerList from '../FollowControl/FollowerList';
 import FollowingList from '../FollowControl/FollowingList';
 import { toast } from 'react-toastify';
+import SuggestFollow from './SuggestFollow';
 
 const UserInfo = ({ 
     userData, 
@@ -174,6 +175,8 @@ const UserInfo = ({
                     ))}
                 </div>
             )}
+
+            <SuggestFollow></SuggestFollow>
 
             <div className="mt-8 grid grid-cols-2 gap-6">
                 <div>
