@@ -48,18 +48,20 @@ public class PostViewerServlet extends HttpServlet {
 	}
 
 	private void getAllPosts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		int offset = 0;
+		int offset=0;
+		int limit=0;
 		try {
 			String offsetParam = request.getParameter("offset");
+			String limitParam = request.getParameter("limit");
 			if (offsetParam!=null) offset = Integer.parseInt(offsetParam);
-			System.out.println(offset);
+			if (limitParam!=null) limit = Integer.parseInt(limitParam);
 		} catch (NumberFormatException e) {
 			offset=0;
 		}
 		PostDAO pdao = new PostDAO();
 		UserDAO udao = new UserDAO();
 		LikesDAO ldao = new LikesDAO();
-		List<Post> posts = pdao.getAllPosts(offset);
+		List<Post> posts = pdao.getAllPosts(limit,offset);
 		JSONArray jsonPosts = new JSONArray();
 
 		HttpSession session = request.getSession(false);
