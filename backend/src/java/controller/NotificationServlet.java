@@ -132,6 +132,9 @@ public class NotificationServlet extends HttpServlet {
 
     System.out.println("POST request received with parameters:");
     System.out.println("userId: " + userIdParam);
+    System.out.println("type: " + type);
+    System.out.println("content: " + content);
+    System.out.println("postId: " + postIdParam);
     System.out.println("action: " + action);
 
     try (PrintWriter out = response.getWriter()) {
@@ -206,7 +209,7 @@ public class NotificationServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 out.print("{\"error\": \"Failed to mark notification as read\"}");
             }
-            return;
+            return; // <-- Important: stop here for markAsRead
         }
 
         // --- Normal notification creation below ---
