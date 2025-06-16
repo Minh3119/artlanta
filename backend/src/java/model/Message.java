@@ -1,6 +1,6 @@
 package model;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class Message {
     private int id;
@@ -8,20 +8,18 @@ public class Message {
     private int senderId;
     private String content;
     private String mediaUrl;
-    private Timestamp createdAt;
-    private boolean isRead;
+    private LocalDateTime createdAt;
 
     // Constructors
     public Message() {}
 
-    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, Timestamp createdAt, boolean isRead) {
+    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, LocalDateTime createdAt) {
         this.id = id;
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.createdAt = createdAt;
-        this.isRead = isRead;
     }
 
     // Getters and Setters
@@ -35,8 +33,7 @@ public class Message {
     public void setContent(String content) { this.content = content; }
     public String getMediaUrl() { return mediaUrl; }
     public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
-    public boolean isRead() { return isRead; }
-    public void setRead(boolean read) { isRead = read; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
 }

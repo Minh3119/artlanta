@@ -1,6 +1,7 @@
 package service;
 
 import dal.ConversationDAO;
+import dal.ConversationReadsDAO;
 import dal.MessageDAO;
 import dal.UserDAO;
 import dto.ConversationDTO;
@@ -18,12 +19,14 @@ public class MessagingService {
     private final UserDAO userDAO;
     private final MessageDAO messageDAO;
     private final UserService userService;
+    private final ConversationReadsDAO conversationReadsDAO;
 
     public MessagingService() {
         this.conversationDAO = new ConversationDAO();
         this.userDAO = new UserDAO();
         this.messageDAO = new MessageDAO();
         this.userService = new UserService();
+        this.conversationReadsDAO = new ConversationReadsDAO();
     }
 
     /**
@@ -114,7 +117,7 @@ public class MessagingService {
                 
                 // Add latest message if exists
                 if (conversation.getLatestMessage() != null) {
-                    convJson.put("latestMessage", buildMessageJson(conversation.getLatestMessage()));
+                    convJson.put("latestMessage", buildMessageJson(conversation.getLatestMessage(), currentUserId));
                 }
                 
                 conversationsJson.put(convJson);
@@ -134,16 +137,76 @@ public class MessagingService {
      * @param message The message to convert to JSON
      * @return JSONObject containing message data
      */
-    private JSONObject buildMessageJson(model.Message message) {
+    /**
+     * Builds a JSON object for a message with read status
+     * @param message The message to convert to JSON
+     * @param currentUserId The ID of the current user (to check read status)
+     * @return JSONObject containing message data with read status
+     */
+    private JSONObject buildMessageJson(model.Message message, int currentUserId) {
         JSONObject messageJson = new JSONObject();
         if (message != null) {
             messageJson.put("id", message.getId());
             messageJson.put("content", message.getContent());
             messageJson.put("mediaUrl", message.getMediaUrl());
             messageJson.put("createdAt", message.getCreatedAt());
-            messageJson.put("isRead", message.isRead());
+            
+            // Check if the message is read by the current user
+            boolean isRead = isMessageReadByUser(message.getId(), currentUserId);
+            messageJson.put("isRead", isRead);
+            
             messageJson.put("senderId", message.getSenderId());
         }
         return messageJson;
+    }
+    
+    /**
+     * Check if a message is read by a user
+     * @param messageId The message ID to check
+     * @param userId The user ID to check
+     * @return true if the message is read by the user, false otherwise
+     */
+    private boolean isMessageReadByUser(int messageId, int userId) {
+        try {
+            // Get the conversation ID for the message
+            // Note: You might need to implement a method in MessageDAO to get conversation ID by message ID
+            // For now, we'll assume the message object has a getConversationId() method
+            // This is a simplified implementation - you'll need to adjust based on your actual data model
+            
+            // Get the last read message ID for this user in the conversation
+            Message message = messageDAO.getById(messageId);
+            if (message != null) {
+                Integer lastReadMessageId = conversationReadsDAO.getLastReadMessageId(
+                    message.getConversationId(), userId);
+                
+                // If the user has read messages in this conversation and the current message ID
+                // is less than or equal to the last read message ID, then it's read
+                return lastReadMessageId != null && messageId <= lastReadMessageId;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Mark a message as read by a user
+     * @param messageId The message ID to mark as read
+     * @param userId The user ID who read the message
+     * @return true if the operation was successful, false otherwise
+     */
+    public boolean markMessageAsRead(int messageId, int userId) {
+        try {
+            Message message = messageDAO.getById(messageId);
+            if (message != null) {
+                return conversationReadsDAO.updateLastReadMessage(
+                    message.getConversationId(), userId, messageId);
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
