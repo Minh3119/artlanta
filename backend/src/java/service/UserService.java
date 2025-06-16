@@ -64,7 +64,7 @@ public class UserService {
         return jsonUsers;
     }
 
-    private JSONObject convertUserToJson(User user) throws JSONException {
+    public JSONObject convertUserToJson(User user) throws JSONException {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
