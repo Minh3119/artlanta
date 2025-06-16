@@ -204,7 +204,7 @@ const MessagesPage = () => {
   };
 
   return (
-    <div className="flex h-screen font-sans bg-gray-50 p-4 gap-4">
+    <div className="flex h-screen overflow-hidden font-sans bg-gray-50 p-4 gap-4">
       {/* Sidebar */}
       <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
         <div className="p-4 border-b border-gray-200 flex-shrink-0">
