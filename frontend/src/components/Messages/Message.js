@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { format } from 'date-fns';
 
 
 const MessageActions = ({ onUnsend, onReport, messageId, isCurrentUser }) => {
@@ -83,10 +84,7 @@ const MessageMedia = ({ mediaUrl, isCurrentUser }) => {
 const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const formattedTime = new Date(message.createdAt).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+    const formattedTime = format(new Date(message.createdAt), 'HH:mm');
 
   return (
     <div 
@@ -148,7 +146,7 @@ const OtherUserMessage = ({ message, onUnsend, onReport }) => {
       <div className="flex items-end space-x-2 max-w-[70%]">
         <div className="relative">
           {/* Message bubble */}
-          <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-3xl rounded-bl-lg max-w-full">
+          <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-3xl max-w-full">
             {message.content && (
               <p className="m-0 text-sm leading-relaxed break-words">
                 {message.content}

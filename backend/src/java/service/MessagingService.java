@@ -94,6 +94,11 @@ public class MessagingService {
 
         return jsonResponse;
     }
+
+    public Message createMessage(int conversationId, int senderId, String content, String mediaUrl) {
+        Message message = new Message(-1, conversationId, senderId, content, mediaUrl, null);
+        return messageDAO.create(message);
+    }
     
     /**
      * Get or create a conversation between two users

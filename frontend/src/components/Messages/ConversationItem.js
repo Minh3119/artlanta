@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 
 const ConversationItem = ({ conversation, isSelected, onClick }) => {
   const { id, createdAt, user, latestMessage } = conversation;
@@ -41,7 +41,7 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
             <span className={`text-xs whitespace-nowrap ml-2 ${
               isSelected ? 'text-blue-500' : 'text-gray-400'
             }`}>
-              {formatDistanceToNow(new Date(latestMessage.createdAt), { addSuffix: true })}
+              {format(new Date(latestMessage.createdAt), 'HH:mm')}
             </span>
           )}
         </div>

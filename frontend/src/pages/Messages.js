@@ -3,80 +3,152 @@ import { Navigate } from 'react-router-dom';
 import ConversationsList from '../components/Messages/ConversationsList';
 import MessagesList from '../components/Messages/MessagesList';
 import LoadingScreen from '../components/common/LoadingScreen';
+import { messagesResponseSchema } from '../schemas/messaging';
 
 const MessagesPage = () => {
   const ws = useRef(null);
+  const [conversations, setConversations] = useState([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [conversationsError, setConversationsError] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
+
+  // Effect for fetching conversations
+  useEffect(() => {
+    const fetchConversations = async () => {
+      setLoadingConversations(true);
+      try {
+        const response = await fetch('http://localhost:9999/backend/api/conversations', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
+        }
+        const data = await response.json();
+        setConversations(data.conversations || []);
+      } catch (err) {
+        setConversationsError(err.message);
+      } finally {
+        setLoadingConversations(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
+  // Effect for selecting the first conversation
+  useEffect(() => {
+    if (!selectedConversation && conversations.length > 0) {
+      setSelectedConversation(conversations[0]);
+    }
+  }, [conversations, selectedConversation]);
+  const [messages, setMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [messagesError, setMessagesError] = useState(null);
   const [input, setInput] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Effect for WebSocket setup and current user fetching
   useEffect(() => {
-    // WebSocket connection for real-time messaging
     ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
+    ws.current.onopen = () => console.log('WebSocket connection opened');
+    ws.current.onclose = () => console.log('WebSocket connection closed');
+    ws.current.onerror = (error) => console.error('WebSocket error:', error);
 
-    ws.current.onopen = () => {
-      console.log('WebSocket connection opened');
-    };
-
-    // Note: We're not handling incoming messages here anymore
-    // as the MessagesList component will handle its own data fetching
-    // and we don't have access to setMessages in this component anymore
-    ws.current.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        console.log('New message received:', message);
-        // The MessagesList component will handle displaying new messages
-        // via its own data fetching when the conversation changes
-      } catch (err) {
-        console.error('Error parsing WebSocket message:', err);
-      }
-    };
-
-    ws.current.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-
-    /* Fetch current user */
     const fetchCurrentUser = async () => {
-        try {
-            const response = await fetch('http://localhost:9999/backend/api/current-user', {
-                method: 'GET',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.log("(fetchCurrentUser) Response not ok:", response.status, data.error);
-                throw new Error(data.error || 'Not logged in');
-            }
-
-            setCurrentUserId(data.response.id);
-        } catch (err) {
-            console.log("(fetchCurrentUser) Error caught:", err.message);
-            setError(err.message);
-        }
-        finally {
-          setLoading(false)
-        }
+      try {
+        const response = await fetch('http://localhost:9999/backend/api/current-user', {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Not logged in');
+        setCurrentUserId(data.response.id);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchCurrentUser();
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
+      if (ws.current) ws.current.close();
     };
   }, []);
+
+  // Effect for handling incoming WebSocket messages
+  useEffect(() => {
+    if (!ws.current) return;
+
+    ws.current.onmessage = (event) => {
+      try {
+        const newMessage = JSON.parse(event.data);
+
+        // Always update the conversations list
+        setConversations((prevConversations) => {
+          const conversationIndex = prevConversations.findIndex(
+            (c) => c.id === newMessage.conversationId
+          );
+
+          if (conversationIndex !== -1) {
+            const updatedConversation = {
+              ...prevConversations[conversationIndex],
+              latestMessage: newMessage,
+            };
+            const otherConversations = prevConversations.filter(
+              (c) => c.id !== newMessage.conversationId
+            );
+            return [updatedConversation, ...otherConversations];
+          }
+          return prevConversations;
+        });
+
+        // If the message is for the currently selected conversation, update its message list
+        if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
+  }, [selectedConversation, conversations]);
+
+  // Effect for fetching messages when a conversation is selected
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedConversation) {
+        setMessages([]);
+        return;
+      }
+
+      try {
+        setMessagesLoading(true);
+        setMessagesError(null);
+        const response = await fetch(`http://localhost:9999/backend/api/messages?conversationId=${selectedConversation.id}`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        await messagesResponseSchema.validate(data);
+        setMessages(data.messages || []);
+      } catch (err) {
+        setMessagesError(err.message || 'Failed to load messages');
+      } finally {
+        setMessagesLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, [selectedConversation]);
 
   if (loading) {
       return (
@@ -108,24 +180,18 @@ const MessagesPage = () => {
 
   const handleSendMessage = () => {
     if (!input.trim() || !selectedConversation || !currentUserId) return;
-    
+
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       const message = {
-        type: 'message',
         content: input,
         conversationId: selectedConversation.id,
         recipientId: selectedConversation.user.id,
-        timestamp: new Date().toISOString(),
         senderId: currentUserId,
-        // The server should add these fields when broadcasting the message
-        id: Date.now(), // Temporary ID, will be replaced by server
-        isRead: false,
-        createdAt: new Date().toISOString()
       };
-      
+
       // Clear input immediately for better UX
       setInput('');
-      
+
       // Send the message via WebSocket
       ws.current.send(JSON.stringify(message));
     } else {
@@ -138,24 +204,29 @@ const MessagesPage = () => {
   };
 
   return (
-    <div className="flex h-screen font-sans bg-gray-50">
+    <div className="flex h-screen font-sans bg-gray-50 p-4 gap-4">
       {/* Sidebar */}
-      <div className="w-1/3 border-r border-gray-200 bg-white rounded-lg m-4 shadow-sm">
-        <div className="p-4 border-b border-gray-200">
+      <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
           <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
         </div>
-        <ConversationsList 
-          selectedConversation={selectedConversation} 
-          onSelectConversation={handleConversationSelect} 
-        />
+        <div className="flex-1 overflow-hidden">
+          <ConversationsList 
+            conversations={conversations}
+            loading={loadingConversations}
+            error={conversationsError}
+            selectedConversation={selectedConversation} 
+            onSelectConversation={handleConversationSelect} 
+          />
+        </div>
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg m-4 shadow-sm border border-gray-200 overflow-hidden">
+      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-white">
+            <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
                   {selectedConversation.user?.avatarURL && (
@@ -183,12 +254,15 @@ const MessagesPage = () => {
             <div className="flex-1 overflow-hidden">
               <MessagesList 
                 conversationId={selectedConversation?.id} 
-                currentUserId={currentUserId} 
+                currentUserId={currentUserId}
+                messages={messages}
+                loading={messagesLoading}
+                error={messagesError}
               />
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 bg-white">
+            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
               <div className="flex items-center">
                 <input
                   type="text"

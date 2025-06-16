@@ -80,4 +80,33 @@ public class MessageDAO extends DBContext {
         }
         return null;
     }
+
+    /**
+     * Creates a new message in the database.
+     * @param message The message object to create.
+     * @return True if the message was created successfully, false otherwise.
+     */
+    public Message create(Message message) {
+        String sql = "INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setInt(1, message.getConversationId());
+            stmt.setInt(2, message.getSenderId());
+            stmt.setString(3, message.getContent());
+            stmt.setString(4, message.getMediaUrl());
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int id = generatedKeys.getInt(1);
+                        return getById(id); // Retrieve the full message with timestamp
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
