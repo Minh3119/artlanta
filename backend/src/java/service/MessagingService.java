@@ -50,10 +50,9 @@ public class MessagingService {
                 // Get the latest message in the conversation
                 Message latestMessage = messageDAO.getLatestMessageByConversationId(conversation.getId());
                 
-                // Create and add DTO to the result list with null for currentUser
+                // Create and add DTO to the result list with only the other user
                 result.add(new ConversationDTO(
                     conversation,
-                    null, // Don't include current user data
                     otherUser,
                     latestMessage
                 ));
@@ -104,10 +103,8 @@ public class MessagingService {
                 convJson.put("id", conversation.getConversation().getId());
                 convJson.put("createdAt", conversation.getConversation().getCreatedAt());
                 
-                // Get the other user (currentUser is null)
-                model.User otherUser = conversation.getUser1() != null && 
-                                      conversation.getUser1().getID() != currentUserId ? 
-                                      conversation.getUser1() : conversation.getUser2();
+                // Get the other user from DTO
+                model.User otherUser = conversation.getOtherUser();
                 
                 // Add other user details only
                 if (otherUser != null) {

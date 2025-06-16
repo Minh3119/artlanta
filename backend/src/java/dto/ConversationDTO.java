@@ -6,20 +6,17 @@ import model.Message;
 
 public class ConversationDTO {
     private Conversation conversation;
-    private User user1;
-    private User user2;
+    private User otherUser;
     private Message latestMessage;
 
-    public ConversationDTO(Conversation conversation, User user1, User user2, Message latestMessage) {
+    public ConversationDTO(Conversation conversation, User otherUser, Message latestMessage) {
         this.conversation = conversation;
-        this.user1 = user1;
-        this.user2 = user2;
+        this.otherUser = otherUser;
         this.latestMessage = latestMessage;
     }
 
     // Getters
     public Conversation getConversation() { return conversation; }
-    public User getUser1() { return user1; }
-    public User getUser2() { return user2; }
+    public User getOtherUser() { return otherUser; }
     public Message getLatestMessage() { return latestMessage; }
 }
