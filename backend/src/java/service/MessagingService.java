@@ -102,14 +102,11 @@ public class MessagingService {
             try {
                 JSONObject convJson = new JSONObject();
                 
-                // Add conversation details
                 convJson.put("id", conversation.getConversation().getId());
                 convJson.put("createdAt", conversation.getConversation().getCreatedAt());
                 
-                // Get the other user from DTO
                 model.User otherUser = conversation.getOtherUser();
                 
-                // Add other user details only
                 if (otherUser != null) {
                     JSONObject otherUserJson = userService.convertUserToJson(otherUser);
                     convJson.put("user", otherUserJson);
