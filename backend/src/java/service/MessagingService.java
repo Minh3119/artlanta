@@ -3,7 +3,7 @@ package service;
 import dal.ConversationDAO;
 import dal.MessageDAO;
 import dal.UserDAO;
-import dto.ConversationListDTO;
+import dto.ConversationDTO;
 import model.Conversation;
 import model.Message;
 import model.User;
@@ -31,8 +31,8 @@ public class MessagingService {
      * @param userId The ID of the user
      * @return List of ConversationListDTO containing conversation details
      */
-    public List<ConversationListDTO> getUserConversations(int userId) {
-        List<ConversationListDTO> result = new ArrayList<>();
+    public List<ConversationDTO> getUserConversations(int userId) {
+        List<ConversationDTO> result = new ArrayList<>();
         
         try {
             // Get all conversations for the user
@@ -51,7 +51,7 @@ public class MessagingService {
                 Message latestMessage = messageDAO.getLatestMessageByConversationId(conversation.getId());
                 
                 // Create and add DTO to the result list with null for currentUser
-                result.add(new ConversationListDTO(
+                result.add(new ConversationDTO(
                     conversation,
                     null, // Don't include current user data
                     otherUser,
@@ -89,14 +89,14 @@ public class MessagingService {
      * @param currentUserId ID of the current user
      * @return JSONArray containing conversation data
      */
-    public JSONArray buildConversationsJson(List<dto.ConversationListDTO> conversations, int currentUserId) {
+    public JSONArray buildConversationsJson(List<dto.ConversationDTO> conversations, int currentUserId) {
         JSONArray conversationsJson = new JSONArray();
         
         if (conversations == null || conversations.isEmpty()) {
             return conversationsJson;
         }
         
-        for (dto.ConversationListDTO conversation : conversations) {
+        for (dto.ConversationDTO conversation : conversations) {
             try {
                 JSONObject convJson = new JSONObject();
                 

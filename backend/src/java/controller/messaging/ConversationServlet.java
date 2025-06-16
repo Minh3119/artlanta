@@ -46,7 +46,7 @@ public class ConversationServlet extends HttpServlet {
             }
 
             // Get conversations for the user and convert to JSON
-            List<dto.ConversationListDTO> conversations = messagingService.getUserConversations(userId);
+            List<dto.ConversationDTO> conversations = messagingService.getUserConversations(userId);
             JSONArray conversationsJson = messagingService.buildConversationsJson(conversations, userId);
             
             // Build and send response
