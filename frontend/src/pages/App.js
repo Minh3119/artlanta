@@ -1,4 +1,5 @@
 //import logo from './logo.svg';
+import React, { useState } from "react";
 import '../styles/App.scss';
 import '../styles/post.scss';
 import { ToastContainer } from 'react-toastify';
@@ -19,7 +20,10 @@ import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
 import MusicComponent from '../components/MusicBox/musicComponent.js';
+import { FiHeadphones } from "react-icons/fi";
+import { set } from 'date-fns';
 function App() {
+  const [isMusicOpen, setIsMusicOpen] = useState(false);
 
   return (
     <>
@@ -43,6 +47,19 @@ function App() {
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail />} />
         </Routes>
+        <MusicComponent setIsMusicOpen={setIsMusicOpen}
+          isMusicOpen={isMusicOpen}
+        />
+        {
+          isMusicOpen ?
+            null
+            :
+            <div className="floating-icon" onClick={() => setIsMusicOpen(!isMusicOpen)}>
+              <FiHeadphones />
+            </div>
+
+        }
+
       </BrowserRouter >
       <ToastContainer />
     </>
