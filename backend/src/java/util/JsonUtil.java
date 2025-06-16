@@ -17,11 +17,19 @@ public class JsonUtil {
 		out.flush();
 	}
 
-	public static void writeJsonError(HttpServletResponse response, String errorMessage) throws IOException {
-		JSONObject json = new JSONObject();
-		json.put("error", errorMessage);
-		writeJsonResponse(response, json);
-	}
+	// New one
+	public static void writeJsonError(HttpServletResponse response, String errorMessage, int statusCode) throws IOException {
+        response.setStatus(statusCode);
+        JSONObject json = new JSONObject();
+        json.put("success", false);
+        json.put("error", errorMessage);
+        writeJsonResponse(response, json);
+    }
+    
+    // Old one, Overloaded method for backward compatibility
+    public static void writeJsonError(HttpServletResponse response, String errorMessage) throws IOException {
+        writeJsonError(response, errorMessage, HttpServletResponse.SC_BAD_REQUEST);
+    }
 
 	public static JSONObject parseRequestBody(HttpServletRequest request) throws IOException {
 		StringBuilder buffer = new StringBuilder();
