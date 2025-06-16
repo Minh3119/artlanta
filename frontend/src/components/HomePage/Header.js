@@ -78,7 +78,7 @@ export default function Header({ openCreatePopup }) {
             <NotificationPopup onClose={() => setShowNotifications(false)} />
           )}
         </div>
-        <Link to="#">
+        <Link to="/messages">
           <img src={chat} alt="chat"></img>
         </Link>
 

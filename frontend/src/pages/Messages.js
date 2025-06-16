@@ -1,24 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
 import ConversationsList from '../components/Messages/ConversationsList';
+import MessagesList from '../components/Messages/MessagesList';
 
 const MessagesPage = () => {
   const ws = useRef(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [currentUserId, setCurrentUserId] = useState(null); // Will be set from your auth context or API
 
   useEffect(() => {
-    // WebSocket connection - will be implemented in the next phase
+    // WebSocket connection for real-time messaging
     ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
 
     ws.current.onopen = () => {
       console.log('WebSocket connection opened');
     };
 
+    // Note: We're not handling incoming messages here anymore
+    // as the MessagesList component will handle its own data fetching
+    // and we don't have access to setMessages in this component anymore
     ws.current.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        setMessages((prevMessages) => [...prevMessages, message]);
+        console.log('New message received:', message);
+        // The MessagesList component will handle displaying new messages
+        // via its own data fetching when the conversation changes
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
@@ -40,7 +46,7 @@ const MessagesPage = () => {
   }, []);
 
   const handleSendMessage = () => {
-    if (!input.trim() || !selectedConversation) return;
+    if (!input.trim() || !selectedConversation || !currentUserId) return;
     
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       const message = {
@@ -49,11 +55,14 @@ const MessagesPage = () => {
         conversationId: selectedConversation.id,
         recipientId: selectedConversation.user.id,
         timestamp: new Date().toISOString(),
-        senderId: 'current-user-id' // This should be replaced with the actual current user ID
+        senderId: currentUserId,
+        // The server should add these fields when broadcasting the message
+        id: Date.now(), // Temporary ID, will be replaced by server
+        isRead: false,
+        createdAt: new Date().toISOString()
       };
       
-      // Add the message to local state immediately for a responsive UI
-      setMessages(prev => [...prev, message]);
+      // Clear input immediately for better UX
       setInput('');
       
       // Send the message via WebSocket
@@ -63,12 +72,28 @@ const MessagesPage = () => {
     }
   };
 
+  useEffect(() => {
+    // TODO: Replace with actual current user ID from your auth context or API
+    // This is just an example - get the current user ID from your auth system
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch('http://localhost:9999/backend/api/current-user', {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setCurrentUserId(userData.id);
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
   const handleConversationSelect = (conversation) => {
     setSelectedConversation(conversation);
-    // Clear messages when switching conversations
-    setMessages([]);
-    // Here you would typically fetch messages for the selected conversation
-    // We'll implement this in the next phase
   };
 
   return (
@@ -94,46 +119,10 @@ const MessagesPage = () => {
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col">
-              {messages.length === 0 ? (
-                <div className="flex justify-center items-center h-full text-gray-500">
-                  <p>No messages yet. Start the conversation!</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {messages.map((message, index) => (
-                    <div 
-                      key={index}
-                      className={`flex flex-col ${
-                        message.senderId === 'current-user-id' ? 'items-end' : 'items-start'
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[70%] p-3 rounded-xl shadow ${
-                          message.senderId === 'current-user-id'
-                            ? 'bg-blue-600 text-white rounded-br-none'
-                            : 'bg-white text-gray-800 rounded-bl-none'
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                        <p 
-                          className={`text-xs mt-1 text-right ${
-                            message.senderId === 'current-user-id' 
-                              ? 'text-blue-100' 
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          {new Date(message.timestamp).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MessagesList 
+              conversationId={selectedConversation?.id}
+              currentUserId={currentUserId}
+            />
 
             {/* Message input */}
             <div className="p-4 border-t border-gray-200 flex gap-2">

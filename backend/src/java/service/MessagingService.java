@@ -67,6 +67,33 @@ public class MessagingService {
         
         return result;
     }
+
+    public JSONObject getMessagesByConversationId(int conversationId) {
+        List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
+        
+        // Mark messages as read
+        // messagingService.markMessagesAsRead(conversationId, currentUserId);
+        
+        // Convert messages to JSON
+        JSONObject jsonResponse = new JSONObject();
+        JSONArray messagesArray = new JSONArray();
+        
+        for (Message message : messages) {
+            JSONObject messageJson = new JSONObject();
+            messageJson.put("id", message.getId());
+            messageJson.put("conversationId", message.getConversationId());
+            messageJson.put("senderId", message.getSenderId());
+            messageJson.put("content", message.getContent());
+            messageJson.put("mediaUrl", message.getMediaUrl());
+            messageJson.put("createdAt", message.getCreatedAt().toString());
+            messagesArray.put(messageJson);
+        }
+        
+        jsonResponse.put("success", true);
+        jsonResponse.put("messages", messagesArray);
+
+        return jsonResponse;
+    }
     
     /**
      * Get or create a conversation between two users

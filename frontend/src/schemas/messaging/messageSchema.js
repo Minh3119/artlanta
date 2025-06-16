@@ -5,7 +5,7 @@ const messageSchema = object({
   content: string().nullable(),
   mediaUrl: string().url().nullable(),
   createdAt: date().required(),
-  isRead: boolean().required(),
+  isRead: boolean().default(false),
   senderId: number().integer().positive().required(),
 });
 
