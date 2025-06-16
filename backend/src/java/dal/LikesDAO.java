@@ -45,10 +45,10 @@ public class LikesDAO extends DBContext {
 	}
 
 	public boolean unlike(int userId, int postID) {
-		if (userId <= 0) { // Invalid userID
+		if (userId <= 0) { 
 			return false;
 		}
-		if (!isLiked(userId, postID)) { // Chưa thích
+		if (!isLiked(userId, postID)) { 
 			return true;
 		}
 
