@@ -695,22 +695,22 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 49 in Conversation 1', NULL, '2025-06-14 00:17:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 50 in Conversation 1', 'https://example.com/media50.jpg', '2025-06-14 00:18:07');
 
--- 20 messages for Conversation 2 (User 2 & 3) --
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 4 in Conversation 2', NULL, '2025-06-14 00:19:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 5 in Conversation 2', 'https://example.com/media5.jpg', '2025-06-14 00:20:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 6 in Conversation 2', NULL, '2025-06-14 00:21:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 7 in Conversation 2', NULL, '2025-06-14 00:22:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 8 in Conversation 2', 'https://example.com/media8.jpg', '2025-06-14 00:23:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 9 in Conversation 2', NULL, '2025-06-14 00:24:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 10 in Conversation 2', NULL, '2025-06-14 00:25:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 11 in Conversation 2', 'https://example.com/media11.jpg', '2025-06-14 00:26:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 12 in Conversation 2', NULL, '2025-06-14 00:27:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 13 in Conversation 2', NULL, '2025-06-14 00:28:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 14 in Conversation 2', 'https://example.com/media14.jpg', '2025-06-14 00:29:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 15 in Conversation 2', NULL, '2025-06-14 00:30:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 16 in Conversation 2', NULL, '2025-06-14 00:31:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 17 in Conversation 2', 'https://example.com/media17.jpg', '2025-06-14 00:32:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 18 in Conversation 2', NULL, '2025-06-14 00:33:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
+-- 20 messages for Conversation 2 (User 1 & 3) --
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 4 in Conversation 2', NULL, '2025-06-14 00:19:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 5 in Conversation 2', 'https://example.com/media5.jpg', '2025-06-14 00:20:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 6 in Conversation 2', NULL, '2025-06-14 00:21:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 7 in Conversation 2', NULL, '2025-06-14 00:22:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 8 in Conversation 2', 'https://example.com/media8.jpg', '2025-06-14 00:23:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 9 in Conversation 2', NULL, '2025-06-14 00:24:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 10 in Conversation 2', NULL, '2025-06-14 00:25:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 11 in Conversation 2', 'https://example.com/media11.jpg', '2025-06-14 00:26:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 12 in Conversation 2', NULL, '2025-06-14 00:27:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 13 in Conversation 2', NULL, '2025-06-14 00:28:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 14 in Conversation 2', 'https://example.com/media14.jpg', '2025-06-14 00:29:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 15 in Conversation 2', NULL, '2025-06-14 00:30:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 16 in Conversation 2', NULL, '2025-06-14 00:31:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 17 in Conversation 2', 'https://example.com/media17.jpg', '2025-06-14 00:32:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 18 in Conversation 2', NULL, '2025-06-14 00:33:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
 
