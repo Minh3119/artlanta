@@ -22,6 +22,9 @@ import PostDetail from './PostDetail.js';
 import MusicComponent from '../components/MusicBox/musicComponent.js';
 import { FiHeadphones } from "react-icons/fi";
 import { set } from 'date-fns';
+import Payment from './Payment.js';
+import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
+
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
@@ -46,7 +49,9 @@ function App() {
           <Route path="/passforget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail />} />
-        </Routes>
+          <Route path="/payment" element={<Payment />}></Route>
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+        </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}
         />

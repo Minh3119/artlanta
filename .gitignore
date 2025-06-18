@@ -1,3 +1,4 @@
 backend/build.xml
 backend/nbproject/genfiles.properties
 *.properties
+/.scannerwork
