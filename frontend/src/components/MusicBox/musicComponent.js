@@ -1,6 +1,7 @@
 import React from "react";
 
 import { toast } from 'react-toastify';
+import { AiOutlineClose } from "react-icons/ai";
 import '../../styles/music.scss';
 
 import MP3Component from "./mp3Component";
@@ -67,7 +68,7 @@ class MusicComponent extends React.Component {
                         <div onClick={() => this.setState({ isMP3: "mp3" })}>Audio</div>
                         <div onClick={() => this.setState({ isMP3: "video" })}>Video</div>
                         <div onClick={() => this.setState({ isMP3: "setting" })}>Setting</div>
-                        <div onClick={() => this.props.setIsMusicOpen(!this.props.isMusicOpen)}>X</div>
+                        <div onClick={() => this.props.setIsMusicOpen(!this.props.isMusicOpen)}><AiOutlineClose /></div>
                     </nav>
 
                     {this.handleTabChange(this.state.isMP3)}

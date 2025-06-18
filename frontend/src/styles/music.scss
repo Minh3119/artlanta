@@ -20,6 +20,14 @@
 .floating-icon:hover {
   transform: scale(1.5);
 }
+@keyframes opa {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
 .music-container{
     position: fixed;
     top: 0; 
@@ -33,6 +41,7 @@
     align-items: end;
     padding: 10px 10px;
     z-index: 999999; 
+    animation: opa 0.5s linear normal;
     .music-box{
         background-color: rgba(0, 0, 0, 0.882);
         color: white;
