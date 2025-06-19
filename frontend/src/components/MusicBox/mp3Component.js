@@ -19,7 +19,8 @@ class MP3Component extends React.Component {
         ],
         currentPlaylist: {
             type: 'playlist',
-            ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
+            // ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
+            ID: 'PLdif7DCtYdMY2CYB5ozZI5r-tqEh-B9Qc'
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
@@ -165,7 +166,7 @@ class MP3Component extends React.Component {
 
         };
         return (
-            <div className="music-control">
+            <div className="mp3-control">
                 <div className="track-info">
                     <select className="playlist">
                         <option value="id">

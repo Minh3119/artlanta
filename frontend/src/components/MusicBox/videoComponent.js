@@ -1,5 +1,6 @@
 import React from "react";
 import YouTube from "react-youtube";
+
 class VideoComponent extends React.Component {
     state = {
         player: null,
@@ -8,8 +9,6 @@ class VideoComponent extends React.Component {
         musicDuration: 0,
         currentTime: 0,
         musicTitle: "",
-        musicDuration: 0,
-        currentTime: 0,
         playlist: [
             {
                 type: 'video',
@@ -18,15 +17,11 @@ class VideoComponent extends React.Component {
         ],
         currentPlaylist: {
             type: 'playlist',
-            ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
+            // ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
+            ID: 'PLdif7DCtYdMY2CYB5ozZI5r-tqEh-B9Qc'
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
-    }
-    componentWillUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
     }
     onPlayerReady = (event) => {
         this.setState({
@@ -35,12 +30,6 @@ class VideoComponent extends React.Component {
             musicDuration: event.target.getDuration(),
         });
         event.target.setVolume(this.state.volume);
-        this.interval = setInterval(() => {
-            const time = this.state.player.getCurrentTime();
-            this.setState({ currentTime: time });
-        }, 800);
-
-
     };
     onPlayerStateChange = (event) => {
         const YT = window.YT;
@@ -48,7 +37,6 @@ class VideoComponent extends React.Component {
             setTimeout(() => {
                 this.setState({
                     musicTitle: event.target.getVideoData().title,
-                    musicDuration: event.target.getDuration(),
                 })
             }, 500);
         }
@@ -125,19 +113,13 @@ class VideoComponent extends React.Component {
         }
         this.setState({ volume: newVolume });
     };
-    handleProgressChange = (event) => {
-        const newTime = (event.target.value / 100) * this.state.musicDuration;
-        if (this.state.player) {
-            this.state.player.seekTo(newTime, true);
-        }
-        this.setState({ currentTime: newTime });
-    };
+
     render() {
         const optsForVideo = {
             // height: '0',
             // width: '0',
             height: '200px',
-            width: '200px',
+            width: '100%',
             playerVars: {
                 autoplay: 0,
                 controls: 0,
@@ -153,7 +135,7 @@ class VideoComponent extends React.Component {
             // height: '0',
             // width: '0',
             height: '200px',
-            width: '200px',
+            width: '100%',
             playerVars: {
                 autoplay: 0,
                 listType: 'playlist',
@@ -164,7 +146,7 @@ class VideoComponent extends React.Component {
 
         };
         return (
-            <div className="music-control">
+            <div className="video-control">
                 <div className="track-info">
                     <select className="playlist">
                         <option value="id">

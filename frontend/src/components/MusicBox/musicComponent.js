@@ -1,6 +1,7 @@
 import React from "react";
 
 import { toast } from 'react-toastify';
+import { Rnd } from "react-rnd";
 import { AiOutlineClose } from "react-icons/ai";
 import '../../styles/music.scss';
 
