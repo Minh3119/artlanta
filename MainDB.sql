@@ -8,8 +8,7 @@ USE ARTLANTA;
 CREATE TABLE Media (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     URL VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    Description VARCHAR(255)
 );
 
 
@@ -271,9 +270,9 @@ CREATE TABLE UserSocialLinks (
 
 CREATE TABLE MusicMedia(
 	ID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT,musicmedia
+    UserID INT,
+    Playlist VARCHAR(50) NOT NULL,
     MediaURL VARCHAR(255) NOT NULL,
-	CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
  );
 -- TAG SYSTEM -DANG TEST
@@ -491,25 +490,25 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, Reference
 (1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
 
 -- Sample Media data with real, lightweight image URLs
-INSERT INTO Media (URL, Description, CreatedAt) VALUES
-('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration', '2025-04-01'),
-('https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', 'Nature-themed character', '2025-04-01'),
-('https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', 'Water-themed artwork', '2025-04-02'),
-('https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', 'Fire-themed character', '2025-04-02'),
-('https://i.pinimg.com/736x/7e/4a/71/7e4a71b6f79187f77289beaa1e1d476c.jpg', 'Flying creature artwork', '2025-04-03'),
-('https://i.pinimg.com/736x/8b/d6/5a/8bd65ab420e51f0a9706fffa96d9f54d.jpg', 'Water beast artwork', '2025-04-03'),
-('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept', '2025-04-04'),
-('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design', '2025-04-04'),
-('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept', '2025-04-05'),
-('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design', '2025-04-05'),
-('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
-('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
-('https://i.pinimg.com/736x/48/8e/7a/488e7a5a24daf041c66b28f8f4895909.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/a5/dd/e6/a5dde6448aa477ab075975525ea93d52.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/70/d9/3f/70d93ffeccd4509b66f5fcaf86b914f7.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/8e/4a/3e/8e4a3ec21da25c06f1ded1ff1749403d.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/e5/98/21/e5982112c7c3091f1a61de2a2a157fe2.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', '', '2025-04-05');
+INSERT INTO Media (URL, Description) VALUES
+('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration'),
+('https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', 'Nature-themed character'),
+('https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', 'Water-themed artwork'),
+('https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', 'Fire-themed character'),
+('https://i.pinimg.com/736x/7e/4a/71/7e4a71b6f79187f77289beaa1e1d476c.jpg', 'Flying creature artwork'),
+('https://i.pinimg.com/736x/8b/d6/5a/8bd65ab420e51f0a9706fffa96d9f54d.jpg', 'Water beast artwork'),
+('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept'),
+('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design'),
+('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept'),
+('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design'),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', ''),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', ''),
+('https://i.pinimg.com/736x/48/8e/7a/488e7a5a24daf041c66b28f8f4895909.jpg', ''),
+('https://i.pinimg.com/736x/a5/dd/e6/a5dde6448aa477ab075975525ea93d52.jpg', ''),
+('https://i.pinimg.com/736x/70/d9/3f/70d93ffeccd4509b66f5fcaf86b914f7.jpg', ''),
+('https://i.pinimg.com/736x/8e/4a/3e/8e4a3ec21da25c06f1ded1ff1749403d.jpg', ''),
+('https://i.pinimg.com/736x/e5/98/21/e5982112c7c3091f1a61de2a2a157fe2.jpg', ''),
+('https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', '');
 
 -- Link Media to Portfolios
 INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES

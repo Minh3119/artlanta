@@ -46,6 +46,14 @@ class MP3Component extends React.Component {
     };
     onPlayerStateChange = (event) => {
         const YT = window.YT;
+        switch (event.data) {
+            case 1:
+                this.setState({ isPlaying: true });
+                break;
+            case 2:
+                this.setState({ isPlaying: false });
+                break;
+        }
         if (event.data === YT.PlayerState.PLAYING) {
             setTimeout(() => {
                 this.setState({
