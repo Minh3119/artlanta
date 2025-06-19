@@ -29,6 +29,18 @@ public class WalletDAO extends DBContext {
         return BigDecimal.ZERO;
     }
 
+    public boolean checkWalletExists(int userID) {
+        String sql = "SELECT 1 FROM Wallets WHERE UserID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, userID);
+            ResultSet rs = st.executeQuery();
+            return rs.next(); // true nếu có ví
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void addBalance(int userID, BigDecimal amount) {
         // Kiểm tra wallet có tồn tại không
         String checkSql = "SELECT UserID FROM Wallets WHERE UserID = ?";

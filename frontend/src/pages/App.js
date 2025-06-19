@@ -19,6 +19,7 @@ import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
 import Payment from './Payment.js';
+import PaymentHis from './HistoryPayment.js';
 
 function App() {
   
@@ -43,6 +44,7 @@ function App() {
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail/>} />
           <Route path="/payment" element={<Payment/>}></Route>
+          <Route path="/paymentHis" element={<PaymentHis/>}></Route>
         </Routes>
       </BrowserRouter >
       <ToastContainer />

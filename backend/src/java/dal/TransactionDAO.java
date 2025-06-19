@@ -21,8 +21,7 @@ public class TransactionDAO extends DBContext {
         SELECT ID, UserID, PaymentMethod, Amount, Currency, Status, Description, CreatedAt 
         FROM Transactions 
         WHERE UserID = ? 
-        ORDER BY CreatedAt DESC 
-        LIMIT 50
+        ORDER BY CreatedAt ASC 
     """;
 
         try (PreparedStatement st = connection.prepareStatement(sql)) {
