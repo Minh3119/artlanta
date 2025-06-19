@@ -360,7 +360,9 @@ CREATE TABLE Messages (
     MediaURL VARCHAR(255),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
-    FOREIGN KEY(SenderID) REFERENCES Users(ID)
+    FOREIGN KEY(SenderID) REFERENCES Users(ID),
+    isDeleted BOOLEAN DEFAULT FALSE,
+    deletedAt DATETIME NULL
 );
 
 CREATE TABLE ConversationReads (
@@ -684,16 +686,16 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 38 in Conversation 1', 'https://example.com/media38.jpg', '2025-06-14 00:06:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 39 in Conversation 1', NULL, '2025-06-14 00:07:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 40 in Conversation 1', NULL, '2025-06-14 00:08:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 41 in Conversation 1', 'https://example.com/media41.jpg', '2025-06-14 00:09:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 41 in Conversation 1', 'https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', '2025-06-14 00:09:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 42 in Conversation 1', NULL, '2025-06-14 00:10:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 43 in Conversation 1', NULL, '2025-06-14 00:11:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 44 in Conversation 1', 'https://example.com/media44.jpg', '2025-06-14 00:12:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 44 in Conversation 1', 'https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', '2025-06-14 00:12:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 45 in Conversation 1', NULL, '2025-06-14 00:13:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 46 in Conversation 1', NULL, '2025-06-14 00:14:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 47 in Conversation 1', 'https://example.com/media47.jpg', '2025-06-14 00:15:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 47 in Conversation 1', 'https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', '2025-06-14 00:15:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 48 in Conversation 1', NULL, '2025-06-14 00:16:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 49 in Conversation 1', NULL, '2025-06-14 00:17:07');
-INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 50 in Conversation 1', 'https://example.com/media50.jpg', '2025-06-14 00:18:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 50 in Conversation 1', 'https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', '2025-06-14 00:18:07');
 
 -- 20 messages for Conversation 2 (User 1 & 3) --
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 4 in Conversation 2', NULL, '2025-06-14 00:19:07');

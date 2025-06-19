@@ -5,10 +5,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.json.JSONObject;
-import jakarta.servlet.http.HttpServletRequest;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+
+import java.time.LocalDateTime;
+
 import java.io.BufferedReader;
 
 public class JsonUtil {
+	private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
+
+    public static <T> T fromJsonString(String json, Class<T> clazz) throws JsonSyntaxException {
+        return gson.fromJson(json, clazz);
+    }
+
+    public static String toJsonString(Object obj) {
+        return gson.toJson(obj);
+    }
+
 	public static void writeJsonResponse(HttpServletResponse response, JSONObject jsonObject) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");

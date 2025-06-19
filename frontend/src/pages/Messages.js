@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import ConversationsList from '../components/Messages/ConversationsList';
 import MessagesList from '../components/Messages/MessagesList';
@@ -11,6 +11,10 @@ const MessagesPage = () => {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
+
+  const handleConversationSelect = (conversation) => {
+    setSelectedConversation(conversation);
+  };
 
   // Effect for fetching conversations
   useEffect(() => {
@@ -43,6 +47,7 @@ const MessagesPage = () => {
       setSelectedConversation(conversations[0]);
     }
   }, [conversations, selectedConversation]);
+
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
@@ -50,6 +55,96 @@ const MessagesPage = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleOnMessage = useCallback((event) => {
+    try {
+      const payload = JSON.parse(event.data);
+
+      // Handle unsend action broadcast
+      if (payload.action === 'unsend') {
+        const { messageId } = payload;
+        // Remove from messages list if currently selected conversation contains it
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+
+        // Update conversations list (if latestMessage is the one unsent, clear it)
+        setConversations(prev => prev.map(conv => {
+          if (conv.latestMessage && conv.latestMessage.id === messageId) {
+            return { ...conv, latestMessage: null };
+          }
+          return conv;
+        }));
+        return; // done processing unsend
+      }
+      else if (!payload.action || payload.action === 'send') {
+        // Otherwise it's a new message object coming from backend
+        const newMessage = payload.message;
+        if (!newMessage) return;
+
+        // Always update the conversations list
+        setConversations((prevConversations) => {
+          const conversationIndex = prevConversations.findIndex(
+            (c) => c.id === newMessage.conversationId
+          );
+
+          if (conversationIndex === -1) return prevConversations;
+
+          const updatedConversation = {
+            ...prevConversations[conversationIndex],
+            latestMessage: newMessage,
+          };
+          const otherConversations = prevConversations.filter(
+            (c) => c.id !== newMessage.conversationId
+          );
+          return [updatedConversation, ...otherConversations];
+        });
+
+        // If the message is for the currently selected conversation, update its message list
+        if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        }
+      }
+    } catch (err) {
+      console.error('Error parsing WebSocket message:', err);
+    }
+  }, [selectedConversation]);
+
+  const handleSendMessage = () => {
+    if (!input.trim() || !selectedConversation || !currentUserId) return;
+
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      const message = {
+        action: 'send',
+        conversationId: selectedConversation.id,
+        senderId: currentUserId,
+        content: {
+          text: input
+        }
+      };
+
+      // Clear input immediately for better UX
+      setInput('');
+
+      // Send the message via WebSocket
+      ws.current.send(JSON.stringify(message));
+    } else {
+      console.error('(handleSendMessage) WebSocket is not connected');
+    }
+  };
+
+  const handleUnsendMessage = (messageId) => {
+    if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
+      console.error('(handleUnsendMessage) WebSocket is not connected');
+      return;
+    }
+
+    const message = {
+      action: 'unsend',
+      messageId: messageId,
+      currentUserId: currentUserId
+    };
+
+    ws.current.send(JSON.stringify(message));
+  }
 
   // Effect for WebSocket setup and current user fetching
   useEffect(() => {
@@ -78,7 +173,8 @@ const MessagesPage = () => {
     fetchCurrentUser();
 
     return () => {
-      if (ws.current) ws.current.close();
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) 
+        ws.current.close();
     };
   }, []);
 
@@ -86,38 +182,15 @@ const MessagesPage = () => {
   useEffect(() => {
     if (!ws.current) return;
 
-    ws.current.onmessage = (event) => {
-      try {
-        const newMessage = JSON.parse(event.data);
+    ws.current.onmessage = handleOnMessage;
 
-        // Always update the conversations list
-        setConversations((prevConversations) => {
-          const conversationIndex = prevConversations.findIndex(
-            (c) => c.id === newMessage.conversationId
-          );
-
-          if (conversationIndex !== -1) {
-            const updatedConversation = {
-              ...prevConversations[conversationIndex],
-              latestMessage: newMessage,
-            };
-            const otherConversations = prevConversations.filter(
-              (c) => c.id !== newMessage.conversationId
-            );
-            return [updatedConversation, ...otherConversations];
-          }
-          return prevConversations;
-        });
-
-        // If the message is for the currently selected conversation, update its message list
-        if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
-          setMessages((prevMessages) => [...prevMessages, newMessage]);
-        }
-      } catch (err) {
-        console.error('Error parsing WebSocket message:', err);
+    // cleanup
+    return () => {
+      if (ws.current) {
+        ws.current.onmessage = null;
       }
     };
-  }, [selectedConversation, conversations]);
+  }, [handleOnMessage]);
 
   // Effect for fetching messages when a conversation is selected
   useEffect(() => {
@@ -178,30 +251,6 @@ const MessagesPage = () => {
       return <Navigate to="/login" replace />;
   }
 
-  const handleSendMessage = () => {
-    if (!input.trim() || !selectedConversation || !currentUserId) return;
-
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const message = {
-        content: input,
-        conversationId: selectedConversation.id,
-        recipientId: selectedConversation.user.id,
-        senderId: currentUserId,
-      };
-
-      // Clear input immediately for better UX
-      setInput('');
-
-      // Send the message via WebSocket
-      ws.current.send(JSON.stringify(message));
-    } else {
-      console.error('(handleSendMessage) WebSocket is not connected');
-    }
-  };
-
-  const handleConversationSelect = (conversation) => {
-    setSelectedConversation(conversation);
-  };
 
   return (
     <div className="flex h-screen overflow-hidden font-sans bg-gray-50 p-4 gap-4">
@@ -258,6 +307,7 @@ const MessagesPage = () => {
                 messages={messages}
                 loading={messagesLoading}
                 error={messagesError}
+                onUnsend={handleUnsendMessage}
               />
             </div>
 

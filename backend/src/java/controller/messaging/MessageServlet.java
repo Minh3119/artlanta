@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 @WebServlet("/api/messages")
-public class MessageListServlet extends HttpServlet {
+public class MessageServlet extends HttpServlet {
     private final MessagingService messagingService = new MessagingService();
 
     @Override
@@ -57,6 +57,16 @@ public class MessageListServlet extends HttpServlet {
             e.printStackTrace();
             JsonUtil.writeJsonError(response, "Error retrieving messages: " + e.getMessage(), 
                 HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        try {
+            messagingService.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

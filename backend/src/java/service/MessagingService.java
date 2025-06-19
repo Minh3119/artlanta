@@ -96,8 +96,12 @@ public class MessagingService {
     }
 
     public Message createMessage(int conversationId, int senderId, String content, String mediaUrl) {
-        Message message = new Message(-1, conversationId, senderId, content, mediaUrl, null);
+        Message message = new Message(-1, conversationId, senderId, content, mediaUrl, null, false, null);
         return messageDAO.create(message);
+    }
+
+    public Message createMessage(Message newMessage) {
+        return messageDAO.create(newMessage);
     }
     
     /**
@@ -236,6 +240,60 @@ public class MessagingService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    /**
+     * Soft delete a message if it belongs to the specified user.
+     *
+     * @param messageId  ID of the message to delete.
+     * @param userId     ID of the user requesting deletion.
+     * @return true if the message was deleted, false if not permitted or not found.
+     */
+    public boolean deleteMessage(int messageId, int userId) {
+        try {
+            Message message = messageDAO.getById(messageId);
+            if (message == null) {
+                return false; // message does not exist
+            }
+            if (message.getSenderId() != userId) {
+                return false; // user not authorized to delete this message
+            }
+            return messageDAO.softDeleteById(messageId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Get the other participant in a conversation (recipient) based on sender.
+     * @param conversationId Conversation ID
+     * @param senderId Sender user ID
+     * @return recipient user ID, or -1 if not found
+     */
+    public int getRecipientId(int conversationId, int senderId) {
+        Conversation conv = conversationDAO.getById(conversationId);
+        if (conv == null) return -1;
+        return conv.getUser1Id() == senderId ? conv.getUser2Id() : conv.getUser1Id();
+    }
+
+    public Message getMessageById(int messageId) {
+        return messageDAO.getById(messageId);
+    }
+
+    /**
+     * Close all DAO connections managed by this service.
+     */
+    public void close() {
+        try {
+            conversationDAO.closeConnection();
+            userDAO.closeConnection();
+            messageDAO.closeConnection();
+            conversationReadsDAO.closeConnection();
+            // Close nested service resources
+            userService.closeConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -9,17 +9,21 @@ public class Message {
     private String content;
     private String mediaUrl;
     private LocalDateTime createdAt;
+    private boolean isDeleted;
+    private LocalDateTime deletedAt;
 
     // Constructors
     public Message() {}
 
-    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, LocalDateTime createdAt) {
+    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, LocalDateTime createdAt, boolean isDeleted, LocalDateTime deletedAt) {
         this.id = id;
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.createdAt = createdAt;
+        this.isDeleted = isDeleted;
+        this.deletedAt = deletedAt;
     }
 
     // Getters and Setters
@@ -35,5 +39,11 @@ public class Message {
     public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public boolean isDeleted() { return isDeleted; }
+    public void setDeleted(boolean deleted) { isDeleted = deleted; }
+    
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 
 }

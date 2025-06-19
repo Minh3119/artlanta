@@ -86,4 +86,25 @@ public class ConversationDAO extends DBContext {
             return -1;
         }
     }
+
+    // Get conversation by its ID
+    public Conversation getById(int conversationId) {
+        String sql = "SELECT * FROM Conversations WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, conversationId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Conversation(
+                        rs.getInt("ID"),
+                        rs.getInt("User1ID"),
+                        rs.getInt("User2ID"),
+                        rs.getTimestamp("CreatedAt")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

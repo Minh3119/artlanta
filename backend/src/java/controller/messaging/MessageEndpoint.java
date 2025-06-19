@@ -10,12 +10,16 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import service.MessagingService;
+import util.JsonUtil;
 import util.SessionUtil;
+import model.Message;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
+
+import com.google.gson.JsonSyntaxException;
 
 
 @ServerEndpoint(value = "/ws/message", configurator = HttpSessionConfigurator.class)
@@ -49,56 +53,26 @@ public class MessageEndpoint {
         sessions.remove(session.getId());
         int userId = (int) session.getUserProperties().get("userId");
         connectedUsers.remove(userId);  // remove userId from the global map
+        messagingService.close();
     }
 
 
     @OnMessage
     public void onMessage(Session session, String msg) {
-        try {
-            JSONObject json = new JSONObject(msg);
-            int conversationId = json.getInt("conversationId");
-            int senderId = json.getInt("senderId");
-            int recipientId = json.getInt("recipientId");
-            String content = json.getString("content");
+        JSONObject json = new JSONObject(msg);
+        switch (json.getString("action")) {
+            case "send":
+                handleSendMessage(session, msg);
+                break;
 
-            // 1. Save the message to the database
-            model.Message newMessage = messagingService.createMessage(conversationId, senderId, content, null); // Assuming no mediaUrl for now
-
-            if (newMessage != null) {
-                // 2. Convert the persisted message to a JSON object
-                JSONObject messageJson = buildMessageJson(newMessage);
-
-                // 3. Broadcast the message to the recipient if they are connected
-                if (connectedUsers.containsKey(recipientId)) {
-                    Session recipientSession = connectedUsers.get(recipientId);
-                    if (recipientSession.isOpen()) {
-                        recipientSession.getBasicRemote().sendText(messageJson.toString());
-                    }
-                }
-
-                // 4. Send the message back to the sender for UI confirmation
-                if (connectedUsers.containsKey(senderId)) {
-                    Session senderSession = connectedUsers.get(senderId);
-                    if (senderSession.isOpen()) {
-                        senderSession.getBasicRemote().sendText(messageJson.toString());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            case "unsend":
+                handleUnsendMessage(session, msg);
+                break;
+        
+            default:
+                break;
         }
-    }
 
-    private JSONObject buildMessageJson(model.Message message) {
-        JSONObject messageJson = new JSONObject();
-        messageJson.put("id", message.getId());
-        messageJson.put("conversationId", message.getConversationId());
-        messageJson.put("senderId", message.getSenderId());
-        messageJson.put("content", message.getContent());
-        messageJson.put("mediaUrl", message.getMediaUrl() != null ? message.getMediaUrl() : JSONObject.NULL);
-        messageJson.put("createdAt", message.getCreatedAt().toString());
-        messageJson.put("isRead", false); // New messages are initially unread
-        return messageJson;
     }
 
     @OnError
@@ -107,4 +81,203 @@ public class MessageEndpoint {
         error.printStackTrace();
     }
 
+    private void handleSendMessage(Session session, String msg) {
+        try {
+            // 0. Parse Payload
+            SendMessageRequest payload = JsonUtil.fromJsonString(msg, SendMessageRequest.class);
+
+            // 1. Create new Message in Database (persisted message)
+            String text = payload.getContent() != null ? payload.getContent().getText() : null;
+            Message toCreate = new Message(-1, payload.getConversationId(), payload.getSenderId(), text, null, null, false, null);
+            Message newMessage = messagingService.createMessage(toCreate);
+
+            if (newMessage == null) {
+                throw new Exception("Failed to create message.");
+            }
+
+            // 2. Convert the persisted message to JSON
+            SendMessageResponse response = new SendMessageResponse();
+            response.setAction("send");
+            response.setMessage(newMessage);
+            String responseJsonString = JsonUtil.toJsonString(response);
+
+            // 3. Determine recipient
+            int recipientId = messagingService.getRecipientId(payload.getConversationId(), payload.getSenderId());
+            if (connectedUsers.containsKey(recipientId)) {
+                Session recipientSession = connectedUsers.get(recipientId);
+                if (recipientSession.isOpen()) {
+                    recipientSession.getBasicRemote().sendText(responseJsonString);
+                }
+            }
+
+            // 4. Send the message back to the sender for UI confirmation
+            if (connectedUsers.containsKey(payload.getSenderId())) {
+                Session senderSession = connectedUsers.get(payload.getSenderId());
+                if (senderSession.isOpen()) {
+                    senderSession.getBasicRemote().sendText(responseJsonString);
+                }
+            }
+        } catch (JsonSyntaxException e) {
+            System.out.println("Failed to parse JSON");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void handleUnsendMessage(Session session, String msg) {
+        try {
+            // 0. Parse Payload
+            UnsendMessageRequest payload = JsonUtil.fromJsonString(msg, UnsendMessageRequest.class);
+
+            // 1. Delete message in database
+            boolean success = messagingService.deleteMessage(payload.getMessageId(), payload.getCurrentUserId());
+
+            if (!success) throw new Exception("Failed to delete message.");
+
+            // Broadcast unsend event if success
+            model.Message deleted = messagingService.getMessageById(payload.getMessageId());
+            int recipientId = messagingService.getRecipientId(deleted.getConversationId(), payload.getCurrentUserId());
+            JSONObject response = new JSONObject();
+            response.put("action", "unsend");
+            response.put("messageId", payload.getMessageId());
+            String responseStr = response.toString();
+
+            // send to sender
+            if (connectedUsers.containsKey(payload.getCurrentUserId())) {
+                Session senderSession = connectedUsers.get(payload.getCurrentUserId());
+                if (senderSession.isOpen()) senderSession.getBasicRemote().sendText(responseStr);
+            }
+            // send to recipient
+            if (connectedUsers.containsKey(recipientId)) {
+                Session recipientSession = connectedUsers.get(recipientId);
+                if (recipientSession.isOpen()) recipientSession.getBasicRemote().sendText(responseStr);
+            }
+            
+        } catch (JsonSyntaxException e) {
+            System.out.println("Failed to parse JSON");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+class UnsendMessageRequest {
+    private String action;
+    private int messageId; // messageId
+    private int currentUserId;
+
+    public String getAction() {return action;}
+    public void setAction(String action) {this.action = action;}
+
+    public int getMessageId() {return messageId;}
+    public void setMessageId(int messageId) {this.messageId = messageId;}
+
+    public int getCurrentUserId() {return currentUserId;}
+    public void setCurrentUserId(int currentUserId) {this.currentUserId = currentUserId;}
+
+}
+
+
+class SendMessageRequest {
+    private String action;
+    private int conversationId;
+    private int senderId;
+    private MessageContent content; // generic
+
+    public String getAction() { return action; }
+    public void setAction(String action) { this.action = action; }
+
+    public int getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(int conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public int getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(int senderId) {
+        this.senderId = senderId;
+    }
+
+    public MessageContent getContent() {
+        return content;
+    }
+
+    public void setContent(MessageContent content) {
+        this.content = content;
+    }
+
+}
+
+class SendMessageResponse {
+    private String action;
+    private Message message;
+
+    public String getAction() { return action; }
+    public void setAction(String action) { this.action = action; }
+
+    public Message getMessage() { return message; }
+    public void setMessage(Message message) { this.message = message; }
+
+}
+
+class MessageContent {
+    private String text;          // optional
+    private MessageMedia media;          // optional
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public MessageMedia getMedia() {
+        return media;
+    }
+
+    public void setMedia(MessageMedia media) {
+        this.media = media;
+    }
+
+}
+
+class MessageMedia {
+    private String type;          // "image", "video", "file", etc.
+    private String url;           // CDN or backend-served URL
+    private String mediaId;       // optional, e.g. UUID
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
+    }
+
+    
 }

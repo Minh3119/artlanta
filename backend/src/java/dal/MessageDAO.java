@@ -20,7 +20,9 @@ public class MessageDAO extends DBContext {
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("isDeleted"),
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
                     );
                 }
             }
@@ -33,7 +35,7 @@ public class MessageDAO extends DBContext {
     // Get all messages in a conversation (if needed later)
     public List<Message> getMessagesByConversationId(int conversationId) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT * FROM Messages WHERE ConversationID = ? ORDER BY CreatedAt ASC";
+        String sql = "SELECT * FROM Messages WHERE ConversationID = ? AND isDeleted = FALSE ORDER BY CreatedAt ASC";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, conversationId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -44,7 +46,9 @@ public class MessageDAO extends DBContext {
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("isDeleted"),
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
                     ));
                 }
             }
@@ -71,7 +75,9 @@ public class MessageDAO extends DBContext {
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getBoolean("isDeleted"),
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
                     );
                 }
             }
@@ -109,4 +115,24 @@ public class MessageDAO extends DBContext {
         }
         return null;
     }
+
+
+    /**
+     * Soft delete a message by marking it as deleted and setting the deletedAt timestamp.
+     *
+     * @param messageId The ID of the message to delete.
+     * @return true if at least one row was updated, false otherwise.
+     */
+    public boolean softDeleteById(int messageId) {
+        String sql = "UPDATE Messages SET isDeleted = TRUE, deletedAt = CURRENT_TIMESTAMP WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, messageId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

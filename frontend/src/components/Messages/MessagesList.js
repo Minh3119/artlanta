@@ -1,77 +1,30 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 import Message from './Message';
 
-const MessagesList = ({ conversationId, currentUserId, messages, loading, error }) => {
-  // We will scroll the container directly for more predictable behavior
-  const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+function ScrollToBottomButton() {
+  const scrollToBottom = useScrollToBottom();
+  const [sticky] = useSticky();
 
-  // Scrolls the container to the very bottom. Using scrollTo on the container is more reliable
-  const scrollToBottom = (behavior = 'smooth') => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
+  if (sticky) {
+    return null;
+  }
 
-    const options = { top: container.scrollHeight };
-    if (behavior === 'smooth') {
-      options.behavior = 'smooth';
-    }
-    container.scrollTo(options);
-  };
+  return (
+    <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+      <button
+        onClick={scrollToBottom}
+        className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 flex items-center justify-center"
+        aria-label="Scroll to bottom"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+  );
+}
 
-  // Check if user is near bottom (within 100px)
-  const isNearBottom = () => {
-    if (!messagesContainerRef.current) return true;
-    
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    return scrollHeight - scrollTop - clientHeight < 10;
-  };
-
-  // Handle scroll events to determine if we should auto-scroll
-  const handleScroll = () => {
-    setShouldAutoScroll(isNearBottom());
-  };
-
-  // Reset state when conversation changes
-  useEffect(() => {
-    if (conversationId) {
-      setShouldAutoScroll(true);
-      setIsInitialLoad(true);
-    }
-  }, [conversationId]);
-
-  // Auto-scroll logic for messages. useLayoutEffect guarantees the scroll happens
-  // right after DOM mutations but before the browser paints, eliminating flicker.
-  useLayoutEffect(() => {
-    if (messages.length === 0 || !messagesContainerRef.current) return;
-
-    if (isInitialLoad) {
-      // Jump to bottom instantly on first render of a conversation
-      scrollToBottom('auto');
-      setIsInitialLoad(false);
-    } else if (shouldAutoScroll) {
-      // Smooth scroll on new incoming messages when the user hasn't scrolled up
-      scrollToBottom('smooth');
-    }
-  }, [messages, isInitialLoad, shouldAutoScroll]);
-
-  // Keep observing for DOM size changes (e.g. when images finish loading)
-  useEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      scrollToBottom('auto');
-    });
-
-    resizeObserver.observe(container);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [shouldAutoScroll]);
-
+const MessagesList = ({ conversationId, currentUserId, messages, loading, error, onUnsend }) => {
   if (!conversationId) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
@@ -105,11 +58,7 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error 
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <div 
-        ref={messagesContainerRef}
-        className="flex-1 p-4 overflow-y-auto"
-        onScroll={handleScroll}
-      >
+      <ScrollToBottom className="flex-1 p-4 overflow-y-auto relative">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="bg-gray-100 p-4 rounded-full mb-4">
@@ -129,26 +78,13 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error 
                 key={message.id}
                 message={message}
                 isCurrentUser={message.senderId === currentUserId}
+                onUnsend={onUnsend}
               />
             ))}
-            <div ref={messagesEndRef} />
           </div>
         )}
-      </div>
-      
-      {/* Optional: Show scroll to bottom button when auto-scroll is disabled */}
-      {!shouldAutoScroll && messages.length > 0 && (
-        <div className="absolute bottom-20 right-6">
-          <button
-            onClick={() => scrollToBottom('smooth')}
-            className="bg-blue-500 text-white p-2 rounded-full shadow-lg hover:bg-blue-600 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </button>
-        </div>
-      )}
+        <ScrollToBottomButton />
+      </ScrollToBottom>
     </div>
   );
 };
