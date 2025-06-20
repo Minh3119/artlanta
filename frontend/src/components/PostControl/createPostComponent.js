@@ -197,7 +197,6 @@ class CreatePostComponent extends React.Component {
 
         }
         formData.append("visibility", this.state.visibility);
-        console.log("form: ", formData);
         try {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/create', {
