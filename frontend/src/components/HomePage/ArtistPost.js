@@ -12,9 +12,10 @@ import ques from "../../assets/images/question.svg";
 import dotsIcon from "../../assets/images/dots.svg";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Footer from "../HomePage/Footer";
+import ShareButton from './ShareButton';
 
 export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup,scrollableTarget }) {
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useState([]); 
     const [hasMore,setHasMore]=useState(true);
     const isLoading=useRef(false);
     const [limit,setLimit]=useState(0);
@@ -45,11 +46,11 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
 
     useEffect(() => {
         fetchPosts(); // gọi khi trang load
-    }, [refetch]);
+    }, []);
     
     const handleLike = (postId) => {
         fetch(`http://localhost:9999/backend/api/like?postId=${postId}`, {
-            method: "GET",
+            method: "POST",
             credentials: "include"
         })
             .then(async (res) => {
@@ -99,7 +100,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                     className="my-masonry-grid"
                     columnClassName="my-masonry-grid_column"
                 >
-                    {posts.map((post, index) => (
+                    {posts.map((post) => (
                         <div className="artistpost-container" key={post.postID}>
                             <div className="artistpost-info">
                                 <img
@@ -156,7 +157,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                         </div>
                                     </div>
                                     <div className="artistpost-react__uncount">
-                                        <a href="#!"><img src={share} alt="share" /></a>
+                                    <ShareButton link={`http://localhost:3000post/${post.postID}`} />
                                         <a href="#!"><img src={save} alt="save" /></a>
                                     </div>
                                 </div>

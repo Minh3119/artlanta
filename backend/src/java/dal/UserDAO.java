@@ -310,4 +310,21 @@ public class UserDAO extends DBContext {
 
         return userId;
     }
+	
+	
+public String getAvatarByUserID(int userID) {
+    String sql = "SELECT AvatarURL FROM Users WHERE ID = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userID);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("AvatarURL");
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 }

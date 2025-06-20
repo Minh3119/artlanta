@@ -1,8 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import ques from "../../assets/images/question.svg";
-import likeComment from "../../assets/images/like-comment.svg";
-import replyComment from "../../assets/images/reply-comment.svg";
 import PostImageSlider from "./PostImageSlider";
 
 export default function PostDetailCard({ postId }) {
@@ -104,7 +102,7 @@ export default function PostDetailCard({ postId }) {
                     <div className="comment-user">
                         <div className="userComment-logo__container">
                             <img
-                                src={post.authorAvatar}
+                                src={post.currentUserAvatar}
                                 alt="your avatar"
                                 className="userComment-logo"
                             />
@@ -173,5 +171,6 @@ export default function PostDetailCard({ postId }) {
                 </div>
             </div>
         </div>
+        
     );
 }

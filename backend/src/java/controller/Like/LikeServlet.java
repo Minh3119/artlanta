@@ -41,7 +41,6 @@ public class LikeServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			String errorvString = Boolean.toString(isLoggedIn(session));
 			jsonResponse.put("status", "error");
 			jsonResponse.put("message", "Lỗi: " + e.getMessage());
 		}
