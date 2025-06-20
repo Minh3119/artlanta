@@ -1,4 +1,5 @@
 //import logo from './logo.svg';
+import React, { useState } from "react";
 import '../styles/App.scss';
 import '../styles/post.scss';
 import { ToastContainer } from 'react-toastify';
@@ -18,11 +19,15 @@ import Register from './Register.js';
 import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
+import MusicComponent from '../components/MusicBox/musicComponent.js';
+import { FiHeadphones } from "react-icons/fi";
+import { set } from 'date-fns';
 import Payment from './Payment.js';
 import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
 
 function App() {
-  
+  const [isMusicOpen, setIsMusicOpen] = useState(false);
+
   return (
     <>
       <BrowserRouter>
@@ -37,15 +42,29 @@ function App() {
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/editpost" element={<UpdatePostComponent />} />
           <Route path="/deletepost" element={<DeletePostComponent />} />
+          <Route path="/music" element={<MusicComponent />} />
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/passforget" element={<PassForget/>} />
+          <Route path="/passforget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
-          <Route path="/post/:postID" element={<PostDetail/>} />
-          <Route path="/payment" element={<Payment/>}></Route>
-          <Route path="/payment-success" element={<PaymentSuccess/>} />
-        </Routes>
+          <Route path="/post/:postID" element={<PostDetail />} />
+          <Route path="/payment" element={<Payment />}></Route>
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+        </Routes >
+        <MusicComponent setIsMusicOpen={setIsMusicOpen}
+          isMusicOpen={isMusicOpen}
+        />
+        {
+          isMusicOpen ?
+            null
+            :
+            <div className="floating-icon" onClick={() => setIsMusicOpen(!isMusicOpen)}>
+              <FiHeadphones />
+            </div>
+
+        }
+
       </BrowserRouter >
       <ToastContainer />
     </>

@@ -327,4 +327,60 @@ public String getAvatarByUserID(int userID) {
     return null;
 }
 
+
+    public List<User> getUsersByIds(List<Integer> userIds) {
+        List<User> result = new ArrayList<>();
+
+        if (userIds == null || userIds.isEmpty()) {
+            return result;
+        }
+
+        StringBuilder userIdsFormat = new StringBuilder();
+        for (int i = 0; i < userIds.size(); i++) {
+            userIdsFormat.append("?");
+
+            if (i < userIds.size() - 1) {
+                userIdsFormat.append(", ");
+            }
+        }
+
+        String sql = "SELECT * FROM Users WHERE ID IN (" + userIdsFormat + ") LIMIT 20";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (int i = 0; i < userIds.size(); i++) {
+                ps.setInt(i + 1, userIds.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                            rs.getInt("ID"),
+                            rs.getString("Username"),
+                            rs.getString("Email"),
+                            rs.getString("PasswordHash"),
+                            rs.getString("FullName"),
+                            rs.getString("Bio"),
+                            rs.getString("AvatarURL"),
+                            rs.getBoolean("Gender"),
+                            rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                            rs.getString("Location"),
+                            rs.getString("Role"),
+                            rs.getString("Status"),
+                            rs.getString("Language"),
+                            rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                            rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                            rs.getBoolean("IsFlagged"),
+                            rs.getBoolean("IsPrivate")
+                    );
+
+                    result.add(user);
+                }
+            }
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
 }
