@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
@@ -8,10 +8,36 @@ import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
 import { useNavigate } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
 
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [userID, setUserID] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.loggedIn) {
+          setUserID(data.userId);
+        }
+      } catch (error) {
+        console.error("Failed to check session:", error);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -89,9 +115,21 @@ export default function Header({ openCreatePopup }) {
           <Link to="#">
             <img src={arrowDown} alt="more"></img>
           </Link>
-          <button onClick={handleLogout} className="logout-button">
-            Log out
-          </button>
+          {userID === 0 && (
+            <div style={{ display: "flex" }}>
+              <Link to="/login">
+                <p style={{ marginBottom: 0 }}>Sign in</p>
+              </Link>
+              <Link to="/register">
+                <p style={{ marginBottom: 0 }}>Sign up</p>
+              </Link>
+            </div>
+          )}
+          {userID !== 0 && (
+            <button onClick={handleLogout} className="logout-button">
+              <FiLogOut style={{ backgroundColor: "green" }} />
+            </button>
+          )}
         </div>
       </div>
     </div>

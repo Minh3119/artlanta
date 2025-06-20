@@ -8,6 +8,7 @@ import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import jakarta.servlet.ServletContext;
 import java.util.Properties;
+import validation.EnvConfig;
 
 /**
  *
@@ -17,13 +18,12 @@ public class MailSender {
 
     public static boolean sendEmail(String userEmail, String otpNumber, ServletContext context) {
         try {
-            String fullPath = context.getRealPath("/WEB-INF/config.properties");
-            EnvReader.loadEnv(fullPath);
+            EnvConfig configReader = new EnvConfig();
             
-            String host = EnvReader.getEnv("smtp.host");
-            String port = EnvReader.getEnv("smtp.port");
-            String gmailAppPass = EnvReader.getEnv("smtp.password");
-            String emailSender = EnvReader.getEnv("smtp.username");
+            String host = configReader.getProperty("smtp.host");
+            String port = configReader.getProperty("smtp.port");
+            String gmailAppPass = configReader.getProperty("smtp.password");
+            String emailSender = configReader.getProperty("smtp.username");
             
             Properties props = new Properties();
             props.put("mail.smtp.host", host);

@@ -1,8 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import ques from "../../assets/images/question.svg";
-import likeComment from "../../assets/images/like-comment.svg";
-import replyComment from "../../assets/images/reply-comment.svg";
 import PostImageSlider from "./PostImageSlider";
 
 export default function PostDetailCard({ postId }) {
@@ -46,7 +44,7 @@ export default function PostDetailCard({ postId }) {
 
     useEffect(() => {
         fetchPostData();
-    }, [postId]);
+    }, [postId] );
 
     const handleCommentSubmit = async () => {
         if (!commentContent.trim()) {
@@ -55,7 +53,6 @@ export default function PostDetailCard({ postId }) {
         }
 
         try {
-            // Mã hóa content để tránh lỗi query parameter
             const encodedContent = encodeURIComponent(commentContent);
             console.log("Sending GET request to /api/comment/add", {
                 postID: postId,
@@ -64,7 +61,7 @@ export default function PostDetailCard({ postId }) {
             const response = await fetch(
                 `http://localhost:9999/backend/api/comment/add?postID=${postId}&content=${encodedContent}`,
                 {
-                    method: "GET",
+                    method: "POST",
                     credentials: "include",
                 }
             );
@@ -82,7 +79,6 @@ export default function PostDetailCard({ postId }) {
             if (response.ok && data.success) {
                 setCommentContent("");
                 fetchPostData();
-                alert("Đã thêm bình luận thành công");
             } else {
                 alert(data.error || "Lỗi khi thêm bình luận");
             }
@@ -92,7 +88,7 @@ export default function PostDetailCard({ postId }) {
         }
     };
 
-    if (loading) return <p>Đang tải...</p>;
+    if (loading) return <p></p>;
     if (error) return <p>Lỗi: {error}</p>;
     if (!post) return <p>Không tìm thấy bài viết</p>;
 
@@ -106,7 +102,7 @@ export default function PostDetailCard({ postId }) {
                     <div className="comment-user">
                         <div className="userComment-logo__container">
                             <img
-                                src={post.authorAvatar}
+                                src={post.currentUserAvatar}
                                 alt="your avatar"
                                 className="userComment-logo"
                             />
@@ -175,5 +171,6 @@ export default function PostDetailCard({ postId }) {
                 </div>
             </div>
         </div>
+        
     );
 }
