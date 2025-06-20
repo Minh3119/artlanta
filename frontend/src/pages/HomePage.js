@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
-import Footer from "../components/HomePage/Footer";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
@@ -73,7 +72,10 @@ export default function HomePage() {
   const today_formatted = format(new Date(), "MMMM d, yyyy");
 
   return (
-    <div className="homepage-container">
+    <div  className="homepage-container" id="scrollableDiv"
+ style={{
+    overflow: "auto",  
+  }}>
       <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">
@@ -81,14 +83,15 @@ export default function HomePage() {
       </div>
       <div className="homepage-title">Artwork Posts</div>
 
-      <ArtistPost
-        refetch={isRefresh}
-        currentID={currentID}
-        openUpdatePopup={openUpdatePopup}
-        openDeletePopup={openDeletePopup}
-      />
+  <ArtistPost
+    refetch={isRefresh}
+    currentID={currentID}
+    openUpdatePopup={openUpdatePopup}
+    openDeletePopup={openDeletePopup}
+    scrollableTarget="scrollableDiv" 
+  />
 
-      <Footer></Footer>
+
 
       {/* callComponent */}
       {isCreateOpen ? (

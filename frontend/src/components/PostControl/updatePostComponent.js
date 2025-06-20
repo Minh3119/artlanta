@@ -316,7 +316,7 @@ class UpdatePostComponent extends React.Component {
 
                     </div>
                     <div className="post-button">
-                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Edit</button>
+                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Save</button>
                         <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
                     </div>
 
