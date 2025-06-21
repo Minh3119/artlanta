@@ -30,7 +30,16 @@ const MessagesPage = () => {
           throw new Error('Failed to fetch conversations');
         }
         const data = await response.json();
-        setConversations(data.conversations || []);
+        // Sort conversations by latestMessage.createdAt (newest first)
+        const sorted = (data.conversations || []).slice().sort((a, b) => {
+          const t1 = a.latestMessage?.createdAt;
+          const t2 = b.latestMessage?.createdAt;
+          if (!t1 && !t2) return 0;
+          if (!t1) return 1;      // a has no timestamp -> after b
+          if (!t2) return -1;     // b has no timestamp -> after a
+          return new Date(t2) - new Date(t1); // descending
+        });
+        setConversations(sorted);
       } catch (err) {
         setConversationsError(err.message);
       } finally {
