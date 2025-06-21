@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import ArtistCard from '../components/UserProfileView/ArtistCard';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -90,7 +90,6 @@ const Artists = () => {
                     </div>
                 )}
             </div>
-            <ToastContainer />
         </div>
     );
 };
