@@ -1,12 +1,28 @@
 import React, { useState } from 'react';
-import { format } from 'date-fns';
 import MessageActions from './MessageActions';
 import MessageMedia from './MessageMedia';
+
+function formatFullDateTime(timestamp) {
+  const date = new Date(timestamp);
+
+  const options = {
+    weekday: 'short',     // "Mon"
+    year: 'numeric',      // "2025"
+    month: 'short',       // "Jan"
+    day: 'numeric',       // "17"
+    hour: '2-digit',      // "14"
+    minute: '2-digit',    // "45"
+    hour12: false         // 24-hour format
+  };
+
+  return date.toLocaleString(undefined, options);
+}
+
 
 // Current user message (sent messages - right side)
 const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const formattedTime = format(new Date(message.createdAt), 'HH:mm');
+  const formattedTime = formatFullDateTime(message.createdAt);
 
   return (
     <div 
@@ -46,7 +62,7 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
           </div>
 
           {/* Timestamp - shows on hover */}
-          <div className={`z-10 absolute -bottom-5 right-0 transition-opacity duration-200 ${
+          <div className={`z-10 absolute -bottom-5 right-2 transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}>
             <span className="text-xs text-gray-500 whitespace-nowrap">
@@ -63,10 +79,7 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
 const OtherUserMessage = ({ message, onUnsend, onReport }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const formattedTime = new Date(message.createdAt).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  const formattedTime = formatFullDateTime(message.createdAt);
 
   return (
     <div 
@@ -97,7 +110,7 @@ const OtherUserMessage = ({ message, onUnsend, onReport }) => {
           </div>
 
           {/* Timestamp - shows on hover */}
-          <div className={`z-10 absolute -bottom-5 left-0 transition-opacity duration-200 ${
+          <div className={`z-10 absolute -bottom-5 left-2 transition-opacity duration-200 ${
             isHovered ? 'opacity-100' : 'opacity-0'
           }`}>
             <span className="text-xs text-gray-500 whitespace-nowrap">
