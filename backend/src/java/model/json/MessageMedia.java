@@ -1,4 +1,4 @@
-package dto;
+package model.json;
 
 public class MessageMedia {
     private String type;          // "image", "video", "file", etc.

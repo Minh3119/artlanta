@@ -29,8 +29,7 @@ public class MessageServlet extends HttpServlet {
         // Get conversation ID from query parameters
         String conversationIdStr = request.getParameter("conversationId");
         if (conversationIdStr == null || conversationIdStr.isEmpty()) {
-            JsonUtil.writeJsonError(response, "Missing conversationId parameter", 
-                HttpServletResponse.SC_BAD_REQUEST);
+            JsonUtil.writeJsonError(response, "Missing conversationId parameter", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -38,12 +37,12 @@ public class MessageServlet extends HttpServlet {
             int conversationId = Integer.parseInt(conversationIdStr);
             
             // Verify the current user is part of the conversation
-            // int currentUserId = SessionUtil.getCurrentUserId(session);
-            // if (!messagingService.isUserInConversation(currentUserId, conversationId)) {
-            //     JsonUtil.writeJsonError(response, "Not authorized to view this conversation", 
-            //         HttpServletResponse.SC_FORBIDDEN);
-            //     return;
-            // }
+            int currentUserId = SessionUtil.getCurrentUserId(session);
+            if (!messagingService.isUserInConversation(currentUserId, conversationId)) {
+                JsonUtil.writeJsonError(response, "Not authorized to view this conversation", 
+                    HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
 
             JSONObject jsonResponse = messagingService.getMessagesByConversationId(conversationId);
             
@@ -51,12 +50,10 @@ public class MessageServlet extends HttpServlet {
             JsonUtil.writeJsonResponse(response, jsonResponse);
             
         } catch (NumberFormatException e) {
-            JsonUtil.writeJsonError(response, "Invalid conversation ID format", 
-                HttpServletResponse.SC_BAD_REQUEST);
+            JsonUtil.writeJsonError(response, "Invalid conversation ID format", HttpServletResponse.SC_BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
-            JsonUtil.writeJsonError(response, "Error retrieving messages: " + e.getMessage(), 
-                HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JsonUtil.writeJsonError(response, "Error retrieving messages: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

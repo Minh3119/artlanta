@@ -32,10 +32,10 @@ public class MessageDAO extends DBContext {
         return null;
     }
 
-    // Get all messages in a conversation (if needed later)
+    // Get all messages in a conversation
     public List<Message> getMessagesByConversationId(int conversationId) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT * FROM Messages WHERE ConversationID = ? AND isDeleted = FALSE ORDER BY CreatedAt ASC";
+        String sql = "SELECT * FROM Messages WHERE ConversationID = ? ORDER BY CreatedAt ASC";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, conversationId);
             try (ResultSet rs = stmt.executeQuery()) {
