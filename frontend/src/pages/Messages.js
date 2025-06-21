@@ -72,13 +72,29 @@ const MessagesPage = () => {
       // Handle unsend action broadcast
       if (payload.action === 'unsend') {
         const { messageId } = payload;
-        // Remove from messages list if currently selected conversation contains it
-        setMessages(prev => prev.filter(m => m.id !== messageId));
 
-        // Update conversations list (if latestMessage is the one unsent, clear it)
+        // Instead of removing, mark the message as deleted and replace its content
+        setMessages(prev => prev.map(m => {
+          if (m.id === messageId) {
+            return {
+              ...m,
+              content: 'This message has been deleted',
+              isDeleted: true,
+            };
+          }
+          return m;
+        }));
+
+        // Update conversations list (if latestMessage is the one unsent, update its content)
         setConversations(prev => prev.map(conv => {
           if (conv.latestMessage && conv.latestMessage.id === messageId) {
-            return { ...conv, latestMessage: null };
+            return {
+              ...conv,
+              latestMessage: {
+                ...conv.latestMessage,
+                content: 'This message has been deleted',
+              }
+            };
           }
           return conv;
         }));

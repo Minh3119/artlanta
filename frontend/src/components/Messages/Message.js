@@ -27,13 +27,22 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
 
         <div className="relative">
           {/* Message bubble */}
-          <div className="bg-blue-500 text-white px-3 py-2 rounded-3xl max-w-full">
-            {message.content && (
+          <div className="bg-blue-500 text-white px-3 py-2 rounded-3xl max-w-full break-words break-all">
+            {/* Message content */}
+            {message.content && !message.isDeleted && (
               <p className="m-0 text-sm leading-relaxed break-words">
                 {message.content}
               </p>
             )}
-            <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={true} />
+            {message.isDeleted && (
+              <p className="m-0 text-sm leading-relaxed break-words">
+                This message has been deleted
+              </p>
+            )}
+            {/* Message media */}
+            {!message.isDeleted && (
+              <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={true} />
+            )}
           </div>
 
           {/* Timestamp - shows on hover */}
@@ -68,13 +77,23 @@ const OtherUserMessage = ({ message, onUnsend, onReport }) => {
       <div className="flex items-end space-x-2 max-w-[70%]">
         <div className="relative">
           {/* Message bubble */}
-          <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-3xl max-w-full">
-            {message.content && (
+          <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-3xl max-w-full break-words break-all">
+            {/* Message content */}
+            {message.content && !message.isDeleted && (
               <p className="m-0 text-sm leading-relaxed break-words">
                 {message.content}
               </p>
             )}
-            <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={false} />
+            {/* Message is deleted */}
+            {message.isDeleted && (
+              <p className="m-0 text-sm leading-relaxed break-words">
+                This message has been deleted
+              </p>
+            )}
+            {/* Message media */}
+            {!message.isDeleted && (
+              <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={false} />
+            )}
           </div>
 
           {/* Timestamp - shows on hover */}

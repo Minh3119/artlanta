@@ -1,4 +1,4 @@
-package dto;
+package model.json;
 
 public class UnsendMessagePayload {
     private String action;

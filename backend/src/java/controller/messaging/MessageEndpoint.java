@@ -9,21 +9,17 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import model.json.SendMessagePayload;
+import model.json.UnsendMessagePayload;
 import service.MessagingService;
 import util.JsonUtil;
 import util.SessionUtil;
-import model.Message;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
-
-import com.google.gson.JsonSyntaxException;
-
-import dto.SendMessagePayload;
-import dto.UnsendMessagePayload;
 
 
 @ServerEndpoint(value = "/ws/message", configurator = HttpSessionConfigurator.class)

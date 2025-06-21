@@ -1,17 +1,15 @@
 package service;
 
-import jakarta.websocket.Session;
-
 import dal.ConversationDAO;
 import dal.ConversationReadsDAO;
 import dal.MessageDAO;
 import dal.UserDAO;
 import dto.ConversationDTO;
-import dto.SendMessagePayload;
-import dto.UnsendMessagePayload;
 import model.Conversation;
 import model.Message;
 import model.User;
+import model.json.SendMessagePayload;
+import model.json.UnsendMessagePayload;
 import util.JsonUtil;
 
 import org.json.JSONArray;
@@ -21,7 +19,6 @@ import com.google.gson.JsonSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MessagingService {
 
@@ -75,27 +72,31 @@ public class MessagingService {
         return result;
     }
 
+    public boolean isUserInConversation(int userId, int conversationId) {
+        ConversationDAO conversationDAO = new ConversationDAO();
+        Conversation conversation = conversationDAO.getById(conversationId);
+        if (conversation == null) return false;
+        return conversation.getUser1Id() == userId || conversation.getUser2Id() == userId;
+    }
+
     public JSONObject getMessagesByConversationId(int conversationId) {
         MessageDAO messageDAO = new MessageDAO();
         List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
         
-        // Mark messages as read
-        // messagingService.markMessagesAsRead(conversationId, currentUserId);
-        
         // Convert messages to JSON
         JSONObject jsonResponse = new JSONObject();
-        JSONArray messagesArray = new JSONArray();
+        JSONArray messagesArray = new JSONArray(JsonUtil.toJsonString(messages));
         
-        for (Message message : messages) {
-            JSONObject messageJson = new JSONObject();
-            messageJson.put("id", message.getId());
-            messageJson.put("conversationId", message.getConversationId());
-            messageJson.put("senderId", message.getSenderId());
-            messageJson.put("content", message.getContent());
-            messageJson.put("mediaUrl", message.getMediaUrl());
-            messageJson.put("createdAt", message.getCreatedAt().toString());
-            messagesArray.put(messageJson);
-        }
+        // for (Message message : messages) {
+        //     JSONObject messageJson = new JSONObject();
+        //     messageJson.put("id", message.getId());
+        //     messageJson.put("conversationId", message.getConversationId());
+        //     messageJson.put("senderId", message.getSenderId());
+        //     messageJson.put("content", message.getContent());
+        //     messageJson.put("mediaUrl", message.getMediaUrl());
+        //     messageJson.put("createdAt", message.getCreatedAt().toString());
+        //     messagesArray.put(messageJson);
+        // }
         
         jsonResponse.put("success", true);
         jsonResponse.put("messages", messagesArray);
@@ -160,8 +161,12 @@ public class MessagingService {
                 }
                 
                 // Add latest message if exists
-                if (conversation.getLatestMessage() != null) {
-                    convJson.put("latestMessage", buildMessageJson(conversation.getLatestMessage(), currentUserId));
+                Message m = conversation.getLatestMessage();
+                if (m != null) {
+                    JSONObject messageJson = new JSONObject(m);
+                    boolean isRead = isMessageReadByUser(m.getId(), currentUserId);
+                    messageJson.put("isRead", isRead);
+                    convJson.put("latestMessage", messageJson);
                 }
                 
                 conversationsJson.put(convJson);
@@ -174,22 +179,6 @@ public class MessagingService {
         }
         
         return conversationsJson;
-    }
-    
-    /**
-     * Builds a JSON object for a message with read status
-     * @param message The message to convert to JSON
-     * @param currentUserId The ID of the current user (to check read status)
-     * @return JSONObject containing message data with read status
-     */
-    private JSONObject buildMessageJson(model.Message message, int currentUserId) {
-        JSONObject messageJson = new JSONObject(message);
-        if (message != null) {
-            // Check if the message is read by the current user
-            boolean isRead = isMessageReadByUser(message.getId(), currentUserId);
-            messageJson.put("isRead", isRead);
-        }
-        return messageJson;
     }
     
     /**
