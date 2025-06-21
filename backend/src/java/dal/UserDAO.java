@@ -8,7 +8,6 @@ import java.util.List;
 import model.User;
 //import model.Post;
 //import model.SavedPost;
-import model.Notification;
 
 public class UserDAO extends DBContext {
 

@@ -2,3 +2,6 @@ backend/build.xml
 backend/nbproject/genfiles.properties
 *.properties
 /.scannerwork
+.env
+instructions.md
+.vscode/
