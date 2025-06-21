@@ -1,32 +1,33 @@
 package service;
 
+import jakarta.websocket.Session;
+
 import dal.ConversationDAO;
 import dal.ConversationReadsDAO;
 import dal.MessageDAO;
 import dal.UserDAO;
 import dto.ConversationDTO;
+import dto.SendMessagePayload;
+import dto.UnsendMessagePayload;
 import model.Conversation;
 import model.Message;
 import model.User;
+import util.JsonUtil;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.JsonSyntaxException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MessagingService {
-    private final ConversationDAO conversationDAO;
-    private final UserDAO userDAO;
-    private final MessageDAO messageDAO;
-    private final UserService userService;
-    private final ConversationReadsDAO conversationReadsDAO;
 
+    private UserService userService;
     public MessagingService() {
-        this.conversationDAO = new ConversationDAO();
-        this.userDAO = new UserDAO();
-        this.messageDAO = new MessageDAO();
-        this.userService = new UserService();
-        this.conversationReadsDAO = new ConversationReadsDAO();
+        userService = new UserService();
     }
 
     /**
@@ -35,6 +36,9 @@ public class MessagingService {
      * @return List of ConversationListDTO containing conversation details
      */
     public List<ConversationDTO> getUserConversations(int userId) {
+        ConversationDAO conversationDAO = new ConversationDAO();
+        UserDAO userDAO = new UserDAO();
+        MessageDAO messageDAO = new MessageDAO();
         List<ConversationDTO> result = new ArrayList<>();
         
         try {
@@ -65,10 +69,14 @@ public class MessagingService {
             // In a real application, you might want to log this error
         }
         
+        conversationDAO.closeConnection();
+        userDAO.closeConnection();
+        messageDAO.closeConnection();
         return result;
     }
 
     public JSONObject getMessagesByConversationId(int conversationId) {
+        MessageDAO messageDAO = new MessageDAO();
         List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
         
         // Mark messages as read
@@ -96,11 +104,13 @@ public class MessagingService {
     }
 
     public Message createMessage(int conversationId, int senderId, String content, String mediaUrl) {
+        MessageDAO messageDAO = new MessageDAO();
         Message message = new Message(-1, conversationId, senderId, content, mediaUrl, null, false, null);
         return messageDAO.create(message);
     }
 
     public Message createMessage(Message newMessage) {
+        MessageDAO messageDAO = new MessageDAO();
         return messageDAO.create(newMessage);
     }
     
@@ -111,6 +121,7 @@ public class MessagingService {
      * @return The conversation ID
      */
     public int getOrCreateConversation(int user1Id, int user2Id) {
+        ConversationDAO conversationDAO = new ConversationDAO();
         // Check if conversation already exists
         Conversation existing = conversationDAO.getConversationBetweenUsers(user1Id, user2Id);
         if (existing != null) {
@@ -166,29 +177,17 @@ public class MessagingService {
     }
     
     /**
-     * Builds a JSON object for a message
-     * @param message The message to convert to JSON
-     * @return JSONObject containing message data
-     */
-    /**
      * Builds a JSON object for a message with read status
      * @param message The message to convert to JSON
      * @param currentUserId The ID of the current user (to check read status)
      * @return JSONObject containing message data with read status
      */
     private JSONObject buildMessageJson(model.Message message, int currentUserId) {
-        JSONObject messageJson = new JSONObject();
+        JSONObject messageJson = new JSONObject(message);
         if (message != null) {
-            messageJson.put("id", message.getId());
-            messageJson.put("content", message.getContent());
-            messageJson.put("mediaUrl", message.getMediaUrl());
-            messageJson.put("createdAt", message.getCreatedAt());
-            
             // Check if the message is read by the current user
             boolean isRead = isMessageReadByUser(message.getId(), currentUserId);
             messageJson.put("isRead", isRead);
-            
-            messageJson.put("senderId", message.getSenderId());
         }
         return messageJson;
     }
@@ -201,12 +200,10 @@ public class MessagingService {
      */
     private boolean isMessageReadByUser(int messageId, int userId) {
         try {
-            // Get the conversation ID for the message
-            // Note: You might need to implement a method in MessageDAO to get conversation ID by message ID
-            // For now, we'll assume the message object has a getConversationId() method
-            // This is a simplified implementation - you'll need to adjust based on your actual data model
+            MessageDAO messageDAO = new MessageDAO();
+            ConversationReadsDAO conversationReadsDAO = new ConversationReadsDAO();
             
-            // Get the last read message ID for this user in the conversation
+            // Get the 'last read message ID' for this user in the conversation
             Message message = messageDAO.getById(messageId);
             if (message != null) {
                 Integer lastReadMessageId = conversationReadsDAO.getLastReadMessageId(
@@ -230,6 +227,8 @@ public class MessagingService {
      * @return true if the operation was successful, false otherwise
      */
     public boolean markMessageAsRead(int messageId, int userId) {
+        MessageDAO messageDAO = new MessageDAO();
+        ConversationReadsDAO conversationReadsDAO = new ConversationReadsDAO();
         try {
             Message message = messageDAO.getById(messageId);
             if (message != null) {
@@ -250,6 +249,7 @@ public class MessagingService {
      * @return true if the message was deleted, false if not permitted or not found.
      */
     public boolean deleteMessage(int messageId, int userId) {
+        MessageDAO messageDAO = new MessageDAO();
         try {
             Message message = messageDAO.getById(messageId);
             if (message == null) {
@@ -272,28 +272,68 @@ public class MessagingService {
      * @return recipient user ID, or -1 if not found
      */
     public int getRecipientId(int conversationId, int senderId) {
+        ConversationDAO conversationDAO = new ConversationDAO();
         Conversation conv = conversationDAO.getById(conversationId);
         if (conv == null) return -1;
         return conv.getUser1Id() == senderId ? conv.getUser2Id() : conv.getUser1Id();
     }
 
-    public Message getMessageById(int messageId) {
-        return messageDAO.getById(messageId);
-    }
-
-    /**
-     * Close all DAO connections managed by this service.
-     */
-    public void close() {
+    public String handleSendMessage(SendMessagePayload payload) {
         try {
-            conversationDAO.closeConnection();
-            userDAO.closeConnection();
-            messageDAO.closeConnection();
-            conversationReadsDAO.closeConnection();
-            // Close nested service resources
-            userService.closeConnection();
+            // 1. INSERT new Message in Database (persisted message)
+            String text = payload.getContent() != null ? payload.getContent().getText() : null;
+            Message toCreate = new Message(-1, payload.getConversationId(), payload.getSenderId(), text, null, null, false, null);
+            Message newMessage = createMessage(toCreate);
+
+            if (newMessage == null) {
+                throw new Exception("Failed to create message.");
+            }
+
+            // 2. Convert the persisted message to JSON
+            SendMessageResponse response = new SendMessageResponse();
+            response.setAction("send");
+            response.setMessage(newMessage);
+            String responseJsonString = JsonUtil.toJsonString(response);
+            return responseJsonString;
+        } catch (JsonSyntaxException e) {
+            System.out.println("Failed to parse JSON");
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
+    
+    public JSONObject handleUnsendMessage(UnsendMessagePayload payload) {
+        try {
+            // 1. Delete message in database
+            boolean success = deleteMessage(payload.getMessageId(), payload.getCurrentUserId());
+            if (!success) throw new Exception("Failed to delete message.");
+
+            // 2. Convert the deleted message to JSON
+            Message deleted = new MessageDAO().getById(payload.getMessageId());
+            JSONObject response = new JSONObject();
+            response.put("action", "unsend");
+            response.put("messageId", payload.getMessageId());
+            response.put("conversationId", deleted.getConversationId());
+            return response;
+        } catch (JsonSyntaxException e) {
+            System.out.println("Failed to parse JSON");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+
+class SendMessageResponse {
+    private String action;
+    private Message message;
+
+    public String getAction() { return action; }
+    public void setAction(String action) { this.action = action; }
+
+    public Message getMessage() { return message; }
+    public void setMessage(Message message) { this.message = message; }
 }

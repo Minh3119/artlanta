@@ -60,13 +60,4 @@ public class MessageServlet extends HttpServlet {
         }
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        try {
-            messagingService.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
