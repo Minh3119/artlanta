@@ -57,6 +57,7 @@ public class MessageEndpoint {
         // sessions.remove(session.getId());
         int userId = (int) session.getUserProperties().get("userId");
         connectedUsers.remove(userId);  // remove userId from the global map
+        System.out.println("WebSocket closed by user: " + userId + " with reason: " + reason.getReasonPhrase());
     }
 
 
