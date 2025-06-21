@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import ConversationsList from '../components/Messages/ConversationsList';
 import MessagesList from '../components/Messages/MessagesList';
@@ -7,6 +8,7 @@ import { messagesResponseSchema } from '../schemas/messaging';
 
 const MessagesPage = () => {
   const ws = useRef(null);
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState(null);
@@ -50,12 +52,22 @@ const MessagesPage = () => {
     fetchConversations();
   }, []);
 
-  // Effect for selecting the first conversation
+  // After conversations load, try to select based on query param, else first
   useEffect(() => {
-    if (!selectedConversation && conversations.length > 0) {
+    if (conversations.length === 0) return;
+    const convIdParam = searchParams.get('conversationId');
+    if (convIdParam) {
+      const found = conversations.find(c => c.id === parseInt(convIdParam));
+      if (found) {
+        setSelectedConversation(found);
+        return;
+      }
+    }
+    // default if not selected
+    if (!selectedConversation) {
       setSelectedConversation(conversations[0]);
     }
-  }, [conversations, selectedConversation]);
+  }, [conversations, selectedConversation, searchParams]);
 
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
