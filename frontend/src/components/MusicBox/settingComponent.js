@@ -10,6 +10,7 @@ class SettingComponent extends React.Component {
         playlistLink: "",
         editName: "",
         editLink: "",
+        editID: null,
         listPlaylist: [
             {
 
@@ -38,31 +39,9 @@ class SettingComponent extends React.Component {
 
     }
 
-    formatYoutubeID = (url) => {
-        const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
-        const videoRegex = /(?:v=|\/videos\/|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/;
-
-        const isPlaylist = url.match(playlistRegex);
-        if (isPlaylist) {
-            return {
-                type: 'playlist',
-                ID: isPlaylist[1]
-            };
-        }
-
-        const isVideo = url.match(videoRegex);
-        if (isVideo) {
-            return {
-                type: 'video',
-                ID: isVideo[1]
-            };
-        }
-
-        return toast.error("Invalid YouTube URL");
-    }
     handleOnChangeName = (e) => {
         const newName = e.target.value;
-        newName.length <= 50 ?
+        newName.trim().length <= 50 ?
             (
                 this.setState({
                     playlistName: newName
@@ -86,7 +65,7 @@ class SettingComponent extends React.Component {
     }
     handleOnChangeLink = (e) => {
         const newLink = e.target.value;
-        newLink.length <= 100 ?
+        newLink.trim().length <= 200 ?
             (
                 this.setState({
                     playlistLink: newLink
@@ -110,7 +89,7 @@ class SettingComponent extends React.Component {
     }
     handleOnChangeNameEdit = (e) => {
         const newName = e.target.value;
-        newName.length <= 50 ?
+        newName.trim().length <= 50 ?
             (
                 this.setState({
                     editName: newName
@@ -134,7 +113,7 @@ class SettingComponent extends React.Component {
     }
     handleOnChangeLinkEdit = (e) => {
         const newLink = e.target.value;
-        newLink.length <= 100 ?
+        newLink.trim().length <= 200 ?
             (
                 this.setState({
                     editLink: newLink
@@ -231,10 +210,22 @@ class SettingComponent extends React.Component {
             editingIndex: index,
             editName: this.state.listPlaylist[index].playlistName,
             editLink: this.state.listPlaylist[index].playlistLink,
+            editID: this.state.listPlaylist[index].ID,
 
         })
     }
     handleOnEdit = async (ID) => {
+        if (this.handleCheckFormat(this.state.editLink) === false) {
+            toast.error("Invalid YouTube URL format.");
+            return;
+        }
+        if (this.state.listPlaylist.some(
+            item => item.playlistName.trim() === this.state.editName.trim() && item.ID !== this.state.editID
+        )
+        ) {
+            toast.error("Please check the playlist name.");
+            return;
+        }
         if (this.state.editName === "" || this.state.editLink === "") {
             alert("Please fill in all fields.");
             return;
@@ -283,6 +274,12 @@ class SettingComponent extends React.Component {
                 credentials: 'include'
             });
             if (res.ok) {
+                this.setState({
+                    editName: "",
+                    editLink: "",
+                    isEdit: false,
+                    editingIndex: null,
+                });
                 toast.success("Delete playlist completed!");
                 this.componentDidMount();
             } else {
@@ -312,16 +309,13 @@ class SettingComponent extends React.Component {
                     </button>
                 </div>
                 <div className="playlist-list">
-                    {/* <input type="text" placeholder="playlist 1"
-                        onChange={(e) => { this.setState({}) }} />
-                    <input type="text" placeholder="link 1" /> */}
                     <div className="playlist-display">
                         {
                             this.state.listPlaylist.map((item, index) => {
-                                this.state.isEdit = this.state.editingIndex === index
+                                const isEditing = this.state.editingIndex === index;
                                 return (
                                     <div key={item.ID}>
-                                        {this.state.isEdit ?
+                                        {isEditing ?
                                             <div>
                                                 <input className="item-name" value={this.state.editName} onChange={(e) => this.handleOnChangeNameEdit(e)} />
                                                 <textarea className="item-link" value={this.state.editLink} onChange={(e) => this.handleOnChangeLinkEdit(e)} />

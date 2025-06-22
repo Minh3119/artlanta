@@ -214,7 +214,6 @@ class VideoComponent extends React.Component {
                             <option value={index} key={item.ID}>
                                 {item.name}
                             </option>
-
                         )}
 
                     </select>
@@ -235,7 +234,6 @@ class VideoComponent extends React.Component {
                             onStateChange={this.onPlayerStateChange}
                             onError={this.onPlayerError}
                         />
-
                     }
                 </div>
 
