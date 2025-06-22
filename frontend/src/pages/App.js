@@ -24,6 +24,7 @@ import { FiHeadphones } from "react-icons/fi";
 import { set } from 'date-fns';
 import Payment from './Payment.js';
 import PaymentHis from './HistoryPayment.js';
+import PaymentResult from "./PaymentResult.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -51,6 +52,7 @@ function App() {
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/payment" element={<Payment />}></Route>
           <Route path="/paymentHis" element={<PaymentHis/>}></Route>
+          <Route path="/paymentResult" element={<PaymentResult/>}></Route>
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

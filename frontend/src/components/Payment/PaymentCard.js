@@ -17,6 +17,7 @@ export default function PaymentCard() {
   }, []);
 
   return (
+    <>
     <div className="payment-card">
       <div className="header-payment">
         <div className="payment-logo">
@@ -45,8 +46,8 @@ export default function PaymentCard() {
           onBack={() => setStep(1)}
         />
       )}
-
-      <ToastContainer position="top-center" autoClose={3000} />
     </div>
+    <ToastContainer/>
+    </>
   );
 }

@@ -97,7 +97,7 @@ public class StripeWebhookServlet extends HttpServlet {
                 WalletDAO walletDAO = new WalletDAO();
 
                 transactionDAO.insertTransaction(
-                        userId, amountUSD, "PAID", "stripe", "USD", "Stripe session ID: " + sessionId);
+                        userId, amountUSD, "Nạp tiền vào tài khoản", "stripe", "USD", "Stripe session ID: " + sessionId);
                 walletDAO.addBalance(userId, amountVND);
 
                 processedEvents.add(event.getId());

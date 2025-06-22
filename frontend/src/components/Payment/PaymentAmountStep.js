@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import PayPalPaymentMenu from "./PayPalPaymentMenu";
 import StripePaymentMenu from "./StripePaymentMenu";
+import VNPayPaymentMenu from "./VNPayPaymentMenu";
 
 export default function PaymentAmountStep({ method, onBack }) {
   const [amount, setAmount] = useState("");
@@ -57,6 +58,12 @@ export default function PaymentAmountStep({ method, onBack }) {
       {method === "stripe" && validated && (
         <div style={{ marginTop: "20px" }}>
           <StripePaymentMenu amountUSD={parseFloat(amount)} />
+        </div>
+      )}
+
+      {method === "vnpay" && validated && (
+        <div style={{ marginTop: "20px" }}>
+          <VNPayPaymentMenu amountVND={parseInt(amount)} />
         </div>
       )}
     </div>

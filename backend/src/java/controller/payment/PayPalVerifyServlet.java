@@ -55,7 +55,7 @@ public class PayPalVerifyServlet extends HttpServlet {
         transactionDAO.insertTransaction(
                 userId,
                 amountUSD,
-                "PAID",
+                "Nạp tiền vào tài khoản",
                 "paypal",
                 "USD",
                 "PayPal order ID: " + orderID
