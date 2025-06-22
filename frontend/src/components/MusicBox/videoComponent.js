@@ -9,12 +9,9 @@ class VideoComponent extends React.Component {
         musicDuration: 0,
         currentTime: 0,
         musicTitle: "",
-        playlist: [
-            {
-                type: 'video',
-                ID: 'YzRyzWzTlI8'
-            }
-        ],
+        listPlaylist: [{
+
+        }],
         currentPlaylist: {
             type: 'playlist',
             // ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
@@ -22,6 +19,24 @@ class VideoComponent extends React.Component {
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
+    }
+    componentDidMount() {
+        fetch(`http://localhost:9999/backend/api/music/view`, {
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch music data');
+                return response.json();
+            })
+            .then(async data => {
+                this.setState({
+                    listPlaylist: data.response,
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching music data:', error);
+            });
+
     }
     onPlayerReady = (event) => {
         this.setState({
@@ -105,6 +120,17 @@ class VideoComponent extends React.Component {
             this.state.player.previousVideo();
         }
     };
+    handleMute = () => {
+        if (this.state.player) {
+            if (this.state.volume > 0) {
+                this.state.player.setVolume(0);
+                this.setState({ volume: 0 });
+            } else {
+                this.state.player.setVolume(100);
+                this.setState({ volume: 100 });
+            }
+        }
+    }
     handleVolumeChange = (event) => {
         const newVolume = parseInt(event.target.value);
         const { player } = this.state;
@@ -181,7 +207,7 @@ class VideoComponent extends React.Component {
                     <input type="range" className="volume-control" min="0" max="100" step="1"
                         value={this.state.volume}
                         onChange={(e) => this.handleVolumeChange(e)} />
-                    <button className="btn mute-btn" >&#128265;</button>
+                    <button className="btn mute-btn" onClick={() => this.handleMute()} >&#128265;</button>
                 </div>
             </div>
         )

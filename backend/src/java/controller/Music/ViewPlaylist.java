@@ -17,35 +17,39 @@ import util.JsonUtil;
 import util.SessionUtil;
 
 public class ViewPlaylist extends HttpServlet {
-   
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
-        MusicDAO md= new MusicDAO();
-        List<Music> list= new ArrayList<>();
-        try{
+        MusicDAO md = new MusicDAO();
+        List<Music> list = new ArrayList<>();
+        try {
             Integer userID = SessionUtil.getCurrentUserId(session);
-            list= md.getPlaylistByUserID(userID);
+//            Integer userID=29;
+            list = md.getPlaylistByUserID(userID);
             JSONObject jsonMusic = new JSONObject();
             JSONArray mediaArr = new JSONArray();
-            for(Music music: list){
-                mediaArr.put(music);
+            for (Music music : list) {
+                JSONObject musicObj = new JSONObject();
+                musicObj.put("ID", music.getID());
+                musicObj.put("playlistName", music.getPlaylist());
+                musicObj.put("playlistLink", music.getMediaURL());
+                mediaArr.put(musicObj);
             }
-            jsonMusic.put("response",mediaArr);
+            jsonMusic.put("response", mediaArr);
             JsonUtil.writeJsonResponse(response, jsonMusic);
-            
-        }
-        catch(Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    } 
-
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
 
     }
 

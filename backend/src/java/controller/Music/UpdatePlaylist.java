@@ -1,74 +1,75 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 
 package controller.Music;
 
+import dal.MusicDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import model.Music;
+import org.json.JSONObject;
+import util.JsonUtil;
+import util.SessionUtil;
 
-/**
- *
- * @author ADMIN
- */
+
 public class UpdatePlaylist extends HttpServlet {
    
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet UpdatePlaylist</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet UpdatePlaylist at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        
     } 
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        processRequest(request, response);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        MusicDAO md = new MusicDAO();
+        HttpSession session = request.getSession();
+        
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = request.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        JSONObject json = new JSONObject(sb.toString());
+        String ID_raw = json.optString("ID", "").trim();
+        String playlistName = json.optString("playlistName", "").trim();
+        String playlistLink = json.optString("playlistLink", "").trim();
+        try {
+            int ID= Integer.parseInt(ID_raw);
+            Integer userID = SessionUtil.getCurrentUserId(session);
+            if (userID <= 0) {
+                JsonUtil.writeJsonError(response, "Must login");
+                return;
+            }
+            if (playlistName == null || playlistName.isEmpty() || playlistLink == null || playlistLink.isEmpty()) {
+                JsonUtil.writeJsonError(response, "Null playlistName or playlistLink");
+                return;
+            }
+
+            md.updatePlaylist(new Music(ID,userID, playlistName, playlistLink));
+            //testAPI
+//            JsonUtil.writeJsonError(response, playlistLink);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonUtil.writeJsonError(response, "Error update music");
+        }
+
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
+
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
+    }
 
 }

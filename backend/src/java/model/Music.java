@@ -17,6 +17,12 @@ public class Music {
         this.mediaURL = mediaURL;
     }
 
+    public Music(int userID, String playlist, String mediaURL) {
+        this.userID = userID;
+        this.playlist = playlist;
+        this.mediaURL = mediaURL;
+    }
+
     public int getID() {
         return ID;
     }

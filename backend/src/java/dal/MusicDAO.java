@@ -41,6 +41,7 @@ public class MusicDAO extends DBContext {
             st.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            
         }
     }
 
@@ -62,14 +63,14 @@ public class MusicDAO extends DBContext {
         }
     }
 
-    public void deletePlaylist(Music playlist) {
+    public void deletePlaylist(int ID) {
         try {
             String sql = """
                          delete from MusicMedia
                          where ID=?
                          """;
             PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, playlist.getID());
+            st.setInt(1, ID);
             st.executeUpdate();
             st.close();
         } catch (SQLException e) {
