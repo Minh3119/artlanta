@@ -188,3 +188,8 @@
     border-color: #333;
   }
 }
+
+.notification-card:hover {
+  transform: scale(1.03); /* Slightly enlarges the card */
+  transition: transform 0.2s ease-in-out; /* Smooth animation */
+}

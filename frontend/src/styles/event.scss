@@ -1,0 +1,245 @@
+/* Event Creation Modal Styles */
+
+// Overlay that covers the entire screen with a semi-transparent background
+.create-event-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+// The main modal container
+.create-event-popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+// Error message styling
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+// Header section of the modal
+.create-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  // Modal title
+  h2 {
+    margin: 0;
+  }
+
+  // Close button (X)
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    color: #666;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+// Form styles
+.create-event-form {
+  // Each form group (label + input)
+  .form-group {
+    margin-bottom: 15px;
+
+    // Input labels
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    // Common styles for inputs and textareas
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
+    }
+
+    // Specific textarea styles
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    // Header for image input section
+    .image-input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      // Toggle button between file and URL input
+      .toggle-input-type {
+        background: none;
+        border: 1px solid #4a90e2;
+        color: #4a90e2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        // Hover state
+        &:hover:not(:disabled) {
+          background: #4a90e2;
+          color: white;
+        }
+
+        // Disabled state
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          border-color: #999;
+          color: #999;
+        }
+      }
+    }
+  }
+
+  // Container for image upload/URL input
+  .image-upload-container {
+    border: 2px dashed #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+
+    &:hover {
+      border-color: #4a90e2;
+    }
+
+    // File input styling
+    .file-input {
+      width: 100%;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+    }
+
+    // URL input styling
+    .url-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      &::placeholder {
+        color: #999;
+      }
+    }
+
+    // Image preview container
+    .image-preview {
+      margin-top: 10px;
+      
+      img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+    }
+
+    // Loading indicator during upload
+    .upload-loading {
+      margin-top: 10px;
+      color: #4a90e2;
+      font-weight: 500;
+    }
+  }
+}
+
+// Form action buttons container
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  // Common button styles
+  button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    // Disabled state for all buttons
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    // Primary action button (Create)
+    &.create-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+
+      &:hover:not(:disabled) {
+        background-color: #357abd;
+      }
+    }
+
+    // Secondary action button (Cancel)
+    &.cancel-button {
+      background-color: #fff;
+      color: #666;
+      border: 1px solid #ddd;
+
+      &:hover:not(:disabled) {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+} 

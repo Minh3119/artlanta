@@ -11,15 +11,17 @@ public class DBContext {
     public DBContext() {
         try {
             EnvConfig configReader = new EnvConfig();
-            String url = String.format("jdbc:%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
+            String url = String.format("jdbc:mysql://localhost:3306/Artlanta?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
             String username = configReader.getProperty("db_username", "root");
-            String password = configReader.getProperty("db_password", "1234");
+            String password = configReader.getProperty("db_password", "12345");
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error Connecting to Database: " + e.getMessage());
             throw new RuntimeException("Database connection failed", e);
+            
         }
+        
     }
     
     public Connection getConnection() {
@@ -35,5 +37,7 @@ public class DBContext {
             }
         }
     }
+    
+    
 
 }

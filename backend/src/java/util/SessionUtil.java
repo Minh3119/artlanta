@@ -1,5 +1,6 @@
 package util;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 /**
@@ -18,6 +19,19 @@ public class SessionUtil {
         if (session != null) {
             session.setAttribute(USER_ID_KEY, userId);
         }
+    }
+    
+    /**
+     * Retrieves the user ID from the request's session
+     * @param request The HttpServletRequest object
+     * @return The user ID if logged in, or null if no user is logged in
+     */
+    public static Integer getUserId(HttpServletRequest request) {
+        if (request != null) {
+            HttpSession session = request.getSession(false);
+            return getCurrentUserId(session);
+        }
+        return null;
     }
     
     /**

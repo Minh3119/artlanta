@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
@@ -12,8 +12,28 @@ import { FiLogOut } from "react-icons/fi";
 
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [userID, setUserID] = useState(0);
   const navigate = useNavigate();
+  const createMenuRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (createMenuRef.current && !createMenuRef.current.contains(event.target)) {
+        setShowCreateMenu(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -78,11 +98,28 @@ export default function Header({ openCreatePopup }) {
         </Link>
         <div
           className="header-navbar__container"
-          onClick={openCreatePopup}
-          style={{ cursor: "pointer" }}
+          ref={createMenuRef}
+          onClick={() => setShowCreateMenu(!showCreateMenu)}
+          style={{ cursor: "pointer", position: "relative" }}
         >
           <p className="header-navbar__title">Create</p>
-          <img src={arrowDown} alt=""></img>
+          <img src={arrowDown} alt="" style={{ transform: showCreateMenu ? 'rotate(180deg)' : 'none' }}></img>
+          {showCreateMenu && (
+            <div className="create-menu-dropdown">
+              <div className="create-menu-item" onClick={() => {
+                openCreatePopup('post');
+                setShowCreateMenu(false);
+              }}>
+                Create Post
+              </div>
+              <div className="create-menu-item" onClick={() => {
+                openCreatePopup('event');
+                setShowCreateMenu(false);
+              }}>
+                Create Event
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="header-search">
@@ -108,28 +145,46 @@ export default function Header({ openCreatePopup }) {
           <img src={chat} alt="chat"></img>
         </Link>
 
-        <div className="header-more">
+        <div className="header-more" ref={userMenuRef}>
           <Link to="/profile">
             <img src={ava} alt="ava"></img>
           </Link>
-          <Link to="#">
-            <img src={arrowDown} alt="more"></img>
-          </Link>
-          {userID === 0 && (
-            <div style={{ display: "flex" }}>
-              <Link to="/login">
-                <p style={{ marginBottom: 0 }}>Sign in</p>
-              </Link>
-              <Link to="/register">
-                <p style={{ marginBottom: 0 }}>Sign up</p>
-              </Link>
-            </div>
-          )}
-          {userID !== 0 && (
-            <button onClick={handleLogout} className="logout-button">
-              <FiLogOut style={{ backgroundColor: "green" }} />
-            </button>
-          )}
+          <div 
+            onClick={() => setShowUserMenu(!showUserMenu)} 
+            style={{ cursor: "pointer", position: "relative" }}
+          >
+            <img 
+              src={arrowDown} 
+              alt="more" 
+              style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}
+            />
+            {showUserMenu && (
+              <div className="user-menu-dropdown">
+                <Link to="/profile" className="user-menu-item">
+                  Profile
+                </Link>
+                <Link to="/settings" className="user-menu-item">
+                  Settings
+                </Link>
+                {userID !== 0 && (
+                  <div className="user-menu-item" onClick={handleLogout}>
+                    <FiLogOut style={{ marginRight: '8px' }} />
+                    Logout
+                  </div>
+                )}
+                {userID === 0 && (
+                  <>
+                    <Link to="/login" className="user-menu-item">
+                      Sign in
+                    </Link>
+                    <Link to="/register" className="user-menu-item">
+                      Sign up
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

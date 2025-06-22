@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import '../styles/App.scss';
 import '../styles/post.scss';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfilePage from "./UserProfile.js"
 import CurrentUserProfilePage from "./CurrentUserProfilePage.js"

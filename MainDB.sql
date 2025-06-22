@@ -639,7 +639,7 @@ INSERT INTO PostMedia (PostID, MediaID) VALUES
 (14,18);
 
 USE ARTLANTA;
-SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID  
+SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID;
 
 
 -- SAMPLE DATA FOR MESSAGING --
@@ -725,4 +725,44 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 18 in Conversation 2', NULL, '2025-06-14 00:33:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
+
+-- Create events table
+CREATE TABLE events (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    location VARCHAR(255),
+    creator_id INT NOT NULL,
+    image_url VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creator_id) REFERENCES Users(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create event_followers table for managing event attendees/followers
+CREATE TABLE event_followers (
+    event_id INT,
+    user_id INT,
+    status ENUM('interested', 'going', 'not_going') DEFAULT 'interested',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, user_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add some sample events data
+INSERT INTO events (title, description, start_time, end_time, location, creator_id, image_url)
+VALUES 
+('Art Exhibition', 'Join us for an amazing art exhibition featuring local artists', '2024-04-01 18:00:00', '2024-04-01 21:00:00', 'Atlanta Art Gallery', 1, NULL),
+('Photography Workshop', 'Learn the basics of photography', '2024-04-15 14:00:00', '2024-04-15 17:00:00', 'Downtown Studio', 2, NULL);
+
+-- Add some sample event followers
+INSERT INTO event_followers (event_id, user_id, status)
+VALUES 
+(1, 2, 'going'),
+(1, 3, 'interested'),
+(2, 1, 'going'),
+(2, 4, 'interested');
 
