@@ -6,7 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
  * Props:
  * - onSend: (text: string, attachedFile: File|null) => void – called when user triggers sending (button click or Enter key)
  */
-const MessageInput = ({ onSend }) => {
+const MessageInput = ({ onSend, isSending }) => {
   const textareaRef = useRef(null);
   const [inputText, setInputText] = useState('');
   const [attachedFile, setAttachedFile] = useState(null);
@@ -34,6 +34,7 @@ const MessageInput = ({ onSend }) => {
   };
 
   const handleSend = () => {
+    if (isSending) return; // prevent while uploading
     if (!inputText.trim() && !attachedFile) return;
     onSend(inputText, attachedFile);
     setInputText('');
@@ -46,6 +47,7 @@ const MessageInput = ({ onSend }) => {
 
   const handleKeyDown = (e) => {
     // Send on Enter without modifiers
+    if (isSending) return; // ignore key while uploading
     if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
       e.preventDefault();
       handleSend();
@@ -96,9 +98,10 @@ const MessageInput = ({ onSend }) => {
         </div>
         <button
           onClick={handleSend}
-          className="appearance-none bg-transparent border-none text-gray-500 hover:text-gray-700 underline transition-colors"
+          disabled={isSending}
+          className={`appearance-none bg-transparent border-none underline transition-colors ${isSending ? 'text-gray-400 cursor-not-allowed' : 'text-gray-500 hover:text-gray-700'}`}
         >
-          send
+          {isSending ? 'sending...' : 'send'}
         </button>
       </div>
 

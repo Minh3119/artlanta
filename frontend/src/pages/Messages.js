@@ -77,6 +77,7 @@ const MessagesPage = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleOnMessage = useCallback((event) => {
     try {
@@ -155,6 +156,7 @@ const MessagesPage = () => {
     // 1. Compress & upload the attached file (if any)
     if (attachedFile) {
       try {
+        setIsUploading(true);
         let fileToUpload = attachedFile;
         // Compress only if it is an image
         if (attachedFile.type && attachedFile.type.startsWith('image/')) {
@@ -190,6 +192,8 @@ const MessagesPage = () => {
         }
       } catch (err) {
         console.error('Media upload failed:', err);
+      } finally {
+        setIsUploading(false);
       }
     }
 
@@ -391,7 +395,7 @@ const MessagesPage = () => {
             </div>
 
             {/* Message Input */}
-            <MessageInput onSend={handleSendMessage} />
+            <MessageInput onSend={handleSendMessage} isSending={isUploading} />
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">

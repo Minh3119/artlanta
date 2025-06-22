@@ -276,7 +276,7 @@ public class MessagingService {
                 payload.getConversationId(), 
                 payload.getSenderId(), 
                 text, 
-                payload.getContent().getMedia().getUrl(), 
+                payload.getContent().getMedia() != null ? payload.getContent().getMedia().getUrl() : null, 
                 null, // leave this null for MessageDAO to handle
                 false, 
                 null);

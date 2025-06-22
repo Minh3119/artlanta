@@ -46,12 +46,12 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
           <div className="bg-blue-500 text-white px-3 py-2 rounded-3xl max-w-full break-words break-all">
             {/* Message content */}
             {message.content && !message.isDeleted && (
-              <p className="m-0 text-sm leading-relaxed break-words">
+              <p className="m-0 text-sm leading-relaxed break-words whitespace-pre-line">
                 {message.content}
               </p>
             )}
             {message.isDeleted && (
-              <p className="m-0 text-sm leading-relaxed break-words">
+              <p className="m-0 text-sm leading-relaxed break-words whitespace-pre-line">
                 This message has been deleted
               </p>
             )}
@@ -93,13 +93,13 @@ const OtherUserMessage = ({ message, onUnsend, onReport }) => {
           <div className="bg-gray-200 text-gray-800 px-3 py-2 rounded-3xl max-w-full break-words break-all">
             {/* Message content */}
             {message.content && !message.isDeleted && (
-              <p className="m-0 text-sm leading-relaxed break-words">
+              <p className="m-0 text-sm leading-relaxed break-words whitespace-pre-line">
                 {message.content}
               </p>
             )}
             {/* Message is deleted */}
             {message.isDeleted && (
-              <p className="m-0 text-sm leading-relaxed break-words">
+              <p className="m-0 text-sm leading-relaxed break-words whitespace-pre-line">
                 This message has been deleted
               </p>
             )}
