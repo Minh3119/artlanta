@@ -38,7 +38,6 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/user/:id" element={<UserProfilePage />} />
           <Route path="/profile" element={<CurrentUserProfilePage />} />
-          <Route path="/session" element={<SessionTest />} />
           <Route path="/artists" element={<Artists />} />
           <Route path="/createpost" element={<CreatePostComponent />} />
           <Route path="/editpost" element={<UpdatePostComponent />} />
