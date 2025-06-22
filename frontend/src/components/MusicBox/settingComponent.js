@@ -61,16 +61,100 @@ class SettingComponent extends React.Component {
         return toast.error("Invalid YouTube URL");
     }
     handleOnChangeName = (e) => {
-        this.setState({ playlistName: e.target.value })
+        const newName = e.target.value;
+        newName.length <= 50 ?
+            (
+                this.setState({
+                    playlistName: newName
+                })
+            )
+            :
+            (
+                toast.error('Playlist name too long!', {
+                    toastId: "playlistName-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnChangeLink = (e) => {
-        this.setState({ playlistLink: e.target.value })
+        const newLink = e.target.value;
+        newLink.length <= 100 ?
+            (
+                this.setState({
+                    playlistLink: newLink
+                })
+            )
+            :
+            (
+                toast.error('Playlist link too long!', {
+                    toastId: "playlistName-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnChangeNameEdit = (e) => {
-        this.setState({ editName: e.target.value })
+        const newName = e.target.value;
+        newName.length <= 50 ?
+            (
+                this.setState({
+                    editName: newName
+                })
+            )
+            :
+            (
+                toast.error('Playlist name too long!', {
+                    toastId: "playlistName-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnChangeLinkEdit = (e) => {
-        this.setState({ editLink: e.target.value })
+        const newLink = e.target.value;
+        newLink.length <= 100 ?
+            (
+                this.setState({
+                    editLink: newLink
+                })
+            )
+            :
+            (
+                toast.error('Playlist link too long!', {
+                    toastId: "playlistName-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
     }
     handleOnCheck = () => {
         const isDuplicate = this.state.listPlaylist.some(
@@ -87,7 +171,18 @@ class SettingComponent extends React.Component {
             return;
         }
     }
+    handleCheckFormat = (url) => {
+        const URL = url.trim();
+        const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
+        const videoRegex = /(?:v=|\/videos\/|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+
+        return playlistRegex.test(URL) || videoRegex.test(URL);
+    }
     handleOnAdd = async () => {
+        if (this.handleCheckFormat(this.state.playlistLink) === false) {
+            toast.error("Invalid YouTube URL format.");
+            return;
+        }
         if (this.state.listPlaylist.some(
             item => item.playlistName.trim() === this.state.playlistName.trim()
         )
