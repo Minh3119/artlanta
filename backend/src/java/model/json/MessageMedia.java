@@ -2,7 +2,7 @@ package model.json;
 
 public class MessageMedia {
     private String type;          // "image", "video", "file", etc.
-    private String url;           // CDN or backend-served URL
+    private String url = null;    // CDN or backend-served URL
     private String mediaId;       // optional, e.g. UUID
 
     public String getType() {

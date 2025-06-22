@@ -6,6 +6,7 @@ import MessagesList from '../components/Messages/MessagesList';
 import LoadingScreen from '../components/common/LoadingScreen';
 import MessageInput from '../components/Messages/MessageInput';
 import { messagesResponseSchema } from '../schemas/messaging';
+import imageCompression from 'browser-image-compression';
 
 const MessagesPage = () => {
   const ws = useRef(null);
@@ -73,7 +74,6 @@ const MessagesPage = () => {
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
-  const [input, setInput] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -146,24 +146,65 @@ const MessagesPage = () => {
     }
   }, [selectedConversation]);
 
-  const handleSendMessage = () => {
-    if (!input.trim() || !selectedConversation || !currentUserId) return;
+  const handleSendMessage = async (messageText, attachedFile) => {
+    if ((!messageText || !messageText.trim()) && !attachedFile) return;
+    if (!selectedConversation || !currentUserId) return;
 
+    let media = null;
+
+    // 1. Compress & upload the attached file (if any)
+    if (attachedFile) {
+      try {
+        let fileToUpload = attachedFile;
+        // Compress only if it is an image
+        if (attachedFile.type && attachedFile.type.startsWith('image/')) {
+          const options = {
+            maxSizeMB: 0.4,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+          };
+          try {
+            fileToUpload = await imageCompression(attachedFile, options);
+          } catch (compressErr) {
+            console.error('Image compression failed, using original file', compressErr);
+          }
+        }
+
+        const formData = new FormData();
+        formData.append('file[]', fileToUpload);
+
+        const uploadRes = await fetch('http://localhost:9999/backend/api/upload', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok && !uploadData.error && uploadData.response && uploadData.response.length > 0) {
+          const url = uploadData.response[0].url;
+          media = {
+            type: attachedFile.type && attachedFile.type.startsWith('image/') ? 'image' : 'file',
+            url,
+          };
+        } else {
+          console.error('Error uploading media:', uploadData.error || 'Unknown error');
+        }
+      } catch (err) {
+        console.error('Media upload failed:', err);
+      }
+    }
+
+    // 2. Build and send WebSocket payload
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const message = {
+      const messagePayload = {
         action: 'send',
         conversationId: selectedConversation.id,
         senderId: currentUserId,
         content: {
-          text: input
-        }
+          text: messageText,
+          media, // may be null
+        },
       };
-
-      // Clear input immediately for better UX
-      setInput('');
-
-      // Send the message via WebSocket
-      ws.current.send(JSON.stringify(message));
+      ws.current.send(JSON.stringify(messagePayload));
     } else {
       console.error('(handleSendMessage) WebSocket is not connected');
     }
@@ -350,11 +391,7 @@ const MessagesPage = () => {
             </div>
 
             {/* Message Input */}
-            <MessageInput
-              value={input}
-              onChange={setInput}
-              onSend={handleSendMessage}
-            />
+            <MessageInput onSend={handleSendMessage} />
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">

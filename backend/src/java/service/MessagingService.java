@@ -271,7 +271,15 @@ public class MessagingService {
         try {
             // 1. INSERT new Message in Database (persisted message)
             String text = payload.getContent() != null ? payload.getContent().getText() : null;
-            Message toCreate = new Message(-1, payload.getConversationId(), payload.getSenderId(), text, null, null, false, null);
+            Message toCreate = new Message(
+                -1, 
+                payload.getConversationId(), 
+                payload.getSenderId(), 
+                text, 
+                payload.getContent().getMedia().getUrl(), 
+                null, // leave this null for MessageDAO to handle
+                false, 
+                null);
             Message newMessage = createMessage(toCreate);
 
             if (newMessage == null) {
