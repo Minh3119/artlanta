@@ -1,6 +1,9 @@
 package dal;
 
 import model.Message;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +17,18 @@ public class MessageDAO extends DBContext {
             stmt.setInt(1, conversationId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("DB timestamp as Instant: " + rs.getTimestamp("CreatedAt").toInstant());
+                    System.out.println("OffsetDateTime UTC: " + OffsetDateTime.ofInstant(rs.getTimestamp("CreatedAt").toInstant(), ZoneOffset.UTC));
+
                     return new Message(
                         rs.getInt("ID"),
                         rs.getInt("ConversationID"),
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant().atOffset(ZoneOffset.UTC) : null,
                         rs.getBoolean("isDeleted"),
-                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toInstant().atOffset(ZoneOffset.UTC) : null
                     );
                 }
             }
@@ -32,10 +38,10 @@ public class MessageDAO extends DBContext {
         return null;
     }
 
-    // Get all messages in a conversation (if needed later)
+    // Get all messages in a conversation
     public List<Message> getMessagesByConversationId(int conversationId) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT * FROM Messages WHERE ConversationID = ? AND isDeleted = FALSE ORDER BY CreatedAt ASC";
+        String sql = "SELECT * FROM Messages WHERE ConversationID = ? ORDER BY CreatedAt ASC";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, conversationId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -46,9 +52,9 @@ public class MessageDAO extends DBContext {
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant().atOffset(ZoneOffset.UTC) : null,
                         rs.getBoolean("isDeleted"),
-                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toInstant().atOffset(ZoneOffset.UTC) : null
                     ));
                 }
             }
@@ -75,9 +81,9 @@ public class MessageDAO extends DBContext {
                         rs.getInt("SenderID"),
                         rs.getString("Content"),
                         rs.getString("MediaURL"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toInstant().atOffset(ZoneOffset.UTC) : null,
                         rs.getBoolean("isDeleted"),
-                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toLocalDateTime() : null
+                        rs.getTimestamp("deletedAt") != null ? rs.getTimestamp("deletedAt").toInstant().atOffset(ZoneOffset.UTC) : null
                     );
                 }
             }
@@ -93,12 +99,15 @@ public class MessageDAO extends DBContext {
      * @return True if the message was created successfully, false otherwise.
      */
     public Message create(Message message) {
-        String sql = "INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, message.getConversationId());
             stmt.setInt(2, message.getSenderId());
             stmt.setString(3, message.getContent());
             stmt.setString(4, message.getMediaUrl());
+            // ensure createdAt
+            OffsetDateTime created = message.getCreatedAt() != null ? message.getCreatedAt() : OffsetDateTime.now(ZoneOffset.UTC);
+            stmt.setTimestamp(5, Timestamp.from(created.toInstant()));
 
             int affectedRows = stmt.executeUpdate();
 
@@ -124,9 +133,11 @@ public class MessageDAO extends DBContext {
      * @return true if at least one row was updated, false otherwise.
      */
     public boolean softDeleteById(int messageId) {
-        String sql = "UPDATE Messages SET isDeleted = TRUE, deletedAt = CURRENT_TIMESTAMP WHERE ID = ?";
+        String sql = "UPDATE Messages SET isDeleted = TRUE, deletedAt = ? WHERE ID = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, messageId);
+            stmt.setTimestamp(1, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()));
+            stmt.setInt(2, messageId);
+
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {

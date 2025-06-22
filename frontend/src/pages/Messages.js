@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import ConversationsList from '../components/Messages/ConversationsList';
 import MessagesList from '../components/Messages/MessagesList';
 import LoadingScreen from '../components/common/LoadingScreen';
+import MessageInput from '../components/Messages/MessageInput';
 import { messagesResponseSchema } from '../schemas/messaging';
+import imageCompression from 'browser-image-compression';
 
 const MessagesPage = () => {
   const ws = useRef(null);
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState(null);
@@ -30,7 +34,16 @@ const MessagesPage = () => {
           throw new Error('Failed to fetch conversations');
         }
         const data = await response.json();
-        setConversations(data.conversations || []);
+        // Sort conversations by latestMessage.createdAt (newest first)
+        const sorted = (data.conversations || []).slice().sort((a, b) => {
+          const t1 = a.latestMessage?.createdAt;
+          const t2 = b.latestMessage?.createdAt;
+          if (!t1 && !t2) return 0;
+          if (!t1) return 1;      // a has no timestamp -> after b
+          if (!t2) return -1;     // b has no timestamp -> after a
+          return new Date(t2) - new Date(t1); // descending
+        });
+        setConversations(sorted);
       } catch (err) {
         setConversationsError(err.message);
       } finally {
@@ -41,20 +54,30 @@ const MessagesPage = () => {
     fetchConversations();
   }, []);
 
-  // Effect for selecting the first conversation
+  // After conversations load, try to select based on query param, else first
   useEffect(() => {
-    if (!selectedConversation && conversations.length > 0) {
+    if (conversations.length === 0) return;
+    const convIdParam = searchParams.get('conversationId');
+    if (convIdParam) {
+      const found = conversations.find(c => c.id === parseInt(convIdParam));
+      if (found) {
+        setSelectedConversation(found);
+        return;
+      }
+    }
+    // default if not selected
+    if (!selectedConversation) {
       setSelectedConversation(conversations[0]);
     }
-  }, [conversations, selectedConversation]);
+  }, [conversations, selectedConversation, searchParams]);
 
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
-  const [input, setInput] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleOnMessage = useCallback((event) => {
     try {
@@ -63,13 +86,29 @@ const MessagesPage = () => {
       // Handle unsend action broadcast
       if (payload.action === 'unsend') {
         const { messageId } = payload;
-        // Remove from messages list if currently selected conversation contains it
-        setMessages(prev => prev.filter(m => m.id !== messageId));
 
-        // Update conversations list (if latestMessage is the one unsent, clear it)
+        // Instead of removing, mark the message as deleted and replace its content
+        setMessages(prev => prev.map(m => {
+          if (m.id === messageId) {
+            return {
+              ...m,
+              content: 'This message has been deleted',
+              isDeleted: true,
+            };
+          }
+          return m;
+        }));
+
+        // Update conversations list (if latestMessage is the one unsent, update its content)
         setConversations(prev => prev.map(conv => {
           if (conv.latestMessage && conv.latestMessage.id === messageId) {
-            return { ...conv, latestMessage: null };
+            return {
+              ...conv,
+              latestMessage: {
+                ...conv.latestMessage,
+                content: 'This message has been deleted',
+              }
+            };
           }
           return conv;
         }));
@@ -108,24 +147,68 @@ const MessagesPage = () => {
     }
   }, [selectedConversation]);
 
-  const handleSendMessage = () => {
-    if (!input.trim() || !selectedConversation || !currentUserId) return;
+  const handleSendMessage = async (messageText, attachedFile) => {
+    if ((!messageText || !messageText.trim()) && !attachedFile) return;
+    if (!selectedConversation || !currentUserId) return;
 
+    let media = null;
+
+    // 1. Compress & upload the attached file (if any)
+    if (attachedFile) {
+      try {
+        setIsUploading(true);
+        let fileToUpload = attachedFile;
+        // Compress only if it is an image
+        if (attachedFile.type && attachedFile.type.startsWith('image/')) {
+          const options = {
+            maxSizeMB: 0.4,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+          };
+          try {
+            fileToUpload = await imageCompression(attachedFile, options);
+          } catch (compressErr) {
+            console.error('Image compression failed, using original file', compressErr);
+          }
+        }
+
+        const formData = new FormData();
+        formData.append('file[]', fileToUpload);
+
+        const uploadRes = await fetch('http://localhost:9999/backend/api/upload', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok && !uploadData.error && uploadData.response && uploadData.response.length > 0) {
+          const url = uploadData.response[0].url;
+          media = {
+            type: attachedFile.type && attachedFile.type.startsWith('image/') ? 'image' : 'file',
+            url,
+          };
+        } else {
+          console.error('Error uploading media:', uploadData.error || 'Unknown error');
+        }
+      } catch (err) {
+        console.error('Media upload failed:', err);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
+    // 2. Build and send WebSocket payload
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const message = {
+      const messagePayload = {
         action: 'send',
         conversationId: selectedConversation.id,
         senderId: currentUserId,
         content: {
-          text: input
-        }
+          text: messageText,
+          media, // may be null
+        },
       };
-
-      // Clear input immediately for better UX
-      setInput('');
-
-      // Send the message via WebSocket
-      ws.current.send(JSON.stringify(message));
+      ws.current.send(JSON.stringify(messagePayload));
     } else {
       console.error('(handleSendMessage) WebSocket is not connected');
     }
@@ -312,27 +395,7 @@ const MessagesPage = () => {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0">
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!input.trim()}
-                  className={`ml-2 p-2 rounded-full ${input.trim() ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <MessageInput onSend={handleSendMessage} isSending={isUploading} />
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">
