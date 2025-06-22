@@ -11,6 +11,9 @@ import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import model.Music;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import util.JsonUtil;
 import util.SessionUtil;
 
 public class ViewPlaylist extends HttpServlet {
@@ -25,6 +28,13 @@ public class ViewPlaylist extends HttpServlet {
         try{
             Integer userID = SessionUtil.getCurrentUserId(session);
             list= md.getPlaylistByUserID(userID);
+            JSONObject jsonMusic = new JSONObject();
+            JSONArray mediaArr = new JSONArray();
+            for(Music music: list){
+                mediaArr.put(music);
+            }
+            jsonMusic.put("response",mediaArr);
+            JsonUtil.writeJsonResponse(response, jsonMusic);
             
         }
         catch(Exception e){
