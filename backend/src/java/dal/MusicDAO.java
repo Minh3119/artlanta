@@ -19,7 +19,7 @@ public class MusicDAO extends DBContext {
             ResultSet rs = st.executeQuery();
 
             while (rs.next()) {
-                list.add(new Music(userID, rs.getString("Playlist"), rs.getString("MediaURL")));
+                list.add(new Music(rs.getInt("ID"), userID, rs.getString("Playlist"), rs.getString("MediaURL")));
 
             }
             rs.close();
@@ -36,7 +36,7 @@ public class MusicDAO extends DBContext {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, playlist.getUserID());
             st.setString(2, playlist.getPlaylist());
-            st.setString(2, playlist.getMediaURL());
+            st.setString(3, playlist.getMediaURL());
             st.executeUpdate();
             st.close();
         } catch (SQLException e) {
@@ -45,10 +45,35 @@ public class MusicDAO extends DBContext {
     }
 
     public void updatePlaylist(Music playlist) {
-
+        try {
+            String sql = """
+                         update MusicMedia
+                         set Playlist=?,MediaURL=?
+                         where ID=?
+                         """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, playlist.getPlaylist());
+            st.setString(2, playlist.getMediaURL());
+            st.setInt(3, playlist.getID());
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deletePlaylist(Music playlist) {
-
+        try {
+            String sql = """
+                         delete from MusicMedia
+                         where ID=?
+                         """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, playlist.getID());
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
