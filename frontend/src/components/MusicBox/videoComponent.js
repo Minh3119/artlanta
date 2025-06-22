@@ -1,6 +1,6 @@
 import React from "react";
 import YouTube from "react-youtube";
-
+import { toast } from 'react-toastify';
 class VideoComponent extends React.Component {
     state = {
         player: null,
@@ -10,12 +10,17 @@ class VideoComponent extends React.Component {
         currentTime: 0,
         musicTitle: "",
         listPlaylist: [{
-
+            type: 'playlist',
+            ID: 0,
+            name: "jack",
+            link: 'PLdif7DCtYdMY2CYB5ozZI5r-tqEh-B9Qc'
         }],
         currentPlaylist: {
             type: 'playlist',
-            // ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
-            ID: 'PLdif7DCtYdMY2CYB5ozZI5r-tqEh-B9Qc'
+            ID: 0,
+            name: "jack",
+            link: 'PLdif7DCtYdMY2CYB5ozZI5r-tqEh-B9Qc'
+            // link: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
@@ -29,15 +34,45 @@ class VideoComponent extends React.Component {
                 return response.json();
             })
             .then(async data => {
+                const validPlaylists = data.response
+                    .map(item => this.formatYoutubeID(item))
+                    .filter(Boolean);
+
                 this.setState({
-                    listPlaylist: data.response,
+                    listPlaylist: [this.state.listPlaylist[0], ...validPlaylists],
                 });
             })
             .catch(error => {
                 console.error('Error fetching music data:', error);
             });
-
     }
+    formatYoutubeID = (item) => {
+        const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
+        const videoRegex = /(?:v=|\/videos\/|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/;
+
+        const isPlaylist = item.playlistLink.match(playlistRegex);
+        if (isPlaylist) {
+            return {
+                type: 'playlist',
+                ID: item.ID,
+                name: item.playlistName,
+                link: isPlaylist[1]
+            };
+        }
+
+        const isVideo = item.playlistLink.match(videoRegex);
+        if (isVideo) {
+            return {
+                type: 'video',
+                ID: item.ID,
+                name: item.playlistName,
+                link: isVideo[1]
+            };
+        }
+
+        return toast.error("Invalid YouTube URL");
+    }
+
     onPlayerReady = (event) => {
         this.setState({
             player: event.target,
@@ -139,7 +174,12 @@ class VideoComponent extends React.Component {
         }
         this.setState({ volume: newVolume });
     };
-
+    handleChangeMusic = (event) => {
+        this.setState({
+            currentPlaylist: this.state.listPlaylist[event.target.value],
+            isPlaying: false,
+        })
+    }
     render() {
         const optsForVideo = {
             // height: '0',
@@ -148,12 +188,7 @@ class VideoComponent extends React.Component {
             width: '100%',
             playerVars: {
                 autoplay: 0,
-                controls: 0,
-                modestbranding: 1,
-                showinfo: 0,
-                rel: 0,
-                fs: 0,
-                disablekb: 1,
+                loop: 1,
             }
 
         };
@@ -165,7 +200,7 @@ class VideoComponent extends React.Component {
             playerVars: {
                 autoplay: 0,
                 listType: 'playlist',
-                list: this.state.currentPlaylist.ID,
+                list: this.state.currentPlaylist.link,
                 loop: 1,
 
             }
@@ -174,18 +209,19 @@ class VideoComponent extends React.Component {
         return (
             <div className="video-control">
                 <div className="track-info">
-                    <select className="playlist">
-                        <option value="id">
-                            Music
-                        </option>
-                        <option value="id2">
-                            Vlog
-                        </option>
+                    <select className="playlist" onChange={(e) => this.handleChangeMusic(e)}>
+                        {this.state.listPlaylist.map((item, index) =>
+                            <option value={index} key={item.ID}>
+                                {item.name}
+                            </option>
+
+                        )}
+
                     </select>
                     <div className="track-title">{this.state.musicTitle}</div>
                     {this.state.currentPlaylist.type === 'video' ?
                         <YouTube
-                            videoId={this.state.currentPlaylist.ID}
+                            videoId={this.state.currentPlaylist.link}
                             opts={optsForVideo}
                             onReady={this.onPlayerReady}
                             onStateChange={this.onPlayerStateChange}

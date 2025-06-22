@@ -216,12 +216,7 @@ class MP3Component extends React.Component {
             // width: '200px',
             playerVars: {
                 autoplay: 0,
-                controls: 0,
-                modestbranding: 1,
-                showinfo: 0,
-                rel: 0,
-                fs: 0,
-                disablekb: 1,
+                loop: 1,
             }
 
         };
