@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UserProfilePage from "./UserProfile.js"
 import CurrentUserProfilePage from "./CurrentUserProfilePage.js"
-import SessionTest from "../pages/SessionTest.js"
 import Artists from "./Artists.js"
 import CreatePostComponent from '../components/PostControl/createPostComponent.js';
 import HomePage from './HomePage.js';
@@ -41,6 +40,11 @@ function App() {
           <Route path="/profile" element={<CurrentUserProfilePage />} />
           <Route path="/session" element={<SessionTest />} />
           <Route path="/artists" element={<Artists />} />
+          <Route path="/createpost" element={<CreatePostComponent />} />
+          <Route path="/editpost" element={<UpdatePostComponent />} />
+          <Route path="/deletepost" element={<DeletePostComponent />} />
+          <Route path="/music" element={<MusicComponent />} />
+          <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forget" element={<PassForget />} />

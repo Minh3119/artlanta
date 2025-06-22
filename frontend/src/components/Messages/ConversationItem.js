@@ -1,5 +1,29 @@
 import React from 'react';
-import { format } from 'date-fns';
+
+function getRelativeTime(timestamp) {
+  // console.log("Browser Local Time:", new Date().toString());
+  // console.log("Message UTC Time:", new Date(timestamp).toString());
+  // console.log("ISO:", new Date(timestamp).toISOString());
+
+  const now = new Date();
+  const target = new Date(timestamp);
+
+  // Use UTC time for both
+  const diffMs = target.getTime() - now.getTime(); // always in ms since epoch UTC
+
+  const diffSeconds = Math.round(diffMs / 1000);
+  const diffMinutes = Math.round(diffMs / 60000);
+  const diffHours = Math.round(diffMs / 3600000);
+  const diffDays = Math.round(diffMs / 86400000);
+
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+
+  if (Math.abs(diffSeconds) < 30) return "now";
+  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute");
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour");
+  return rtf.format(diffDays, "day");
+}
+
 
 const ConversationItem = ({ conversation, isSelected, onClick }) => {
   const { id, createdAt, user, latestMessage } = conversation;
@@ -41,7 +65,7 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
             <span className={`text-xs whitespace-nowrap ml-2 ${
               isSelected ? 'text-blue-500' : 'text-gray-400'
             }`}>
-              {format(new Date(latestMessage.createdAt), 'HH:mm')}
+              {getRelativeTime(latestMessage.createdAt)}
             </span>
           )}
         </div>

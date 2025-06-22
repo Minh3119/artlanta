@@ -11,12 +11,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import java.io.BufferedReader;
 
 public class JsonUtil {
 	private static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeAdapter())
             .create();
 
     public static Gson getGson() {
