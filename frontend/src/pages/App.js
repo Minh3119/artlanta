@@ -27,6 +27,7 @@ import { FiHeadphones } from "react-icons/fi";
 import { set } from 'date-fns';
 import Payment from './Payment.js';
 import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
+import RecentPosts from './RecentPosts';
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -35,26 +36,20 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/*" element={<HomePage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/user/:id" element={<UserProfilePage />} />
           <Route path="/profile" element={<CurrentUserProfilePage />} />
-          <Route path="/user/:userId" element={<UserProfilePage />} />
+          <Route path="/session" element={<SessionTest />} />
           <Route path="/artists" element={<Artists />} />
-          <Route path="/sessiontest" element={<SessionTest />} />
-          <Route path="/createpost" element={<CreatePostComponent />} />
-          <Route path="/editpost" element={<UpdatePostComponent />} />
-          <Route path="/deletepost" element={<DeletePostComponent />} />
-          <Route path="/music" element={<MusicComponent />} />
-          <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/passforget" element={<PassForget />} />
+          <Route path="/forget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
-          <Route path="/post/:postID" element={<PostDetail/>} />
-
-          <Route path="/messages" element={<MessagesPage/>} />
           <Route path="/post/:postID" element={<PostDetail />} />
-          <Route path="/payment" element={<Payment />}></Route>
-          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/recent-posts" element={<RecentPosts />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

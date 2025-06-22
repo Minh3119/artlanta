@@ -8,7 +8,7 @@ import PortfolioDisplay from '../components/UserProfile/PortfolioDisplay';
 import Header from "../components/HomePage/Header";
 
 const UserProfilePage = () => {
-	const { userId } = useParams();
+	const { id } = useParams();
 	const [userData, setUserData] = useState(null);
 	const [portfolioData, setPortfolioData] = useState(null);
 	const [socialLinks, setSocialLinks] = useState([]);
@@ -39,7 +39,7 @@ const UserProfilePage = () => {
 							
 							// Check follow status only if we have a logged-in user
 							if (currentUserData.response) {
-								const followStatusRes = await fetch(`http://localhost:9999/backend/api/follow?type=status&userId=${userId}`, {
+								const followStatusRes = await fetch(`http://localhost:9999/backend/api/follow?type=status&userId=${id}`, {
 									credentials: 'include',
 									headers: { 'Content-Type': 'application/json' },
 								});
@@ -56,7 +56,7 @@ const UserProfilePage = () => {
 				}
 
 				// Fetch user data
-				const userRes = await fetch(`http://localhost:9999/backend/api/user/${userId}`, {
+				const userRes = await fetch(`http://localhost:9999/backend/api/user/${id}`, {
 					method: 'GET',
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
@@ -80,7 +80,7 @@ const UserProfilePage = () => {
 
 				// Fetch portfolio data with timeout
 				const portfolioRes = await Promise.race([
-					fetch(`http://localhost:9999/backend/api/portfolio/${userId}`, {
+					fetch(`http://localhost:9999/backend/api/portfolio/${id}`, {
 						method: 'GET',
 						credentials: 'include',
 						headers: { 'Content-Type': 'application/json' },
@@ -107,7 +107,7 @@ const UserProfilePage = () => {
 				}
 
 				// Fetch social links
-				const linksRes = await fetch(`http://localhost:9999/backend/api/social-links/${userId}`, {
+				const linksRes = await fetch(`http://localhost:9999/backend/api/social-links/${id}`, {
 					method: 'GET',
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
@@ -129,7 +129,7 @@ const UserProfilePage = () => {
 				}
 
 				// Fetch follow counts
-				const followRes = await fetch(`http://localhost:9999/backend/api/follow-count/${userId}`, {
+				const followRes = await fetch(`http://localhost:9999/backend/api/follow-count/${id}`, {
 					method: 'GET',
 					credentials: 'include',
 					headers: { 'Content-Type': 'application/json' },
@@ -158,10 +158,10 @@ const UserProfilePage = () => {
 			}
 		};
 
-		if (userId) {
+		if (id) {
 			fetchAllData();
 		}
-	}, [userId]);
+	}, [id]);
 
 	useEffect(() => {
 		if (portfolioData) {
@@ -253,14 +253,14 @@ const UserProfilePage = () => {
 								portfolioData={portfolioData}
 								setIsEditingPortfolio={setIsEditingPortfolio}
 								isEditingPortfolio={isEditingPortfolio}
-								userId={userId}
+								userId={id}
 							/>
 						) : (
 							<EditPortfolio
 								portfolioData={portfolioData}
 								setPortfolioData={setPortfolioData}
 								setIsEditingPortfolio={setIsEditingPortfolio}
-								userId={userId}
+								userId={id}
 							/>
 						)}
 					</div>

@@ -13,7 +13,6 @@ export default function PostDetail() {
       <div className="container mt-3">
       <PostDetailCard postId={postID} />
     </div>
-      <PostDetailCard></PostDetailCard>
     </div>
   );
 }

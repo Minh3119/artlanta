@@ -146,9 +146,16 @@ export default function Header({ openCreatePopup }) {
         </Link>
 
         <div className="header-more" ref={userMenuRef}>
-          <Link to="/profile">
-            <img src={ava} alt="ava"></img>
-          </Link>
+          {userID==0 && (
+            <Link to="/login">
+              <img src={ava} alt="ava"></img>
+            </Link>
+          )}
+          {userID!=0 && (
+            <Link to={`/user/${userID}`}>
+              <img src={ava} alt="ava"></img>
+            </Link>
+          )}
           <div 
             onClick={() => setShowUserMenu(!showUserMenu)} 
             style={{ cursor: "pointer", position: "relative" }}
@@ -160,11 +167,14 @@ export default function Header({ openCreatePopup }) {
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
-                <Link to="/profile" className="user-menu-item">
+                <Link to={`/user/${userID}`} className="user-menu-item">
                   Profile
                 </Link>
                 <Link to="/settings" className="user-menu-item">
                   Settings
+                </Link>
+                <Link to="/recent-posts" className="user-menu-item">
+                  Recent Posts
                 </Link>
                 {userID !== 0 && (
                   <div className="user-menu-item" onClick={handleLogout}>
