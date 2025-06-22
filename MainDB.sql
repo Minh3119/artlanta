@@ -8,8 +8,7 @@ USE ARTLANTA;
 CREATE TABLE Media (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     URL VARCHAR(255) NOT NULL,
-    Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    Description VARCHAR(255)
 );
 
 
@@ -268,6 +267,14 @@ CREATE TABLE UserSocialLinks (
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
+
+CREATE TABLE MusicMedia(
+	ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    Playlist VARCHAR(50) NOT NULL,
+    MediaURL VARCHAR(255) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
+ );
 -- TAG SYSTEM -DANG TEST
 /*
 CREATE TABLE Tags (
@@ -336,6 +343,73 @@ END $$
 DELIMITER ;
 
 
+
+
+
+
+-- MESSAGING --
+-- SELECT * FROM Conversations WHERE User1ID = ? OR User2ID = ?;
+CREATE TABLE Conversations (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    User1ID INT,
+    User2ID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(User1ID) REFERENCES Users(ID),
+    FOREIGN KEY(User2ID) REFERENCES Users(ID),
+    UNIQUE (User1ID, User2ID)
+);
+
+CREATE TABLE Messages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ConversationID INT,
+    SenderID INT,
+    Content TEXT,
+    MediaURL VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
+    FOREIGN KEY(SenderID) REFERENCES Users(ID),
+    isDeleted BOOLEAN DEFAULT FALSE,
+    deletedAt DATETIME NULL
+);
+
+CREATE TABLE ConversationReads (
+    ConversationID INT not null,
+    UserID INT not null,
+    LastReadMessageID INT,  -- can be null
+    LastReadAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
+    FOREIGN KEY(UserID) REFERENCES Users(ID),
+    FOREIGN KEY(LastReadMessageID) REFERENCES Messages(ID),
+    PRIMARY KEY (ConversationID, UserID)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- SAMPLE DATA--
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
@@ -345,7 +419,7 @@ VALUES
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
-('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
+('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'https://i.pinimg.com/736x/7a/b5/bd/7ab5bd271b5b5c3c1104c88da3fd2ff8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
 ('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
 ('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
 ('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'https://i.pinimg.com/736x/07/d7/0f/07d70fb2938593e1f7320d36cddb40ea.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
@@ -372,10 +446,10 @@ VALUES
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
 (1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
 (2, 'Portrait Sketches', 'Chuyên về phác thảo chân dung.', 'cover2.jpg', 'Triển lãm tranh tại gallery HN 2023', '2025-04-02'),
-(3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'cover3.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
+(3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
 (4, 'Anime Style Works', 'Tác phẩm theo phong cách anime.', 'cover4.jpg', 'Top 10 nghệ sĩ trẻ năm 2023', '2025-04-04'),
 (5, '3D Modeling Portfolio', 'Các mẫu 3D từ cơ bản đến nâng cao.', 'cover5.jpg', 'Tham gia dự án game indie', '2025-04-05'),
-(6, 'Watercolor Art', 'Bộ tranh màu nước nhẹ nhàng.', 'cover6.jpg', 'Giải thưởng màu nước 2023', '2025-04-06'),
+(6, 'Watercolor Art', 'Bộ tranh màu nước nhẹ nhàng.', 'https://i.pinimg.com/736x/64/ae/b4/64aeb49cfa238dfac0c06cf416d15599.jpg', 'Giải thưởng màu nước 2023', '2025-04-06'),
 (7, 'Abstract Art', 'Tác phẩm nghệ thuật trừu tượng.', 'cover7.jpg', 'Triển lãm cá nhân 2024', '2025-04-07'),
 (8, 'Character Designs', 'Thiết kế nhân vật cho phim hoạt hình.', 'cover8.jpg', 'Làm việc cho studio ABC', '2025-04-08'),
 (9, 'Photography Portfolio', 'Ảnh nghệ thuật và chân dung.', 'cover9.jpg', 'Ảnh đoạt giải cuộc thi quốc gia', '2025-04-09'),
@@ -397,6 +471,7 @@ INSERT INTO Posts (UserID, Title, Content, IsDraft, Visibility, CreatedAt, Updat
 (12, 'Tranh tôi mới ', 'Tranh tôi mới vẽ nè bro', 0, 'PUBLIC', '2025-04-19', NULL, 0),
 (13, 'Kết hợp chất liệu', 'Những tone màu hợp với nhau.', 0, 'PUBLIC', '2025-04-19', NULL, 0),
 (14, 'Kết hợp chất liệu', 'Các kỹ thuật vẽ phức tạp.', 0, 'PUBLIC', '2025-04-19', NULL, 0);
+
 
 
 
@@ -483,25 +558,25 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, Reference
 (1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
 
 -- Sample Media data with real, lightweight image URLs
-INSERT INTO Media (URL, Description, CreatedAt) VALUES
-('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration', '2025-04-01'),
-('https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', 'Nature-themed character', '2025-04-01'),
-('https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', 'Water-themed artwork', '2025-04-02'),
-('https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', 'Fire-themed character', '2025-04-02'),
-('https://i.pinimg.com/736x/7e/4a/71/7e4a71b6f79187f77289beaa1e1d476c.jpg', 'Flying creature artwork', '2025-04-03'),
-('https://i.pinimg.com/736x/8b/d6/5a/8bd65ab420e51f0a9706fffa96d9f54d.jpg', 'Water beast artwork', '2025-04-03'),
-('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept', '2025-04-04'),
-('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design', '2025-04-04'),
-('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept', '2025-04-05'),
-('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design', '2025-04-05'),
-('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
-('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', '', '2025-04-05'),
-('https://i.pinimg.com/736x/48/8e/7a/488e7a5a24daf041c66b28f8f4895909.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/a5/dd/e6/a5dde6448aa477ab075975525ea93d52.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/70/d9/3f/70d93ffeccd4509b66f5fcaf86b914f7.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/8e/4a/3e/8e4a3ec21da25c06f1ded1ff1749403d.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/e5/98/21/e5982112c7c3091f1a61de2a2a157fe2.jpg', '', '2025-04-05'),
-('https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', '', '2025-04-05');
+INSERT INTO Media (URL, Description) VALUES
+('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration'),
+('https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', 'Nature-themed character'),
+('https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', 'Water-themed artwork'),
+('https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', 'Fire-themed character'),
+('https://i.pinimg.com/736x/7e/4a/71/7e4a71b6f79187f77289beaa1e1d476c.jpg', 'Flying creature artwork'),
+('https://i.pinimg.com/736x/8b/d6/5a/8bd65ab420e51f0a9706fffa96d9f54d.jpg', 'Water beast artwork'),
+('https://i.pinimg.com/736x/67/53/39/675339178e57ae7985d20d87fceee499.jpg', 'Psychic character concept'),
+('https://i.pinimg.com/736x/02/42/0a/02420a7e4af9c03b381577394a35608d.jpg', 'Mythical creature design'),
+('https://i.pinimg.com/736x/d5/5b/6c/d55b6c725a66bd51dde099652c95cda4.jpg', 'Dragon character concept'),
+('https://i.pinimg.com/736x/a7/d2/71/a7d27153673ae86ea51e484a528a667d.jpg', 'Legendary beast design'),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', ''),
+('https://i.pinimg.com/originals/54/e0/0d/54e00d34f2eefd58798d055090ce49e4.gif', ''),
+('https://i.pinimg.com/736x/48/8e/7a/488e7a5a24daf041c66b28f8f4895909.jpg', ''),
+('https://i.pinimg.com/736x/a5/dd/e6/a5dde6448aa477ab075975525ea93d52.jpg', ''),
+('https://i.pinimg.com/736x/70/d9/3f/70d93ffeccd4509b66f5fcaf86b914f7.jpg', ''),
+('https://i.pinimg.com/736x/8e/4a/3e/8e4a3ec21da25c06f1ded1ff1749403d.jpg', ''),
+('https://i.pinimg.com/736x/e5/98/21/e5982112c7c3091f1a61de2a2a157fe2.jpg', ''),
+('https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', '');
 
 -- Link Media to Portfolios
 INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
@@ -509,12 +584,13 @@ INSERT INTO PortfolioMedia (ArtistID, MediaID) VALUES
 (1, 2),
 (2, 3), -- Portrait Sketches
 (2, 4),
-(3, 1), -- Landscape Paintings
-(3, 2),
-(3, 3), -- Anime Style Works
-(3, 4),
-(5, 9), -- 3D Modeling Portfolio
-(5, 10);
+(3, 7), -- Landscape Paintings
+(3, 8),
+(3, 6), -- Anime Style Works
+(3, 5),
+(6, 9), -- 3D Modeling Portfolio
+(6, 10),
+(6,12);
 
 -- Sample Social Links data
 INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
@@ -541,7 +617,7 @@ INSERT INTO UserSocialLinks (UserID, Platform, URL, CreatedAt) VALUES
 
 
 -- giả sử post ID 1 có 3 ảnh
-INSERT INTO PostMedia (PostID, MediaID) VALUES
+INSERT INTO PostMedia (PostID, MediaID) VALUES             
 (1, 1),
 (1, 2),
 (1, 3),
@@ -557,14 +633,96 @@ INSERT INTO PostMedia (PostID, MediaID) VALUES
 (7,12),
 (9,13),
 (10,15),
-(10,14),
 (11,16),
 (12,17),
 (13,14),
 (14,18);
 
+USE ARTLANTA;
+SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID  
 
 
+-- SAMPLE DATA FOR MESSAGING --
 
+INSERT INTO Conversations (User1ID, User2ID) VALUES (1, 2);
+INSERT INTO Conversations (User1ID, User2ID) VALUES (1, 3);
 
+-- Messages for Conversation 1 (between User 1 and 2) --
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Hey, how are you?', NULL, '2025-06-13 23:26:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'I am good, thanks! Check this out.', 'https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', '2025-06-13 23:27:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Nice photo!', NULL, '2025-06-13 23:28:07');
+
+-- Messages for Conversation 2 (between User 2 and 3) --
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 2, 'Hi, are you available for a meeting?', NULL, '2025-06-13 23:29:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Sure, let me know the time.', NULL, '2025-06-13 23:30:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 2, 'Here is the document.', 'https://example.com/doc.pdf', '2025-06-13 23:31:07');
+
+-- Additional bulk messages for testing --
+-- 50 messages for Conversation 1 (User 1 & 2) --
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 4 in Conversation 1', NULL, '2025-06-13 23:32:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 5 in Conversation 1', 'https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', '2025-06-13 23:33:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 6 in Conversation 1', NULL, '2025-06-13 23:34:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 7 in Conversation 1', NULL, '2025-06-13 23:35:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 8 in Conversation 1', 'https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', '2025-06-13 23:36:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 9 in Conversation 1', NULL, '2025-06-13 23:37:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 10 in Conversation 1', NULL, '2025-06-13 23:38:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 11 in Conversation 1', 'https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', '2025-06-13 23:39:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 12 in Conversation 1', NULL, '2025-06-13 23:40:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 13 in Conversation 1', NULL, '2025-06-13 23:41:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 14 in Conversation 1', 'https://example.com/media14.jpg', '2025-06-13 23:42:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 15 in Conversation 1', NULL, '2025-06-13 23:43:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 16 in Conversation 1', NULL, '2025-06-13 23:44:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 17 in Conversation 1', 'https://example.com/media17.jpg', '2025-06-13 23:45:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 18 in Conversation 1', NULL, '2025-06-13 23:46:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 19 in Conversation 1', NULL, '2025-06-13 23:47:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 20 in Conversation 1', 'https://example.com/media20.jpg', '2025-06-13 23:48:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 21 in Conversation 1', NULL, '2025-06-13 23:49:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 22 in Conversation 1', NULL, '2025-06-13 23:50:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 23 in Conversation 1', 'https://example.com/media23.jpg', '2025-06-13 23:51:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 24 in Conversation 1', NULL, '2025-06-13 23:52:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 25 in Conversation 1', NULL, '2025-06-13 23:53:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 26 in Conversation 1', 'https://example.com/media26.jpg', '2025-06-13 23:54:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 27 in Conversation 1', NULL, '2025-06-13 23:55:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 28 in Conversation 1', NULL, '2025-06-13 23:56:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 29 in Conversation 1', 'https://example.com/media29.jpg', '2025-06-13 23:57:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 30 in Conversation 1', NULL, '2025-06-13 23:58:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 31 in Conversation 1', NULL, '2025-06-13 23:59:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 32 in Conversation 1', 'https://example.com/media32.jpg', '2025-06-14 00:00:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 33 in Conversation 1', NULL, '2025-06-14 00:01:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 34 in Conversation 1', NULL, '2025-06-14 00:02:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 35 in Conversation 1', 'https://example.com/media35.jpg', '2025-06-14 00:03:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 36 in Conversation 1', NULL, '2025-06-14 00:04:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 37 in Conversation 1', NULL, '2025-06-14 00:05:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 38 in Conversation 1', 'https://example.com/media38.jpg', '2025-06-14 00:06:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 39 in Conversation 1', NULL, '2025-06-14 00:07:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 40 in Conversation 1', NULL, '2025-06-14 00:08:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 41 in Conversation 1', 'https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', '2025-06-14 00:09:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 42 in Conversation 1', NULL, '2025-06-14 00:10:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 43 in Conversation 1', NULL, '2025-06-14 00:11:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 44 in Conversation 1', 'https://i.pinimg.com/736x/70/87/f5/7087f520a25d2c76052ebdbd593e849a.jpg', '2025-06-14 00:12:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 45 in Conversation 1', NULL, '2025-06-14 00:13:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 46 in Conversation 1', NULL, '2025-06-14 00:14:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 47 in Conversation 1', 'https://i.pinimg.com/736x/84/f3/19/84f319e74946e06fd8afea52c1db3e0b.jpg', '2025-06-14 00:15:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 48 in Conversation 1', NULL, '2025-06-14 00:16:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 2, 'Message 49 in Conversation 1', NULL, '2025-06-14 00:17:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (1, 1, 'Message 50 in Conversation 1', 'https://i.pinimg.com/736x/69/91/7a/69917acb2e8c10ed822e1efa85dee759.jpg', '2025-06-14 00:18:07');
+
+-- 20 messages for Conversation 2 (User 1 & 3) --
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 4 in Conversation 2', NULL, '2025-06-14 00:19:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 5 in Conversation 2', 'https://example.com/media5.jpg', '2025-06-14 00:20:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 6 in Conversation 2', NULL, '2025-06-14 00:21:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 7 in Conversation 2', NULL, '2025-06-14 00:22:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 8 in Conversation 2', 'https://example.com/media8.jpg', '2025-06-14 00:23:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 9 in Conversation 2', NULL, '2025-06-14 00:24:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 10 in Conversation 2', NULL, '2025-06-14 00:25:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 11 in Conversation 2', 'https://example.com/media11.jpg', '2025-06-14 00:26:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 12 in Conversation 2', NULL, '2025-06-14 00:27:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 13 in Conversation 2', NULL, '2025-06-14 00:28:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 14 in Conversation 2', 'https://example.com/media14.jpg', '2025-06-14 00:29:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 15 in Conversation 2', NULL, '2025-06-14 00:30:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 16 in Conversation 2', NULL, '2025-06-14 00:31:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 17 in Conversation 2', 'https://example.com/media17.jpg', '2025-06-14 00:32:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 18 in Conversation 2', NULL, '2025-06-14 00:33:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
 

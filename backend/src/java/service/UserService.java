@@ -50,11 +50,16 @@ public class UserService {
                 JSONObject jsonUser = new JSONObject();
                 jsonUser.put("id", user.getID());
                 jsonUser.put("username", user.getUsername());
-                jsonUser.put("displayName", user.getFullName());
-                jsonUser.put("avatarUrl", user.getAvatarURL());
+                jsonUser.put("fullName", user.getFullName());
+                jsonUser.put("avatarURL", user.getAvatarURL());
                 jsonUser.put("gender", user.getGender());
                 jsonUser.put("role", user.getRole());
+                jsonUser.put("status", user.getStatus());
+                jsonUser.put("language", user.getLanguage());
+                jsonUser.put("isPrivate", user.isPrivate());
+                jsonUser.put("isFlagged", user.isFlagged());
                 jsonUser.put("createdAt", formatDateTime(user.getCreatedAt()));
+                jsonUser.put("lastLogin", formatDateTime(user.getLastLogin()));
                 jsonUsers.put(jsonUser);
             } catch (Exception e) {
                 // Log the error for this user but continue processing others
@@ -64,7 +69,7 @@ public class UserService {
         return jsonUsers;
     }
 
-    private JSONObject convertUserToJson(User user) throws JSONException {
+    public JSONObject convertUserToJson(User user) throws JSONException {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }
@@ -72,14 +77,18 @@ public class UserService {
         JSONObject jsonUser = new JSONObject();
         jsonUser.put("id", user.getID());
         jsonUser.put("username", user.getUsername());
-        jsonUser.put("displayName", user.getFullName());
+        jsonUser.put("fullName", user.getFullName());
         jsonUser.put("bio", user.getBio());
-        jsonUser.put("avatarUrl", user.getAvatarURL());
+        jsonUser.put("avatarURL", user.getAvatarURL());
         jsonUser.put("gender", user.getGender());
         jsonUser.put("location", user.getLocation());
         jsonUser.put("role", user.getRole());
+        jsonUser.put("status", user.getStatus());
         jsonUser.put("language", user.getLanguage());
+        jsonUser.put("isPrivate", user.isPrivate());
+        jsonUser.put("isFlagged", user.isFlagged());
         jsonUser.put("createdAt", formatDateTime(user.getCreatedAt()));
+        jsonUser.put("lastLogin", formatDateTime(user.getLastLogin()));
         return jsonUser;
     }
 

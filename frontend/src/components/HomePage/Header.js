@@ -8,6 +8,7 @@ import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
 import { useNavigate } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
 
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -103,7 +104,7 @@ export default function Header({ openCreatePopup }) {
             <NotificationPopup onClose={() => setShowNotifications(false)} />
           )}
         </div>
-        <Link to="#">
+        <Link to="/messages">
           <img src={chat} alt="chat"></img>
         </Link>
 
@@ -126,7 +127,7 @@ export default function Header({ openCreatePopup }) {
           )}
           {userID !== 0 && (
             <button onClick={handleLogout} className="logout-button">
-              Log out
+              <FiLogOut style={{ backgroundColor: "green" }} />
             </button>
           )}
         </div>
