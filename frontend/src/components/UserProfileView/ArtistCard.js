@@ -9,17 +9,17 @@ const ArtistCard = ({ artist, portfolio }) => {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="relative">
                 {/* Cover Image */}
-                <CoverImage coverUrl={portfolio?.coverUrl} artistName={artist.displayName} />
+                <CoverImage coverUrl={portfolio?.coverUrl} artistName={artist.fullName} />
                 
                 {/* Artist Avatar */}
                 <div className="absolute -bottom-6 left-4">
-                    <AvatarImage avatarUrl={artist.avatarUrl} displayName={artist.displayName} size='sm' />
+                    <AvatarImage avatarUrl={artist.avatarURL} displayName={artist.fullName} size='sm' />
                 </div>
             </div>
 
             <div className="p-4 pt-20">
                 <h3 className="text-xl font-semibold text-gray-900 flex justify-between items-center">
-                    {artist.displayName || 'Unnamed Artist'}
+                    {artist.fullName || 'Unnamed Artist'}
                     <Link
                         to={`/user/${artist.id}`}
                         className="no-underline px-4 py-1.5 text-sm bg-[#00A0FF] hover:bg-[#0090e8] active:bg-[#0080d1] text-white rounded-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 font-medium border-b-4 border-[#0080d1] active:border-b-0 active:mt-1"
