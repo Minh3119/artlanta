@@ -130,7 +130,10 @@ public class UpdatePost extends HttpServlet {
 
             JSONArray imageArr = new JSONArray();
             for (Media media : imageList) {
-                imageArr.put(media.getURL());
+                JSONObject obj= new JSONObject();
+                obj.put("ID", media.getID());
+                obj.put("mediaURL",media.getURL());
+                imageArr.put(obj);
             }
             jsonPost.put("imageUrl", imageArr);
 

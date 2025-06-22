@@ -1,7 +1,7 @@
 .floating-icon {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  left: 20px;
   background-color: #007bff;
   color: white;
   width: 50px;
@@ -31,9 +31,9 @@
 .music-container{
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     display: flex;
-    justify-content: right;
+    justify-content: left;
     z-index: 999999;
     height: 300px;
     width: 450px;

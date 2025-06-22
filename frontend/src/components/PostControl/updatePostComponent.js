@@ -193,7 +193,7 @@ class UpdatePostComponent extends React.Component {
                 return response.json();
             })
             .then(async data => {
-                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
+                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl.mediaURL : [];
 
                 const filesFromUrls = await Promise.all(
                     previewUrls.map(async (url, index) => {
