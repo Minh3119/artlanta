@@ -8,6 +8,10 @@
         <servlet-name>AddCommentServlet</servlet-name>
         <servlet-class>controller.Comment.AddCommentServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StatisticsServlet</servlet-name>
+        <servlet-class>controller.StatisticsServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>NotificationServlet</servlet-name>
         <url-pattern>/NotificationServlet</url-pattern>
@@ -15,6 +19,10 @@
     <servlet-mapping>
         <servlet-name>AddCommentServlet</servlet-name>
         <url-pattern>/api/comment/add</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StatisticsServlet</servlet-name>
+        <url-pattern>/statistics</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

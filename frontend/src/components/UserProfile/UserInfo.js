@@ -150,6 +150,12 @@ const UserInfo = ({
                             >
                                 {isEditingPortfolio ? 'Cancel Edit' : 'Edit Portfolio'}
                             </button>
+                            <button
+                                onClick={() => navigate(`/account/${userId}/stats`)}
+                                className="flex-1 py-2 px-4 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+                            >
+                                View Statistics
+                            </button>
                         </div>
                     )
                 ) : null}
@@ -199,4 +205,4 @@ const UserInfo = ({
     );
 };
 
-export default UserInfo; 
+export default UserInfo;
