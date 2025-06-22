@@ -16,6 +16,7 @@ export default function HomePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [createType, setCreateType] = useState(null); // 'post' or 'event'
+  const [selectedTab, setSelectedTab] = useState('post'); // 'post' or 'event'
 
   useEffect(() => {
     if (location.state?.success) {
@@ -94,7 +95,22 @@ export default function HomePage() {
       <div className="homepage-time">
         <p>{today_formatted}</p>
       </div>
-      <div className="homepage-title">Artwork Posts</div>
+      <div className="homepage-title">
+        <div className="tab-buttons">
+          <button 
+            className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('post')}
+          >
+            Artwork Posts
+          </button>
+          <button 
+            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('event')}
+          >
+            Event
+          </button>
+        </div>
+      </div>
 
       <ArtistPost
         refetch={isRefresh}
