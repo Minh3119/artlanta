@@ -11,7 +11,7 @@ public class DBContext {
     public DBContext() {
         try {
             EnvConfig configReader = new EnvConfig();
-            String url = String.format("jdbc:%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
+            String url = String.format("jdbc:mysql://localhost:3306/Artlanta?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
             String username = configReader.getProperty("db_username", "root");
             String password = configReader.getProperty("db_password", "1234");
             Class.forName("com.mysql.cj.jdbc.Driver");
