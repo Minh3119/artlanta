@@ -61,6 +61,9 @@ public class StatisticsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
+        // response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+        // response.setHeader("Pragma", "no-cache");
+        // response.setDateHeader("Expires", 0);
         String userIdParam = request.getParameter("userId");
         JSONObject json = new JSONObject();
 
@@ -91,6 +94,8 @@ public class StatisticsServlet extends HttpServlet {
             json.put("likesReceived", stats.getLikesReceived());
             json.put("commentsMade", stats.getCommentsMade());
             json.put("repliesReceived", stats.getRepliesReceived());
+            json.put("flagsReceived", stats.getFlagsReceived());
+            json.put("votesPerPost", stats.getVotesPerPost());
 
             out.write(json.toString());
             statsDAO.closeConnection(); // Close connection if needed

@@ -7,23 +7,37 @@ public class Statistics {
     private int likesReceived;
     private int commentsMade;
     private int repliesReceived;
+    private int flagsReceived;
+    private double votesPerPost;
 
     public Statistics() {
-        this.posts = 0;
-        this.followers = 0;
-        this.following = 0;
-        this.likesReceived = 0;
-        this.commentsMade = 0;
-        this.repliesReceived = 0;
     }
 
-    public Statistics(int posts, int followers, int following, int likesReceived, int commentsMade, int repliesReceived) {
+    public Statistics(int posts, int followers, int following, int likesReceived, int commentsMade, int repliesReceived, int flagsReceived, double votesPerPost) {
         this.posts = posts;
         this.followers = followers;
         this.following = following;
         this.likesReceived = likesReceived;
         this.commentsMade = commentsMade;
         this.repliesReceived = repliesReceived;
+        this.flagsReceived = flagsReceived;
+        this.votesPerPost = votesPerPost;
+    }
+    
+    public int getFlagsReceived() {
+        return flagsReceived;
+    }
+
+    public void setFlagsReceived(int flagsReceived) {
+        this.flagsReceived = flagsReceived;
+    }
+    
+    public double getVotesPerPost() {
+        return votesPerPost;
+    }
+
+    public void setVotesPerPost(double votesPerPost) {
+        this.votesPerPost = votesPerPost;
     }
 
     public int getPosts() {
@@ -72,6 +86,20 @@ public class Statistics {
 
     public void setRepliesReceived(int repliesReceived) {
         this.repliesReceived = repliesReceived;
+    }
+
+    @Override
+    public String toString() {
+        return "Statistics{" +
+                "posts=" + posts +
+                ", followers=" + followers +
+                ", following=" + following +
+                ", likesReceived=" + likesReceived +
+                ", commentsMade=" + commentsMade +
+                ", repliesReceived=" + repliesReceived +
+                ", flagsReceived=" + flagsReceived +
+                ", votesPerPost=" + votesPerPost +
+                '}';
     }
 
     
