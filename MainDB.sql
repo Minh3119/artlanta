@@ -209,17 +209,15 @@ CREATE TABLE Review (
 );
 
 -- REPORTS -- Đang thử rút ngắn report user, post xem sao
-CREATE TABLE Report (
+CREATE TABLE ReportPost (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     ReporterID INT,
-    TargetUserID INT,
-    TargetPostID INT,
+    PostID INT,
     Reason VARCHAR(255),
     ReportAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(20) DEFAULT 'PENDING',
     FOREIGN KEY(ReporterID) REFERENCES Users(ID),
-    FOREIGN KEY(TargetUserID) REFERENCES Users(ID),
-    FOREIGN KEY(TargetPostID) REFERENCES Posts(ID)
+    FOREIGN KEY(PostID) REFERENCES Posts(ID)
 );
 
 -- NOTIFICATIONS
@@ -640,7 +638,7 @@ INSERT INTO PostMedia (PostID, MediaID) VALUES
 
 USE ARTLANTA;
 SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID ;
-
+SELECT * FROM Posts p JOIN SavedPost sp on p.ID=sp.PostID Join Users u on sp.UserID=u.ID WHERE sp.UserID=3 LIMIT 0,10 ;
 
 -- SAMPLE DATA FOR MESSAGING --
 
