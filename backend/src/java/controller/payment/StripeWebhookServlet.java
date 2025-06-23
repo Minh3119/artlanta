@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import util.ExchangeRateUtil;
 import validation.EnvConfig;
 
 @WebServlet(name = "StripeWebhookServlet", urlPatterns = {"/api/payment/stripe/webhook"})
@@ -88,14 +89,14 @@ public class StripeWebhookServlet extends HttpServlet {
                 }
 
                 int userId = Integer.parseInt(userIdStr);
-                BigDecimal amountVND = amountUSD.multiply(new BigDecimal("25000"));
+                BigDecimal amountVND = amountUSD.multiply(ExchangeRateUtil.getUsdToVndRate());
 
                 LOGGER.info("userId = " + userId);
                 LOGGER.info("amount = $" + amountUSD + " ~ " + amountVND + " VND");
 
                 TransactionDAO transactionDAO = new TransactionDAO();
                 WalletDAO walletDAO = new WalletDAO();
-
+                
                 transactionDAO.insertTransaction(
                         userId, amountUSD, "Nạp tiền vào tài khoản", "stripe", "USD", "Stripe session ID: " + sessionId);
                 walletDAO.addBalance(userId, amountVND);

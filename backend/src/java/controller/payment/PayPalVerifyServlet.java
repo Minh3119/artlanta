@@ -15,6 +15,7 @@ import jakarta.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import util.ExchangeRateUtil;
 import util.SessionUtil;
 
 @WebServlet(name = "PayPalVerifyServlet", urlPatterns = {"/api/payment/paypal/verify"})
@@ -44,11 +45,9 @@ public class PayPalVerifyServlet extends HttpServlet {
         BigDecimal amountUSD = requestBody.get("amount").getAsBigDecimal();
         String orderID = requestBody.get("orderID").getAsString();
 
-        // Step 1: Quy đổi USD sang VND
-        BigDecimal exchangeRate = new BigDecimal("25000"); // bạn có thể load từ config
+        BigDecimal exchangeRate = ExchangeRateUtil.getUsdToVndRate();
         BigDecimal amountVND = amountUSD.multiply(exchangeRate);
 
-        // Step 2: Lưu giao dịch + cộng tiền vào ví
         TransactionDAO transactionDAO = new TransactionDAO();
         WalletDAO walletDAO = new WalletDAO();
 
@@ -80,7 +79,7 @@ public class PayPalVerifyServlet extends HttpServlet {
 
     private void setCORSHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true"); // VERY IMPORTANT
+        response.setHeader("Access-Control-Allow-Credentials", "true"); 
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
     }
