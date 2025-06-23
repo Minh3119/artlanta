@@ -25,7 +25,7 @@ CREATE TABLE Users (
     Gender BOOLEAN DEFAULT 0, -- chỉ có nam/nữ thôi không có chỗ cho làng gốm bát tràng
     DOB DATETIME,
     Location VARCHAR(255),
-    Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'MODERATOR')),
+    Role VARCHAR(20) DEFAULT 'CLIENT' CHECK (Role IN ('CLIENT', 'ARTIST', 'ADMIN', 'MODERATOR', 'STAFF')),
     Status VARCHAR(20) DEFAULT 'ACTIVE' CHECK (Status IN ('ACTIVE', 'BANNED', 'DEACTIVATED')),
     Language VARCHAR(10) DEFAULT 'vn' CHECK (Language IN ('en','vn')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -118,9 +118,9 @@ CREATE TABLE Likes (
 
 -- SAVED POSTS
 CREATE TABLE SavedPost (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT,
     PostID INT,
-    PRIMARY KEY(UserID, PostID),
     SavedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(UserID) REFERENCES Users(ID),
     FOREIGN KEY(PostID) REFERENCES Posts(ID)
@@ -142,6 +142,29 @@ CREATE TABLE Follows (
 );
 
 -- COMMISSION PRICING
+
+-- WALLET AND TRANSACTION SYSTEM
+CREATE TABLE Wallets (
+    UserID INT PRIMARY KEY,
+    Balance DECIMAL(12,2) DEFAULT 0,
+    Currency VARCHAR(10) DEFAULT 'VND',
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
+);
+
+CREATE TABLE Transactions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    PaymentMethod VARCHAR(20),
+    Amount DECIMAL(12,2),
+    Currency VARCHAR(10) DEFAULT 'VND',
+    Status VARCHAR(99),
+    Description VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
+);
+
+
 CREATE TABLE CommissionPricing (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     ArtistID INT,
@@ -167,24 +190,11 @@ CREATE TABLE CommissionRequest (
 );
 
 -- PAYMENT
-CREATE TABLE Wallets (
-    UserID INT PRIMARY KEY,
-    Balance DECIMAL(12,2) DEFAULT 0,
-    Currency VARCHAR(10) DEFAULT 'VND',
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(ID)
-);
-
-CREATE TABLE Transactions (
+CREATE TABLE Payment (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-	PaymentMethod VARCHAR(20),         
-    Amount DECIMAL(12,2),             
-    Currency VARCHAR(10) DEFAULT 'VND',
-    Status VARCHAR(99),                -- Chuyen vao, Rut ra
-    Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(ID)
+    Price INT NOT NULL,
+    Type VARCHAR(20) DEFAULT 'VietQR' CHECK (Type IN ('Paypal', 'ATM', 'VietQR')),
+    Tax INT DEFAULT 5
 );
 
 -- COMMISSIONS
@@ -195,7 +205,8 @@ CREATE TABLE Commission (
     Deadline DATETIME,
     Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID)
+    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
+    FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
 );
 
 -- COMMISSION PROGRESS
@@ -221,15 +232,17 @@ CREATE TABLE Review (
 );
 
 -- REPORTS -- Đang thử rút ngắn report user, post xem sao
-CREATE TABLE ReportPost (
+CREATE TABLE Report (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     ReporterID INT,
-    PostID INT,
+    TargetUserID INT,
+    TargetPostID INT,
     Reason VARCHAR(255),
     ReportAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(20) DEFAULT 'PENDING',
     FOREIGN KEY(ReporterID) REFERENCES Users(ID),
-    FOREIGN KEY(PostID) REFERENCES Posts(ID)
+    FOREIGN KEY(TargetUserID) REFERENCES Users(ID),
+    FOREIGN KEY(TargetPostID) REFERENCES Posts(ID)
 );
 
 -- NOTIFICATIONS
@@ -425,15 +438,15 @@ CREATE TABLE ConversationReads (
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
 ('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Graphic Designer', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-02-28'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'MODERATOR', 0, '2025-03-01'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
 ('emma_artist', 'emma.art@paintworld.com', 'Cr3ativ3Brush#', 'EmmaA', 'Họa sĩ sáng tạo, yêu nghệ thuật', 'https://i.pinimg.com/736x/7a/b5/bd/7ab5bd271b5b5c3c1104c88da3fd2ff8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-03-05'),
 ('david_gamer', 'david.gaming@oliv.net', 'L3v3lUpGamer!#', 'DaviG', 'Streamer game nổi tiếng', 'https://jbagy.me/wp-content/uploads/2025/03/anh-avatar-vo-tri-hai-cute-2.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-04'),
-('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'MODERATOR', 0, '2025-03-07'),
+('sophia_travel', 'sophia.travel@journeys.com', 'Expl0r3TheW0rld!', 'SophiT', 'Travel blogger, khám phá thế giới', 'https://chiemtaimobile.vn/images/companies/1/%E1%BA%A2nh%20Blog/avatar-facebook-dep/Avatar%20Doremon%20cute-doremon-deo-kinh-ram.jpg?1704788723947', 'ACTIVE', 'STAFF', 0, '2025-03-07'),
 ('michael_87', 'michael87@hotmail.com', 'qwe456hash', 'Mike', 'Game thủ chuyên nghiệp.', 'https://i.pinimg.com/736x/07/d7/0f/07d70fb2938593e1f7320d36cddb40ea.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-08'),
-('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'MODERATOR', 0, '2025-03-05'),
+('david.tech', 'david@techhub.com', 'd@v1dh@sh', 'David', 'Yêu thích công nghệ AI.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'STAFF', 0, '2025-03-05'),
 ('kevin_coder', 'kevin.coder@pro.dev', 'c0d3rpass', 'Kev', 'Dev fullstack, đam mê JS.', 'https://i.pinimg.com/736x/9a/26/49/9a2649364cad50d23c3ebaef5441ec6e.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-10'),
 ('olivia_foodie', 'olivia.foodie@gmail.com', 'f00di3hash', 'Liv', 'Blogger ẩm thực.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-11'),
 ('brian_startup', 'brian.startup@bizmail.com', 'st@rtup99', 'Brian', 'Founder công ty AI.', 'https://i.pinimg.com/736x/c2/33/71/c23371ccc0ae7f835d61f479670bfdbe.jpg', 'ACTIVE', 'ADMIN', 0, '2025-03-12'),
@@ -443,10 +456,10 @@ VALUES
 ('henry_science', 'henry.science@labmail.com', 'sci3nce123', 'Henry', 'Nhà nghiên cứu vật lý.', 'https://thuthuatnhanh.com/wp-content/uploads/2020/10/hinh-anh-doraemon-ngai-ngung-390x390.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-16'),
 ('ryan_gamer', 'ryan.gamer@gamemail.com', 'g@m3rpass', 'Ryan', 'Stream game hằng đêm.', 'https://moc247.com/wp-content/uploads/2023/12/loa-mat-voi-101-hinh-anh-avatar-meo-cute-dang-yeu-dep-mat_2.jpg', 'BANNED', 'CLIENT', 1, '2025-03-17'),
 ('adam_smith', 'adam.smith@finance.com', 'Fin@nc3Gur#', 'Adam', 'Chuyên gia tài chính và đầu tư.', 'adam.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-18'),
-('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'MODERATOR', 1, '2025-03-19'),
+('bella_travel', 'bella.travel@journeys.com', 'Tr@v3lB3lla!', 'Bella', 'Đam mê du lịch và khám phá.', 'bella.jpg', 'ACTIVE', 'STAFF', 1, '2025-03-19'),
 ('carter_music', 'carter.music@melody.com', 'MusiC!an#99', 'Carter', 'Nghệ sĩ piano và sáng tác nhạc.', 'carter.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-20'),
 ('daniel.photography', 'daniel.photo@shutter.com', 'Ph0t0Mast3r!', 'Daniel', 'Nhiếp ảnh gia chuyên nghiệp.', 'daniel.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-21'),
-('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'MODERATOR', 0, '2025-03-22'),
+('emma_w.riter', 'emma.writer@words.com', 'Wr!t3rPass#', 'Emma', 'Tác giả sách và nhà báo.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7ZeB5YnmcEWMvxvvAeTrTHD0y4k0dRnD_lg&s', 'ACTIVE', 'STAFF', 0, '2025-03-22'),
 ('frank_eng.ineer', 'frank.engineer@tech.com', 'Eng!neerG33k', 'Frank', 'Kỹ sư phần mềm AI.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyJFNw2dvGVLIG-Qh559mcsfcLRIwXZyXPAA&s', 'ACTIVE', 'ADMIN', 1, '2025-03-22'),
 ('geo.rge_dev', 'george.dev@coding.com', 'C0d3Rul3s!', 'George', 'Fullstack developer.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkYuP4IuXCruH6lqkPEfXG4f4aQE0hZ5e-1xUWrS5ZHRoCvopYXQENKSFI8LBBrp1vSNE&usqp=CAU', 'ACTIVE', 'CLIENT', 1, '2025-03-22'),
 ('harry.sports', 'harry.sports@fitness.com', 'F1tn3sP@ss!', 'Harry', 'Huấn luyện viên thể hình.', 'https://www.caythuocdangian.com/wp-content/uploads/avatar-anime-1.jpg', 'ACTIVE', 'CLIENT', 0, '2025-03-05'),
@@ -539,26 +552,7 @@ INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
 (7, 8, 'PENDING', '2025-04-16'),
 (8, 9, 'ACCEPTED', '2025-04-17'),
 (9, 10, 'ACCEPTED', '2025-04-18'),
-(10, 1, 'ACCEPTED', '2025-04-19'),
-(11, 6, 'ACCEPTED', '2025-06-10'),
-(12, 4, 'ACCEPTED', '2025-06-10'),
-(13, 8, 'ACCEPTED', '2025-06-10'),
-(14, 20, 'ACCEPTED', '2025-06-10'),
-(15, 10, 'ACCEPTED', '2025-06-10'),
-(16, 7, 'ACCEPTED', '2025-06-10'),
-(17, 22, 'ACCEPTED', '2025-06-10'),
-(18, 24, 'ACCEPTED', '2025-06-10'),
-(19, 9, 'ACCEPTED', '2025-06-10'),
-(20, 16, 'ACCEPTED', '2025-06-10'),
-
-(21, 3, 'ACCEPTED', '2025-06-11'),
-(22, 25, 'ACCEPTED', '2025-06-11'),
-(23, 6, 'ACCEPTED', '2025-06-11'),
-(24, 12, 'ACCEPTED', '2025-06-11'),
-(25, 15, 'ACCEPTED', '2025-06-11'),
-(26, 4, 'ACCEPTED', '2025-06-11'),
-(27, 19, 'ACCEPTED', '2025-06-11'),
-(28, 7, 'ACCEPTED', '2025-06-11');
+(10, 1, 'ACCEPTED', '2025-04-19');
 
 
 INSERT INTO CommissionPricing (ArtistID, Title, Description, Price, EstimatedDays) VALUES
@@ -668,8 +662,8 @@ INSERT INTO PostMedia (PostID, MediaID) VALUES
 (14,18);
 
 USE ARTLANTA;
-SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID ;
-SELECT * FROM Posts p JOIN SavedPost sp on p.ID=sp.PostID Join Users u on sp.UserID=u.ID WHERE sp.UserID=3 LIMIT 0,10 ;
+SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID;
+
 
 -- SAMPLE DATA FOR MESSAGING --
 
@@ -755,3 +749,85 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
 
+-- Create events table
+CREATE TABLE events (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    location VARCHAR(255),
+    creator_id INT NOT NULL,
+    image_url VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creator_id) REFERENCES Users(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create event_followers table for managing event attendees/followers
+CREATE TABLE event_followers (
+    event_id INT,
+    user_id INT,
+    status ENUM('interested', 'going', 'not_going') DEFAULT 'interested',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, user_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create event_posts table for linking posts to events
+CREATE TABLE event_posts (
+    event_id INT,
+    post_id INT,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, post_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES Posts(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Add some sample events data
+INSERT INTO events (title, description, start_time, end_time, location, creator_id, image_url)
+VALUES 
+('Art Exhibition', 'Join us for an amazing art exhibition featuring local artists', '2024-04-01 18:00:00', '2024-04-01 21:00:00', 'Atlanta Art Gallery', 1, NULL),
+('Photography Workshop', 'Learn the basics of photography', '2024-04-15 14:00:00', '2024-04-15 17:00:00', 'Downtown Studio', 2, NULL);
+
+-- Add some sample event followers
+INSERT INTO event_followers (event_id, user_id, status)
+VALUES 
+(1, 2, 'going'),
+(1, 3, 'interested'),
+(2, 1, 'going'),
+(2, 4, 'interested');
+
+
+
+INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
+(1, 2, 'ACCEPTED', '2025-04-10'),
+(2, 3, 'PENDING', '2025-04-11'),
+(3, 4, 'ACCEPTED', '2025-04-12'),
+(4, 5, 'REJECT', '2025-04-13'),
+(5, 6, 'ACCEPTED', '2025-04-14'),
+(6, 7, 'ACCEPTED', '2025-04-15'),
+(7, 8, 'PENDING', '2025-04-16'),
+(8, 9, 'ACCEPTED', '2025-04-17'),
+(9, 10, 'ACCEPTED', '2025-04-18'),
+(10, 1, 'ACCEPTED', '2025-04-19'),
+(11, 6, 'ACCEPTED', '2025-06-10'),
+(12, 4, 'ACCEPTED', '2025-06-10'),
+(13, 8, 'ACCEPTED', '2025-06-10'),
+(14, 20, 'ACCEPTED', '2025-06-10'),
+(15, 10, 'ACCEPTED', '2025-06-10'),
+(16, 7, 'ACCEPTED', '2025-06-10'),
+(17, 22, 'ACCEPTED', '2025-06-10'),
+(18, 24, 'ACCEPTED', '2025-06-10'),
+(19, 9, 'ACCEPTED', '2025-06-10'),
+(20, 16, 'ACCEPTED', '2025-06-10'),
+
+(21, 3, 'ACCEPTED', '2025-06-11'),
+(22, 25, 'ACCEPTED', '2025-06-11'),
+(23, 6, 'ACCEPTED', '2025-06-11'),
+(24, 12, 'ACCEPTED', '2025-06-11'),
+(25, 15, 'ACCEPTED', '2025-06-11'),
+(26, 4, 'ACCEPTED', '2025-06-11'),
+(27, 19, 'ACCEPTED', '2025-06-11'),
+(28, 7, 'ACCEPTED', '2025-06-11');
