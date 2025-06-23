@@ -7,13 +7,20 @@ import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
+import HeaderDropDown from "./HeaderDropDown";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import SearchBarComponent from "./searchBarComponent";
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [userID, setUserID] = useState(0);
-  const navigate = useNavigate();
+
+  const [dropdownActive, setDropdownActive] = useState(false);
+
+  const toggleDropdown = (e) => {
+    e.preventDefault();
+    setDropdownActive(prev => !prev);
+  };
 
   useEffect(() => {
     const checkSession = async () => {
@@ -38,25 +45,6 @@ export default function Header({ openCreatePopup }) {
 
     checkSession();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      const res = await fetch("http://localhost:9999/backend/api/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        navigate("/login");
-        console.log(data);
-      } else {
-        console.error("Logout failed:", data.message);
-      }
-    } catch (err) {
-      console.error("Logout request error:", err);
-    }
-  };
 
   return (
     <div className="header-container">
@@ -105,27 +93,31 @@ export default function Header({ openCreatePopup }) {
         </Link>
 
         <div className="header-more">
-          <Link to="/profile">
-            <img src={ava} alt="ava"></img>
-          </Link>
-          <Link to="#">
-            <img src={arrowDown} alt="more"></img>
-          </Link>
+          {userID !== 0 && (
+            <>
+              <Link to="/profile">
+                <img src={ava} alt="ava" />
+              </Link>
+              <a href="#" onClick={toggleDropdown}>
+                <img src={arrowDown} alt="more" />
+              </a>
+            </>
+          )}
           {userID === 0 && (
-            <div style={{ display: "flex" }}>
-              <Link to="/login">
+            <div style={{ display: "flex", gap: "5px" }}>
+              <Link to="/login" className="sign-button in">
                 <p style={{ marginBottom: 0 }}>Sign in</p>
               </Link>
-              <Link to="/register">
+              <Link to="/register" className="sign-button up">
                 <p style={{ marginBottom: 0 }}>Sign up</p>
               </Link>
             </div>
           )}
-          {userID !== 0 && (
-            <button onClick={handleLogout} className="logout-button">
-              <FiLogOut style={{ backgroundColor: "green" }} />
-            </button>
-          )}
+          <HeaderDropDown
+            userID={userID}
+            dropdownActive={dropdownActive}
+            setDropdownActive={setDropdownActive}
+          />
         </div>
       </div>
     </div>
