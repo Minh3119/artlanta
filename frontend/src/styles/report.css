@@ -1,0 +1,131 @@
+.report-container {
+  background-color: #fff;
+  max-width: 460px;
+  min-height: 730px;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7); /* mờ 50% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* đảm bảo nó đè lên mọi thứ */
+}
+
+.rep-root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f2f2f2; /* có thể đổi thành #fff nếu cần nền trắng */
+}
+
+.report-header__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 12px;
+}
+
+.report-title__container {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.report-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.report-back,
+.report-close {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.report-body__container {
+  margin-top: 24px;
+}
+
+.report-upper__container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.report-upper__title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.report-upper__desc {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.report-bottom__container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-card {
+  background-color: #fafafa;
+  border: none;
+  outline: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.report-card:hover {
+  background-color: #f0f0f0;
+}
+
+.report-card__content {
+  margin: 0;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.report-card__imgContainer {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.report-card__img {
+  width: 100%;
+  height: auto;
+}
+
+
+.report-success-message {
+  margin-top: 20px;
+  text-align: center;
+  color: #4caf50;
+  font-weight: bold;
+}
