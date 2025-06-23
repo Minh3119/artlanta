@@ -15,12 +15,13 @@ import org.json.JSONObject;
 import util.JsonUtil;
 import util.SessionUtil;
 
-public class InsertPlayTime extends HttpServlet {
+
+public class DeletePlayTime extends HttpServlet {
    
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-       
+        
     } 
 
 
@@ -38,26 +39,16 @@ public class InsertPlayTime extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         MusicDAO md = new MusicDAO();
         HttpSession session = request.getSession();
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
-        JSONObject json = new JSONObject(sb.toString());
-        String timeRaw = json.optString("totalPlayTime", "").trim();
         try {
             Integer userID = SessionUtil.getCurrentUserId(session);
-            int time= Integer.parseInt(timeRaw);
-            md.insertPlayTime(userID, time);
-            
 
-            
+            md.deletePlayTime(userID);
         } catch (Exception e) {
             e.printStackTrace();
             JsonUtil.writeJsonError(response, "Error update play time");
         }
     }
+
 
     @Override
     public String getServletInfo() {

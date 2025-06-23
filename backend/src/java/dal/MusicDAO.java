@@ -100,9 +100,6 @@ public class MusicDAO extends DBContext {
 
             timeSelect.setInt(1, userID);
 
-            timeInsert.setInt(1, userID);
-            timeInsert.setInt(2, time);
-
             ResultSet rs = timeSelect.executeQuery();
             if (rs.next()) {
                 prevTime = rs.getInt("PlayTime");
@@ -140,11 +137,39 @@ public class MusicDAO extends DBContext {
         }
     }
 
-    public void deletePlayTime(int userID, int time) {
+    public void deletePlayTime(int userID) {
+        try {
+            PreparedStatement timeDelete = connection.prepareStatement("""
+                                                 Delete from MusicPlayTime
+                                                 where UserID=?
+                                                 """);
+            timeDelete.setInt(1, userID);
+            timeDelete.executeUpdate();
+            timeDelete.close();
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public int viewPlayTime(int userID) {
+        try {
+            PreparedStatement timeSelect = connection.prepareStatement("""
+                                                 select UserID, PlayTime from MusicPlayTime
+                                                 where UserID=?
+                                                 """);
+            timeSelect.setInt(1, userID);
+
+            ResultSet rs = timeSelect.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("PlayTime");
+            } else {
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 }

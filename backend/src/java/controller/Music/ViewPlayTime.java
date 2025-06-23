@@ -1,5 +1,4 @@
 
-
 package controller.Music;
 
 import dal.MusicDAO;
@@ -10,53 +9,46 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.BufferedReader;
+import java.util.ArrayList;
+import java.util.List;
+import model.Music;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
 import util.SessionUtil;
 
-public class InsertPlayTime extends HttpServlet {
-   
 
+public class ViewPlayTime extends HttpServlet {
+   
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-       
+        
     } 
-
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        MusicDAO md = new MusicDAO();
+        int time=0;
+        try {
+            Integer userID = SessionUtil.getCurrentUserId(session);
+            time = md.viewPlayTime(userID);
+            JSONObject jsonTime = new JSONObject();
+            jsonTime.put("response", time);
+            JsonUtil.writeJsonResponse(response, jsonTime);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     } 
 
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        MusicDAO md = new MusicDAO();
-        HttpSession session = request.getSession();
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
-        JSONObject json = new JSONObject(sb.toString());
-        String timeRaw = json.optString("totalPlayTime", "").trim();
-        try {
-            Integer userID = SessionUtil.getCurrentUserId(session);
-            int time= Integer.parseInt(timeRaw);
-            md.insertPlayTime(userID, time);
-            
-
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            JsonUtil.writeJsonError(response, "Error update play time");
-        }
     }
 
     @Override
