@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import model.Media;
 import model.Post;
 import model.PostMedia;
@@ -60,7 +61,7 @@ public class UpdatePost extends HttpServlet {
         List<Media> imageUrl = new ArrayList<>();
 
         for (Part part : parts) {
-            if (part.getName().equals("file[]") && part.getSize() > 0) {
+            if (part.getName().startsWith("file") && part.getSize() > 0) {
                 try (InputStream fileStream = part.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
 
                     byte[] data = new byte[1024];
@@ -73,7 +74,7 @@ public class UpdatePost extends HttpServlet {
                     Map<String, Object> uploadResult = cloudinary.uploader().upload(
                             fileBytes, ObjectUtils.asMap("resource_type", "image"));
 
-                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), "", null));
+                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), ""));
 
                 } catch (Exception e) {
                     JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
@@ -90,7 +91,7 @@ public class UpdatePost extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        String raw_postID= request.getParameter("postID");
+        String raw_postID = request.getParameter("postID");
         int postID;
 
         try {
@@ -101,7 +102,7 @@ public class UpdatePost extends HttpServlet {
 //            }
 
 //            int postID = Integer.parseInt(rawPostID.trim());
-            postID= Integer.parseInt(raw_postID);
+            postID = Integer.parseInt(raw_postID);
 
             PostDAO pd = new PostDAO();
             MediaDAO md = new MediaDAO();
@@ -124,15 +125,14 @@ public class UpdatePost extends HttpServlet {
 
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("postID", post.getID());
-//            jsonPost.put("title", post.getTitle());
             jsonPost.put("content", post.getContent());
             jsonPost.put("visibility", post.getVisibility().toUpperCase());
 
             JSONArray imageArr = new JSONArray();
             for (Media media : imageList) {
-                JSONObject obj= new JSONObject();
+                JSONObject obj = new JSONObject();
                 obj.put("ID", media.getID());
-                obj.put("mediaURL",media.getURL());
+                obj.put("mediaURL", media.getURL());
                 imageArr.put(obj);
             }
             jsonPost.put("imageUrl", imageArr);
@@ -162,8 +162,10 @@ public class UpdatePost extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+
         //        Declaration
         Collection<Part> parts = request.getParts();
+        String[] idList = request.getParameterValues("ID");
         HttpSession session = request.getSession();
         List<Media> imageUrl = new ArrayList<>();
         PostDAO pd = new PostDAO();
@@ -191,7 +193,13 @@ public class UpdatePost extends HttpServlet {
                 JsonUtil.writeJsonError(response, "User not logged in");
                 return;
             }
-            List<Media> oldImages = md.getPostMediaByID(postID);
+            List<Media> oldImages = new ArrayList<>();
+            for (String id_raw : idList) {
+                int id = Integer.parseInt(id_raw);
+                oldImages.add(md.getMediaByID(id));
+                md.deleteMediaByID(id);
+                md.deletePostMediaByID(id);
+            }
             deleteImageFromCloudinary(cloudinary, response, oldImages);
 
             imageUrl = uploadImagesToCloudinary(parts, cloudinary, response);
@@ -209,7 +217,7 @@ public class UpdatePost extends HttpServlet {
                     null,
                     false
             ), postID);
-            md.deleteMediaByPostID(postID, imageUrl);
+            md.updateMediaByPostID(postID, imageUrl);
 
         } catch (Exception e) {
             e.printStackTrace();

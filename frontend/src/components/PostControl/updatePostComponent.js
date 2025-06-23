@@ -8,6 +8,8 @@ class UpdatePostComponent extends React.Component {
         postID: 0,
         // title: '',
         content: '',
+        idListDelete: [],
+        idListAdd: [],
         file: [],
         filePreview: [],
         visibility: 'PUBLIC',
@@ -93,19 +95,31 @@ class UpdatePostComponent extends React.Component {
         })
         this.props.closeUpdatePopup();
     }
-    handleRemoveImage = (index) => {
+    handleRemoveImage = (ID, index) => {
         const newFile = [...this.state.file];
+        const newFileAdd = [...this.state.idListAdd];
         const newPreview = [...this.state.filePreview];
 
         newFile.splice(index, 1);
+        newFileAdd.splice(index, 1);
         newPreview.splice(index, 1);
 
 
-        this.setState({
-            file: newFile,
-            filePreview: newPreview,
+        if (ID !== 0) {
+            this.setState({
+                idListDelete: [...this.state.idListDelete, ID],
+                file: newFile,
+                filePreview: newPreview,
+            }
+            )
+        } else {
+            this.setState({
+                idListAdd: newFileAdd,
+                file: newFile,
+                filePreview: newPreview,
+            }
+            )
         }
-        )
     };
 
     //handleFileChange
@@ -146,7 +160,10 @@ class UpdatePostComponent extends React.Component {
                 const compressedFile = await imageCompression(file, options);
                 validFiles.push({
                     file: compressedFile,
-                    preview: URL.createObjectURL(compressedFile),
+                    preview: {
+                        mediaURL: URL.createObjectURL(compressedFile),
+                        ID: 0
+                    },
                 });
             } catch (err) {
                 console.error("Compress error:", file.name, err);
@@ -157,6 +174,7 @@ class UpdatePostComponent extends React.Component {
             if (this.state.file != null) {
                 this.setState({
                     file: [...this.state.file, ...validFiles.map(f => f.file)],
+                    idListAdd: [...this.state.idListAdd, ...validFiles.map(f => f.file)],
                     filePreview: [...this.state.filePreview, ...validFiles.map(f => f.preview)],
                     isImage: true,
                 });
@@ -164,6 +182,7 @@ class UpdatePostComponent extends React.Component {
             else {
                 this.setState({
                     file: validFiles.map(f => f.file),
+                    idListAdd: validFiles.map(f => f.file),
                     filePreview: validFiles.map(f => f.preview),
                     isImage: true,
                 });
@@ -193,11 +212,12 @@ class UpdatePostComponent extends React.Component {
                 return response.json();
             })
             .then(async data => {
-                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl.mediaURL : [];
+                const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
+                // const idlist = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
 
                 const filesFromUrls = await Promise.all(
-                    previewUrls.map(async (url, index) => {
-                        const response = await fetch(url);
+                    previewUrls.map(async (item, index) => {
+                        const response = await fetch(item.mediaURL);
                         const blob = await response.blob();
                         return new File([blob], `image_${index}.jpg`, { type: blob.type });
                     })
@@ -224,15 +244,20 @@ class UpdatePostComponent extends React.Component {
         formData.append("postID", this.props.updatePostID);
         formData.append("title", this.state.title);
         formData.append("content", this.state.content);
-        if (this.state.file) {
-            const images = this.state.file;
+        if (this.state.idListAdd) {
+            const images = this.state.idListAdd;
             images.forEach((file, index) => {
                 formData.append("file[]", file);
             })
 
         }
+        if (this.state.idListDelete) {
+            const del = this.state.idListDelete;
+            del.forEach((id, index) => {
+                formData.append("ID", id);
+            })
+        }
         formData.append("visibility", this.state.visibility);
-        console.log("form: ", formData);
         try {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/update', {
@@ -293,8 +318,8 @@ class UpdatePostComponent extends React.Component {
                                     return (
                                         <div className="image-container" key={index}>
                                             <div className="image-wrapper">
-                                                <img src={item} alt="post-image" />
-                                                <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                                                <img src={item.mediaURL} alt="post-image" />
+                                                <button onClick={() => { this.handleRemoveImage(item.ID, index) }}>Remove</button>
                                             </div>
                                         </div>
                                     )
