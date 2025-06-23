@@ -20,6 +20,7 @@ import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
 import MessagesPage from './Messages.js';
+import EventPage from './EventPage.js';
 
 import MusicComponent from '../components/MusicBox/musicComponent.js';
 import { FiHeadphones } from "react-icons/fi";
@@ -27,6 +28,7 @@ import { set } from 'date-fns';
 import Payment from './Payment.js';
 import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
 import RecentPosts from './RecentPosts';
+import { ImOffice } from "react-icons/im";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -53,6 +55,7 @@ function App() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/recent-posts" element={<RecentPosts />} />
+          <Route path="/event" element={<EventPage />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

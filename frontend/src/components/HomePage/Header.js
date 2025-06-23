@@ -9,6 +9,7 @@ import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
+import '../../styles/Header.scss';
 
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -103,7 +104,14 @@ export default function Header({ openCreatePopup }) {
           style={{ cursor: "pointer", position: "relative" }}
         >
           <p className="header-navbar__title">Create</p>
-          <img src={arrowDown} alt="" style={{ transform: showCreateMenu ? 'rotate(180deg)' : 'none' }}></img>
+          <img
+            src={arrowDown}
+            alt=""
+            style={{
+              transform: showCreateMenu ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.2s ease'
+            }}
+          />
           {showCreateMenu && (
             <div className="create-menu-dropdown">
               <div className="create-menu-item" onClick={() => {
@@ -145,37 +153,42 @@ export default function Header({ openCreatePopup }) {
           <img src={chat} alt="chat"></img>
         </Link>
 
+
         <div className="header-more" ref={userMenuRef}>
-          {userID==0 && (
-            <Link to="/login">
-              <img src={ava} alt="ava"></img>
-            </Link>
-          )}
-          {userID!=0 && (
-            <Link to={`/user/${userID}`}>
-              <img src={ava} alt="ava"></img>
-            </Link>
-          )}
           <div 
             onClick={() => setShowUserMenu(!showUserMenu)} 
             style={{ cursor: "pointer", position: "relative" }}
           >
             <img 
+              src={ava} 
+              alt="ava"
+              style={{ width: "2.5vw", height: "", borderRadius: "50%" }}
+            />
+            <img 
               src={arrowDown} 
               alt="more" 
-              style={{ transform: showUserMenu ? 'rotate(180deg)' : 'none' }}
+              style={{
+                transform: showUserMenu ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.2s ease'
+              }}
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
-                <Link to={`/user/${userID}`} className="user-menu-item">
-                  Profile
-                </Link>
+                {userID!=0 && (
+                  <Link to={`/user/${userID}`} className="user-menu-item">
+                    Profile
+                  </Link>
+                )}
+                {userID!=0 && (
                 <Link to="/settings" className="user-menu-item">
                   Settings
                 </Link>
+                )}
+                {userID!=0 && (
                 <Link to="/recent-posts" className="user-menu-item">
                   Recent Posts
                 </Link>
+                )}
                 {userID !== 0 && (
                   <div className="user-menu-item" onClick={handleLogout}>
                     <FiLogOut style={{ marginRight: '8px' }} />

@@ -7,6 +7,7 @@ import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -96,21 +97,27 @@ export default function HomePage() {
         <p>{today_formatted}</p>
       </div>
       <div className="homepage-title">
-        <div className="tab-buttons">
-          <button 
-            className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('post')}
-          >
-            Artwork Posts
-          </button>
-          <button 
-            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
-            onClick={() => setSelectedTab('event')}
-          >
-            Event
-          </button>
-        </div>
-      </div>
+  <div className="tab-buttons">
+    <Link to="/homepage">
+      <button 
+        className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
+        onClick={() => setSelectedTab('post')}
+      >
+        Artwork Posts
+      </button>
+    </Link>
+
+    <Link to="/event">
+      <button 
+        className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+        onClick={() => setSelectedTab('event')}
+      >
+        Event
+      </button>
+    </Link>
+  </div>
+</div>
+
 
       <ArtistPost
         refetch={isRefresh}
