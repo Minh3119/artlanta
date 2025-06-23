@@ -7,6 +7,9 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import MessageInput from '../components/Messages/MessageInput';
 import { messagesResponseSchema } from '../schemas/messaging';
 import imageCompression from 'browser-image-compression';
+import { MessageCircle, Clock, Archive } from 'lucide-react';
+import SearchBar from '../components/Messages/SearchBar';
+import ConversationTypeSelector from '../components/Messages/ConversationTypeSelector';
 
 const MessagesPage = () => {
   const ws = useRef(null);
@@ -306,6 +309,70 @@ const MessagesPage = () => {
     fetchMessages();
   }, [selectedConversation]);
 
+  const [activeTab, setActiveTab] = useState('chat');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const conversationTypes = [
+    { key: 'chat', label: 'Chats', icon: MessageCircle },
+    { key: 'pending', label: 'Pending', icon: Clock },
+    { key: 'archive', label: 'Archive', icon: Archive }
+  ];
+
+  const getCurrentConversations = () => {
+    switch (activeTab) {
+      case 'chat':
+        return chatConversations;
+      case 'pending':
+        return pendingConversations;
+      case 'archive':
+        return archivedConversations;
+      default:
+        return [];
+    }
+  };
+
+  const getConversationCount = (type) => {
+    switch (type) {
+      case 'chat':
+        return chatConversations.length;
+      case 'pending':
+        return pendingConversations.length;
+      case 'archive':
+        return archivedConversations.length;
+      default:
+        return 0;
+    }
+  };
+
+  const handleAcceptRequest = (id) => {
+    console.log('Accepting request:', id);
+  };
+
+  const handleDeclineRequest = (id) => {
+    console.log('Declining request:', id);
+  };
+
+  const handleArchiveConversation = (id) => {
+    console.log('Archiving conversation:', id);
+  };
+
+  const handleUnarchiveConversation = (id) => {
+    console.log('Unarchiving conversation:', id);
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
   if (loading) {
       return (
           <LoadingScreen />
@@ -339,19 +406,43 @@ const MessagesPage = () => {
     <div className="flex h-screen overflow-hidden font-sans bg-gray-50 p-4 gap-4">
       {/* Sidebar */}
       <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
+        {/* Header */}
         <div className="p-4 border-b border-gray-200 flex-shrink-0">
           <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
         </div>
-        <div className="flex-1 overflow-hidden">
-          <ConversationsList 
-            conversations={conversations}
+        {/* Search Bar Component */}
+        <SearchBar 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          placeholder="Search conversations..."
+        />
+        {/* Conversation Type Selector Component */}
+        <ConversationTypeSelector
+          conversationTypes={conversationTypes}
+          activeType={activeTab}
+          onTypeChange={setActiveTab}
+          isOpen={isDropdownOpen}
+          onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+          getCount={getConversationCount}
+        />
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto">
+          <ConversationsList
+            conversations={getCurrentConversations()}
+            type={activeTab}
             loading={loadingConversations}
             error={conversationsError}
-            selectedConversation={selectedConversation} 
-            onSelectConversation={handleConversationSelect} 
+            selectedConversation={selectedConversation}
+            onSelectConversation={handleConversationSelect}
+            searchQuery={searchQuery}
+            onAcceptRequest={handleAcceptRequest}
+            onDeclineRequest={handleDeclineRequest}
+            onArchiveConversation={handleArchiveConversation}
+            onUnarchiveConversation={handleUnarchiveConversation}
           />
         </div>
-      </div>
+      </div>  {/* End of Sidebar */}
+
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
@@ -410,7 +501,7 @@ const MessagesPage = () => {
             </div>
           </div>
         )}
-      </div>
+      </div>  {/* End of Main Chat Area */}
 
     </div>
   );
