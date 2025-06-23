@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import "../../styles/login.css";
 import SocialLogin from "./SocialLogin.js";
 import InputField from "./InputField";
@@ -13,10 +14,13 @@ export default function LoginCard() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch("http://localhost:9999/backend/api/session/check", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            method: "GET",
+            credentials: "include", 
+          }
+        );
         const data = await res.json();
         if (data.loggedIn) {
           navigate("/");
@@ -59,14 +63,8 @@ export default function LoginCard() {
 
       if (data.success) {
         setMessage("Login success");
-
-        const role = data.user.role?.toUpperCase();
-
-        if (role === "ADMIN") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+        console.log(data);
+        navigate("/");
       } else {
         setMessage(data.message);
       }
@@ -80,7 +78,7 @@ export default function LoginCard() {
       <h2 className="form-title">Log in with</h2>
       {message && <p className="message">{message}</p>}
 
-      <SocialLogin />
+      <SocialLogin></SocialLogin>
 
       <p className="separator">
         <span>or</span>
@@ -94,7 +92,7 @@ export default function LoginCard() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        />
+        ></InputField>
         <InputField
           type="password"
           placeholder="Password"
@@ -102,7 +100,7 @@ export default function LoginCard() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        />
+        ></InputField>
         <Link to="/passforget" className="forgot-pass-link">
           Forgot password?
         </Link>
