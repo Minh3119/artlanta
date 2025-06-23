@@ -48,28 +48,28 @@ class VideoComponent extends React.Component {
                 console.error('Error fetching music data:', error);
             });
     }
-    componentWillUnmount() {
+    async componentWillUnmount() {
         if (this.interval) {
             clearInterval(this.interval);
         }
+        let totalTime = this.state.totalPlayTime;
         if (this.state.playStartTime) {
             const now = Date.now();
             const playedTime = (now - this.state.playStartTime) / 1000;
-            this.setState({
-                totalPlayTime: this.state.totalPlayTime + playedTime,
-            })
+            totalTime += playedTime;
         }
         try {
-            const res = fetch('http://localhost:9999/backend/api/music/time/insert', {
+            const res = await fetch('http://localhost:9999/backend/api/music/time/insert', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    totalPlayTime: this.state.totalPlayTime,
+                    totalPlayTime: totalTime,
                 }),
             })
+            console.log("time" + totalTime);
             if (res.ok) {
                 return;
             } else {
@@ -77,7 +77,6 @@ class VideoComponent extends React.Component {
             }
         }
         catch (er) {
-            this.setState({ message: "Cannot connect to the server." });
             console.log("server error!", er);
         }
     }
@@ -121,13 +120,22 @@ class VideoComponent extends React.Component {
         const currentTime = Date.now();
         switch (event.data) {
             case 1:
-                this.setState({ isPlaying: true });
-                if (!this.state.playStartTime) {
-                    this.setState({ playStartTime: currentTime });
-                }
+                this.setState({
+                    isPlaying: true,
+                    playStartTime: currentTime
+                });
                 break;
             case 2:
-                this.setState({ isPlaying: false });
+                if (this.state.playStartTime) {
+                    const playedTime = (currentTime - this.state.playStartTime) / 1000;
+                    this.setState({
+                        totalPlayTime: this.state.totalPlayTime + playedTime,
+                        playStartTime: null,
+                        isPlaying: false,
+                    });
+                } else {
+                    this.setState({ isPlaying: false });
+                }
                 break;
         }
         if (event.data === YT.PlayerState.PLAYING) {
@@ -136,18 +144,6 @@ class VideoComponent extends React.Component {
                     musicTitle: event.target.getVideoData().title,
                 })
             }, 500);
-        }
-        if (event.data === YT.PlayerState.UNSTARTED) {
-            if (this.state.playStartTime) {
-                const playedTime = (currentTime - this.state.playStartTime) / 1000;
-                this.setState({
-                    totalPlayTime: this.state.totalPlayTime + playedTime,
-                    playStartTime: null,
-                    isPlaying: false,
-                });
-            } else {
-                this.setState({ isPlaying: false });
-            }
         }
     }
     onPlayerError = (event) => {
@@ -234,10 +230,19 @@ class VideoComponent extends React.Component {
         this.setState({ volume: newVolume });
     };
     handleChangeMusic = (event) => {
+        const now = Date.now();
+        let addedPlayTime = 0;
+
+        if (this.state.playStartTime) {
+            addedPlayTime = (now - this.state.playStartTime) / 1000;
+        }
+
         this.setState({
-            currentPlaylist: this.state.listPlaylist[event.target.value],
+            totalPlayTime: this.state.totalPlayTime + addedPlayTime,
+            playStartTime: null,
             isPlaying: false,
-        })
+            currentPlaylist: this.state.listPlaylist[event.target.value],
+        });
     }
     render() {
         const optsForVideo = {

@@ -78,9 +78,9 @@ public class MusicDAO extends DBContext {
         }
     }
 
-    public void insertPlayTime(int userID, int time) throws SQLException {
+    public void insertPlayTime(int userID, double time) throws SQLException {
         PreparedStatement timeSelect = null, timeUpdate = null, timeInsert = null;
-        int prevTime = 0;
+        double prevTime = 0;
         try {
             connection.setAutoCommit(false);
 
@@ -104,13 +104,13 @@ public class MusicDAO extends DBContext {
             if (rs.next()) {
                 prevTime = rs.getInt("PlayTime");
 
-                timeUpdate.setInt(1, prevTime + time);
+                timeUpdate.setInt(1, (int)(prevTime + time));
                 timeUpdate.setInt(2, userID);
                 timeUpdate.executeUpdate();
 
             } else {
                 timeInsert.setInt(1, userID);
-                timeInsert.setInt(2, time);
+                timeInsert.setInt(2, (int)time);
                 timeInsert.executeUpdate();
             }
 

@@ -49,9 +49,35 @@ class MP3Component extends React.Component {
             });
 
     }
-    componentWillUnmount() {
+    async componentWillUnmount() {
         if (this.interval) {
             clearInterval(this.interval);
+        }
+        let totalTime = this.state.totalPlayTime;
+        if (this.state.playStartTime) {
+            const now = Date.now();
+            const playedTime = (now - this.state.playStartTime) / 1000;
+            totalTime += playedTime;
+        }
+        try {
+            const res = await fetch('http://localhost:9999/backend/api/music/time/insert', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    totalPlayTime: totalTime,
+                }),
+            })
+            if (res.ok) {
+                return;
+            } else {
+                toast.error("error save play time");
+            }
+        }
+        catch (er) {
+            console.log("server error!", er);
         }
     }
     formatYoutubeID = (item) => {
@@ -100,13 +126,23 @@ class MP3Component extends React.Component {
         const currentTime = Date.now();
         switch (event.data) {
             case 1:
-                this.setState({ isPlaying: true });
-                if (!this.state.playStartTime) {
-                    this.setState({ playStartTime: currentTime });
-                }
+                this.setState({
+                    isPlaying: true,
+                    playStartTime: currentTime
+                });
+
                 break;
             case 2:
-                this.setState({ isPlaying: false });
+                if (this.state.playStartTime) {
+                    const playedTime = (currentTime - this.state.playStartTime) / 1000;
+                    this.setState({
+                        totalPlayTime: this.state.totalPlayTime + playedTime,
+                        playStartTime: null,
+                        isPlaying: false,
+                    });
+                } else {
+                    this.setState({ isPlaying: false });
+                }
                 break;
         }
         if (event.data === YT.PlayerState.PLAYING) {
@@ -116,18 +152,6 @@ class MP3Component extends React.Component {
                     musicDuration: event.target.getDuration(),
                 })
             }, 500);
-        }
-        if (event.data === YT.PlayerState.UNSTARTED) {
-            if (this.state.playStartTime) {
-                const playedTime = (currentTime - this.state.playStartTime) / 1000;
-                this.setState({
-                    totalPlayTime: this.state.totalPlayTime + playedTime,
-                    playStartTime: null,
-                    isPlaying: false,
-                });
-            } else {
-                this.setState({ isPlaying: false });
-            }
         }
     }
     onPlayerError = (event) => {
@@ -221,10 +245,19 @@ class MP3Component extends React.Component {
         this.setState({ currentTime: newTime });
     };
     handleChangeMusic = (event) => {
+        const now = Date.now();
+        let addedPlayTime = 0;
+
+        if (this.state.playStartTime) {
+            addedPlayTime = (now - this.state.playStartTime) / 1000;
+        }
+
         this.setState({
-            currentPlaylist: this.state.listPlaylist[event.target.value],
+            totalPlayTime: this.state.totalPlayTime + addedPlayTime,
+            playStartTime: null,
             isPlaying: false,
-        })
+            currentPlaylist: this.state.listPlaylist[event.target.value],
+        });
     }
     render() {
         const optsForVideo = {

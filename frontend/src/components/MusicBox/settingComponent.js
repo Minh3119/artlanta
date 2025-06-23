@@ -21,6 +21,7 @@ class SettingComponent extends React.Component {
         isEdit: false,
         editingIndex: null,
         isDuplicate: "white",
+        playTime: 0
     }
     componentDidMount() {
         fetch(`http://localhost:9999/backend/api/music/view`, {
@@ -37,6 +38,22 @@ class SettingComponent extends React.Component {
             })
             .catch(error => {
                 console.error('Error fetching music data:', error);
+            });
+
+        fetch(`http://localhost:9999/backend/api/music/time/view`, {
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch playtime');
+                return response.json();
+            })
+            .then(async data => {
+                this.setState({
+                    playTime: data.response
+                });
+            })
+            .catch(error => {
+                console.error('Error fetchingplaytime:', error);
             });
 
     }
@@ -293,8 +310,32 @@ class SettingComponent extends React.Component {
             console.log("server error!", er);
         }
     }
-    handleOnResetTime = () => {
-
+    handleOnResetTime = async () => {
+        try {
+            const res = await fetch('http://localhost:9999/backend/api/music/time/delete', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: 'include'
+            });
+            if (res.ok) {
+                this.setState({
+                    editName: "",
+                    editLink: "",
+                    isEdit: false,
+                    editingIndex: null,
+                });
+                toast.success("Delete playlist completed!");
+                this.componentDidMount();
+            } else {
+                toast.error("Delete playlist error, try again later.");
+            }
+        }
+        catch (er) {
+            this.setState({ message: "Cannot connect to the server." });
+            console.log("server error!", er);
+        }
     }
     formatTime = (seconds) => {
         const h = Math.floor(seconds / 3600);
@@ -314,8 +355,8 @@ class SettingComponent extends React.Component {
             <div className="music-control">
                 <div className="playlist-count">
                     <p>Total play time: </p>
-                    <p className="time-count">00:00:00</p>
-                    <button onClick={this.handleOnResetTime}>
+                    <p className="time-count">{this.formatTime(this.state.playTime)}</p>
+                    <button onClick={() => this.handleOnResetTime()}>
                         <RiResetLeftFill className="icon" />
                     </button>
                 </div>

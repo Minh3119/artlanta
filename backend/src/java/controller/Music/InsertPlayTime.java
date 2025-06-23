@@ -1,5 +1,3 @@
-
-
 package controller.Music;
 
 import dal.MusicDAO;
@@ -16,24 +14,21 @@ import util.JsonUtil;
 import util.SessionUtil;
 
 public class InsertPlayTime extends HttpServlet {
-   
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-       
-    } 
+            throws ServletException, IOException {
 
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        
-    } 
+            throws ServletException, IOException {
 
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         MusicDAO md = new MusicDAO();
@@ -48,11 +43,10 @@ public class InsertPlayTime extends HttpServlet {
         String timeRaw = json.optString("totalPlayTime", "").trim();
         try {
             Integer userID = SessionUtil.getCurrentUserId(session);
-            int time= Integer.parseInt(timeRaw);
-            md.insertPlayTime(userID, time);
-            
 
-            
+            double time = Double.parseDouble(timeRaw);
+            md.insertPlayTime(userID, time);
+
         } catch (Exception e) {
             e.printStackTrace();
             JsonUtil.writeJsonError(response, "Error update play time");
