@@ -420,4 +420,43 @@ public class PostDAO extends DBContext {
 		return false;
 	}
 
+	public List<Post> getPostsFromFriends(int userId) {
+		List<Post> posts = new ArrayList<>();
+		try {
+			String sql = """
+                SELECT DISTINCT p.* FROM Posts p
+                INNER JOIN Users u ON p.UserID = u.ID
+                LEFT JOIN Follow f ON (f.FollowingID = p.UserID AND f.FollowerID = ?)
+                WHERE (f.FollowerID = ? OR p.UserID = ?)
+                AND p.IsDeleted = 0
+                AND p.Visibility = 'public'
+                ORDER BY p.CreatedAt DESC
+                """;
+			PreparedStatement st = connection.prepareStatement(sql);
+			st.setInt(1, userId);
+			st.setInt(2, userId);
+			st.setInt(3, userId);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Post post = new Post(
+						rs.getInt("ID"),
+						rs.getInt("UserID"),
+						rs.getString("Content"),
+						rs.getBoolean("IsDraft"),
+						rs.getString("Visibility"),
+						rs.getTimestamp("CreatedAt").toLocalDateTime(),
+						rs.getTimestamp("UpdatedAt") != null ? rs.getTimestamp("UpdatedAt").toLocalDateTime() : null,
+						rs.getBoolean("IsFlagged")
+				);
+				posts.add(post);
+			}
+			rs.close();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return posts;
+	}
+
 }

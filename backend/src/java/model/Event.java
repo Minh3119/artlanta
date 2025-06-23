@@ -21,6 +21,7 @@ public class Event {
     // Relations and media
     private int creatorId;      // Foreign key to Users table
     private String imageUrl;    // URL to event image (stored in Cloudinary)
+    private List<Post> posts;   // List of posts associated with this event
     
     // Timestamps
     private LocalDateTime createdAt;
@@ -31,6 +32,7 @@ public class Event {
     private int followerCount;              // Total number of followers
     private int goingCount;                 // Number of users marked as 'going'
     private int interestedCount;            // Number of users marked as 'interested'
+    private int postCount;                  // Total number of posts in this event
     
     /**
      * Default constructor
@@ -164,5 +166,21 @@ public class Event {
     
     public void setInterestedCount(int interestedCount) {
         this.interestedCount = interestedCount;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
+
+    public int getPostCount() {
+        return postCount;
+    }
+
+    public void setPostCount(int postCount) {
+        this.postCount = postCount;
     }
 } 

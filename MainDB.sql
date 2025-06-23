@@ -752,6 +752,16 @@ CREATE TABLE event_followers (
     FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create event_posts table for linking posts to events
+CREATE TABLE event_posts (
+    event_id INT,
+    post_id INT,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, post_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES Posts(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Add some sample events data
 INSERT INTO events (title, description, start_time, end_time, location, creator_id, image_url)
 VALUES 

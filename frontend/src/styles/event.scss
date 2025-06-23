@@ -243,3 +243,230 @@
     }
   }
 } 
+
+.posts-selection {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 8px;
+
+  .post-selection-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+
+    label {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .post-preview {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      .post-content {
+        flex: 1;
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .post-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+// Event Page Styles
+.events-list {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .event-header {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    border-bottom: 1px solid #eee;
+
+    .event-info {
+      flex: 1;
+
+      .event-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+
+      .event-metadata {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: #666;
+        font-size: 14px;
+
+        .event-date, .event-location {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+
+    .event-cover-image {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+
+  .event-description {
+    padding: 20px;
+    color: #444;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .event-posts {
+    padding: 20px;
+    border-top: 1px solid #eee;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      color: #333;
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+
+      .post-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        text-decoration: none;
+        color: inherit;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: #f0f2f5;
+        }
+
+        .post-content {
+          p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+          }
+
+          img {
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 10px;
+          }
+        }
+      }
+    }
+  }
+
+  .event-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .event-stats {
+      display: flex;
+      gap: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 10px;
+
+      button {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.btn-interested {
+          background: #f0f2f5;
+          color: #333;
+
+          &:hover {
+            background: #e4e6eb;
+          }
+        }
+
+        &.btn-going {
+          background: #1877f2;
+          color: white;
+
+          &:hover {
+            background: #166fe5;
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-events-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+} 

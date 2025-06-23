@@ -23,6 +23,8 @@ export default function CreateEventComponent({ closeEventPopup }) {
   const [selectedImage, setSelectedImage] = useState(null); // For image preview
   const [isUploading, setIsUploading] = useState(false); // Loading state during image upload
   const [imageInputType, setImageInputType] = useState('file'); // Toggle between file upload and URL input
+  const [userPosts, setUserPosts] = useState([]); // List of user's posts
+  const [selectedPosts, setSelectedPosts] = useState([]); // Selected posts to add to event
   
   // Refs for DOM elements
   const popupRef = useRef(null); // Reference to the modal container for click outside detection
@@ -67,6 +69,25 @@ export default function CreateEventComponent({ closeEventPopup }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [closeEventPopup]);
+
+  useEffect(() => {
+    // Fetch user's posts when component mounts
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:9999/backend/api/post/view?includeFriends=true', {
+          credentials: 'include'
+        });
+        if (!response.ok) throw new Error('Failed to fetch posts');
+        const data = await response.json();
+        setUserPosts(data.response || []);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        toast.error('Failed to fetch posts');
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   /**
    * Validates that end date is after start date
@@ -223,21 +244,45 @@ export default function CreateEventComponent({ closeEventPopup }) {
         body: JSON.stringify(eventData)
       });
 
-      if (response.ok) {
-        toast.success('Event created successfully!');
-        closeEventPopup();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage = errorData.error || 'Failed to create event';
-        setError(errorMessage);
-        toast.error(errorMessage);
+        throw new Error(errorData.error || 'Failed to create event');
       }
+
+      const eventResult = await response.json();
+
+      // Add selected posts to the event
+      if (selectedPosts.length > 0) {
+        await Promise.all(selectedPosts.map(postId =>
+          fetch('http://localhost:9999/backend/api/event/post', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            credentials: 'include',
+            body: `eventId=${eventResult.eventId}&postId=${postId}`
+          })
+        ));
+      }
+
+      toast.success('Event created successfully!');
+      closeEventPopup();
     } catch (error) {
       console.error('Error creating event:', error);
       const errorMessage = error.message || 'Error creating event';
       setError(errorMessage);
       toast.error(errorMessage);
     }
+  };
+
+  const handlePostSelection = (postId) => {
+    setSelectedPosts(prev => {
+      if (prev.includes(postId)) {
+        return prev.filter(id => id !== postId);
+      } else {
+        return [...prev, postId];
+      }
+    });
   };
 
   /**
@@ -358,6 +403,30 @@ export default function CreateEventComponent({ closeEventPopup }) {
                 </div>
               )}
               {isUploading && <div className="upload-loading">Uploading...</div>}
+            </div>
+          </div>
+          {/* Related Posts Selection */}
+          <div className="form-group">
+            <label>Related Posts</label>
+            <div className="posts-selection">
+              {userPosts.map(post => (
+                <div key={post.postID} className="post-selection-item">
+                  <input
+                    type="checkbox"
+                    id={`post-${post.postID}`}
+                    checked={selectedPosts.includes(post.postID)}
+                    onChange={() => handlePostSelection(post.postID)}
+                  />
+                  <label htmlFor={`post-${post.postID}`}>
+                    <div className="post-preview">
+                      <p className="post-content">{post.content.substring(0, 100)}...</p>
+                      {post.mediaURL && post.mediaURL[0] && (
+                        <img src={post.mediaURL[0]} alt="Post preview" className="post-thumbnail" />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
           {/* Form action buttons */}
