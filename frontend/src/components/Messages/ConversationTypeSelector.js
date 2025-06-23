@@ -1,7 +1,12 @@
-import { ChevronDown, MessageCircle } from 'lucide-react';
+import { ChevronDown, MessageCircle, Clock, Archive } from 'lucide-react';
+
+const conversationTypes = [
+  { key: 'chat', label: 'Chats', icon: MessageCircle },
+  { key: 'pending', label: 'Pending', icon: Clock },
+  { key: 'archived', label: 'Archive', icon: Archive }
+];
 
 const ConversationTypeSelector = ({ 
-  conversationTypes, 
   activeType, 
   onTypeChange, 
   isOpen, 
@@ -15,7 +20,7 @@ const ConversationTypeSelector = ({
     <div className="relative">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
+        className="border-none w-full flex items-center justify-between bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
       >
         <div className="flex items-center gap-2">
           <CurrentIcon className="w-4 h-4 text-gray-600" />
@@ -39,8 +44,8 @@ const ConversationTypeSelector = ({
                   onTypeChange(type.key);
                   onToggle();
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                  activeType === type.key ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                className={`border-none w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                  activeType === type.key ? 'bg-white' : 'text-gray-700'
                 }`}
               >
                 <Icon className="w-4 h-4" />

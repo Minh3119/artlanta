@@ -15,16 +15,14 @@ public class Media {
     private int ID;
     private String URL;
     private String Description;
-    private Timestamp CreatedAt;
 
     public Media() {
     }
 
-    public Media(int ID, String URL, String Description, Timestamp CreatedAt) {
+    public Media(int ID, String URL, String Description) {
         this.ID = ID;
         this.URL = URL;
         this.Description = Description;
-        this.CreatedAt = CreatedAt;
     }
 
     public int getID() {
@@ -49,14 +47,6 @@ public class Media {
 
     public void setDescription(String Description) {
         this.Description = Description;
-    }
-
-    public Timestamp getCreatedAt() {
-        return CreatedAt;
-    }
-
-    public void setCreatedAt(Timestamp CreatedAt) {
-        this.CreatedAt = CreatedAt;
     }
 
 }

@@ -24,7 +24,7 @@ function ScrollToBottomButton() {
   );
 }
 
-const MessagesList = ({ conversationId, currentUserId, messages, loading, error, onUnsend }) => {
+const MessagesList = ({ conversationId, currentUserId, messages, loading, error, onUnsend, onReport }) => {
   if (!conversationId) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
@@ -58,7 +58,7 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error,
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <ScrollToBottom className="flex-1 p-4 overflow-y-auto overflow-x-hidden relative">
+      <ScrollToBottom className="flex-1 px-4 overflow-y-auto overflow-x-hidden relative">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="bg-gray-100 p-4 rounded-full mb-4">
@@ -79,6 +79,7 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error,
                 message={message}
                 isCurrentUser={message.senderId === currentUserId}
                 onUnsend={onUnsend}
+                onReport={onReport}
               />
             ))}
           </div>

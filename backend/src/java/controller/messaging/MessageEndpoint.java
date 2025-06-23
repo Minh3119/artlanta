@@ -32,28 +32,50 @@ public class MessageEndpoint {
 
     @OnOpen
     public void open(Session session, EndpointConfig conf) {
-        messagingService = new MessagingService();
+        try {
+            messagingService = new MessagingService();
 
-        // String sessionId = session.getId();
-        // sessions.put(sessionId, session);
+            HttpSession httpSession = (HttpSession) conf.getUserProperties().get(HttpSession.class.getName());
+            if (httpSession == null) {
+                System.out.println("HttpSession not found. Closing WebSocket connection.");
+                session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Authentication required"));
+                return;
+            }
 
-        HttpSession httpSession = (HttpSession) conf.getUserProperties().get(HttpSession.class.getName());
-        if (httpSession != null) {
-            int userId = SessionUtil.getCurrentUserId(httpSession);
+            Integer userId = SessionUtil.getCurrentUserId(httpSession);
+            if (userId == null) {
+                System.out.println("User not authenticated. Closing WebSocket connection.");
+                session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Not authenticated"));
+                return;
+            }
+
             System.out.println("WebSocket opened by user: " + userId);
-            session.getUserProperties().put("userId", userId);  // store userId in this WS session only
-            connectedUsers.put(userId, session);  // store userId in the global map
-        } else {
-            System.out.println("HttpSession not found.");
+            session.getUserProperties().put("userId", userId);
+            connectedUsers.put(userId, session);
+        } catch (IOException e) {
+            // System.err.println("Error during WebSocket opening: " + e.getMessage());
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, e.getMessage()));
+            } catch (IOException ex) {
+                System.err.println("Error closing session: " + ex.getMessage());
+            }
         }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason reason) {
-        // sessions.remove(session.getId());
-        int userId = (int) session.getUserProperties().get("userId");
-        connectedUsers.remove(userId);  // remove userId from the global map
-        System.out.println("WebSocket closed by user: " + userId + " with reason: " + reason.getReasonPhrase());
+        try {
+            Object userIdObj = session.getUserProperties().get("userId");
+            if (userIdObj != null) {
+                int userId = (int) userIdObj;
+                connectedUsers.remove(userId);
+                System.out.println("WebSocket closed by user: " + userId + " with reason: " + reason.getReasonPhrase());
+            } else {
+                System.out.println("WebSocket closed for unknown user with reason: " + reason.getReasonPhrase());
+            }
+        } catch (Exception e) {
+            System.err.println("Error during WebSocket close: " + e.getMessage());
+        }
     }
 
 

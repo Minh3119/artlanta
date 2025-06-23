@@ -7,62 +7,143 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import MessageInput from '../components/Messages/MessageInput';
 import { messagesResponseSchema } from '../schemas/messaging';
 import imageCompression from 'browser-image-compression';
-import { MessageCircle, Clock, Archive } from 'lucide-react';
 import SearchBar from '../components/Messages/SearchBar';
 import ConversationTypeSelector from '../components/Messages/ConversationTypeSelector';
+
+// Utility function to sort conversations by latest message timestamp (newest first)
+const sortConversationsByLatestMessage = (conversations) => {
+  return [...conversations].sort((a, b) => {
+    // Handle cases where latestMessage might be null/undefined
+    const msgA = a.latestMessage;
+    const msgB = b.latestMessage;
+    
+    // If both have no messages or timestamps, keep their order
+    if ((!msgA || !msgA.createdAt) && (!msgB || !msgB.createdAt)) return 0;
+    
+    // If only A has no timestamp, put it after B
+    if (!msgA || !msgA.createdAt) return 1;
+    
+    // If only B has no timestamp, put it after A
+    if (!msgB || !msgB.createdAt) return -1;
+    
+    // Compare timestamps using Date objects
+    const dateA = new Date(msgA.createdAt).getTime();
+    const dateB = new Date(msgB.createdAt).getTime();
+    
+    // For descending order (newest first)
+    return dateB - dateA;
+  });
+};
 
 const MessagesPage = () => {
   const ws = useRef(null);
   const [searchParams] = useSearchParams();
-  const [conversations, setConversations] = useState([]);
+  const [conversations, setConversations] = useState({
+    chat: [],
+    pending: [],
+    archived: []
+  });
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  const handleConversationSelect = (conversation) => {
+  const handleConversationSelect = useCallback((conversation) => {
     setSelectedConversation(conversation);
+  }, []);
+
+  const fetchConversations = async (type) => {
+    setLoadingConversations(true);
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/conversations?type=${type}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${type} conversations`);
+      }
+      const data = await response.json();
+
+      // Sort conversations by latest message (newest first)
+      const sortedData = sortConversationsByLatestMessage(data.conversations || []);
+      
+      // Update conversations.[type] = sortedData
+      setConversations(prev => ({
+        ...prev,
+        [type]: sortedData
+      }));
+    } catch (err) {
+      setConversationsError(err.message);
+    } finally {
+      setLoadingConversations(false);
+    }
   };
 
   // Effect for fetching conversations
   useEffect(() => {
-    const fetchConversations = async () => {
-      setLoadingConversations(true);
-      try {
-        const response = await fetch('http://localhost:9999/backend/api/conversations', {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch conversations');
-        }
-        const data = await response.json();
-        // Sort conversations by latestMessage.createdAt (newest first)
-        const sorted = (data.conversations || []).slice().sort((a, b) => {
-          const t1 = a.latestMessage?.createdAt;
-          const t2 = b.latestMessage?.createdAt;
-          if (!t1 && !t2) return 0;
-          if (!t1) return 1;      // a has no timestamp -> after b
-          if (!t2) return -1;     // b has no timestamp -> after a
-          return new Date(t2) - new Date(t1); // descending
-        });
-        setConversations(sorted);
-      } catch (err) {
-        setConversationsError(err.message);
-      } finally {
-        setLoadingConversations(false);
-      }
+    const loadAllConversations = async () => {
+      await Promise.all([
+        fetchConversations('chat'),
+        fetchConversations('pending'),
+        fetchConversations('archived')
+      ]);
     };
-
-    fetchConversations();
+    
+    loadAllConversations();
   }, []);
+
+
+
+
+  const [activeTab, setActiveTab] = useState('chat');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Fetch conversations when component mounts or active tab changes
+  useEffect(() => {
+    fetchConversations(activeTab);
+  }, [activeTab]);
+  
+
+  
+
+  const getCurrentConversations = () => {
+    return conversations[activeTab] || [];
+  };
+
+  const getConversationCount = (type) => {
+    return conversations[type]?.length || 0;
+  };
+
+  const handleAcceptRequest = (id) => {
+    console.log('Accepting request:', id);
+    fetchConversations('pending');
+  };
+
+  const handleDeclineRequest = (id) => {
+    console.log('Declining request:', id);
+    fetchConversations('pending');
+  };
+
+  const handleArchiveConversation = (id) => {
+    console.log('Archiving conversation:', id);
+    fetchConversations('chat');
+    fetchConversations('archived');
+  };
+
+  const handleUnarchiveConversation = (id) => {
+    console.log('Unarchiving conversation:', id);
+    fetchConversations('archived');
+    fetchConversations('chat');
+  };
+
 
   // After conversations load, try to select based on query param, else first
   useEffect(() => {
-    if (conversations.length === 0) return;
-    const convIdParam = searchParams.get('conversationId');
-    if (convIdParam) {
-      const found = conversations.find(c => c.id === parseInt(convIdParam));
+    if (conversations[activeTab].length === 0) return;
+    const conversationIdParam = searchParams.get('conversationId');
+    if (conversationIdParam) {
+      const found = conversations[activeTab].find(c => c.id === parseInt(conversationIdParam));
       if (found) {
         setSelectedConversation(found);
         return;
@@ -70,9 +151,23 @@ const MessagesPage = () => {
     }
     // default if not selected
     if (!selectedConversation) {
-      setSelectedConversation(conversations[0]);
+      setSelectedConversation(conversations[activeTab][0]);
     }
-  }, [conversations, selectedConversation, searchParams]);
+  }, [conversations, selectedConversation, searchParams, activeTab]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
@@ -103,17 +198,20 @@ const MessagesPage = () => {
         }));
 
         // Update conversations list (if latestMessage is the one unsent, update its content)
-        setConversations(prev => prev.map(conv => {
-          if (conv.latestMessage && conv.latestMessage.id === messageId) {
-            return {
-              ...conv,
-              latestMessage: {
-                ...conv.latestMessage,
-                content: 'This message has been deleted',
-              }
-            };
-          }
-          return conv;
+        setConversations(prev => ({
+          ...prev,
+          [activeTab]: prev[activeTab].map(conv => {
+            if (conv.latestMessage && conv.latestMessage.id === messageId) {
+              return {
+                ...conv,
+                latestMessage: {
+                  ...conv.latestMessage,
+                  content: 'This message has been deleted',
+                }
+              };
+            }
+            return conv;
+          })
         }));
         return; // done processing unsend
       }
@@ -122,23 +220,21 @@ const MessagesPage = () => {
         const newMessage = payload.message;
         if (!newMessage) return;
 
-        // Always update the conversations list
-        setConversations((prevConversations) => {
-          const conversationIndex = prevConversations.findIndex(
-            (c) => c.id === newMessage.conversationId
-          );
-
-          if (conversationIndex === -1) return prevConversations;
-
-          const updatedConversation = {
-            ...prevConversations[conversationIndex],
-            latestMessage: newMessage,
-          };
-          const otherConversations = prevConversations.filter(
-            (c) => c.id !== newMessage.conversationId
-          );
-          return [updatedConversation, ...otherConversations];
-        });
+        // Update conversations list with the new message and re-sort
+        setConversations(prev => ({
+          ...prev,
+          [activeTab]: sortConversationsByLatestMessage(
+            prev[activeTab].map(conv => {
+              if (conv.id === newMessage.conversationId) {
+                return {
+                  ...conv,
+                  latestMessage: newMessage,
+                };
+              }
+              return conv;
+            })
+          )
+        }));
 
         // If the message is for the currently selected conversation, update its message list
         if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
@@ -148,7 +244,7 @@ const MessagesPage = () => {
     } catch (err) {
       console.error('Error parsing WebSocket message:', err);
     }
-  }, [selectedConversation]);
+  }, [selectedConversation, activeTab]);
 
   const handleSendMessage = async (messageText, attachedFile) => {
     if ((!messageText || !messageText.trim()) && !attachedFile) return;
@@ -232,13 +328,8 @@ const MessagesPage = () => {
     ws.current.send(JSON.stringify(message));
   }
 
-  // Effect for WebSocket setup and current user fetching
+  // Effect for fetching current user
   useEffect(() => {
-    ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
-    ws.current.onopen = () => console.log('WebSocket connection opened');
-    ws.current.onclose = () => console.log('WebSocket connection closed');
-    ws.current.onerror = (error) => console.error('WebSocket error:', error);
-
     const fetchCurrentUser = async () => {
       try {
         const response = await fetch('http://localhost:9999/backend/api/current-user', {
@@ -257,12 +348,22 @@ const MessagesPage = () => {
     };
 
     fetchCurrentUser();
+  }, []);
+
+  // Effect for WebSocket setup and current user fetching
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
+    ws.current.onopen = () => console.log('WebSocket connection opened');
+    ws.current.onclose = () => console.log('WebSocket connection closed');
+    ws.current.onerror = (error) => console.error('WebSocket error:', error);
 
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) 
         ws.current.close();
     };
-  }, []);
+  }, [currentUserId]);
 
   // Effect for handling incoming WebSocket messages
   useEffect(() => {
@@ -309,63 +410,6 @@ const MessagesPage = () => {
     fetchMessages();
   }, [selectedConversation]);
 
-  const [activeTab, setActiveTab] = useState('chat');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const conversationTypes = [
-    { key: 'chat', label: 'Chats', icon: MessageCircle },
-    { key: 'pending', label: 'Pending', icon: Clock },
-    { key: 'archive', label: 'Archive', icon: Archive }
-  ];
-
-  const getCurrentConversations = () => {
-    switch (activeTab) {
-      case 'chat':
-        return chatConversations;
-      case 'pending':
-        return pendingConversations;
-      case 'archive':
-        return archivedConversations;
-      default:
-        return [];
-    }
-  };
-
-  const getConversationCount = (type) => {
-    switch (type) {
-      case 'chat':
-        return chatConversations.length;
-      case 'pending':
-        return pendingConversations.length;
-      case 'archive':
-        return archivedConversations.length;
-      default:
-        return 0;
-    }
-  };
-
-  const handleAcceptRequest = (id) => {
-    console.log('Accepting request:', id);
-  };
-
-  const handleDeclineRequest = (id) => {
-    console.log('Declining request:', id);
-  };
-
-  const handleArchiveConversation = (id) => {
-    console.log('Archiving conversation:', id);
-  };
-
-  const handleUnarchiveConversation = (id) => {
-    console.log('Unarchiving conversation:', id);
-  };
-
-
-
-
-
-
 
 
 
@@ -408,23 +452,22 @@ const MessagesPage = () => {
       <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex-shrink-0">
-          <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
+          <h1 className="mb-4 text-xl font-semibold text-gray-800">Messages</h1>
+          {/* Search Bar Component */}
+          <SearchBar 
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            placeholder="Search conversations..."
+            />
+          {/* Conversation Type Selector Component */}
+          <ConversationTypeSelector
+            activeType={activeTab}
+            onTypeChange={setActiveTab}
+            isOpen={isDropdownOpen}
+            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+            getCount={getConversationCount}
+          />
         </div>
-        {/* Search Bar Component */}
-        <SearchBar 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          placeholder="Search conversations..."
-        />
-        {/* Conversation Type Selector Component */}
-        <ConversationTypeSelector
-          conversationTypes={conversationTypes}
-          activeType={activeTab}
-          onTypeChange={setActiveTab}
-          isOpen={isDropdownOpen}
-          onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-          getCount={getConversationCount}
-        />
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto">
           <ConversationsList
@@ -435,11 +478,11 @@ const MessagesPage = () => {
             selectedConversation={selectedConversation}
             onSelectConversation={handleConversationSelect}
             searchQuery={searchQuery}
-            onAcceptRequest={handleAcceptRequest}
-            onDeclineRequest={handleDeclineRequest}
-            onArchiveConversation={handleArchiveConversation}
-            onUnarchiveConversation={handleUnarchiveConversation}
-          />
+            onAccept={handleAcceptRequest}
+            onDecline={handleDeclineRequest}
+            onArchive={handleArchiveConversation}
+            onUnarchive={handleUnarchiveConversation}
+            />
         </div>
       </div>  {/* End of Sidebar */}
 
@@ -449,7 +492,7 @@ const MessagesPage = () => {
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
+            <div className="p-4 border-none flex-shrink-0">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
                   {selectedConversation.user?.avatarURL && (
@@ -457,17 +500,13 @@ const MessagesPage = () => {
                       src={selectedConversation.user.avatarURL} 
                       alt={selectedConversation.user.fullName}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/default-avatar.png';
-                      }}
                     />
                   )}
                 </div>
                 <div>
                   <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
                   <p className="text-xs text-gray-500">
-                    {selectedConversation.user?.role || 'Artist'}
+                    {selectedConversation.user?.role || ''}
                   </p>
                 </div>
               </div>
@@ -482,6 +521,7 @@ const MessagesPage = () => {
                 loading={messagesLoading}
                 error={messagesError}
                 onUnsend={handleUnsendMessage}
+                // onReport={handleReportMessage}
               />
             </div>
 

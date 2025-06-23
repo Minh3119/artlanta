@@ -1,19 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import model.Media;
-import model.PortfolioMedia;
 
 /**
  *
@@ -78,8 +71,8 @@ public class MediaDAO extends DBContext {
                 Media media = new Media(
                         rs.getInt("ID"),
                         rs.getString("URL"),
-                        rs.getString("Description"),
-                        rs.getTimestamp("CreatedAt"));
+                        rs.getString("Description")
+                );
                 mediaList.add(media);
             }
 
@@ -102,7 +95,7 @@ public class MediaDAO extends DBContext {
             st.setInt(1, postID);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                list.add(new Media(0, rs.getString("URL"), "", null));
+                list.add(new Media(0, rs.getString("URL"), ""));
             }
         } catch (Exception e) {
             e.printStackTrace();

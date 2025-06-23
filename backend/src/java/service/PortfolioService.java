@@ -43,7 +43,6 @@ public class PortfolioService {
             mediaObj.put("id", media.getID());
             mediaObj.put("url", media.getURL());
             mediaObj.put("description", media.getDescription());
-            mediaObj.put("createdAt", media.getCreatedAt().toString());
             mediaArray.put(mediaObj);
         }
         jsonPortfolio.put("media", mediaArray);

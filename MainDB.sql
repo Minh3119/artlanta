@@ -359,6 +359,15 @@ CREATE TABLE Conversations (
     UNIQUE (User1ID, User2ID)
 );
 
+-- User-specific conversation view
+CREATE TABLE UserConversations (
+    UserID INT,
+    ConversationID INT,
+    Type ENUM('chat', 'pending', 'archived') NOT NULL DEFAULT 'chat',
+    PRIMARY KEY (UserID, ConversationID),
+    FOREIGN KEY (ConversationID) REFERENCES Conversations(ID)
+);
+
 CREATE TABLE Messages (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     ConversationID INT,
@@ -415,7 +424,7 @@ CREATE TABLE ConversationReads (
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
 ('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Graphic Designer', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-02-28'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie Smithhhh', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'STAFF', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
@@ -726,3 +735,56 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
 
+-- Test data for UserConversations
+-- Conversation 1: User 1 and User 2 (both have it as 'chat')
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 1, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 1, 'chat');
+
+-- Conversation 2: User 1 and User 3 (User1 has it as 'chat', User3 has it as 'pending')
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 2, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 2, 'pending');
+
+-- Additional conversations for testing different scenarios
+-- Conversation 3: User 2 and User 3 (both have it as 'chat')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (2, 3);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 3, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 3, 'chat');
+
+-- Conversation 4: User 1 and User 4 (User1 has it as 'archived', User4 has it as 'chat')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (1, 4);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 4, 'archived');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (4, 4, 'chat');
+
+-- Conversation 5: User 2 and User 5 (User2 has it as 'pending', User5 has it as 'pending')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (2, 5);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 5, 'pending');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (5, 5, 'pending');
+
+-- Conversation 6: User 3 and User 4 (User3 has it as 'archived', User4 has it as 'archived')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (3, 4);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 6, 'archived');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (4, 6, 'archived');
+
+
+-- Add test messages for conversation 3 (User 2 and 3)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(3, 2, 'Hi there! How are you?', NULL, '2025-06-23 10:00:00'),
+(3, 3, 'I''m doing great, thanks for asking!', NULL, '2025-06-23 10:05:00'),
+(3, 2, 'Would you like to collaborate on a project?', NULL, '2025-06-23 10:10:00');
+
+-- Add test messages for conversation 4 (User 1 and 4)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(4, 1, 'Hello! I saw your artwork, it''s amazing!', NULL, '2025-06-23 11:00:00'),
+(4, 4, 'Thank you so much! I appreciate it.', NULL, '2025-06-23 11:15:00');
+
+-- Add test messages for conversation 5 (User 2 and 5)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(5, 2, 'Are we still meeting tomorrow?', NULL, '2025-06-23 09:00:00'),
+(5, 5, 'Yes, at 2 PM at the cafe?', NULL, '2025-06-23 09:05:00'),
+(5, 2, 'Perfect, see you then!', NULL, '2025-06-23 09:06:00');
+
+-- Add test messages for conversation 6 (User 4 and 3)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(6, 4, 'Are we still meeting tomorrow?', NULL, '2025-06-23 09:00:00'),
+(6, 3, 'Yes, at 2 PM at the cafe?', NULL, '2025-06-23 09:05:00'),
+(6, 4, 'Perfect, see you then!', NULL, '2025-06-23 09:06:00');

@@ -3,11 +3,13 @@ package service;
 import dal.ConversationDAO;
 import dal.ConversationReadsDAO;
 import dal.MessageDAO;
+import dal.UserConversationDAO;
 import dal.UserDAO;
 import dto.ConversationDTO;
 import model.Conversation;
 import model.Message;
 import model.User;
+import model.UserConversation;
 import model.json.SendMessagePayload;
 import model.json.UnsendMessagePayload;
 import util.JsonUtil;
@@ -28,35 +30,67 @@ public class MessagingService {
     }
 
     /**
-     * Get all conversations for a user with user details and latest message
+     * Get all chat conversations for a user with user details and latest message
      * @param userId The ID of the user
-     * @return List of ConversationListDTO containing conversation details
+     * @return List of ConversationDTO containing conversation details
      */
-    public List<ConversationDTO> getUserConversations(int userId) {
-        ConversationDAO conversationDAO = new ConversationDAO();
+    public List<ConversationDTO> getChatConversations(int userId) {
+        return getConversationsByType(userId, UserConversation.ConversationType.CHAT);
+    }
+
+    /**
+     * Get all pending conversations for a user with user details and latest message
+     * @param userId The ID of the user
+     * @return List of ConversationDTO containing conversation details
+     */
+    public List<ConversationDTO> getPendingConversations(int userId) {
+        return getConversationsByType(userId, UserConversation.ConversationType.PENDING);
+    }
+
+    /**
+     * Get all archived conversations for a user with user details and latest message
+     * @param userId The ID of the user
+     * @return List of ConversationDTO containing conversation details
+     */
+    public List<ConversationDTO> getArchivedConversations(int userId) {
+        return getConversationsByType(userId, UserConversation.ConversationType.ARCHIVED);
+    }
+
+    /**
+     * Get all conversations of a specific type for a user with user details and latest message
+     * @param userId The ID of the user
+     * @param type The type of conversations to retrieve
+     * @return List of ConversationDTO containing conversation details
+     */
+    private List<ConversationDTO> getConversationsByType(int userId, UserConversation.ConversationType type) {
+        UserConversationDAO userConvDAO = new UserConversationDAO();
         UserDAO userDAO = new UserDAO();
         MessageDAO messageDAO = new MessageDAO();
         List<ConversationDTO> result = new ArrayList<>();
         
         try {
-            // Get all conversations for the user
-            List<Conversation> conversations = conversationDAO.getConversationsByUserId(userId);
+            // Get all conversations of the specified type for the user
+            List<UserConversation> conversations = userConvDAO.getConversationsByType(userId, type);
             
             // For each conversation, get the other user and latest message
-            for (Conversation conversation : conversations) {
-                // Determine the other user in the conversation
-                int otherUserId = conversation.getUser1Id() == userId ? 
-                                 conversation.getUser2Id() : conversation.getUser1Id();
+            for (UserConversation userConv : conversations) {
+                // Get the other user in the conversation
+                int otherUserId = userConv.getOtherUserId(userId);
                 
                 // Get other user's details
                 User otherUser = userDAO.getOne(otherUserId);
                 
                 // Get the latest message in the conversation
-                Message latestMessage = messageDAO.getLatestMessageByConversationId(conversation.getId());
+                Message latestMessage = messageDAO.getLatestMessageByConversationId(userConv.getConversationId());
                 
-                // Create and add DTO to the result list with only the other user
+                // Create and add DTO to the result list
                 result.add(new ConversationDTO(
-                    conversation,
+                    new Conversation(
+                        userConv.getConversationId(),
+                        userConv.getUser1Id(),
+                        userConv.getUser2Id(),
+                        userConv.getCreatedAt()
+                    ),
                     otherUser,
                     latestMessage
                 ));
@@ -64,55 +98,81 @@ public class MessagingService {
         } catch (Exception e) {
             e.printStackTrace();
             // In a real application, you might want to log this error
+        } finally {
+            userConvDAO.closeConnection();
+            userDAO.closeConnection();
+            messageDAO.closeConnection();
         }
         
-        conversationDAO.closeConnection();
-        userDAO.closeConnection();
-        messageDAO.closeConnection();
         return result;
+    }
+    
+    /**
+     * @deprecated Use getChatConversations() instead
+     */
+    @Deprecated
+    public List<ConversationDTO> getUserConversations(int userId) {
+        return getChatConversations(userId);
     }
 
     public boolean isUserInConversation(int userId, int conversationId) {
         ConversationDAO conversationDAO = new ConversationDAO();
-        Conversation conversation = conversationDAO.getById(conversationId);
-        if (conversation == null) return false;
-        return conversation.getUser1Id() == userId || conversation.getUser2Id() == userId;
+        try {
+            Conversation conversation = conversationDAO.getById(conversationId);
+            if (conversation == null) return false;
+            return conversation.getUser1Id() == userId || conversation.getUser2Id() == userId;
+        } finally {
+            if (conversationDAO != null) {
+                conversationDAO.closeConnection();
+            }
+        }
     }
 
     public JSONObject getMessagesByConversationId(int conversationId) {
         MessageDAO messageDAO = new MessageDAO();
-        List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
-        
-        // Convert messages to JSON
-        JSONObject jsonResponse = new JSONObject();
-        JSONArray messagesArray = new JSONArray(JsonUtil.toJsonString(messages));
-        
-        // for (Message message : messages) {
-        //     JSONObject messageJson = new JSONObject();
-        //     messageJson.put("id", message.getId());
-        //     messageJson.put("conversationId", message.getConversationId());
-        //     messageJson.put("senderId", message.getSenderId());
-        //     messageJson.put("content", message.getContent());
-        //     messageJson.put("mediaUrl", message.getMediaUrl());
-        //     messageJson.put("createdAt", message.getCreatedAt().toString());
-        //     messagesArray.put(messageJson);
-        // }
-        
-        jsonResponse.put("success", true);
-        jsonResponse.put("messages", messagesArray);
+        try {
+            List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
+            
+            // Convert messages to JSON
+            JSONObject jsonResponse = new JSONObject();
+            JSONArray messagesArray = new JSONArray(JsonUtil.toJsonString(messages));
+            
+            // for (Message message : messages) {
+            //     JSONObject messageJson = new JSONObject();
+            //     messageJson.put("id", message.getId());
+            //     messageJson.put("conversationId", message.getConversationId());
+            //     messageJson.put("senderId", message.getSenderId());
+            //     messageJson.put("content", message.getContent());
+            //     messageJson.put("mediaUrl", message.getMediaUrl());
+            //     messageJson.put("createdAt", message.getCreatedAt().toString());
+            //     messagesArray.put(messageJson);
+            // }
+            
+            jsonResponse.put("success", true);
+            jsonResponse.put("messages", messagesArray);
 
-        return jsonResponse;
+            return jsonResponse;
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
+        }
     }
 
     public Message createMessage(int conversationId, int senderId, String content, String mediaUrl) {
-        MessageDAO messageDAO = new MessageDAO();
         Message message = new Message(-1, conversationId, senderId, content, mediaUrl, null, false, null);
-        return messageDAO.create(message);
+        return createMessage(message);
     }
 
     public Message createMessage(Message newMessage) {
         MessageDAO messageDAO = new MessageDAO();
-        return messageDAO.create(newMessage);
+        try {
+            return messageDAO.create(newMessage);
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
+        }
     }
     
     /**
@@ -123,14 +183,21 @@ public class MessagingService {
      */
     public int getOrCreateConversation(int user1Id, int user2Id) {
         ConversationDAO conversationDAO = new ConversationDAO();
-        // Check if conversation already exists
-        Conversation existing = conversationDAO.getConversationBetweenUsers(user1Id, user2Id);
-        if (existing != null) {
-            return existing.getId();
+        try {
+            // Check if conversation already exists
+            Conversation existing = conversationDAO.getConversationBetweenUsers(user1Id, user2Id);
+            if (existing != null) {
+                int id = existing.getId();
+                conversationDAO.closeConnection();
+                return id;
+            }
+            // Create new conversation
+            return conversationDAO.createConversation(user1Id, user2Id);
+        } finally {
+            if (conversationDAO != null) {
+                conversationDAO.closeConnection();
+            }
         }
-        
-        // Create new conversation
-        return conversationDAO.createConversation(user1Id, user2Id);
     }
     
     /**
@@ -188,10 +255,9 @@ public class MessagingService {
      * @return true if the message is read by the user, false otherwise
      */
     private boolean isMessageReadByUser(int messageId, int userId) {
+        MessageDAO messageDAO = new MessageDAO();
+        ConversationReadsDAO conversationReadsDAO = new ConversationReadsDAO();
         try {
-            MessageDAO messageDAO = new MessageDAO();
-            ConversationReadsDAO conversationReadsDAO = new ConversationReadsDAO();
-            
             // Get the 'last read message ID' for this user in the conversation
             Message message = messageDAO.getById(messageId);
             if (message != null) {
@@ -206,6 +272,13 @@ public class MessagingService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
+            if (conversationReadsDAO != null) {
+                conversationReadsDAO.closeConnection();
+            }
         }
     }
     
@@ -228,13 +301,20 @@ public class MessagingService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
+            if (conversationReadsDAO != null) {
+                conversationReadsDAO.closeConnection();
+            }
         }
     }
+    
     /**
      * Soft delete a message if it belongs to the specified user.
-     *
-     * @param messageId  ID of the message to delete.
-     * @param userId     ID of the user requesting deletion.
+     * @param messageId ID of the message to delete.
+     * @param userId ID of the user requesting deletion.
      * @return true if the message was deleted, false if not permitted or not found.
      */
     public boolean deleteMessage(int messageId, int userId) {
@@ -251,6 +331,10 @@ public class MessagingService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
         }
     }
 
@@ -262,9 +346,15 @@ public class MessagingService {
      */
     public int getRecipientId(int conversationId, int senderId) {
         ConversationDAO conversationDAO = new ConversationDAO();
-        Conversation conv = conversationDAO.getById(conversationId);
-        if (conv == null) return -1;
-        return conv.getUser1Id() == senderId ? conv.getUser2Id() : conv.getUser1Id();
+        try {
+            Conversation conv = conversationDAO.getById(conversationId);
+            if (conv == null) return -1;
+            return conv.getUser1Id() == senderId ? conv.getUser2Id() : conv.getUser1Id();
+        } finally {
+            if (conversationDAO != null) {
+                conversationDAO.closeConnection();
+            }
+        }
     }
 
     public String handleSendMessage(SendMessagePayload payload) {
@@ -290,8 +380,7 @@ public class MessagingService {
             SendMessageResponse response = new SendMessageResponse();
             response.setAction("send");
             response.setMessage(newMessage);
-            String responseJsonString = JsonUtil.toJsonString(response);
-            return responseJsonString;
+            return JsonUtil.toJsonString(response);
         } catch (JsonSyntaxException e) {
             System.out.println("Failed to parse JSON");
             e.printStackTrace();
@@ -302,23 +391,35 @@ public class MessagingService {
     }
     
     public JSONObject handleUnsendMessage(UnsendMessagePayload payload) {
+        MessageDAO messageDAO = new MessageDAO();
         try {
-            // 1. Delete message in database
+            // 1. Get message first to get conversation ID
+            Message message = messageDAO.getById(payload.getMessageId());
+            if (message == null) {
+                throw new Exception("Message not found");
+            }
+            
+            // 2. Delete message in database
             boolean success = deleteMessage(payload.getMessageId(), payload.getCurrentUserId());
-            if (!success) throw new Exception("Failed to delete message.");
+            if (!success) {
+                throw new Exception("Failed to delete message");
+            }
 
-            // 2. Convert the deleted message to JSON
-            Message deleted = new MessageDAO().getById(payload.getMessageId());
+            // 3. Create response
             JSONObject response = new JSONObject();
             response.put("action", "unsend");
             response.put("messageId", payload.getMessageId());
-            response.put("conversationId", deleted.getConversationId());
+            response.put("conversationId", message.getConversationId());
             return response;
         } catch (JsonSyntaxException e) {
             System.out.println("Failed to parse JSON");
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (messageDAO != null) {
+                messageDAO.closeConnection();
+            }
         }
         return null;
     }

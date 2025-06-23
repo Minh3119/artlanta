@@ -16,7 +16,7 @@ const ConversationsList = ({
   onDecline 
 }) => {
   const filteredConversations = conversations.filter(conv =>
-    conv.name.toLowerCase().includes(searchQuery.toLowerCase())
+    conv.user.fullName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (filteredConversations.length === 0) {
@@ -57,23 +57,6 @@ const ConversationsList = ({
     return <div className="p-4 text-center text-red-500">Error: {error}</div>;
   }
 
-  // return (
-  //   <div className="border-r border-gray-200 overflow-y-auto h-full">
-  //     {conversations.length > 0 ? (
-  //       conversations.map((conversation) => (
-  //         <ConversationItem
-  //           key={conversation.id}
-  //           conversation={conversation}
-  //           isSelected={selectedConversation?.id === conversation.id}
-  //           onClick={() => onSelectConversation(conversation)}
-  //         />
-  //       ))
-  //     ) : (
-  //       <div className="p-4 text-center text-gray-500">No conversations found.</div>
-  //     )}
-  //   </div>
-  // );
-
   return (
     <div>
       {filteredConversations.map((conversation) => (
@@ -82,7 +65,7 @@ const ConversationsList = ({
           conversation={conversation}
           type={type}
           isSelected={selectedConversation?.id === conversation.id}
-          onClick={onSelectConversation(conversation)}
+          onClick={() => onSelectConversation(conversation)}
           onAccept={onAccept}
           onDecline={onDecline}
           onArchive={onArchive}
