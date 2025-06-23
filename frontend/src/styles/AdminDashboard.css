@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+
+
+#root {
+    
+    
+    padding:0;
+}
+
+.sidebar {
+  width: 250px !important;
+  height: 100vh !important;
+  background: #343a40 !important;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.22) !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-logo {
+  display: flex !important;
+  align-items: center !important;
+  height: 57px !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid #4b545c !important;
+  font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-logo__img {
+  width: 33px !important;
+  height: 33px !important;
+  opacity: 0.8 !important;
+  box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.23) !important;
+  border-radius: 16.5px !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-logo__text {
+  margin-left: 12px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 20px !important;
+  font-weight: 300 !important;font-family: 'Source Sans Pro', sans-serif !important;
+  
+}
+
+.sidebar-user {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px !important;
+  border-bottom: 1px solid #4f5962 !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-user__img {
+  width: 34px !important;
+  height: 34px !important;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.23) !important;
+  border-radius: 16.8px !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-user__name {
+  margin-left: 12px !important;
+  color: #c2c7d0 !important;
+  font-size: 16px !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-search {
+  display: flex !important;
+  margin: 16px !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-search__input {
+  flex: 1 !important;
+  background: #3f474e !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  padding: 8px !important;
+  color: #939ba2 !important;
+  border: none !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-search__btn {
+  width: 46px !important;
+  background: #3f474e !important;
+  border: none !important;
+  border-top-right-radius: 4px !important;
+  border-bottom-right-radius: 4px !important;
+  outline: 1px solid #56606a !important;
+  cursor: pointer !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-nav {
+  margin: 0 8px !important;
+  padding-top: 16px !important;
+  overflow-y: hidden !important;
+  height: calc(100% - 129px) !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-divider {
+  border: none !important;
+  border-bottom: 1px solid #4f5962 !important;font-family: 'Source Sans Pro', sans-serif !important;
+  margin: 8px 0 !important;
+}
+
+.sidebar-section {
+  color: #d0d4db !important;
+  font-size: 14px !important;
+  margin: 8px 0 4px !important;
+  padding: 0 8px !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-item {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px !important;
+  border-radius: 4px !important;
+  color: #c2c7d0 !important;
+  cursor: pointer !important;
+  transition: background 0.2s !important;font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-item:hover {
+  background: #495057 !important;
+}
+
+.sidebar-item--active {
+  background: #007bff !important;
+  color: #fff !important;
+}
+
+.sidebar-item i {
+  width: 20px !important;
+}
+
+.sidebar-item__label {
+  flex-grow: 1 !important;
+  margin-left: 8px !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-item__badge {
+  background: #dc3545 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  margin-right: 20px;
+  font-size: 12px !important;
+  color: #fff !important;
+  margin-left: auto !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-item__badge--info {
+  background: #17a2b8 !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.sidebar-item__arrow {
+  margin-left: auto !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+
+
+.navbar {
+  height: 57px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  background: #fff !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  font-family: 'Source Sans Pro', sans-serif !important;
+  margin-left: 50px;
+}
+
+.navbar__section {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.navbar__section--left {
+  padding-left: 8px !important;
+  
+}
+
+.navbar__section--right {
+  padding-right: 8px !important;
+}
+
+.nav-item {
+  position: relative !important;
+  width: 46px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: rgba(0,0,0,0.5) !important;
+  font-size: 16px !important;
+  cursor: pointer !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.nav-item--link {
+  width: auto !important;
+  padding: 0 16px !important;
+}
+
+.nav-item--link-icon {
+  width: 50px !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.nav-item__label {
+  margin-left: 8px !important;
+  font-weight: 400 !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.nav-item__badge {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  border-radius: 4px !important;
+  padding: 0 4px !important;
+  font-size: 9.6px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  color: #fff !important; font-family: 'Source Sans Pro', sans-serif !important;
+}
+
+.nav-item__badge--danger {
+  background: #dc3545 !important;
+}
+
+.nav-item__badge--warning {
+  background: #ffc107 !important;
+}
+
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+}
+
+.navbar {
+  position: fixed;
+  left: 200px;
+  top: 0;
+  right: 0;
+  height: 60px;
+}
+
+.main-content {
+  margin-left: 200px;
+  margin-top: 60px;
+  padding: 20px;
+}

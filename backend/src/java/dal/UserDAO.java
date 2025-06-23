@@ -1,8 +1,11 @@
 package dal;
 
+import java.security.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import model.User;
@@ -55,7 +58,7 @@ public class UserDAO extends DBContext {
 
     public List<User> getAll() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM Users WHERE Status = 'ACTIVE";
+        String sql = "SELECT * FROM Users ";
         try (PreparedStatement stmt = connection.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 User user = new User(
@@ -261,17 +264,17 @@ public class UserDAO extends DBContext {
         return user;
     }
 
-    public void registerUser(String username, String email, String passwordHash) {
+    public void registerUser(String username, String email, String passwordHash, String role) {
         String sql = """
         INSERT INTO Users (Username, Email, PasswordHash, Gender, Role, Status, Language, IsPrivate, IsFlagged)
-        VALUES (?, ?, ?, 0, 'CLIENT', 'ACTIVE', 'vn', 0, 0)
+        VALUES (?, ?, ?, 0, ?, 'ACTIVE', 'vn', 0, 0)
     """;
 
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setString(1, username);
             st.setString(2, email);
             st.setString(3, passwordHash);
-
+            st.setString(4, role);
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -309,23 +312,21 @@ public class UserDAO extends DBContext {
 
         return userId;
     }
-	
-	
-public String getAvatarByUserID(int userID) {
-    String sql = "SELECT AvatarURL FROM Users WHERE ID = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, userID);
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getString("AvatarURL");
-            }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return null;
-}
 
+    public String getAvatarByUserID(int userID) {
+        String sql = "SELECT AvatarURL FROM Users WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("AvatarURL");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public List<User> getUsersByIds(List<Integer> userIds) {
         List<User> result = new ArrayList<>();
@@ -381,5 +382,112 @@ public String getAvatarByUserID(int userID) {
         }
 
         return result;
+    }
+
+    public int countUsers() {
+        String sql = "SELECT COUNT(ID) FROM users";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countBannedUsers() {
+        String sql = "SELECT COUNT(ID) FROM users WHERE Status='BANNED'";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countMod() {
+        String sql = "SELECT COUNT(ID) FROM users WHERE Role='Moderator'";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public boolean toggleUserStatus(int userId) {
+        String getStatusSql = "SELECT Status FROM Users WHERE ID = ?";
+        String updateStatusSql = "UPDATE Users SET Status = ? WHERE ID = ?";
+
+        try (
+                PreparedStatement getPs = connection.prepareStatement(getStatusSql); PreparedStatement updatePs = connection.prepareStatement(updateStatusSql)) {
+            getPs.setInt(1, userId);
+            try (ResultSet rs = getPs.executeQuery()) {
+                if (rs.next()) {
+                    String currentStatus = rs.getString("Status");
+                    String newStatus = currentStatus.equalsIgnoreCase("ACTIVE") ? "BANNED" : "ACTIVE";
+
+                    updatePs.setString(1, newStatus);
+                    updatePs.setInt(2, userId);
+                    int updated = updatePs.executeUpdate();
+                    return updated > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public LocalDate getMostUserCreatedDate() {
+        LocalDate result = null;
+        String sql = "SELECT CAST(CreatedAt AS DATE) AS createdDate, COUNT(*) AS total "
+                + "FROM Users GROUP BY CAST(CreatedAt AS DATE) ORDER BY total DESC LIMIT 1";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                result = rs.getDate("createdDate").toLocalDate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public boolean isUserBanned(String email) {
+        String sql = "SELECT Status FROM Users WHERE Email = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return "BANNED".equalsIgnoreCase(rs.getString("Status"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isAdmin(int userId) {
+        String sql = "SELECT Role FROM Users WHERE ID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return "ADMIN".equalsIgnoreCase(rs.getString("Role"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
