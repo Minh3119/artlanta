@@ -27,6 +27,7 @@ import Payment from './Payment.js';
 import PaymentHis from './HistoryPayment.js';
 import PaymentResult from "./PaymentResult.js";
 import AdminDashboard from './AdminDashboard';
+import UserStatistics from '../components/UserProfile/UserStatistics.jsx';
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -55,6 +56,8 @@ function App() {
           <Route path="/paymentHis" element={<PaymentHis/>}></Route>
           <Route path="/paymentResult" element={<PaymentResult/>}></Route>
           <Route path="/admin" element={<AdminDashboard />} />
+
+          <Route path="/account/:userId/stats" element={<UserStatistics />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

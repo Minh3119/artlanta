@@ -56,12 +56,12 @@ function AccountStatsPage() {
       {
         label: "Likes",
         data: topCommenters.slice(0, 5).map(user => user.likeInteractions),
-        backgroundColor: "#34d399",
+        backgroundColor: "#6366f1", // Changed to indigo-500
       },
       {
         label: "Comments",
         data: topCommenters.slice(0, 5).map(user => user.commentInteractions),
-        backgroundColor: "#f472b6",
+        backgroundColor: "#f87171", // Changed to red-400
       },
     ],
   };
