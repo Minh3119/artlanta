@@ -72,8 +72,6 @@ class VideoComponent extends React.Component {
             console.log("time" + totalTime);
             if (res.ok) {
                 return;
-            } else {
-                toast.error("error save play time");
             }
         }
         catch (er) {

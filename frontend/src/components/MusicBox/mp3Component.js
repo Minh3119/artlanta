@@ -72,8 +72,6 @@ class MP3Component extends React.Component {
             })
             if (res.ok) {
                 return;
-            } else {
-                toast.error("error save play time");
             }
         }
         catch (er) {

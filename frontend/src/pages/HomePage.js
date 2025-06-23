@@ -43,7 +43,7 @@ export default function HomePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const openCreatePopup = () => {
     setIsCreateOpen(true);
-    setIsRefresh(!isRefresh);
+    // setIsRefresh(!isRefresh);
   };
   const closeCreatePopup = () => {
     setIsCreateOpen(false);
@@ -54,7 +54,7 @@ export default function HomePage() {
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    setIsRefresh(!isRefresh);
+    // setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
@@ -65,7 +65,7 @@ export default function HomePage() {
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    setIsRefresh(!isRefresh);
+    // setIsRefresh(!isRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
