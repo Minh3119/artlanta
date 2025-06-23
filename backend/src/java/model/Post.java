@@ -12,7 +12,15 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isFlagged;
+    private String userName;
 
+    public Post(String content, String visibility, LocalDateTime createdAt, String userName) {
+        this.content = content;
+        this.visibility = visibility;
+        this.createdAt = createdAt;
+        this.userName = userName;
+    }
+    
     public Post(int ID, int userID, String content, boolean isDraft, String visibility,
             LocalDateTime createdAt, LocalDateTime updatedAt, boolean isFlagged) {
         this.ID = ID;

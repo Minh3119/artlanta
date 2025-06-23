@@ -419,5 +419,23 @@ public class PostDAO extends DBContext {
 		}
 		return false;
 	}
+        public List<Post> getPostBySearch(String searchValue){
+            List<Post> list= new ArrayList<>();
+            String sql="""
+                       SELECT Posts.ID, posts.Content,posts.CreatedAt,posts.Visibility, Users.Username 
+                       FROM Posts
+                       JOIN Users ON Posts.UserID = Users.ID;
+                       WHERE Posts.Content LIKE CONCAT('%', ?, '%')
+                          OR Users.Username LIKE CONCAT('%', ?, '%');
+                       """;
+            try{
+                PreparedStatement st= connection.prepareStatement(sql);
+                
+            }
+            catch(SQLException e){
+                e.printStackTrace();
+            }
+            return list;
+        }
 
 }

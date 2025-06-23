@@ -36,6 +36,10 @@
         <servlet-name>DeletePlayTime</servlet-name>
         <servlet-class>controller.Music.DeletePlayTime</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SearchPost</servlet-name>
+        <servlet-class>controller.Search.SearchPost</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>NotificationServlet</servlet-name>
         <url-pattern>/NotificationServlet</url-pattern>
@@ -71,6 +75,10 @@
     <servlet-mapping>
         <servlet-name>DeletePlayTime</servlet-name>
         <url-pattern>/api/music/time/delete</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchPost</servlet-name>
+        <url-pattern>/api/search/post</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

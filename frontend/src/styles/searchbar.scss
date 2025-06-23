@@ -7,6 +7,8 @@
         .search-item{
             background-color: red;
             display: flex;
+            text-decoration: none;
+            transition: background-color 0.5s ease;
 
             .item-img{
                 width: 20%;
@@ -27,6 +29,9 @@
                 padding-right: 10px;
                 text-align: right;
             }
+        }
+        .search-item:hover{
+            background-color: aqua;
         }
     }
 

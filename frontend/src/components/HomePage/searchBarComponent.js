@@ -6,31 +6,40 @@ class SearchBarComponent extends React.Component {
         searchValue: "",
         isSearching: false,
         postList: [{
-
+            // postID
+            // image
+            // content
+            // author
+            // date
         }]
     }
-    componentDidMount() {
+    handleOnChangeSearch = async (e) => {
+        this.setState({
+            searchValue: e.target.value,
+            isSearching: true,
+        });
         fetch(`http://localhost:9999/backend/api/search/post`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                searchValue: this.state.searchValue
+            }),
             credentials: 'include'
         })
             .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch music data');
+                if (!response.ok) throw new Error('Failed to fetch post data');
                 return response.json();
             })
             .then(async data => {
                 this.setState({
-                    postList: data.response,
+                    listPlaylist: data.response,
                 });
             })
             .catch(error => {
-                console.error('Error fetching music data:', error);
+                console.error('Error fetching post data:', error);
             });
-    }
-    handleOnChangeSearch = (e) => {
-        this.setState({
-            searchValue: e.target.value,
-            isSearching: true,
-        })
     }
     render() {
         return (
@@ -48,13 +57,13 @@ class SearchBarComponent extends React.Component {
                         this.state.isSearching ?
                             this.state.postList.map((item, index) => {
                                 return (
-                                    <div className="search-item" key={item.postID}>
+                                    <a className="search-item" key={item.postID} href={`/post/${item.postID}`}>
                                         <img className="item-img"
                                             src={item.mediaURL} />
                                         <p className="item-content">{item.content}</p>
                                         <p className="item-author">{item.author}</p>
                                         <p className="item-date">{item.date}</p>
-                                    </div>
+                                    </a>
                                 )
                             })
                             :
