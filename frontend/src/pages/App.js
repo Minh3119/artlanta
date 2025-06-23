@@ -24,6 +24,7 @@ import MusicComponent from '../components/MusicBox/musicComponent.js';
 import { FiHeadphones } from "react-icons/fi";
 import { set } from 'date-fns';
 import Payment from './Payment.js';
+import AdminDashboard from './AdminDashboard';
 import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
 
 function App() {
@@ -47,11 +48,11 @@ function App() {
           <Route path="/passforget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail/>} />
-
           <Route path="/messages" element={<MessagesPage/>} />
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/payment" element={<Payment />}></Route>
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

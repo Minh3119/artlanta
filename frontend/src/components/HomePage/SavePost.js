@@ -15,7 +15,7 @@ import Footer from "../HomePage/Footer";
 import ShareButton from './ShareButton';
 import AquaChatBot from "../chatboxAI/AquaChatBot";
 
-export default function ArtistPost( { refetch, currentID, openDeletePopup, openUpdatePopup, scrollableTarget }) {
+export default function SavePost( { refetch, currentID, openDeletePopup, openUpdatePopup, scrollableTarget }) {
     const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
     const isLoading = useRef(false);
@@ -27,7 +27,8 @@ export default function ArtistPost( { refetch, currentID, openDeletePopup, openU
         if (isLoading.current || !hasMore)
             return;
         isLoading.current = true;
-        fetch(`http://localhost:9999/backend/api/post/view?limit=${limit}&offset=${offset}`, {
+
+        fetch(`http://localhost:9999/backend/api/post/save?offset=${offset}&limit=${limit}`, {
             credentials: "include"
         })
                 .then(res => res.json())
@@ -46,15 +47,9 @@ export default function ArtistPost( { refetch, currentID, openDeletePopup, openU
                 });
     };
 
-     useEffect(() => {
-        setPosts([]);
-        setLimit(0);
-        setOffset(10);
-        setHasMore(true);
-        isLoading.current = false;
-        fetchPosts();
+    useEffect(() => {
+        fetchPosts(); // gọi khi trang load
     }, [refetch]);
-
     const handleLike = (postId) => {
         fetch(`http://localhost:9999/backend/api/like?postId=${postId}`, {
             method: "POST",
@@ -126,24 +121,22 @@ export default function ArtistPost( { refetch, currentID, openDeletePopup, openU
                                         <div className="dots-btn" onClick={() => {
                                                                 if (!post.isLogged) {
                                                                     return;
-                                                                }
-                                                                 }}>
+                                                                     }
+                                    }}>
                                             {post.isLogged && (
                                                         <OptionsDropdown
                                                             openUpdatePopup={openUpdatePopup}
                                                             openDeletePopup={openDeletePopup}
                                                             post={post}
                                                             currentID={currentID}
+                                                         
                                                             />
-                                                                        )}
+                                            )}
                                         </div>
                 
                                     </div>
-
-                
                                     <a href={`/post/${post.postID}`} className="postdetail-link">
                                         <p className="artistpost-content">{post.content}</p>
-
                                     </a>
                                     <div className="artistpost-morecontent">
                                         <a href={`/post/${post.postID}`} className="postdetail-link">
@@ -175,25 +168,20 @@ export default function ArtistPost( { refetch, currentID, openDeletePopup, openU
                                             <div className="artistpost-react__uncount">
                                                 <ShareButton link={`http://localhost:3000post/${post.postID}`} />
                                                 <a href="#!"><img src={save} alt="save" /></a>
-
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
-                                            ))}
+                            ))}
                         </Masonry>
                     </div>
                     <div className="col-2 homepage-question__container">
                         <div className="homepage-question" >
-                            <AquaChatBot  />
+                                <AquaChatBot  />
                         </div>
-            
-            
                     </div>
                 </div>
                 <Footer></Footer>
             </InfiniteScroll>
             );
-
 }

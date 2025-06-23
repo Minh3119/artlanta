@@ -15,11 +15,16 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+	String role="CLIENT";
         setCORSHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+	String roleReq = request.getParameter("role");
 
+if (roleReq != null && !roleReq.isEmpty()) {
+    role = roleReq; 
+}
+		
         JSONObject requestBody = readRequestBody(request);
         String email = requestBody.optString("email");
         String username = requestBody.optString("username");
@@ -35,7 +40,7 @@ public class RegisterServlet extends HttpServlet {
             jsonResponse.put("success", false);
             jsonResponse.put("message", "Username đã tồn tại");
         } else {
-            userDAO.registerUser(username, email, password);
+            userDAO.registerUser(username, email, password,role);
             jsonResponse.put("success", true);
         }
 

@@ -10,10 +10,9 @@ public class DBContext {
     
     public DBContext() {
         try {
-            EnvConfig configReader = new EnvConfig();
-            String url = String.format("jdbc:%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", configReader.getProperty("db_url"));
-            String username = configReader.getProperty("db_username", "root");
-            String password = configReader.getProperty("db_password", "1234");
+            String url = "jdbc:mysql://localhost:3306/artlanta?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            String username = "root";
+            String password = "123456789";
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException | SQLException e) {
