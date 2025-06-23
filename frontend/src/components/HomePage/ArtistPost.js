@@ -15,37 +15,38 @@ import Footer from "../HomePage/Footer";
 import ShareButton from './ShareButton';
 import AquaChatBot from "../chatboxAI/AquaChatBot";
 
-export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup, scrollableTarget }) {
+export default function ArtistPost( { refetch, currentID, openDeletePopup, openUpdatePopup, scrollableTarget }) {
     const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
     const isLoading = useRef(false);
     const [limit, setLimit] = useState(0);
     const [offset, setOffset] = useState(10);
+    const [showBot, setShowBot] = useState(false);
 
     const fetchPosts = () => {
-        if (isLoading.current || !hasMore) return;
+        if (isLoading.current || !hasMore)
+            return;
         isLoading.current = true;
-
         fetch(`http://localhost:9999/backend/api/post/view?limit=${limit}&offset=${offset}`, {
             credentials: "include"
         })
-            .then(res => res.json())
-            .then(data => {
-                const newPosts = data.response;
-                if (newPosts.length === 0) {
-                    setHasMore(false);
-                    return;
-                }
-                setPosts((prev) => [...prev, ...newPosts]);
-                setLimit((prev) => prev + 10);
-                setOffset((prev) => prev + 10);
-            })
-            .finally(() => {
-                isLoading.current = false;
-            });
+                .then(res => res.json())
+                .then(data => {
+                    const newPosts = data.response;
+                    if (newPosts.length === 0) {
+                        setHasMore(false);
+                        return;
+                    }
+                    setPosts((prev) => [...prev, ...newPosts]);
+                    setLimit((prev) => prev + 10);
+                    setOffset((prev) => prev + 10);
+                })
+                .finally(() => {
+                    isLoading.current = false;
+                });
     };
 
-    useEffect(() => {
+     useEffect(() => {
         setPosts([]);
         setLimit(0);
         setOffset(10);
@@ -93,94 +94,106 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
     };
 
     return (
-        <InfiniteScroll
-            dataLength={posts.length}
-            next={() => fetchPosts()}
-            hasMore={hasMore}
-            scrollableTarget={scrollableTarget}
-        >
-            <div className="row">
-                <div className="offset-2 col-8 homepage-post__container--masonry">
-                    <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="my-masonry-grid"
-                        columnClassName="my-masonry-grid_column"
-                    >
-                        {posts.map((post) => (
-                            <div className="artistpost-container" key={post.postID}>
-                                <div className="artistpost-info">
-                                    <img
-                                        src={post.authorAvatar}
-                                        alt=""
-                                        className="avatar-img"
-                                    />
-                                    <div className="artistpost-user">
-                                        <a href={`/user/${post.authorID}`} className="artistpost-user__fullname">
-                                            {post.authorFN}
-                                        </a>
-                                        <a href={`/user/${post.authorID}`} className="artistpost-user__username">
-                                            {post.authorUN}
-                                        </a>
-                                    </div>
-                                    <div className="dots-btn">
-                                        <OptionsDropdown
-                                            openUpdatePopup={openUpdatePopup}
-                                            openDeletePopup={openDeletePopup}
-                                            post={post}
-                                            currentID={currentID}
-                                        />
-                                    </div>
-                                </div>
-                                <a href={`/post/${post.postID}`} className="postdetail-link">
-                                    <p className="artistpost-content">{post.content}</p>
-                                </a>
-                                <div className="artistpost-morecontent">
-                                    <a href={`/post/${post.postID}`} className="postdetail-link">
+            <InfiniteScroll
+                dataLength={posts.length}
+                next={() => fetchPosts()}
+                hasMore={hasMore}
+                scrollableTarget={scrollableTarget}
+                >
+                <div className="row">
+                    <div className="offset-2 col-8 homepage-post__container--masonry">
+                        <Masonry
+                            breakpointCols={breakpointColumnsObj}
+                            className="my-masonry-grid"
+                            columnClassName="my-masonry-grid_column"
+                            >
+                            {posts.map((post) => (
+                                <div className="artistpost-container" key={post.postID}>
+                                    <div className="artistpost-info">
                                         <img
-                                            src={post.mediaURL[0]}
-                                            alt="post-img"
-                                            className="post-img"
-                                            style={{ height: "auto" }}
-                                        />
+                                            src={post.authorAvatar}
+                                            alt=""
+                                            className="avatar-img"
+                                            />
+                                        <div className="artistpost-user">
+                                            <a href={`/user/${post.authorID}`} className="artistpost-user__fullname">
+                                                {post.authorFN}
+                                            </a>
+                                            <a href={`/user/${post.authorID}`} className="artistpost-user__username">
+                                                {post.authorUN}
+                                            </a>
+                                        </div>
+                                        <div className="dots-btn" onClick={() => {
+                                                                if (!post.isLogged) {
+                                                                    return;
+                                                                }
+                                                                 }}>
+                                            {post.isLogged && (
+                                                        <OptionsDropdown
+                                                            openUpdatePopup={openUpdatePopup}
+                                                            openDeletePopup={openDeletePopup}
+                                                            post={post}
+                                                            currentID={currentID}
+                                                            />
+                                                                        )}
+                                        </div>
+                
+                                    </div>
+
+                
+                                    <a href={`/post/${post.postID}`} className="postdetail-link">
+                                        <p className="artistpost-content">{post.content}</p>
+
                                     </a>
-                                    <div className="artistpost-react">
-                                        <div className="artistpost-react__count">
-                                            <div className="artistpost-react__comment">
-                                                <a href={`/post/${post.postID}`} className="postdetail-link">
-                                                    <img src={comment} alt="comment" />
-                                                </a>
-                                                <p className="comment-count">{post.commentCount}</p>
+                                    <div className="artistpost-morecontent">
+                                        <a href={`/post/${post.postID}`} className="postdetail-link">
+                                            <img
+                                                src={post.mediaURL[0]}
+                                                alt="post-img"
+                                                className="post-img"
+                                                style={{height: "auto"}}
+                                                />
+                                        </a>
+                                        <div className="artistpost-react">
+                                            <div className="artistpost-react__count">
+                                                <div className="artistpost-react__comment">
+                                                    <a href={`/post/${post.postID}`} className="postdetail-link">
+                                                        <img src={comment} alt="comment" />
+                                                    </a>
+                                                    <p className="comment-count">{post.commentCount}</p>
+                                                </div>
+                                                <div
+                                                    className="artistpost-react__like"
+                                                    onClick={() => handleLike(post.postID)}
+                                                    >
+                                                    <a href={post.isLogged ? "#" : "/login"}>
+                                                        <img src={post.isLiked ? like : unlike} alt="like" />
+                                                    </a>
+                                                    <p className="like-count">{post.likeCount} </p>
+                                                </div>
                                             </div>
-                                            <div
-                                                className="artistpost-react__like"
-                                                onClick={() => handleLike(post.postID)}
-                                                style={{ cursor: "pointer" }}
-                                            >
-                                                <a href={post.isLogged ? "#" : "/login"}>
-                                                    <img src={post.isLiked ? like : unlike} alt="like" />
-                                                </a>
-                                                <p className="like-count">{post.likeCount} </p>
+                                            <div className="artistpost-react__uncount">
+                                                <ShareButton link={`http://localhost:3000post/${post.postID}`} />
+                                                <a href="#!"><img src={save} alt="save" /></a>
+
                                             </div>
                                         </div>
-                                        <div className="artistpost-react__uncount">
-                                            <ShareButton link={`http://localhost:3000post/${post.postID}`} />
-                                            <a href="#!"><img src={save} alt="save" /></a>
-                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </Masonry>
-                </div>
-                <div className="col-2 homepage-question__container">
-                    <div className="homepage-question">
-                        <a href="#!">
-                            <img src={ques} alt="quesAi" />
-                        </a>
+                                            ))}
+                        </Masonry>
+                    </div>
+                    <div className="col-2 homepage-question__container">
+                        <div className="homepage-question" >
+                            <AquaChatBot  />
+                        </div>
+            
+            
                     </div>
                 </div>
-            </div>
-            <Footer></Footer>
-        </InfiniteScroll>
-    );
+                <Footer></Footer>
+            </InfiniteScroll>
+            );
+
 }
