@@ -71,7 +71,6 @@ class DeletePostComponent extends React.Component {
                     body: formData,
                     credentials: 'include'
                 });
-                console.log('Response:', this.props.deletePostID);
                 if (res.ok) {
                     this.setState({
                         result: "",

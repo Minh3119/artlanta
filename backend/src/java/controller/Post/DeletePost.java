@@ -30,9 +30,10 @@ public class DeletePost extends HttpServlet {
         int postID;
         try {
             postID = Integer.parseInt(raw);
+//            postID=17;
             PostDAO pd = new PostDAO();
             pd.deletePost(postID);
-            JsonUtil.writeJsonError(response, "delete completed");
+//            JsonUtil.writeJsonError(response, "delete completed");
         } catch (Exception e) {
             e.printStackTrace();
             JsonUtil.writeJsonError(response, "Error delete post: " + e.getMessage());

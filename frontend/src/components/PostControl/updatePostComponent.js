@@ -6,14 +6,12 @@ import imageCompression from 'browser-image-compression';
 class UpdatePostComponent extends React.Component {
     state = {
         postID: 0,
-        // title: '',
         content: '',
         idListDelete: [0],
         idListAdd: [],
         file: [],
         filePreview: [],
         visibility: 'PUBLIC',
-        // isImage: false,
         isLoading: false,
         isPosting: false,
 
@@ -23,29 +21,6 @@ class UpdatePostComponent extends React.Component {
         console.log("out create");
         this.props.closeUpdatePopup();
     }
-    // handleOnChangeTitle = (e) => {
-    //     this.state.title.length <= 100 ?
-    //         (
-    //             this.setState({
-    //                 title: e.target.value
-    //             })
-    //         )
-    //         :
-    //         (
-    //             toast.error('title too long!', {
-    //                 toastId: "fullname-toast",
-    //                 position: "top-right",
-    //                 autoClose: 3000,
-    //                 hideProgressBar: false,
-    //                 closeOnClick: false,
-    //                 pauseOnHover: true,
-    //                 draggable: true,
-    //                 progress: undefined,
-    //                 theme: "light",
-    //                 className: "toast-complete"
-    //             })
-    //         )
-    // };
     handleOnChangeContent = (e) => {
         const newContent = e.target.value;
         newContent.length <= 750 ?
@@ -142,7 +117,7 @@ class UpdatePostComponent extends React.Component {
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
                 toast.error(`File "${file.name}" wrong format (only PNG or JPG)`, {
-                    toastId: "file-type-toast-${file.name}",
+                    toastId: "file-type-toast",
                     position: "top-right",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -213,7 +188,6 @@ class UpdatePostComponent extends React.Component {
             })
             .then(async data => {
                 const previewUrls = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
-                // const idlist = Array.isArray(data.response.imageUrl) ? data.response.imageUrl : [];
 
                 const filesFromUrls = await Promise.all(
                     previewUrls.map(async (item, index) => {
@@ -246,14 +220,14 @@ class UpdatePostComponent extends React.Component {
         formData.append("content", this.state.content);
         if (this.state.idListAdd) {
             const images = this.state.idListAdd;
-            images.forEach((file, index) => {
+            images.forEach((file) => {
                 formData.append("file[]", file);
             })
 
         }
         if (this.state.idListDelete) {
             const del = this.state.idListDelete;
-            del.forEach((id, index) => {
+            del.forEach((id) => {
                 formData.append("ID", id);
             })
         }
@@ -273,7 +247,6 @@ class UpdatePostComponent extends React.Component {
                     file: [],
                     filePreview: [],
                     visibility: 'PUBLIC',
-                    // isImage: false,
                     isPosting: false,
                 });
                 toast.success("Update completed!");
@@ -308,10 +281,6 @@ class UpdatePostComponent extends React.Component {
                     </div>
 
                     <div className="post-form">
-                        {/* <div className="title-container">
-                            <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
-                            <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
-                        </div> */}
                         <div className="image-list">
                             {
                                 this.state.filePreview.map((item, index) => {
