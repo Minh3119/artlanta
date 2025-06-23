@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Masonry from "react-masonry-css";
 import OptionsDropdown from './OptionsDropdown';
 import userLogo from "../../assets/images/userLogo.svg";
@@ -10,26 +10,47 @@ import save from "../../assets/images/save.svg";
 import share from "../../assets/images/share.svg";
 import ques from "../../assets/images/question.svg";
 import dotsIcon from "../../assets/images/dots.svg";
+import InfiniteScroll from 'react-infinite-scroll-component';
+import Footer from "../HomePage/Footer";
+import ShareButton from './ShareButton';
 
-export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup }) {
-    const [posts, setPosts] = useState([]);
+export default function ArtistPost({ refetch, currentID, openDeletePopup, openUpdatePopup,scrollableTarget }) {
+    const [posts, setPosts] = useState([]); 
+    const [hasMore,setHasMore]=useState(true);
+    const isLoading=useRef(false);
+    const [limit,setLimit]=useState(0);
+    const [offset,setOffset]=useState(10);
+   
+   const fetchPosts = () => {
+    if (isLoading.current || !hasMore) return;
+    isLoading.current = true;
 
-    const fetchPosts = () => {
-        fetch("http://localhost:9999/backend/api/post/view", {
-            credentials: "include"
-        })
-            .then((res) => res.json())
-            .then((data) => setPosts(data.response))
-            .catch((err) => console.error(err));
-    };
+    fetch(`http://localhost:9999/backend/api/post/view?limit=${limit}&offset=${offset}`, {
+        credentials: "include"
+    })
+        .then(res => res.json())
+        .then(data => {
+            const newPosts=data.response;
+            if (newPosts.length===0) {
+                setHasMore(false);
+                return;
+            }
+                    setPosts((prev)=>[...prev,...newPosts]);
+                    setLimit((prev)=>prev+10);
+                   setOffset((prev)=>prev+10);
+               })
+         .finally(()=>{
+                           isLoading.current=false;
+               });
+};
 
     useEffect(() => {
         fetchPosts(); // gọi khi trang load
-    }, [refetch]);
-
+    }, []);
+    
     const handleLike = (postId) => {
         fetch(`http://localhost:9999/backend/api/like?postId=${postId}`, {
-            method: "GET",
+            method: "POST",
             credentials: "include"
         })
             .then(async (res) => {
@@ -58,7 +79,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
             })
             .catch((err) => console.error("Lỗi khi gọi API like:", err));
     };
-
+    
     const breakpointColumnsObj = {
         default: 3,
         1100: 1,
@@ -66,14 +87,20 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
     };
 
     return (
-        <div className="row">
+             <InfiniteScroll
+      dataLength={posts.length}
+      next={() => fetchPosts()}
+      hasMore={hasMore}
+      scrollableTarget={scrollableTarget}
+    >
+       <div className="row">
             <div className="offset-2 col-8 homepage-post__container--masonry">
                 <Masonry
                     breakpointCols={breakpointColumnsObj}
                     className="my-masonry-grid"
                     columnClassName="my-masonry-grid_column"
                 >
-                    {posts.map((post, index) => (
+                    {posts.map((post) => (
                         <div className="artistpost-container" key={post.postID}>
                             <div className="artistpost-info">
                                 <img
@@ -130,7 +157,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                         </div>
                                     </div>
                                     <div className="artistpost-react__uncount">
-                                        <a href="#!"><img src={share} alt="share" /></a>
+                                    <ShareButton link={`http://localhost:3000post/${post.postID}`} />
                                         <a href="#!"><img src={save} alt="save" /></a>
                                     </div>
                                 </div>
@@ -147,5 +174,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                 </div>
             </div>
         </div>
+        <Footer></Footer>
+         </InfiniteScroll>
     );
 }

@@ -4,6 +4,7 @@ import AvatarImage from '../UserProfileView/AvatarImage';
 import FollowerList from '../FollowControl/FollowerList';
 import FollowingList from '../FollowControl/FollowingList';
 import { toast } from 'react-toastify';
+import SuggestFollow from './SuggestFollow';
 
 const UserInfo = ({ 
     userData, 
@@ -57,6 +58,29 @@ const UserInfo = ({
 
             setIsFollowing(!isFollowing);
             toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
+        } catch (error) {
+            toast.error(error.message);
+        }
+    };
+
+    const handleMessage = async () => {
+        try {
+            if (!currentUser) {
+                navigate('/login');
+                return;
+            }
+            const response = await fetch('http://localhost:9999/backend/api/conversations', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `recipientId=${userId}`
+            });
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to initiate conversation');
+            }
+            const convId = data.conversationId;
+            navigate(`/messages?conversationId=${convId}`);
         } catch (error) {
             toast.error(error.message);
         }
@@ -125,16 +149,24 @@ const UserInfo = ({
             <div className="mt-4">
                 {currentUser ? (
                     currentUser.id !== parseInt(userId) ? (
-                        <button
-                            onClick={handleFollow}
-                            className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                                isFollowing
-                                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                            }`}
-                        >
-                            {isFollowing ? 'Following' : 'Follow'}
-                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleFollow}
+                                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                                    isFollowing
+                                        ? 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                }`}
+                            >
+                                {isFollowing ? 'Following' : 'Follow'}
+                            </button>
+                            <button
+                                onClick={handleMessage}
+                                className="flex-1 py-2 px-4 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+                            >
+                                Message
+                            </button>
+                        </div>
                     ) : (
                         <div className="flex gap-4">
                             <button
@@ -174,6 +206,8 @@ const UserInfo = ({
                     ))}
                 </div>
             )}
+
+            <SuggestFollow></SuggestFollow>
 
             <div className="mt-8 grid grid-cols-2 gap-6">
                 <div>
