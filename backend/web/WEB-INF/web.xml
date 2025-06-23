@@ -10,6 +10,7 @@
         <servlet-class>controller.Comment.AddCommentServlet</servlet-class>
     </servlet>
     <servlet>
+<<<<<<< HEAD
         <servlet-name>StatisticsServlet</servlet-name>
         <servlet-class>controller.StatisticsServlet</servlet-class>
     </servlet>
@@ -28,7 +29,7 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-    <servlet>
+=======
         <servlet-name>PlatformStats</servlet-name>
         <servlet-class>controller.admin.PlatformStats</servlet-class>
     </servlet>
@@ -56,6 +57,7 @@
         <servlet-name>ViewPlaylist</servlet-name>
         <servlet-class>controller.Music.ViewPlaylist</servlet-class>
     </servlet>
+>>>>>>> main
     <servlet>
         <servlet-name>UserProfileEdit</servlet-name>
         <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
