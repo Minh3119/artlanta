@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
-import SavePost from "../components/HomePage/SavePost";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
@@ -21,14 +20,17 @@ export default function HomePage() {
   const [selectedTab, setSelectedTab] = useState('post'); // 'post' or 'event'
 
   useEffect(() => {
-        if (location.state?.error) {
-            toast.error(location.state.error);
-            navigate("/", { replace: true, state: {} });
-        } else if (location.state?.success) {
-            toast.success(location.state.success);
-            navigate("/", { replace: true, state: {} });
-        }
-    }, [location, navigate]);
+    if (location.state?.success) {
+      toast.success(location.state.success);
+    }
+    if (location.state?.error) {
+      toast.error(location.state.error);
+    }
+
+    if (location.state) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     fetch("http://localhost:9999/backend/api/user/userid", {
@@ -83,10 +85,8 @@ export default function HomePage() {
   const today_formatted = format(new Date(), "MMMM d, yyyy");
 
   return (
-    <div  className="homepage-container" id="scrollableDiv"
- style={{
-    overflowX: "hidden",  
-  }}>
+    <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
+      {/* Pass the type to openCreatePopup */}
       <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">

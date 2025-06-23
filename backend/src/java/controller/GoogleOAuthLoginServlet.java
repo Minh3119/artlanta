@@ -19,7 +19,7 @@ public class GoogleOAuthLoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-		String role="CLIENT";
+
         setCORSHeaders(response);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -57,7 +57,7 @@ public class GoogleOAuthLoginServlet extends HttpServlet {
             UserDAO userDao = new UserDAO();
             if (!userDao.checkUserExistsByEmail(email)) {
                 String password = generateRandomPassword(10);
-                userDao.registerUser(name, email, password,role);
+                userDao.registerUser(name, email, password);
             }
 
             User user = userDao.getUserByEmail(email);

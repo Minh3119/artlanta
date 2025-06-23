@@ -29,9 +29,6 @@ import Payment from './Payment.js';
 import PaymentSuccess from '../components/Payment/PaypalPaymentSucess.js';
 import RecentPosts from './RecentPosts';
 import { ImOffice } from "react-icons/im";
-import PaymentHis from './HistoryPayment.js';
-import PaymentResult from "./PaymentResult.js";
-import AdminDashboard from './AdminDashboard';
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -53,13 +50,10 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
-          <Route path="/post/:postID" element={<PostDetail/>} />
-          <Route path="/messages" element={<MessagesPage/>} />
           <Route path="/post/:postID" element={<PostDetail />} />
-          <Route path="/payment" element={<Payment />}></Route>
-          <Route path="/paymentHis" element={<PaymentHis/>}></Route>
-          <Route path="/paymentResult" element={<PaymentResult/>}></Route>
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/recent-posts" element={<RecentPosts />} />
           <Route path="/event" element={<EventPage />} />
         </Routes >
