@@ -24,6 +24,8 @@ class VideoComponent extends React.Component {
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
+        totalPlayTime: 0,
+        playStartTime: null,
     }
     componentDidMount() {
         fetch(`http://localhost:9999/backend/api/music/view`, {
@@ -45,6 +47,11 @@ class VideoComponent extends React.Component {
             .catch(error => {
                 console.error('Error fetching music data:', error);
             });
+    }
+    componentWillUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
     }
     formatYoutubeID = (item) => {
         const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
@@ -83,12 +90,36 @@ class VideoComponent extends React.Component {
     };
     onPlayerStateChange = (event) => {
         const YT = window.YT;
+        const currentTime = Date.now();
+        switch (event.data) {
+            case 1:
+                this.setState({ isPlaying: true });
+                if (!this.state.playStartTime) {
+                    this.setState({ playStartTime: currentTime });
+                }
+                break;
+            case 2:
+                this.setState({ isPlaying: false });
+                break;
+        }
         if (event.data === YT.PlayerState.PLAYING) {
             setTimeout(() => {
                 this.setState({
                     musicTitle: event.target.getVideoData().title,
                 })
             }, 500);
+        }
+        if (event.data === YT.PlayerState.UNSTARTED) {
+            if (this.state.playStartTime) {
+                const playedTime = (currentTime - this.state.playStartTime) / 1000;
+                this.setState({
+                    totalPlayTime: this.state.totalPlayTime + playedTime,
+                    playStartTime: null,
+                    isPlaying: false,
+                });
+            } else {
+                this.setState({ isPlaying: false });
+            }
         }
     }
     onPlayerError = (event) => {

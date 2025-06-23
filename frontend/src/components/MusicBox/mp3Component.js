@@ -24,6 +24,8 @@ class MP3Component extends React.Component {
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
+        totalPlayTime: 0,
+        playStartTime: null,
     }
     componentDidMount() {
         fetch(`http://localhost:9999/backend/api/music/view`, {
@@ -95,9 +97,13 @@ class MP3Component extends React.Component {
     };
     onPlayerStateChange = (event) => {
         const YT = window.YT;
+        const currentTime = Date.now();
         switch (event.data) {
             case 1:
                 this.setState({ isPlaying: true });
+                if (!this.state.playStartTime) {
+                    this.setState({ playStartTime: currentTime });
+                }
                 break;
             case 2:
                 this.setState({ isPlaying: false });
@@ -110,6 +116,18 @@ class MP3Component extends React.Component {
                     musicDuration: event.target.getDuration(),
                 })
             }, 500);
+        }
+        if (event.data === YT.PlayerState.UNSTARTED) {
+            if (this.state.playStartTime) {
+                const playedTime = (currentTime - this.state.playStartTime) / 1000;
+                this.setState({
+                    totalPlayTime: this.state.totalPlayTime + playedTime,
+                    playStartTime: null,
+                    isPlaying: false,
+                });
+            } else {
+                this.setState({ isPlaying: false });
+            }
         }
     }
     onPlayerError = (event) => {

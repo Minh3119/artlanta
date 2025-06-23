@@ -4,12 +4,14 @@ import { FaEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaCheck } from "react-icons/fa";
 import { MdAddCircleOutline } from "react-icons/md";
+import { RiResetLeftFill } from "react-icons/ri";
 class SettingComponent extends React.Component {
     state = {
         playlistName: "",
         playlistLink: "",
         editName: "",
         editLink: "",
+        totalPlayTime: 0,
         editID: null,
         listPlaylist: [
             {
@@ -291,9 +293,32 @@ class SettingComponent extends React.Component {
             console.log("server error!", er);
         }
     }
+    handleOnResetTime = () => {
+
+    }
+    formatTime = (seconds) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+
+        const pad = (num) => String(num).padStart(2, '0');
+
+        if (h > 0) {
+            return `${pad(h)}:${pad(m)}:${pad(s)}`;
+        } else {
+            return `${pad(m)}:${pad(s)}`;
+        }
+    }
     render() {
         return (
             <div className="music-control">
+                <div className="playlist-count">
+                    <p>Total play time: </p>
+                    <p className="time-count">00:00:00</p>
+                    <button onClick={this.handleOnResetTime}>
+                        <RiResetLeftFill className="icon" />
+                    </button>
+                </div>
                 <div className="playlist-name">
                     <input type="text" placeholder="playlist name " value={this.state.playlistName}
                         onChange={(e) => this.handleOnChangeName(e)}
