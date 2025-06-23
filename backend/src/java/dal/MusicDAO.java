@@ -77,4 +77,13 @@ public class MusicDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    public void insertPlayTime(int userID,int time){
+        
+    }
+    public void deletePlayTime(int userID,int time){
+        
+    }
+    public int viewPlayTime(int userID){
+        return 0;
+    }
 }

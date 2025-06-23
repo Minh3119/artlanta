@@ -24,6 +24,10 @@
         <servlet-name>ViewPlaylist</servlet-name>
         <servlet-class>controller.Music.ViewPlaylist</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>InsertPlayTime</servlet-name>
+        <servlet-class>controller.Music.InsertPlayTime</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>NotificationServlet</servlet-name>
         <url-pattern>/NotificationServlet</url-pattern>
@@ -47,6 +51,10 @@
     <servlet-mapping>
         <servlet-name>ViewPlaylist</servlet-name>
         <url-pattern>/api/music/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InsertPlayTime</servlet-name>
+        <url-pattern>/api/music/time/insert</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

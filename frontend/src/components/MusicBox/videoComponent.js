@@ -52,6 +52,34 @@ class VideoComponent extends React.Component {
         if (this.interval) {
             clearInterval(this.interval);
         }
+        if (this.state.playStartTime) {
+            const now = Date.now();
+            const playedTime = (now - this.state.playStartTime) / 1000;
+            this.setState({
+                totalPlayTime: this.state.totalPlayTime + playedTime,
+            })
+        }
+        try {
+            const res = fetch('http://localhost:9999/backend/api/music/time/insert', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    totalPlayTime: this.state.totalPlayTime,
+                }),
+            })
+            if (res.ok) {
+                return;
+            } else {
+                toast.error("error save play time");
+            }
+        }
+        catch (er) {
+            this.setState({ message: "Cannot connect to the server." });
+            console.log("server error!", er);
+        }
     }
     formatYoutubeID = (item) => {
         const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
