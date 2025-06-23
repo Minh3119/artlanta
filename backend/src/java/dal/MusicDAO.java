@@ -41,7 +41,7 @@ public class MusicDAO extends DBContext {
             st.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            
+
         }
     }
 
@@ -76,5 +76,100 @@ public class MusicDAO extends DBContext {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void insertPlayTime(int userID, double time) throws SQLException {
+        PreparedStatement timeSelect = null, timeUpdate = null, timeInsert = null;
+        double prevTime = 0;
+        try {
+            connection.setAutoCommit(false);
+
+            timeSelect = connection.prepareStatement("""
+                                                 select UserID, PlayTime from MusicPlayTime
+                                                 where UserID=?
+                                                 """);
+            timeInsert = connection.prepareStatement("""
+                                                      insert into MusicPlayTime(UserID,PlayTime)
+                                                      values(?,?);
+                                                      """);
+            timeUpdate = connection.prepareStatement("""
+                                                      update MusicPlayTime
+                                                      set PlayTime=?
+                                                      where UserID=?
+                                                      """);
+
+            timeSelect.setInt(1, userID);
+
+            ResultSet rs = timeSelect.executeQuery();
+            if (rs.next()) {
+                prevTime = rs.getInt("PlayTime");
+
+                timeUpdate.setInt(1, (int)(prevTime + time));
+                timeUpdate.setInt(2, userID);
+                timeUpdate.executeUpdate();
+
+            } else {
+                timeInsert.setInt(1, userID);
+                timeInsert.setInt(2, (int)time);
+                timeInsert.executeUpdate();
+            }
+
+            connection.commit();
+        } catch (SQLException e) {
+            if (connection != null) {
+                connection.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (timeSelect != null) {
+                timeSelect.close();
+            }
+            if (timeInsert != null) {
+                timeInsert.close();
+            }
+            if (timeUpdate != null) {
+                timeUpdate.close();
+            }
+            if (connection != null) {
+                connection.setAutoCommit(true);
+                connection.close();
+            }
+        }
+    }
+
+    public void deletePlayTime(int userID) {
+        try {
+            PreparedStatement timeDelete = connection.prepareStatement("""
+                                                 Delete from MusicPlayTime
+                                                 where UserID=?
+                                                 """);
+            timeDelete.setInt(1, userID);
+            timeDelete.executeUpdate();
+            timeDelete.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int viewPlayTime(int userID) {
+        try {
+            PreparedStatement timeSelect = connection.prepareStatement("""
+                                                 select UserID, PlayTime from MusicPlayTime
+                                                 where UserID=?
+                                                 """);
+            timeSelect.setInt(1, userID);
+
+            ResultSet rs = timeSelect.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("PlayTime");
+            } else {
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

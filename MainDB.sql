@@ -298,6 +298,12 @@ CREATE TABLE MusicMedia(
     MediaURL VARCHAR(255) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
  );
+ CREATE TABLE MusicPlayTime(
+	ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT,
+    PlayTime INT,
+    FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
+ );
 -- TAG SYSTEM -DANG TEST
 /*
 CREATE TABLE Tags (
@@ -380,6 +386,15 @@ CREATE TABLE Conversations (
     FOREIGN KEY(User1ID) REFERENCES Users(ID),
     FOREIGN KEY(User2ID) REFERENCES Users(ID),
     UNIQUE (User1ID, User2ID)
+);
+
+-- User-specific conversation view
+CREATE TABLE UserConversations (
+    UserID INT,
+    ConversationID INT,
+    Type ENUM('chat', 'pending', 'archived') NOT NULL DEFAULT 'chat',
+    PRIMARY KEY (UserID, ConversationID),
+    FOREIGN KEY (ConversationID) REFERENCES Conversations(ID)
 );
 
 CREATE TABLE Messages (
@@ -831,3 +846,56 @@ INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
 (26, 4, 'ACCEPTED', '2025-06-11'),
 (27, 19, 'ACCEPTED', '2025-06-11'),
 (28, 7, 'ACCEPTED', '2025-06-11');
+-- Test data for UserConversations
+-- Conversation 1: User 1 and User 2 (both have it as 'chat')
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 1, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 1, 'chat');
+
+-- Conversation 2: User 1 and User 3 (User1 has it as 'chat', User3 has it as 'pending')
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 2, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 2, 'pending');
+
+-- Additional conversations for testing different scenarios
+-- Conversation 3: User 2 and User 3 (both have it as 'chat')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (2, 3);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 3, 'chat');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 3, 'chat');
+
+-- Conversation 4: User 1 and User 4 (User1 has it as 'archived', User4 has it as 'chat')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (1, 4);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (1, 4, 'archived');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (4, 4, 'chat');
+
+-- Conversation 5: User 2 and User 5 (User2 has it as 'pending', User5 has it as 'pending')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (2, 5);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (2, 5, 'pending');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (5, 5, 'pending');
+
+-- Conversation 6: User 3 and User 4 (User3 has it as 'archived', User4 has it as 'archived')
+INSERT INTO Conversations (User1ID, User2ID) VALUES (3, 4);
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (3, 6, 'archived');
+INSERT INTO UserConversations (UserID, ConversationID, Type) VALUES (4, 6, 'archived');
+
+
+-- Add test messages for conversation 3 (User 2 and 3)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(3, 2, 'Hi there! How are you?', NULL, '2025-06-23 10:00:00'),
+(3, 3, 'I''m doing great, thanks for asking!', NULL, '2025-06-23 10:05:00'),
+(3, 2, 'Would you like to collaborate on a project?', NULL, '2025-06-23 10:10:00');
+
+-- Add test messages for conversation 4 (User 1 and 4)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(4, 1, 'Hello! I saw your artwork, it''s amazing!', NULL, '2025-06-23 11:00:00'),
+(4, 4, 'Thank you so much! I appreciate it.', NULL, '2025-06-23 11:15:00');
+
+-- Add test messages for conversation 5 (User 2 and 5)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(5, 2, 'Are we still meeting tomorrow?', NULL, '2025-06-23 09:00:00'),
+(5, 5, 'Yes, at 2 PM at the cafe?', NULL, '2025-06-23 09:05:00'),
+(5, 2, 'Perfect, see you then!', NULL, '2025-06-23 09:06:00');
+
+-- Add test messages for conversation 6 (User 4 and 3)
+INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES 
+(6, 4, 'Are we still meeting tomorrow?', NULL, '2025-06-23 09:00:00'),
+(6, 3, 'Yes, at 2 PM at the cafe?', NULL, '2025-06-23 09:05:00'),
+(6, 4, 'Perfect, see you then!', NULL, '2025-06-23 09:06:00');

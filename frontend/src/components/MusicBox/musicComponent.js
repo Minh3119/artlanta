@@ -11,41 +11,6 @@ import SettingComponent from "./settingComponent";
 class MusicComponent extends React.Component {
     state = {
         isMP3: "mp3",//mp3 | video | setting
-        playlist: [
-            {
-                type: 'video',
-                ID: 'YzRyzWzTlI8'
-            }
-        ],
-        currentPlaylist: {
-            type: 'playlist',
-            ID: 'PLtwH7CuLnpU9xv30W-FgvcTZZIsD-wzX4'
-            // type: 'video',
-            // ID: 'YzRyzWzTlI8'
-        },
-    }
-
-    formatYoutubeID = (url) => {
-        const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
-        const videoRegex = /(?:v=|\/videos\/|embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/;
-
-        const isPlaylist = url.match(playlistRegex);
-        if (isPlaylist) {
-            return {
-                type: 'playlist',
-                ID: isPlaylist[1]
-            };
-        }
-
-        const isVideo = url.match(videoRegex);
-        if (isVideo) {
-            return {
-                type: 'video',
-                ID: isVideo[1]
-            };
-        }
-
-        return toast.error("Invalid YouTube URL");
     }
 
     handleTabChange = (tab) => {

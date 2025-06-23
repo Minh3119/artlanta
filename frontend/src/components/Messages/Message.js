@@ -34,7 +34,7 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
         {/* Actions button - shows on hover */}
         <div className={`flex items-center transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           <MessageActions 
-            onUnsend={onUnsend} 
+            onUnsend={message.isDeleted?null:onUnsend} 
             onReport={onReport} 
             messageId={message.id} 
             isCurrentUser={true}
@@ -76,7 +76,7 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
 };
 
 // Other user message (received messages - left side)
-const OtherUserMessage = ({ message, onUnsend, onReport }) => {
+const OtherUserMessage = ({ message, onReport }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const formattedTime = formatFullDateTime(message.createdAt);
@@ -122,7 +122,7 @@ const OtherUserMessage = ({ message, onUnsend, onReport }) => {
         {/* Actions button - shows on hover */}
         <div className={`flex items-center transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           <MessageActions 
-            onUnsend={onUnsend} 
+            onUnsend={null}     // null so that it doesn't show the unsend option 
             onReport={onReport} 
             messageId={message.id} 
             isCurrentUser={false}
@@ -138,7 +138,7 @@ const Message = ({ message, isCurrentUser, onUnsend, onReport }) => {
   if (isCurrentUser) {
     return <CurrentUserMessage message={message} onUnsend={onUnsend} onReport={onReport} />;
   }
-  return <OtherUserMessage message={message} onUnsend={onUnsend} onReport={onReport} />;
+  return <OtherUserMessage message={message} onReport={onReport} />;
 };
 
 export default Message;
