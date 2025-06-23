@@ -71,7 +71,6 @@ class DeletePostComponent extends React.Component {
                     body: formData,
                     credentials: 'include'
                 });
-                console.log('Response:', this.props.deletePostID);
                 if (res.ok) {
                     this.setState({
                         result: "",
@@ -110,7 +109,7 @@ class DeletePostComponent extends React.Component {
         const script = this.handleGenRandom();
         this.setState({ script: script });
     };
-    handleGenRandom = (length = 15) => {
+    handleGenRandom = (length = 5) => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         let result = '';
         for (let i = 0; i < length; i++) {
