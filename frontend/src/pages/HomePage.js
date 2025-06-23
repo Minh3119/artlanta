@@ -7,7 +7,7 @@ import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import { format } from "date-fns";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function HomePage() {
@@ -40,62 +40,62 @@ export default function HomePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const openCreatePopup = () => {
     setIsCreateOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeCreatePopup = () => {
     setIsCreateOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [updatePostID, setUpdatePostID] = useState(0);
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deletePostID, setDeletePostID] = useState(0);
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
 
   const today_formatted = format(new Date(), "MMMM d, yyyy");
 
   return (
-    <div  className="homepage-container" id="scrollableDiv"
- style={{
-    overflow: "auto",  
-  }}>
-      <Header openCreatePopup={openCreatePopup} />
+    <div className="homepage-container" id="scrollableDiv"
+      style={{
+        overflow: "auto",
+      }}>
+      <Header openCreatePopup={() => openCreatePopup()} />
 
       <div className="homepage-time">
         <p>{today_formatted}</p>
       </div>
       <div className="homepage-title">Artwork Posts</div>
 
-  <ArtistPost
-    refetch={isRefresh}
-    currentID={currentID}
-    openUpdatePopup={openUpdatePopup}
-    openDeletePopup={openDeletePopup}
-    scrollableTarget="scrollableDiv" 
-  />
+      <ArtistPost
+        refetch={isRefresh}
+        currentID={currentID}
+        openUpdatePopup={openUpdatePopup}
+        openDeletePopup={openDeletePopup}
+        scrollableTarget="scrollableDiv"
+      />
 
 
 
       {/* callComponent */}
       {isCreateOpen ? (
-        <CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        <CreatePostComponent closeCreatePopup={() => closeCreatePopup()} />
       ) : null}
       {isUpdateOpen ? (
         <UpdatePostComponent
@@ -109,7 +109,6 @@ export default function HomePage() {
           deletePostID={deletePostID}
         />
       ) : null}
-      <ToastContainer />
     </div>
   );
 }
