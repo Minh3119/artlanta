@@ -61,9 +61,6 @@ public class StatisticsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
-        // response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-        // response.setHeader("Pragma", "no-cache");
-        // response.setDateHeader("Expires", 0);
         String userIdParam = request.getParameter("userId");
         JSONObject json = new JSONObject();
 
@@ -85,7 +82,7 @@ public class StatisticsServlet extends HttpServlet {
         }
 
         try (PrintWriter out = response.getWriter()) {
-            StatisticsDAO statsDAO = new StatisticsDAO(); // No connection passed
+            StatisticsDAO statsDAO = new StatisticsDAO();
             Statistics stats = statsDAO.getUserStatistics(userId);
 
             json.put("posts", stats.getPosts());
@@ -97,8 +94,37 @@ public class StatisticsServlet extends HttpServlet {
             json.put("flagsReceived", stats.getFlagsReceived());
             json.put("votesPerPost", stats.getVotesPerPost());
 
+            // Add top posts
+            var topPosts = statsDAO.getTopPosts(userId);
+            org.json.JSONArray topPostsArr = new org.json.JSONArray();
+            for (var tp : topPosts) {
+                JSONObject postJson = new JSONObject();
+                postJson.put("postId", tp.getID());
+                postJson.put("userId", tp.getUserID());
+                postJson.put("title", tp.getTitle()); // Add the title to the JSON response
+                postJson.put("likeInteractions", tp.getLikeInteractions());
+                postJson.put("commentInteractions", tp.getCommentInteractions());
+                postJson.put("totalInteractions", tp.getTotalInteractions());
+                topPostsArr.put(postJson);
+            }
+            json.put("topPosts", topPostsArr);
+
+            // Add top commenters
+            var topUsers = statsDAO.getTopCommenters(userId);
+            org.json.JSONArray topUsersArr = new org.json.JSONArray();
+            for (var tu : topUsers) {
+                JSONObject userJson = new JSONObject();
+                userJson.put("userId", tu.getID());
+                userJson.put("username", tu.getUsername()); // Add username to the JSON response
+                userJson.put("likeInteractions", tu.getLikeInteractions());
+                userJson.put("commentInteractions", tu.getCommentInteractions());
+                userJson.put("totalInteractions", tu.getTotalInteractions());
+                topUsersArr.put(userJson);
+            }
+            json.put("topCommenters", topUsersArr);
+
             out.write(json.toString());
-            statsDAO.closeConnection(); // Close connection if needed
+            statsDAO.closeConnection();
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             json.put("error", "Database error: " + e.getMessage());

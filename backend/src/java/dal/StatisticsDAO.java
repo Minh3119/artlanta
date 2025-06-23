@@ -3,7 +3,11 @@ package dal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import model.Statistics;
+import model.TopPost;
+import model.TopUser;
 
 public class StatisticsDAO extends DBContext {
     public Statistics getUserStatistics(int userId) throws SQLException {
@@ -48,5 +52,69 @@ public class StatisticsDAO extends DBContext {
             }
         }
         return 0.0;
+    }
+
+    public List<TopPost> getTopPosts(int userId) throws SQLException {
+        String sql =
+            "SELECT p.ID, p.UserID, p.Title, " +
+            "  (SELECT COUNT(*) FROM Likes l WHERE l.PostID = p.ID) AS likeInteractions, " +
+            "  (SELECT COUNT(*) FROM Comments c WHERE c.PostID = p.ID) AS commentInteractions, " +
+            "  ((SELECT COUNT(*) FROM Likes l WHERE l.PostID = p.ID) + " +
+            "   (SELECT COUNT(*) FROM Comments c WHERE c.PostID = p.ID)) AS totalInteractions " +
+            "FROM Posts p " +
+            "WHERE p.UserID = ? " +
+            "ORDER BY totalInteractions DESC";
+        List<TopPost> result = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    TopPost tp = new TopPost(
+                        rs.getInt("ID"),
+                        rs.getInt("UserID"),
+                        rs.getString("Title"),
+                        rs.getInt("likeInteractions"),
+                        rs.getInt("commentInteractions"),
+                        rs.getInt("totalInteractions")
+                    );
+                    result.add(tp);
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<TopUser> getTopCommenters(int userId) throws SQLException {
+        String sql =
+            "SELECT u.ID, u.Username, " +
+            "  SUM(CASE WHEN l.UserID IS NOT NULL THEN 1 ELSE 0 END) AS likeInteractions, " +
+            "  SUM(CASE WHEN c.UserID IS NOT NULL THEN 1 ELSE 0 END) AS commentInteractions, " +
+            "  (SUM(CASE WHEN l.UserID IS NOT NULL THEN 1 ELSE 0 END) + " +
+            "   SUM(CASE WHEN c.UserID IS NOT NULL THEN 1 ELSE 0 END)) AS totalInteractions " +
+            "FROM Posts p " +
+            "LEFT JOIN Likes l ON l.PostID = p.ID " +
+            "LEFT JOIN Comments c ON c.PostID = p.ID " +
+            "LEFT JOIN Users u ON (u.ID = l.UserID OR u.ID = c.UserID) " +
+            "WHERE p.UserID = ? AND u.ID IS NOT NULL AND u.ID <> ? " +
+            "GROUP BY u.ID, u.Username " +
+            "ORDER BY totalInteractions DESC";
+        List<TopUser> result = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId); // Exclude self
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    TopUser tu = new TopUser(
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getInt("likeInteractions"),
+                        rs.getInt("commentInteractions"),
+                        rs.getInt("totalInteractions")
+                    );
+                    result.add(tu);
+                }
+            }
+        }
+        return result;
     }
 }
