@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import PayPalPaymentMenu from "./PayPalPaymentMenu";
 import StripePaymentMenu from "./StripePaymentMenu";
 import VNPayPaymentMenu from "./VNPayPaymentMenu";
+import ZaloPayPaymentMenu from "./ZaloPayPaymentMenu";
 
 export default function PaymentAmountStep({ method, onBack }) {
   const [amount, setAmount] = useState("");
@@ -64,6 +65,12 @@ export default function PaymentAmountStep({ method, onBack }) {
       {method === "vnpay" && validated && (
         <div style={{ marginTop: "20px" }}>
           <VNPayPaymentMenu amountVND={parseInt(amount)} />
+        </div>
+      )}
+
+      {method === "zalo" && validated && (
+        <div style={{ marginTop: "20px" }}>
+          <ZaloPayPaymentMenu amountVND={parseInt(amount)} />
         </div>
       )}
     </div>

@@ -78,6 +78,20 @@ public class TransactionDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    
+    public boolean isTransactionProcessed(String appTransId) {
+        String sql = "SELECT COUNT(*) FROM Transactions WHERE Description LIKE ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, "%Mã GD: " + appTransId + "%");
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public boolean isTxnRefExists(String txnRef) {
         String sql = "SELECT COUNT(*) FROM Transactions WHERE Description LIKE ?";
