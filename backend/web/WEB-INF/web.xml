@@ -38,6 +38,38 @@
         <servlet-class>controller.Music.ViewPlaylist</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>InsertPlayTime</servlet-name>
+        <servlet-class>controller.Music.InsertPlayTime</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewPlayTime</servlet-name>
+        <servlet-class>controller.Music.ViewPlayTime</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeletePlayTime</servlet-name>
+        <servlet-class>controller.Music.DeletePlayTime</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SearchPost</servlet-name>
+        <servlet-class>controller.Search.SearchPost</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>InsertPlayTime</servlet-name>
+        <url-pattern>/api/music/time/insert</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewPlayTime</servlet-name>
+        <url-pattern>/api/music/time/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeletePlayTime</servlet-name>
+        <url-pattern>/api/music/time/delete</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchPost</servlet-name>
+        <url-pattern>/api/search/post</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>UserProfileEdit</servlet-name>
         <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
     </servlet>
@@ -69,7 +101,6 @@
         <servlet-name>StatisticsServlet</servlet-name>
         <servlet-class>controller.StatisticsServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>NotificationServlet</servlet-name>
         <url-pattern>/NotificationServlet</url-pattern>

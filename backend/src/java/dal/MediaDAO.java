@@ -1,19 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import model.Media;
-import model.PortfolioMedia;
 
 /**
  *
@@ -142,6 +135,7 @@ public class MediaDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
     public void deletePostMediaByID(int ID) {
         try {
             PreparedStatement pstMedia = connection.prepareStatement("""
@@ -166,7 +160,6 @@ public class MediaDAO extends DBContext {
 
         try {
             connection.setAutoCommit(false);
-
 
             //re-insert
             pstMedia = connection.prepareStatement("""
@@ -210,5 +203,28 @@ public class MediaDAO extends DBContext {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public String getMediaByPostID(int ID) {
+        String result = "khongco";
+        try {
+            String sql = """
+                       select pm.PostID, m.ID, m.URL 
+                       from PostMedia as pm join Media as m on pm.MediaID=m.ID
+                       where pm.PostID=?
+                       LIMIT 1;
+                       """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, ID);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                result= rs.getString("URL");
+            }
+            st.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

@@ -17,9 +17,6 @@ public class MessageDAO extends DBContext {
             stmt.setInt(1, conversationId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    System.out.println("DB timestamp as Instant: " + rs.getTimestamp("CreatedAt").toInstant());
-                    System.out.println("OffsetDateTime UTC: " + OffsetDateTime.ofInstant(rs.getTimestamp("CreatedAt").toInstant(), ZoneOffset.UTC));
-
                     return new Message(
                         rs.getInt("ID"),
                         rs.getInt("ConversationID"),

@@ -1,6 +1,5 @@
 package service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import model.Media;
 import org.json.JSONArray;
@@ -28,9 +27,5 @@ public class MediaService {
             }
         }
         return jsonUsers;
-    }
-	
-	private String formatDateTime(LocalDateTime dateTime) {
-        return dateTime != null ? dateTime.toString() : null;
     }
 }

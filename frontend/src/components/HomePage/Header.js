@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
-import search from "../../assets/images/search.svg";
+
 import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
@@ -10,7 +10,7 @@ import NotificationPopup from "../Notification/NotificationPopup";
 import HeaderDropDown from "./HeaderDropDown";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
-
+import SearchBarComponent from "./searchBarComponent";
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [userID, setUserID] = useState(0);
@@ -73,14 +73,10 @@ export default function Header({ openCreatePopup }) {
           <img src={arrowDown} alt=""></img>
         </div>
       </div>
-      <div className="header-search">
-        <input
-          type="text"
-          className="header-text-input"
-          placeholder="Seach"
-        ></input>
-        <img src={search} alt="" className="search-icon"></img>
-      </div>
+
+      <SearchBarComponent />
+
+
       <div className="header-icons">
         <div
           className="notification-icon-wrapper"

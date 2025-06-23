@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
+import model.UserConversation;
 import service.MessagingService;
 import util.JsonUtil;
 import util.SessionUtil;
@@ -45,13 +45,32 @@ public class ConversationServlet extends HttpServlet {
                 return;
             }
 
-            // Get conversations for the user and convert to JSON
-            List<dto.ConversationDTO> conversations = messagingService.getUserConversations(userId);
+            // Get conversation type from request parameter (default to 'chat' if not specified)
+            String typeParam = request.getParameter("type");
+            UserConversation.ConversationType type = UserConversation.ConversationType.fromString(typeParam);
+            
+            // Get conversations based on type
+            List<dto.ConversationDTO> conversations;
+            switch (type) {
+                case PENDING:
+                    conversations = messagingService.getPendingConversations(userId);
+                    break;
+                case ARCHIVED:
+                    conversations = messagingService.getArchivedConversations(userId);
+                    break;
+                case CHAT:
+                default:
+                    conversations = messagingService.getChatConversations(userId);
+                    break;
+            }
+            
+            // Convert conversations to JSON
             JSONArray conversationsJson = messagingService.buildConversationsJson(conversations, userId);
             
             // Build and send response
             JSONObject responseJson = new JSONObject();
             responseJson.put("success", true);
+            responseJson.put("type", type.getValue());
             responseJson.put("conversations", conversationsJson);
             JsonUtil.writeJsonResponse(response, responseJson);
             

@@ -9,10 +9,8 @@ import java.util.List;
 import java.time.LocalDateTime;
 
 public class UserService {
-    private final UserDAO userDAO;
 
     public UserService() {
-        this.userDAO = new UserDAO();
     }
 
     public JSONObject getUsersByRole(String role) throws JSONException {
@@ -20,23 +18,37 @@ public class UserService {
             throw new IllegalArgumentException("Role parameter cannot be empty");
         }
 
-        List<User> users = userDAO.getByRole(role);
-        JSONArray jsonUsers = convertUsersToJsonArray(users);
-        
-        JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("response", jsonUsers);
-        return jsonResponse;
+        UserDAO userDAO = new UserDAO();
+        try {
+            List<User> users = userDAO.getByRole(role);
+            JSONArray jsonUsers = convertUsersToJsonArray(users);
+            
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", jsonUsers);
+            return jsonResponse;
+        } finally {
+            if (userDAO != null) {
+                userDAO.closeConnection();
+            }
+        }
     }
 
     public JSONObject getUserById(int userId) throws JSONException {
-        User user = userDAO.getOne(userId);
-        if (user == null) {
-            return null;
-        }
+        UserDAO userDAO = new UserDAO();
+        try {
+            User user = userDAO.getOne(userId);
+            if (user == null) {
+                return null;
+            }
 
-        JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("response", convertUserToJson(user));
-        return jsonResponse;
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", convertUserToJson(user));
+            return jsonResponse;
+        } finally {
+            if (userDAO != null) {
+                userDAO.closeConnection();
+            }
+        }
     }
 
     private JSONArray convertUsersToJsonArray(List<User> users) throws JSONException {
@@ -75,20 +87,26 @@ public class UserService {
         }
 
         JSONObject jsonUser = new JSONObject();
-        jsonUser.put("id", user.getID());
-        jsonUser.put("username", user.getUsername());
-        jsonUser.put("fullName", user.getFullName());
-        jsonUser.put("bio", user.getBio());
-        jsonUser.put("avatarURL", user.getAvatarURL());
-        jsonUser.put("gender", user.getGender());
-        jsonUser.put("location", user.getLocation());
-        jsonUser.put("role", user.getRole());
-        jsonUser.put("status", user.getStatus());
-        jsonUser.put("language", user.getLanguage());
-        jsonUser.put("isPrivate", user.isPrivate());
-        jsonUser.put("isFlagged", user.isFlagged());
-        jsonUser.put("createdAt", formatDateTime(user.getCreatedAt()));
-        jsonUser.put("lastLogin", formatDateTime(user.getLastLogin()));
+        try {
+            jsonUser.put("id", user.getID());
+            jsonUser.put("username", user.getUsername());
+            jsonUser.put("fullName", user.getFullName());
+            jsonUser.put("bio", user.getBio());
+            jsonUser.put("avatarURL", user.getAvatarURL());
+            jsonUser.put("gender", user.getGender());
+            jsonUser.put("location", user.getLocation());
+            jsonUser.put("role", user.getRole());
+            jsonUser.put("status", user.getStatus());
+            jsonUser.put("language", user.getLanguage());
+            jsonUser.put("isPrivate", user.isPrivate());
+            jsonUser.put("isFlagged", user.isFlagged());
+            jsonUser.put("createdAt", formatDateTime(user.getCreatedAt()));
+            jsonUser.put("lastLogin", formatDateTime(user.getLastLogin()));
+        } catch (JSONException e) {
+            // Log the error and rethrow
+            System.err.println("Error converting user to JSON: " + e.getMessage());
+            throw e;
+        }
         return jsonUser;
     }
 
@@ -96,11 +114,4 @@ public class UserService {
         return dateTime != null ? dateTime.toString() : null;
     }
 
-    public void closeConnection() {
-        try {
-            userDAO.closeConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 } 

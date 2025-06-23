@@ -88,6 +88,27 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                .playlist{
+                    appearance: none;
+                    font-size: 80%;
+                    border: none;
+                    border-radius: 8px;
+                    background-color: white;
+                    color: black;
+                    box-shadow: var(--shadow);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.3s ease;
+                    margin-top: 2px;
+                    padding: 5px;
+                }
+                .playlist:hover{
+                    box-shadow: 0 4px 10px rgb(255, 2, 2);
+                }
+                .playlist:focus{
+                    outline: none;
+                    box-shadow: 0 0 0 2px black;
+                }
                 .track-title{
                     font-size: 60%;
                     width: 80%;
@@ -108,6 +129,27 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                .playlist{
+                    appearance: none;
+                    font-size: 80%;
+                    border: none;
+                    border-radius: 8px;
+                    background-color: white;
+                    color: black;
+                    box-shadow: var(--shadow);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.3s ease;
+                    margin-top: 2px;
+                    padding: 5px;
+                }
+                .playlist:hover{
+                    box-shadow: 0 4px 10px rgb(255, 2, 2);
+                }
+                .playlist:focus{
+                    outline: none;
+                    box-shadow: 0 0 0 2px black;
+                }
                 .track-title{
                     font-size: 60%;
                     width: 80%;
@@ -124,6 +166,39 @@
             scrollbar-width: none;     
             -ms-overflow-style: none;
             padding-bottom: 10px;
+            .playlist-count{
+                
+                display: flex;
+                justify-content: left;
+                gap: 5px;
+                padding: 10px;
+                p{
+                    font-size:50%;
+                    width: 40%;
+                    margin-block-end: 0;
+                    padding: 10px;
+                }
+                .time-count{
+                    font-size: 60%;
+                    font-weight: bolder;
+                    border: 1px solid #1a8acb;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                button{
+                    width: 10%;
+                    background-color: transparent;
+                    border: none;
+                    transition: border 0.5s ease;
+                }
+                button:hover{
+                    border: 1px solid #1a8acb;
+                }
+                .icon{
+                    color: orange;
+                }
+            }
             .playlist-name{
                 width: 100%;
                 display: flex;
