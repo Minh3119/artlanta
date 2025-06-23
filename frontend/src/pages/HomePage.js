@@ -17,17 +17,14 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state?.success) {
-      toast.success(location.state.success);
-    }
-    if (location.state?.error) {
-      toast.error(location.state.error);
-    }
-
-    if (location.state) {
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location, navigate]);
+        if (location.state?.error) {
+            toast.error(location.state.error);
+            navigate("/", { replace: true, state: {} });
+        } else if (location.state?.success) {
+            toast.success(location.state.success);
+            navigate("/", { replace: true, state: {} });
+        }
+    }, [location, navigate]);
 
   useEffect(() => {
     fetch("http://localhost:9999/backend/api/user/userid", {

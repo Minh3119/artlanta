@@ -167,11 +167,24 @@ CREATE TABLE CommissionRequest (
 );
 
 -- PAYMENT
-CREATE TABLE Payment (
+CREATE TABLE Wallets (
+    UserID INT PRIMARY KEY,
+    Balance DECIMAL(12,2) DEFAULT 0,
+    Currency VARCHAR(10) DEFAULT 'VND',
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
+);
+
+CREATE TABLE Transactions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    Price INT NOT NULL,
-    Type VARCHAR(20) DEFAULT 'VietQR' CHECK (Type IN ('Paypal', 'ATM', 'VietQR')),
-    Tax INT DEFAULT 5
+    UserID INT NOT NULL,
+	PaymentMethod VARCHAR(20),         
+    Amount DECIMAL(12,2),             
+    Currency VARCHAR(10) DEFAULT 'VND',
+    Status VARCHAR(99),                -- Chuyen vao, Rut ra
+    Description VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
 );
 
 -- COMMISSIONS
@@ -182,8 +195,7 @@ CREATE TABLE Commission (
     Deadline DATETIME,
     Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
-    FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
+    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID)
 );
 
 -- COMMISSION PROGRESS
@@ -527,7 +539,26 @@ INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
 (7, 8, 'PENDING', '2025-04-16'),
 (8, 9, 'ACCEPTED', '2025-04-17'),
 (9, 10, 'ACCEPTED', '2025-04-18'),
-(10, 1, 'ACCEPTED', '2025-04-19');
+(10, 1, 'ACCEPTED', '2025-04-19'),
+(11, 6, 'ACCEPTED', '2025-06-10'),
+(12, 4, 'ACCEPTED', '2025-06-10'),
+(13, 8, 'ACCEPTED', '2025-06-10'),
+(14, 20, 'ACCEPTED', '2025-06-10'),
+(15, 10, 'ACCEPTED', '2025-06-10'),
+(16, 7, 'ACCEPTED', '2025-06-10'),
+(17, 22, 'ACCEPTED', '2025-06-10'),
+(18, 24, 'ACCEPTED', '2025-06-10'),
+(19, 9, 'ACCEPTED', '2025-06-10'),
+(20, 16, 'ACCEPTED', '2025-06-10'),
+
+(21, 3, 'ACCEPTED', '2025-06-11'),
+(22, 25, 'ACCEPTED', '2025-06-11'),
+(23, 6, 'ACCEPTED', '2025-06-11'),
+(24, 12, 'ACCEPTED', '2025-06-11'),
+(25, 15, 'ACCEPTED', '2025-06-11'),
+(26, 4, 'ACCEPTED', '2025-06-11'),
+(27, 19, 'ACCEPTED', '2025-06-11'),
+(28, 7, 'ACCEPTED', '2025-06-11');
 
 
 INSERT INTO CommissionPricing (ArtistID, Title, Description, Price, EstimatedDays) VALUES
