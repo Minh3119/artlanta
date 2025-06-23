@@ -9,7 +9,7 @@ import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function HomePage() {
@@ -45,23 +45,18 @@ export default function HomePage() {
 
   const [isRefresh, setIsRefresh] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEventOpen, setIsEventOpen] = useState(false);
 
+  // Unified popup handler
   const openCreatePopup = (type) => {
-    if (type === 'post') {
-      setIsCreateOpen(true);
-    } else if (type === 'event') {
-      setIsEventOpen(true);
-    }
-    setIsRefresh(true);
-    setCreateType(type);
+    setCreateType(type); // 'post' or 'event'
+    setIsCreateOpen(true);
+    setIsRefresh(!isRefresh);
   };
 
   const closeCreatePopup = () => {
     setIsCreateOpen(false);
-    setIsEventOpen(false);
-    setIsRefresh(false);
     setCreateType(null);
+    setIsRefresh(!isRefresh);
   };
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -69,55 +64,54 @@ export default function HomePage() {
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deletePostID, setDeletePostID] = useState(0);
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
 
   const today_formatted = format(new Date(), "MMMM d, yyyy");
 
   return (
     <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
+      {/* Pass the type to openCreatePopup */}
       <Header openCreatePopup={openCreatePopup} />
 
       <div className="homepage-time">
         <p>{today_formatted}</p>
       </div>
       <div className="homepage-title">
-  <div className="tab-buttons">
-    <Link to="/homepage">
-      <button 
-        className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
-        onClick={() => setSelectedTab('post')}
-      >
-        Artwork Posts
-      </button>
-    </Link>
-
-    <Link to="/event">
-      <button 
-        className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
-        onClick={() => setSelectedTab('event')}
-      >
-        Event
-      </button>
-    </Link>
-  </div>
-</div>
-
+        <div className="tab-buttons">
+          <Link to="/homepage">
+            <button
+              className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
+              onClick={() => setSelectedTab('post')}
+            >
+              Artwork Posts
+            </button>
+          </Link>
+          <Link to="/event">
+            <button
+              className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+              onClick={() => setSelectedTab('event')}
+            >
+              Event
+            </button>
+          </Link>
+        </div>
+      </div>
 
       <ArtistPost
         refetch={isRefresh}
@@ -127,13 +121,14 @@ export default function HomePage() {
         scrollableTarget="scrollableDiv"
       />
 
-      {/* callComponent */}
-      {isCreateOpen && (
+      {/* Unified create popup */}
+      {isCreateOpen && createType === 'post' && (
         <CreatePostComponent closeCreatePopup={closeCreatePopup} />
       )}
-      {isEventOpen && (
+      {isCreateOpen && createType === 'event' && (
         <CreateEventComponent closeEventPopup={closeCreatePopup} />
       )}
+
       {isUpdateOpen && (
         <UpdatePostComponent
           closeUpdatePopup={closeUpdatePopup}

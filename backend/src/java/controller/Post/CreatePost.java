@@ -53,7 +53,7 @@ public class CreatePost extends HttpServlet {
                     Map<String, Object> uploadResult = cloudinary.uploader().upload(
                             fileBytes, ObjectUtils.asMap("resource_type", "image"));
 
-                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), "", null));
+                    imageUrl.add(new Media(0, uploadResult.get("secure_url").toString(), ""));
 
                 } catch (Exception e) {
                     JsonUtil.writeJsonError(response, "Upload error: " + e.getMessage());
