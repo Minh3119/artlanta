@@ -129,6 +129,27 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                .playlist{
+                    appearance: none;
+                    font-size: 80%;
+                    border: none;
+                    border-radius: 8px;
+                    background-color: white;
+                    color: black;
+                    box-shadow: var(--shadow);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.3s ease;
+                    margin-top: 2px;
+                    padding: 5px;
+                }
+                .playlist:hover{
+                    box-shadow: 0 4px 10px rgb(255, 2, 2);
+                }
+                .playlist:focus{
+                    outline: none;
+                    box-shadow: 0 0 0 2px black;
+                }
                 .track-title{
                     font-size: 60%;
                     width: 80%;
