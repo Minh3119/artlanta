@@ -15,7 +15,7 @@ function AddStaffForm() {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:9999/backend/api/register?role=STAFF', {
+      const res = await fetch('http://localhost:9999/backend/api/register?role=MODERATOR', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

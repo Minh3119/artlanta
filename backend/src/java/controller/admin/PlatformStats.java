@@ -100,6 +100,8 @@ public class PlatformStats extends HttpServlet {
 		jsonResponse.put("mostUserCreDay", udao.getMostUserCreatedDate());
 		jsonResponse.put("response", jsonUsers);
 		jsonResponse.put("total_user", udao.countUsers());
+		jsonResponse.put("total_BUser", udao.countBannedUsers());
+		jsonResponse.put("total_Mod", udao.countMod());
 		JsonUtil.writeJsonResponse(response, jsonResponse);
 
 		udao.closeConnection();

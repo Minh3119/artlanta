@@ -9,7 +9,7 @@ import widget from '../../assets/images/widget.svg';
 
 const menuItems = [
   { imgIcon: Dashboard, label: 'Dashboard', badge: '+4' },
-  { imgIcon: widget, iconClass: 'fas fa-th', label: 'Widgets' },
+  { imgIcon: widget, iconClass: 'fas fa-th', label: 'Data Reader Widgets' },
   'section',
   { section: 'EXAMPLES' },
   { iconClass: 'fas fa-copy', label: 'Layout Options', badge: '6', badgeClass: 'info', arrowIcon: more },

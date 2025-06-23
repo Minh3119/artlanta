@@ -16,6 +16,10 @@
         <servlet-name>ReportPost</servlet-name>
         <servlet-class>controller.report.ReportPost</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SavePost</servlet-name>
+        <servlet-class>controller.Post.SavePost</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>NotificationServlet</servlet-name>
         <url-pattern>/NotificationServlet</url-pattern>
@@ -31,6 +35,10 @@
     <servlet-mapping>
         <servlet-name>ReportPost</servlet-name>
         <url-pattern>/api/post/report</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SavePost</servlet-name>
+        <url-pattern>/api/post/save</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

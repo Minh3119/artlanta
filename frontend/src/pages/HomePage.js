@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
+import SavePost from "../components/HomePage/SavePost";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
@@ -77,7 +78,7 @@ export default function HomePage() {
   return (
     <div  className="homepage-container" id="scrollableDiv"
  style={{
-    overflow: "auto",  
+    overflowX: "hidden",  
   }}>
       <Header openCreatePopup={openCreatePopup} />
 

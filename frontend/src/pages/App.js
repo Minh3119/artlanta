@@ -48,7 +48,6 @@ function App() {
           <Route path="/passforget" element={<PassForget />} />
           <Route path="/post" element={<PostListPage />} />
           <Route path="/post/:postID" element={<PostDetail/>} />
-
           <Route path="/messages" element={<MessagesPage/>} />
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/payment" element={<Payment />}></Route>

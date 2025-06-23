@@ -4,8 +4,10 @@ import Navbar from '../components/AdminDashboard/Navbar';
 import Dashboard from '../components/AdminDashboard/Dashboard';
 import ArtistPost from "../components/HomePage/ArtistPost";
 import ReportForm from "../components/HomePage/ReportForm";
+import JsonHero from "../components/AdminDashboard/JsonHero";
 import "../styles/AdminDashboard.css";
 import '../styles/ContentDashboard_P1.css'; 
+
 
 const Layout = () => {
   const [activeMenu, setActiveMenu] = useState('Dashboard');
@@ -14,8 +16,8 @@ const Layout = () => {
     switch (activeMenu) {
       case 'Dashboard':
         return <Dashboard />;
-      case 'Widgets':
-        return <ReportForm />;
+      case 'Data Reader Widgets':
+        return <JsonHero />;
       default:
         return <div>Trang không tồn tại</div>;
     }

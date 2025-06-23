@@ -395,7 +395,31 @@ public class UserDAO extends DBContext {
 		}
 		return 0;
 	}
-
+	
+	public int countBannedUsers() {
+		String sql = "SELECT COUNT(ID) FROM users WHERE Status='BANNED'";
+		try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public int countMod() {
+		String sql = "SELECT COUNT(ID) FROM users WHERE Role='Moderator'";
+		try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 	public boolean toggleUserStatus(int userId) {
 		String getStatusSql = "SELECT Status FROM Users WHERE ID = ?";
 		String updateStatusSql = "UPDATE Users SET Status = ? WHERE ID = ?";
