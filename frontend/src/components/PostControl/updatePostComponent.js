@@ -8,7 +8,7 @@ class UpdatePostComponent extends React.Component {
         postID: 0,
         // title: '',
         content: '',
-        idListDelete: [],
+        idListDelete: [0],
         idListAdd: [],
         file: [],
         filePreview: [],
