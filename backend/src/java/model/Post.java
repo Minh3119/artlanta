@@ -14,7 +14,8 @@ public class Post {
     private boolean isFlagged;
     private String userName;
 
-    public Post(String content, String visibility, LocalDateTime createdAt, String userName) {
+    public Post(int ID,String content, String visibility, LocalDateTime createdAt, String userName) {
+        this.ID=ID;
         this.content = content;
         this.visibility = visibility;
         this.createdAt = createdAt;
@@ -64,4 +65,9 @@ public class Post {
     public boolean isFlagged() {
         return isFlagged;
     }
+
+    public String getUserName() {
+        return userName;
+    }
+    
 }

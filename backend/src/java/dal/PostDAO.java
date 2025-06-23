@@ -424,12 +424,20 @@ public class PostDAO extends DBContext {
             String sql="""
                        SELECT Posts.ID, posts.Content,posts.CreatedAt,posts.Visibility, Users.Username 
                        FROM Posts
-                       JOIN Users ON Posts.UserID = Users.ID;
+                       JOIN Users ON Posts.UserID = Users.ID
                        WHERE Posts.Content LIKE CONCAT('%', ?, '%')
                           OR Users.Username LIKE CONCAT('%', ?, '%');
                        """;
             try{
                 PreparedStatement st= connection.prepareStatement(sql);
+                st.setString(1, searchValue);
+                st.setString(2, searchValue);
+                ResultSet rs= st.executeQuery();
+                while(rs.next()){
+                    list.add(new Post(rs.getInt("ID"),rs.getString("Content"),rs.getString("Visibility"),rs.getTimestamp("CreatedAt").toLocalDateTime(),rs.getString("Username")));
+                }
+                st.close();
+                
                 
             }
             catch(SQLException e){

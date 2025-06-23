@@ -1,6 +1,7 @@
 import React from "react";
 import search from "../../assets/images/search.svg";
 import '../../styles/searchbar.scss';
+import { toast } from 'react-toastify';
 class SearchBarComponent extends React.Component {
     state = {
         searchValue: "",
@@ -14,17 +15,45 @@ class SearchBarComponent extends React.Component {
         }]
     }
     handleOnChangeSearch = async (e) => {
-        this.setState({
-            searchValue: e.target.value,
-            isSearching: true,
-        });
-        fetch(`http://localhost:9999/backend/api/search/post`, {
-            method: "GET",
+        const newContent = e.target.value;
+        if (newContent === "") {
+            this.setState({
+                searchValue: e.target.value,
+                isSearching: false,
+            })
+            return
+        }
+
+        newContent.length <= 750 ?
+            (
+                this.setState({
+                    searchValue: newContent,
+                    isSearching: true
+                })
+            )
+            :
+            (
+                toast.error('Search value too long!', {
+                    toastId: "fullname-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                })
+            )
+
+        await fetch(`http://localhost:9999/backend/api/search/post`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                searchValue: this.state.searchValue
+                searchValue: e.target.value
             }),
             credentials: 'include'
         })
@@ -34,7 +63,7 @@ class SearchBarComponent extends React.Component {
             })
             .then(async data => {
                 this.setState({
-                    listPlaylist: data.response,
+                    postList: data.response,
                 });
             })
             .catch(error => {
@@ -58,11 +87,13 @@ class SearchBarComponent extends React.Component {
                             this.state.postList.map((item, index) => {
                                 return (
                                     <a className="search-item" key={item.postID} href={`/post/${item.postID}`}>
-                                        <img className="item-img"
-                                            src={item.mediaURL} />
+                                        <div className="item-img">
+                                            <img
+                                                src={item.image} />
+                                        </div>
                                         <p className="item-content">{item.content}</p>
                                         <p className="item-author">{item.author}</p>
-                                        <p className="item-date">{item.date}</p>
+                                        <p className="item-date">{item.createAt}</p>
                                     </a>
                                 )
                             })
