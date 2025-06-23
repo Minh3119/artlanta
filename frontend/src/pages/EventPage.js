@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
@@ -52,13 +52,13 @@ export default function EventPage() {
       const response = await fetch('http://localhost:9999/backend/api/events', {
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
 
       const data = await response.json();
-      
+
       if (data.error) {
         throw new Error(data.error);
       }
@@ -74,7 +74,7 @@ export default function EventPage() {
           posts: postsData.posts || []
         };
       }));
-      
+
       setEvents(eventsWithPosts);
       setLoading(false);
     } catch (error) {
@@ -108,6 +108,108 @@ export default function EventPage() {
     });
   };
 
+  // Add handlers for follow and join
+  const handleFollow = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/event/follow`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ eventId })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Followed event!');
+        fetchEvents();
+      } else {
+        toast.error(data.error || 'Failed to follow event');
+      }
+    } catch (error) {
+      toast.error('Failed to follow event');
+    }
+  };
+
+  const handleJoin = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/event/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ eventId })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Joined event!');
+        fetchEvents();
+      } else {
+        toast.error(data.error || 'Failed to join event');
+      }
+    } catch (error) {
+      toast.error('Failed to join event');
+    }
+  };
+
+  // Helper to get current user's status for an event
+  const getUserEventStatus = (event) => {
+    if (!event.followers) return null;
+    const follower = event.followers.find(f => f.userId === currentID);
+    return follower ? follower.status : null;
+  };
+
+  // Unfollow and Unjoin handlers
+  const handleUnfollow = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success !== false) {
+        toast.success('Unfollowed event!');
+        fetchEvents();
+      } else {
+        toast.error(data.error || 'Failed to unfollow event');
+      }
+    } catch (error) {
+      toast.error('Failed to unfollow event');
+    }
+  };
+  const handleUnjoin = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/event/join?eventId=${eventId}&userId=${currentID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.success !== false) {
+        toast.success('Unjoined event!');
+        fetchEvents();
+      } else {
+        toast.error(data.error || 'Failed to unjoin event');
+      }
+    } catch (error) {
+      toast.error('Failed to unjoin event');
+    }
+  };
+
+  // Add handler for not interested
+  const handleNotInterested = async (eventId) => {
+    try {
+      // Unfollow/unjoin by deleting any status
+      await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      await fetch(`http://localhost:9999/backend/api/event/join?eventId=${eventId}&userId=${currentID}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      fetchEvents();
+    } catch (error) {
+      toast.error('Failed to update event status');
+    }
+  };
+
   return (
     <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
       <Header openCreatePopup={openCreatePopup} />
@@ -115,7 +217,7 @@ export default function EventPage() {
       <div className="homepage-time">
         <p>{today_formatted}</p>
       </div>
-      
+
       <div className="homepage-title">
         <div className="tab-buttons">
           <Link to="/homepage">
@@ -157,10 +259,10 @@ export default function EventPage() {
                 {event.imageUrl && (
                   <img src={event.imageUrl} alt={event.title} className="event-cover-image" />
                 )}
-      </div>
-              
+              </div>
+
               <p className="event-description">{event.description}</p>
-              
+
               {event.posts && event.posts.length > 0 && (
                 <div className="event-posts">
                   <h3>Related Posts</h3>
@@ -178,16 +280,60 @@ export default function EventPage() {
                   </div>
                 </div>
               )}
-              
+
               <div className="event-footer">
                 <div className="event-stats">
-                  <span>{event.interestedCount || 0} interested</span>
-                  <span>{event.goingCount || 0} going</span>
+                  <span>{event.interestedCount || 0} following</span>
+                  <span>{event.goingCount || 0} join</span>
                 </div>
-                <div className="event-actions">
-                  <button className="btn-interested">Interested</button>
-                  <button className="btn-going">Going</button>
+                <div className="event-actions-dropdown">
+                  {(() => {
+                    const status = getUserEventStatus(event);
+                    let dropTitle = "Not interested";
+                    if (status === "interested") dropTitle = "Following";
+                    else if (status === "going") dropTitle = "Joining";
+                    return (
+                      <details className="dropdown">
+                        <summary className="dropdown-button">
+                          {dropTitle}
+                          <span className="dropdown-arrow" aria-hidden="true" style={{marginLeft: 12, fontSize: 18, display: 'inline-block', transition: 'transform 0.2s'}}>
+                            ▼
+                          </span>
+                        </summary>
+                        <div className="dropdown-content animated-dropdown">
+                          <label className="dropdown-option">
+                            <input
+                              type="radio"
+                              name={`action-${event.eventId}`}
+                              checked={status === null}
+                              onChange={() => handleNotInterested(event.eventId)}
+                            />
+                            Not interested
+                          </label>
+                          <label className="dropdown-option">
+                            <input
+                              type="radio"
+                              name={`action-${event.eventId}`}
+                              checked={status === "interested"}
+                              onChange={() => handleFollow(event.eventId)}
+                            />
+                            Follow
+                          </label>
+                          <label className="dropdown-option">
+                            <input
+                              type="radio"
+                              name={`action-${event.eventId}`}
+                              checked={status === "going"}
+                              onChange={() => handleJoin(event.eventId)}
+                            />
+                            Join
+                          </label>
+                        </div>
+                      </details>
+                    );
+                  })()}
                 </div>
+
               </div>
             </div>
           ))}
@@ -197,7 +343,7 @@ export default function EventPage() {
       {isEventOpen && (
         <CreateEventComponent closeEventPopup={closeCreatePopup} />
       )}
-      
+
       <ToastContainer />
     </div>
   );

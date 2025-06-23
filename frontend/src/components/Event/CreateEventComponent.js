@@ -405,30 +405,6 @@ export default function CreateEventComponent({ closeEventPopup }) {
               {isUploading && <div className="upload-loading">Uploading...</div>}
             </div>
           </div>
-          {/* Related Posts Selection */}
-          <div className="form-group">
-            <label>Related Posts</label>
-            <div className="posts-selection">
-              {userPosts.map(post => (
-                <div key={post.postID} className="post-selection-item">
-                  <input
-                    type="checkbox"
-                    id={`post-${post.postID}`}
-                    checked={selectedPosts.includes(post.postID)}
-                    onChange={() => handlePostSelection(post.postID)}
-                  />
-                  <label htmlFor={`post-${post.postID}`}>
-                    <div className="post-preview">
-                      <p className="post-content">{post.content.substring(0, 100)}...</p>
-                      {post.mediaURL && post.mediaURL[0] && (
-                        <img src={post.mediaURL[0]} alt="Post preview" className="post-thumbnail" />
-                      )}
-                    </div>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
           {/* Form action buttons */}
           <div className="form-actions">
             <button type="submit" className="create-button" disabled={isUploading}>

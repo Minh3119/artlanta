@@ -14,23 +14,18 @@ import util.JsonUtil;
 import util.SessionUtil;
 
 /**
- * Servlet handling event follow/unfollow operations
- * Endpoint: /api/events/follow
- * Methods: POST (follow), DELETE (unfollow)
+ * Servlet handling event join operations
+ * Endpoint: /api/event/join
+ * Method: POST (join event)
  * 
  * POST Request body should be JSON with:
  * - eventId: number (required)
  * - userId: number (required)
- * - status: string (required) - one of: "interested", "going", "not_going"
  * 
- * DELETE Request parameters:
- * - eventId: number (required)
- * - userId: number (required)
- * 
- * Both methods return the updated event object with current follower statistics
+ * This method returns the updated event object with current participant statistics
  */
-@WebServlet(name = "EventFollowServlet", urlPatterns = {"/api/event/follow"})
-public class EventFollowServlet extends HttpServlet {
+@WebServlet(name = "EventJoinServlet", urlPatterns = {"/api/event/join"})
+public class EventJoinServlet extends HttpServlet {
     // Dependencies
     private final EventDAO eventDAO;
     private final Gson gson;
@@ -38,18 +33,18 @@ public class EventFollowServlet extends HttpServlet {
     /**
      * Constructor - initializes dependencies
      */
-    public EventFollowServlet() {
+    public EventJoinServlet() {
         this.eventDAO = new EventDAO();
         this.gson = JsonUtil.getGson();
     }
     
     /**
-     * Handles POST requests for following an event or updating follow status
+     * Handles POST requests for joining an event
      * 
      * Steps:
-     * 1. Parses request body for event ID, user ID, and status
-     * 2. Updates follow status in database
-     * 3. Returns updated event data with new follower statistics
+     * 1. Parses request body for event ID and user ID
+     * 2. Updates participant status in database
+     * 3. Returns updated event data with new participant statistics
      * 
      * @param request The HTTP request
      * @param response The HTTP response
@@ -59,10 +54,11 @@ public class EventFollowServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String status = "interested";
+        String status = "going";
         try {
             JsonObject body = gson.fromJson(request.getReader(), JsonObject.class);
             int eventId = body.get("eventId").getAsInt();
+            // Get userId from session or authentication (adjust as needed)
             Integer userId = SessionUtil.getUserId(request);
             if (userId == null && body.has("userId")) {
                 userId = body.get("userId").getAsInt();
@@ -91,12 +87,12 @@ public class EventFollowServlet extends HttpServlet {
     }
     
     /**
-     * Handles DELETE requests for unfollowing an event
+     * Handles DELETE requests for leaving an event
      * 
      * Steps:
      * 1. Gets event ID and user ID from query parameters
-     * 2. Removes follow status from database
-     * 3. Returns updated event data with new follower statistics
+     * 2. Removes participant status from database
+     * 3. Returns updated event data with new participant statistics
      * 
      * @param request The HTTP request
      * @param response The HTTP response
@@ -111,18 +107,18 @@ public class EventFollowServlet extends HttpServlet {
             int eventId = Integer.parseInt(request.getParameter("eventId"));
             int userId = Integer.parseInt(request.getParameter("userId"));
             
-            // Remove follow status
+            // Remove participant status
             boolean success = eventDAO.unfollowEvent(eventId, userId);
             
             // Send response
             if (success) {
-                // Get updated event data with new follower counts
+                // Get updated event data with new participant counts
                 Event event = eventDAO.getEventWithFollowers(eventId);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(gson.toJson(event));
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"error\": \"Failed to unfollow event\"}");
+                response.getWriter().write("{\"error\": \"Failed to leave event\"}");
             }
             
         } catch (Exception e) {
