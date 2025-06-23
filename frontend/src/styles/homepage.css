@@ -729,3 +729,51 @@ a {
     height: 250px;
   }
 }
+.sign-button {
+  padding: 6px 12px;
+  border-radius: 15px;
+}
+
+.sign-button.in {
+  background-color: #6C7A9C;
+}
+
+.sign-button.up {
+  background-color: #008dd4;
+}
+
+.sign-button p {
+  text-wrap: nowrap;
+  color: white;
+}
+
+.header-more {
+  position: relative;
+}
+
+.header-drowdown__container {
+  display: none;
+
+  position: absolute;
+  top: 200%;
+  left: -200%;
+  background-color: #e6eefa;
+}
+
+.header-drowdown__container.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 10px 20px;
+  width: auto;
+}
+
+.header-drowdown__container p {
+  text-wrap: nowrap;
+}
+
+.header-dropdown__item p {
+  margin-bottom: 0;
+}

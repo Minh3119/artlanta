@@ -2,6 +2,7 @@ package controller.Post;
 
 import dal.LikesDAO;
 import dal.PostDAO;
+import dal.SaveDAO;
 import dal.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -50,32 +51,32 @@ public class PostViewerServlet extends HttpServlet {
 	private void getAllPosts(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		int offset = 0;
 		int limit = 0;
-		boolean includeFriends = Boolean.parseBoolean(request.getParameter("includeFriends"));
-		
+
 		try {
 			String offsetParam = request.getParameter("offset");
 			String limitParam = request.getParameter("limit");
-			if (offsetParam != null) offset = Integer.parseInt(offsetParam);
-			if (limitParam != null) limit = Integer.parseInt(limitParam);
+			if (offsetParam != null) {
+				offset = Integer.parseInt(offsetParam);
+			}
+			if (limitParam != null) {
+				limit = Integer.parseInt(limitParam);
+			}
 		} catch (NumberFormatException e) {
 			offset = 0;
+			limit = 0;
 		}
-		
+
 		PostDAO pdao = new PostDAO();
 		UserDAO udao = new UserDAO();
 		LikesDAO ldao = new LikesDAO();
-		
+		SaveDAO sdao = new SaveDAO();
+
+		List<Post> posts = pdao.getAllPosts(limit, offset);
+		JSONArray jsonPosts = new JSONArray();
+
 		HttpSession session = request.getSession(false);
 		Integer currentUserId = getCurrentUserId(session);
-		
-		List<Post> posts;
-		if (includeFriends && currentUserId != null) {
-			posts = pdao.getPostsFromFriends(currentUserId);
-		} else {
-			posts = pdao.getAllPosts(limit, offset);
-		}
-		
-		JSONArray jsonPosts = new JSONArray();
+		boolean isLogged = currentUserId != null;
 
 		for (Post post : posts) {
 			JSONObject jsonPost = new JSONObject();
@@ -84,7 +85,14 @@ public class PostViewerServlet extends HttpServlet {
 			List<String> mediaUrls = pdao.getImageUrlsByPostId(post.getID());
 			int likeCount = pdao.getLikeCount(post.getID());
 			int commentCount = pdao.getCommentCount(post.getID());
-			boolean isLiked = currentUserId != null && ldao.isLiked(currentUserId, post.getID());
+
+			boolean isLiked = false;
+			boolean isSaved = false;
+
+			if (isLogged) {
+				isLiked = ldao.isLiked(currentUserId, post.getID());
+				isSaved = sdao.isSaved(currentUserId, post.getID());
+			}
 
 			jsonPost.put("postID", post.getID());
 			jsonPost.put("mediaURL", mediaUrls);
@@ -101,7 +109,8 @@ public class PostViewerServlet extends HttpServlet {
 			jsonPost.put("likeCount", likeCount);
 			jsonPost.put("commentCount", commentCount);
 			jsonPost.put("isLiked", isLiked);
-			jsonPost.put("isLogged", currentUserId != null);
+			jsonPost.put("isSaved", isSaved);
+			jsonPost.put("isLogged", isLogged);
 
 			jsonPosts.put(jsonPost);
 		}
@@ -113,6 +122,7 @@ public class PostViewerServlet extends HttpServlet {
 		pdao.closeConnection();
 		udao.closeConnection();
 		ldao.closeConnection();
+		sdao.closeConnection();
 	}
 
 	private void getPostDetail(HttpServletRequest request, HttpServletResponse response, int postID) throws IOException {
