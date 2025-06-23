@@ -9,6 +9,7 @@ import { messagesResponseSchema } from '../schemas/messaging';
 import imageCompression from 'browser-image-compression';
 import SearchBar from '../components/Messages/SearchBar';
 import ConversationTypeSelector from '../components/Messages/ConversationTypeSelector';
+import Header from '../components/HomePage/Header';
 
 // Utility function to sort conversations by latest message timestamp (newest first)
 const sortConversationsByLatestMessage = (conversations) => {
@@ -37,7 +38,8 @@ const sortConversationsByLatestMessage = (conversations) => {
 
 const MessagesPage = () => {
   const ws = useRef(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   const [conversations, setConversations] = useState({
     chat: [],
     pending: [],
@@ -48,8 +50,12 @@ const MessagesPage = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
 
   const handleConversationSelect = useCallback((conversation) => {
+    // Update the URL with the new conversation ID
+    const newSearchParams = new URLSearchParams();
+    newSearchParams.set('conversationId', conversation.id);
+    setSearchParams(newSearchParams);
     setSelectedConversation(conversation);
-  }, []);
+  }, [setSearchParams]);
 
   const fetchConversations = async (type) => {
     setLoadingConversations(true);
@@ -447,104 +453,108 @@ const MessagesPage = () => {
 
 
   return (
-    <div className="flex h-screen overflow-hidden font-sans bg-gray-50 p-4 gap-4">
-      {/* Sidebar */}
-      <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 flex-shrink-0">
-          <h1 className="mb-4 text-xl font-semibold text-gray-800">Messages</h1>
-          {/* Search Bar Component */}
-          <SearchBar 
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            placeholder="Search conversations..."
-            />
-          {/* Conversation Type Selector Component */}
-          <ConversationTypeSelector
-            activeType={activeTab}
-            onTypeChange={setActiveTab}
-            isOpen={isDropdownOpen}
-            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-            getCount={getConversationCount}
-          />
-        </div>
-        {/* Conversations List */}
-        <div className="flex-1 overflow-y-auto">
-          <ConversationsList
-            conversations={getCurrentConversations()}
-            type={activeTab}
-            loading={loadingConversations}
-            error={conversationsError}
-            selectedConversation={selectedConversation}
-            onSelectConversation={handleConversationSelect}
-            searchQuery={searchQuery}
-            onAccept={handleAcceptRequest}
-            onDecline={handleDeclineRequest}
-            onArchive={handleArchiveConversation}
-            onUnarchive={handleUnarchiveConversation}
-            />
-        </div>
-      </div>  {/* End of Sidebar */}
-
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
-        {selectedConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-none flex-shrink-0">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
-                  {selectedConversation.user?.avatarURL && (
-                    <img 
-                      src={selectedConversation.user.avatarURL} 
-                      alt={selectedConversation.user.fullName}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div>
-                  <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
-                  <p className="text-xs text-gray-500">
-                    {selectedConversation.user?.role || ''}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages List */}
-            <div className="flex-1 overflow-hidden">
-              <MessagesList 
-                conversationId={selectedConversation?.id} 
-                currentUserId={currentUserId}
-                messages={messages}
-                loading={messagesLoading}
-                error={messagesError}
-                onUnsend={handleUnsendMessage}
-                // onReport={handleReportMessage}
+    <div className="flex flex-col h-screen bg-gray-50">
+      <Header />
+      <div className="pt-14 flex-1 overflow-hidden flex flex-col">
+        <div className="pb-2 px-2 pt-4 flex-1 flex gap-4 overflow-hidden">
+          {/* Sidebar */}
+          <div className="w-1/4 h-full bg-white rounded-lg shadow-sm flex flex-col border border-gray-200">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 flex-shrink-0">
+              <h1 className="mb-4 text-xl font-semibold text-gray-800">Messages</h1>
+              {/* Search Bar Component */}
+              <SearchBar 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                placeholder="Search conversations..."
+              />
+              {/* Conversation Type Selector Component */}
+              <ConversationTypeSelector
+                activeType={activeTab}
+                onTypeChange={setActiveTab}
+                isOpen={isDropdownOpen}
+                onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+                getCount={getConversationCount}
               />
             </div>
-
-            {/* Message Input */}
-            <MessageInput onSend={handleSendMessage} isSending={isUploading} />
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center p-6 max-w-md">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">No conversation selected</h3>
-              <p className="text-gray-500">Select a conversation or start a new one</p>
+            {/* Conversations List */}
+            <div className="flex-1 overflow-y-auto">
+              <ConversationsList
+                conversations={getCurrentConversations()}
+                type={activeTab}
+                loading={loadingConversations}
+                error={conversationsError}
+                selectedConversation={selectedConversation}
+                onSelectConversation={handleConversationSelect}
+                searchQuery={searchQuery}
+                onAccept={handleAcceptRequest}
+                onDecline={handleDeclineRequest}
+                onArchive={handleArchiveConversation}
+                onUnarchive={handleUnarchiveConversation}
+              />
             </div>
-          </div>
-        )}
-      </div>  {/* End of Main Chat Area */}
+          </div>  {/* End of Sidebar */}
 
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
+                      {selectedConversation.user?.avatarURL && (
+                        <img 
+                          src={selectedConversation.user.avatarURL} 
+                          alt={selectedConversation.user.fullName}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
+                      <p className="text-xs text-gray-500">
+                        {selectedConversation.user?.role || ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Messages List */}
+                <div className="flex-1 overflow-auto">
+                  <MessagesList 
+                    conversationId={selectedConversation?.id} 
+                    currentUserId={currentUserId}
+                    messages={messages}
+                    loading={messagesLoading}
+                    error={messagesError}
+                    onUnsend={handleUnsendMessage}
+                    // onReport={handleReportMessage}
+                  />
+                </div>
+
+                {/* Message Input */}
+                <MessageInput onSend={handleSendMessage} isSending={isUploading} />
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-gray-50">
+                <div className="text-center p-6 max-w-md">
+                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No conversation selected</h3>
+                  <p className="text-gray-500">Select a conversation or start a new one</p>
+                </div>
+              </div>
+            )}
+          </div>  {/* End of Main Chat Area */}
+        </div>  {/* End of content container */}
+      </div>  {/* End of main container */}
     </div>
   );
 };
+
 
 export default MessagesPage;

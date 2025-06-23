@@ -179,23 +179,55 @@ public class MessagingService {
      * Get or create a conversation between two users
      * @param user1Id First user ID
      * @param user2Id Second user ID
-     * @return The conversation ID
+     * @return The conversation ID, or -1 if there was an error
      */
     public int getOrCreateConversation(int user1Id, int user2Id) {
+        if (user1Id == user2Id) {
+            return -1; // Cannot create a conversation with oneself
+        }
+        
         ConversationDAO conversationDAO = new ConversationDAO();
+        UserConversationDAO userConversationDAO = new UserConversationDAO();
+        
         try {
             // Check if conversation already exists
             Conversation existing = conversationDAO.getConversationBetweenUsers(user1Id, user2Id);
             if (existing != null) {
-                int id = existing.getId();
-                conversationDAO.closeConnection();
-                return id;
+                return existing.getId();
             }
+            
             // Create new conversation
-            return conversationDAO.createConversation(user1Id, user2Id);
+            int conversationId = conversationDAO.createConversation(user1Id, user2Id);
+            if (conversationId == -1) {
+                return -1; // Failed to create conversation
+            }
+            
+            // Create user conversation entries for both participants
+            boolean success = userConversationDAO.updateConversationType(user1Id, conversationId, 
+                    UserConversation.ConversationType.CHAT);
+            
+            if (success) {
+                success = userConversationDAO.updateConversationType(user2Id, conversationId, 
+                        UserConversation.ConversationType.CHAT);
+            }
+            
+            if (!success) {
+                // If we failed to create user conversation entries, clean up the conversation
+                // Note: In a real application, you might want to implement proper transaction handling
+                conversationDAO.delete(conversationId);
+                return -1;
+            }
+            
+            return conversationId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
         } finally {
             if (conversationDAO != null) {
                 conversationDAO.closeConnection();
+            }
+            if (userConversationDAO != null) {
+                userConversationDAO.closeConnection();
             }
         }
     }
