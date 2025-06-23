@@ -1,0 +1,47 @@
+.header-search{
+    .header-search-input{
+
+    }
+    .search-list{
+        max-height: 500px;
+        overflow-y: auto;
+        border: 2px solid orange;
+        margin-top: 2px;
+        .search-item{
+            background-color: rgba(230, 221, 221, 0.923);
+            display: flex;
+            text-decoration: none;
+            transition: background-color 0.5s ease;
+            border: 0.5px solid whitesmoke;
+
+            .item-img{
+                width: 20%;
+                padding: 10px;
+                img{
+                    max-width: 100px;
+                }
+                
+            }
+            .item-content{
+                width: 50%;
+                padding-top: 10px;
+                padding-left: 20px;
+            }
+            .item-author{
+                width: 10%;
+                padding-top: 10px;
+                text-align: center;
+            }
+            .item-date{
+                width: 20%;
+                padding-top: 10px;
+                padding-right: 10px;
+                text-align: right;
+            }
+        }
+        .search-item:hover{
+            background-color: aqua;
+        }
+    }
+
+}
