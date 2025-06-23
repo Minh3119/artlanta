@@ -50,13 +50,13 @@ export default function HomePage() {
   const openCreatePopup = (type) => {
     setCreateType(type); // 'post' or 'event'
     setIsCreateOpen(true);
-    setIsRefresh(!isRefresh);
+    // REMOVE setIsRefresh(!isRefresh);
   };
 
-  const closeCreatePopup = () => {
+  const closeCreatePopup = (shouldRefresh = false) => {
     setIsCreateOpen(false);
     setCreateType(null);
-    setIsRefresh(!isRefresh);
+    if (shouldRefresh) setIsRefresh((prev) => !prev);
   };
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -64,22 +64,22 @@ export default function HomePage() {
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    setIsRefresh(!isRefresh);
+    // REMOVE setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
-    setIsRefresh(!isRefresh);
+    setIsRefresh(!isRefresh); // Keep this to refresh after closing // Keep this to refresh after closing
   };
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deletePostID, setDeletePostID] = useState(0);
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    setIsRefresh(!isRefresh);
+    // REMOVE setIsRefresh(!isRefresh);sRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
-    setIsRefresh(!isRefresh);
+    setIsRefresh(!isRefresh); // Keep this to refresh after closing // Keep this to refresh after closing
   };
 
   const today_formatted = format(new Date(), "MMMM d, yyyy");
