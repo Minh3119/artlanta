@@ -61,6 +61,79 @@ public class ConversationServlet extends HttpServlet {
                                  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * Handles POST /api/conversations to create (or fetch existing) conversation between
+     * the current authenticated user and the specified recipient. The request can pass
+     * the recipient ID via form-urlencoded parameter `recipientId` or JSON body.
+     * Responds with JSON { success: true, conversationId }
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        try {
+            // Validate session and get current user
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                JsonUtil.writeJsonError(response, "Not authenticated", HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            Integer currentUserId = SessionUtil.getCurrentUserId(session);
+            if (currentUserId == null) {
+                JsonUtil.writeJsonError(response, "User not found in session", HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+
+            // Extract recipientId from request
+            String recipientStr = request.getParameter("recipientId");
+            if (recipientStr == null || recipientStr.isEmpty()) {
+                // Try JSON body
+                JSONObject bodyJson = JsonUtil.parseRequestBody(request);
+                if (bodyJson != null && bodyJson.has("recipientId")) {
+                    recipientStr = bodyJson.get("recipientId").toString();
+                }
+            }
+
+            if (recipientStr == null || recipientStr.isEmpty()) {
+                JsonUtil.writeJsonError(response, "Recipient ID is required", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            int recipientId;
+            try {
+                recipientId = Integer.parseInt(recipientStr);
+            } catch (NumberFormatException ex) {
+                JsonUtil.writeJsonError(response, "Invalid recipient ID", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            if (recipientId == currentUserId) {
+                JsonUtil.writeJsonError(response, "Cannot create conversation with yourself", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            // Create or get conversation
+            int conversationId = messagingService.getOrCreateConversation(currentUserId, recipientId);
+            if (conversationId <= 0) {
+                JsonUtil.writeJsonError(response, "Failed to create conversation", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return;
+            }
+
+            // Build success response
+            JSONObject resJson = new JSONObject();
+            resJson.put("success", true);
+            resJson.put("conversationId", conversationId);
+            JsonUtil.writeJsonResponse(response, resJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JsonUtil.writeJsonError(response, "An error occurred while creating conversation: " + e.getMessage(),
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

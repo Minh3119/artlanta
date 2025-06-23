@@ -58,7 +58,7 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error,
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <ScrollToBottom className="flex-1 p-4 overflow-y-auto relative">
+      <ScrollToBottom className="flex-1 p-4 overflow-y-auto overflow-x-hidden relative">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="bg-gray-100 p-4 rounded-full mb-4">

@@ -671,7 +671,7 @@ INSERT INTO PostMedia (PostID, MediaID) VALUES
 (14,18);
 
 USE ARTLANTA;
-SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID  
+SELECT * FROM Users u LEFT JOIN Posts p on u.ID=p.UserID ;
 
 
 -- SAMPLE DATA FOR MESSAGING --
