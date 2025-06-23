@@ -1,7 +1,7 @@
 .floating-icon {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  left: 20px;
   background-color: #007bff;
   color: white;
   width: 50px;
@@ -31,9 +31,9 @@
 .music-container{
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 20px;
     display: flex;
-    justify-content: right;
+    justify-content: left;
     z-index: 999999;
     height: 300px;
     width: 450px;
@@ -69,6 +69,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
             div:hover{
                 cursor: pointer;
@@ -76,6 +78,7 @@
             }
         }
         .mp3-control{
+            width: 100%;
             overflow-y: scroll;
             scrollbar-width: none;     
             -ms-overflow-style: none;
@@ -95,6 +98,7 @@
             }
         }
         .video-control{
+            width: 100%;
             overflow-y: scroll;
             scrollbar-width: none;     
             -ms-overflow-style: none;
@@ -112,6 +116,112 @@
                     margin-top: 10px;
                 }
             }
+        }
+        .music-control{
+            width: 100%;
+            padding: 10px;
+            overflow-y: scroll;
+            scrollbar-width: none;     
+            -ms-overflow-style: none;
+            padding-bottom: 10px;
+            .playlist-name{
+                width: 100%;
+                display: flex;
+                gap: 10px;
+                padding: 5px;
+                button{
+                        width: 10%;
+                        background-color: transparent;
+                        border: 1px solid transparent;
+                        padding: 5px;
+                        transition: border 0.5s ease;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    button:hover{
+                        border: 1px solid orange;
+                    }
+                    .icon{
+                        color: #1a8acb;
+                    }
+            }
+            .playlist-link{
+                width: 100%;
+                display: flex;
+                gap: 10px;
+                padding: 5px;
+                button{
+                        width: 10%;
+                        background-color: transparent;
+                        border: 1px solid transparent;
+                        padding: 5px;
+                        transition: border 0.5s ease;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    button:hover{
+                        border: 1px solid orange;
+                    }
+                    .icon{
+                        color: #1a8acb;
+                    }
+            }
+            .playlist-list{
+                width: 100%;
+                .playlist-display{
+                    width: 100%;
+                    div{
+                        display: flex;
+                        gap: 5px;
+                        justify-content: left;
+                        align-items: center;
+                        padding: 5px;
+                        width: 100%;
+                    }
+                    p{
+                        font-size: 50%;
+                        margin-block-end: 0;
+
+                    }
+                    .item-name{
+                        word-wrap: break-word;
+                        width: 20%;
+                        text-align: center;
+                    }
+                    .item-link{
+                        word-wrap: break-word;
+                        width: 50%;
+                        padding: 5px;
+                    }
+                    input,textarea{
+                        font-size: 50%;
+                    }
+                    button{
+                        width: 10%;
+                        background-color: transparent;
+                        border: 1px solid transparent;
+                        padding: 5px;
+                        transition: border 0.5s ease;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    button:hover{
+                        border: 1px solid orange;
+                    }
+                    .icon{
+                        color: #1a8acb;
+                    }
+                }
+            }
+        }
+        .mp3-control::-webkit-scrollbar {
+            display: none;
+        }
+        .video-control::-webkit-scrollbar {
+            display: none;
         }
         .music-control::-webkit-scrollbar {
             display: none;

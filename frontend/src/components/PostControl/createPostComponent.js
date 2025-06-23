@@ -130,7 +130,7 @@ class CreatePostComponent extends React.Component {
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
                 toast.error(`File "${file.name}" wrong format (only PNG or JPG)`, {
-                    toastId: "file-type-toast-${file.name}",
+                    toastId: "file-type-toast",
                     position: "top-right",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -197,7 +197,6 @@ class CreatePostComponent extends React.Component {
 
         }
         formData.append("visibility", this.state.visibility);
-        console.log("form: ", formData);
         try {
             this.setState({ isPosting: true });
             const res = await fetch('http://localhost:9999/backend/api/post/create', {
@@ -205,7 +204,6 @@ class CreatePostComponent extends React.Component {
                 body: formData,
                 credentials: 'include'
             });
-            console.log('Response:', res);
             if (res.ok) {
                 this.setState({
                     title: '',
@@ -216,12 +214,34 @@ class CreatePostComponent extends React.Component {
                     // isImage: false,
                     isPosting: false,
                 });
-                toast.success("Create post completed!");
+                toast.success(`completed`, {
+                    toastId: "complete",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                });
 
                 this.props.closeCreatePopup();
 
             } else {
-                toast.error("Create post error, try again later.");
+                toast.error(`Create post error, try again later`, {
+                    toastId: "error",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                });
             }
         }
         catch (er) {

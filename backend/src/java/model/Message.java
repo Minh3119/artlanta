@@ -1,6 +1,6 @@
 package model;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class Message {
     private int id;
@@ -8,14 +8,14 @@ public class Message {
     private int senderId;
     private String content;
     private String mediaUrl;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
     private boolean isDeleted;
-    private LocalDateTime deletedAt;
+    private OffsetDateTime deletedAt;
 
     // Constructors
     public Message() {}
 
-    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, LocalDateTime createdAt, boolean isDeleted, LocalDateTime deletedAt) {
+    public Message(int id, int conversationId, int senderId, String content, String mediaUrl, OffsetDateTime createdAt, boolean isDeleted, OffsetDateTime deletedAt) {
         this.id = id;
         this.conversationId = conversationId;
         this.senderId = senderId;
@@ -37,13 +37,13 @@ public class Message {
     public void setContent(String content) { this.content = content; }
     public String getMediaUrl() { return mediaUrl; }
     public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
     
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }
     
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+    public OffsetDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(OffsetDateTime deletedAt) { this.deletedAt = deletedAt; }
 
 }

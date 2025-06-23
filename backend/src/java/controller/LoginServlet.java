@@ -15,11 +15,11 @@ import util.SessionUtil;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/api/login"})
 public class LoginServlet extends HttpServlet {
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         setCORSHeaders(response);
-        
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
@@ -35,6 +35,9 @@ public class LoginServlet extends HttpServlet {
         if (user == null) {
             jsonResponse.put("success", false);
             jsonResponse.put("message", "Sai tài khoản hoặc mật khẩu");
+        } else if ("BANNED".equalsIgnoreCase(user.getStatus())) {
+            jsonResponse.put("success", false);
+            jsonResponse.put("message", "Tài khoản của bạn đã bị khóa.");
         } else {
             HttpSession session = request.getSession(true);
             int userId = userDAO.getUserIdByEmail(email);
@@ -44,7 +47,9 @@ public class LoginServlet extends HttpServlet {
             jsonResponse.put("user", new JSONObject()
                     .put("id", user.getID())
                     .put("username", user.getUsername())
-                    .put("email", user.getEmail()));
+                    .put("email", user.getEmail())
+                    .put("role", user.getRole()) 
+            );
         }
 
         response.getWriter().write(jsonResponse.toString());

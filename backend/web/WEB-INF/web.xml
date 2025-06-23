@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+
     <servlet>
         <servlet-name>NotificationServlet</servlet-name>
         <servlet-class>controller.NotificationServlet</servlet-class>
@@ -9,6 +10,7 @@
         <servlet-class>controller.Comment.AddCommentServlet</servlet-class>
     </servlet>
     <servlet>
+<<<<<<< HEAD
         <servlet-name>StatisticsServlet</servlet-name>
         <servlet-class>controller.StatisticsServlet</servlet-class>
     </servlet>
@@ -27,6 +29,35 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+=======
+        <servlet-name>PlatformStats</servlet-name>
+        <servlet-class>controller.admin.PlatformStats</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ReportPost</servlet-name>
+        <servlet-class>controller.report.ReportPost</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SavePost</servlet-name>
+        <servlet-class>controller.Post.SavePost</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InsertPlaylist</servlet-name>
+        <servlet-class>controller.Music.InsertPlaylist</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdatePlaylist</servlet-name>
+        <servlet-class>controller.Music.UpdatePlaylist</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DeletePlaylist</servlet-name>
+        <servlet-class>controller.Music.DeletePlaylist</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewPlaylist</servlet-name>
+        <servlet-class>controller.Music.ViewPlaylist</servlet-class>
+    </servlet>
+>>>>>>> main
     <servlet>
         <servlet-name>UserProfileEdit</servlet-name>
         <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
@@ -55,6 +86,43 @@
         <servlet-name>UserIDServlet</servlet-name>
         <servlet-class>controller.UserIDServlet</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/NotificationServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddCommentServlet</servlet-name>
+        <url-pattern>/api/comment/add</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PlatformStats</servlet-name>
+        <url-pattern>/api/admin/statics</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReportPost</servlet-name>
+        <url-pattern>/api/post/report</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SavePost</servlet-name>
+        <url-pattern>/api/post/save</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InsertPlaylist</servlet-name>
+        <url-pattern>/api/music/insert</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdatePlaylist</servlet-name>
+        <url-pattern>/api/music/update</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeletePlaylist</servlet-name>
+        <url-pattern>/api/music/delete</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewPlaylist</servlet-name>
+        <url-pattern>/api/music/view</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
@@ -83,4 +151,9 @@
         <servlet-name>LikeServlet</servlet-name>
         <url-pattern>/api/like</url-pattern>
     </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
 </web-app>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserInfo from '../components/UserProfile/UserInfo';
 import EditPortfolio from '../components/UserProfile/EditPortfolio';
@@ -275,7 +275,6 @@ const UserProfilePage = () => {
 					/>
 				</div>
 			</div>
-			<ToastContainer />
 		</div>
 	);
 };

@@ -78,8 +78,7 @@ public class MediaDAO extends DBContext {
                 Media media = new Media(
                         rs.getInt("ID"),
                         rs.getString("URL"),
-                        rs.getString("Description"),
-                        rs.getTimestamp("CreatedAt"));
+                        rs.getString("Description"));
                 mediaList.add(media);
             }
 
@@ -95,19 +94,65 @@ public class MediaDAO extends DBContext {
         List<Media> list = new ArrayList<>();
         try {
             String sql = """
-                       select pm.PostID,m.URL from postmedia as pm join media as m on pm.MediaID=m.ID
+                       select m.ID, pm.PostID,m.URL from postmedia as pm join media as m on pm.MediaID=m.ID
                        where pm.PostID=?;
                        """;
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, postID);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                list.add(new Media(0, rs.getString("URL"), "", null));
+                list.add(new Media(rs.getInt("ID"), rs.getString("URL"), ""));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public Media getMediaByID(int ID) {
+        Media m = new Media();
+        try {
+            String sql = """
+                       select * from Media
+                       where ID=?;
+                       """;
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, ID);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                m = new Media(ID, rs.getString("URL"), "");
+            }
+            st.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return m;
+    }
+
+    public void deleteMediaByID(int ID) {
+        try {
+            PreparedStatement pstMedia = connection.prepareStatement("""
+                                                                     delete FROM Media WHERE ID=?;
+                                                                    """);
+            pstMedia.setInt(1, ID);
+            pstMedia.executeUpdate();
+            pstMedia.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void deletePostMediaByID(int ID) {
+        try {
+            PreparedStatement pstMedia = connection.prepareStatement("""
+                                                                     delete FROM PostMedia WHERE MediaID=?;
+                                                                    """);
+            pstMedia.setInt(1, ID);
+            pstMedia.executeUpdate();
+            pstMedia.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //deleteMediaByPostID
@@ -116,26 +161,13 @@ public class MediaDAO extends DBContext {
     //delete data according to the media list
     //delete the post accoriding to postID
     //commit
-    public void deleteMediaByPostID(int postID,  List<Media> list) throws SQLException {
+    public void updateMediaByPostID(int postID, List<Media> list) throws SQLException {
         PreparedStatement pstMedia = null, pstPostMedia = null;
 
         try {
             connection.setAutoCommit(false);
-            //delete
-            pstMedia = connection.prepareStatement("""
-                                                       delete FROM Media WHERE ID IN (SELECT MediaID FROM PostMedia WHERE PostID = ?);
-                                                       """);
-            pstMedia.setInt(1, postID);
-            pstMedia.executeUpdate();
 
-            pstPostMedia = connection.prepareStatement("""
-                                                 delete from PostMedia where PostID=?
-                                                 """);
 
-            pstPostMedia.setInt(1, postID);
-            pstPostMedia.executeUpdate();
-            
-            
             //re-insert
             pstMedia = connection.prepareStatement("""
                                                  insert into Media(URL)
@@ -145,8 +177,7 @@ public class MediaDAO extends DBContext {
             pstPostMedia = connection.prepareStatement("""
                                                       insert into PostMedia(PostID,MediaID)
                                                       values(?,?);
-                                                      """,
-                    Statement.RETURN_GENERATED_KEYS);
+                                                      """);
             for (Media m : list) {
                 pstMedia.setString(1, m.getURL());
                 pstMedia.executeUpdate();

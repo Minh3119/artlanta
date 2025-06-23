@@ -3,11 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
+import SavePost from "../components/HomePage/SavePost";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import { format } from "date-fns";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function HomePage() {
@@ -16,17 +17,14 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state?.success) {
-      toast.success(location.state.success);
-    }
-    if (location.state?.error) {
-      toast.error(location.state.error);
-    }
-
-    if (location.state) {
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location, navigate]);
+        if (location.state?.error) {
+            toast.error(location.state.error);
+            navigate("/", { replace: true, state: {} });
+        } else if (location.state?.success) {
+            toast.success(location.state.success);
+            navigate("/", { replace: true, state: {} });
+        }
+    }, [location, navigate]);
 
   useEffect(() => {
     fetch("http://localhost:9999/backend/api/user/userid", {
@@ -43,33 +41,33 @@ export default function HomePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const openCreatePopup = () => {
     setIsCreateOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeCreatePopup = () => {
     setIsCreateOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [updatePostID, setUpdatePostID] = useState(0);
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deletePostID, setDeletePostID] = useState(0);
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    setIsRefresh(true);
+    setIsRefresh(!isRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
-    setIsRefresh(false);
+    setIsRefresh(!isRefresh);
   };
 
   const today_formatted = format(new Date(), "MMMM d, yyyy");
@@ -77,7 +75,7 @@ export default function HomePage() {
   return (
     <div  className="homepage-container" id="scrollableDiv"
  style={{
-    overflow: "auto",  
+    overflowX: "hidden",  
   }}>
       <Header openCreatePopup={openCreatePopup} />
 
@@ -86,19 +84,19 @@ export default function HomePage() {
       </div>
       <div className="homepage-title">Artwork Posts</div>
 
-  <ArtistPost
-    refetch={isRefresh}
-    currentID={currentID}
-    openUpdatePopup={openUpdatePopup}
-    openDeletePopup={openDeletePopup}
-    scrollableTarget="scrollableDiv" 
-  />
+      <ArtistPost
+        refetch={isRefresh}
+        currentID={currentID}
+        openUpdatePopup={openUpdatePopup}
+        openDeletePopup={openDeletePopup}
+        scrollableTarget="scrollableDiv"
+      />
 
 
 
       {/* callComponent */}
       {isCreateOpen ? (
-        <CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        <CreatePostComponent closeCreatePopup={() => closeCreatePopup()} />
       ) : null}
       {isUpdateOpen ? (
         <UpdatePostComponent
@@ -112,7 +110,6 @@ export default function HomePage() {
           deletePostID={deletePostID}
         />
       ) : null}
-      <ToastContainer />
     </div>
   );
 }
