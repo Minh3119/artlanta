@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 
 export default function PayPalPaymentMenu({ amountUSD }) {
-  const containerRef = useRef(null); // ✅ dùng để gắn nút PayPal
-  const renderedRef = useRef(false); // ✅ đánh dấu đã render chưa
+  const containerRef = useRef(null);
+  const renderedRef = useRef(false); 
 
   useEffect(() => {
     const loadPayPalScript = () => {

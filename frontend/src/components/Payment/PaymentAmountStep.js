@@ -40,7 +40,7 @@ export default function PaymentAmountStep({ method, onBack }) {
         value={amount}
         onChange={(e) => {
           setAmount(e.target.value);
-          setValidated(false); // reset lại nếu người dùng sửa
+          setValidated(false);
         }}
         placeholder={isUSD ? "Lớn hơn 5 USD" : "Lớn hơn 10,000 VNĐ"}
       />
