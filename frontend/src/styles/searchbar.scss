@@ -1,0 +1,33 @@
+.header-search{
+    .header-search-input{
+
+    }
+    .search-list{
+        background-color: aqua;
+        .search-item{
+            background-color: red;
+            display: flex;
+
+            .item-img{
+                width: 20%;
+            }
+            .item-content{
+                width: 50%;
+                padding-top: 10px;
+                padding-left: 20px;
+            }
+            .item-author{
+                width: 10%;
+                padding-top: 10px;
+                text-align: center;
+            }
+            .item-date{
+                width: 20%;
+                padding-top: 10px;
+                padding-right: 10px;
+                text-align: right;
+            }
+        }
+    }
+
+}
