@@ -7,59 +7,149 @@ import LoadingScreen from '../components/common/LoadingScreen';
 import MessageInput from '../components/Messages/MessageInput';
 import { messagesResponseSchema } from '../schemas/messaging';
 import imageCompression from 'browser-image-compression';
+import SearchBar from '../components/Messages/SearchBar';
+import ConversationTypeSelector from '../components/Messages/ConversationTypeSelector';
+import Header from '../components/HomePage/Header';
+
+// Utility function to sort conversations by latest message timestamp (newest first)
+const sortConversationsByLatestMessage = (conversations) => {
+  return [...conversations].sort((a, b) => {
+    // Handle cases where latestMessage might be null/undefined
+    const msgA = a.latestMessage;
+    const msgB = b.latestMessage;
+    
+    // If both have no messages or timestamps, keep their order
+    if ((!msgA || !msgA.createdAt) && (!msgB || !msgB.createdAt)) return 0;
+    
+    // If only A has no timestamp, put it after B
+    if (!msgA || !msgA.createdAt) return 1;
+    
+    // If only B has no timestamp, put it after A
+    if (!msgB || !msgB.createdAt) return -1;
+    
+    // Compare timestamps using Date objects
+    const dateA = new Date(msgA.createdAt).getTime();
+    const dateB = new Date(msgB.createdAt).getTime();
+    
+    // For descending order (newest first)
+    return dateB - dateA;
+  });
+};
 
 const MessagesPage = () => {
   const ws = useRef(null);
-  const [searchParams] = useSearchParams();
-  const [conversations, setConversations] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [conversations, setConversations] = useState({
+    chat: [],
+    pending: [],
+    archived: []
+  });
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversationsError, setConversationsError] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  const handleConversationSelect = (conversation) => {
+  const handleConversationSelect = useCallback((conversation) => {
+    // Update the URL with the new conversation ID
+    const newSearchParams = new URLSearchParams();
+    newSearchParams.set('conversationId', conversation.id);
+    setSearchParams(newSearchParams);
     setSelectedConversation(conversation);
+  }, [setSearchParams]);
+
+  const fetchConversations = async (type) => {
+    setLoadingConversations(true);
+    try {
+      const response = await fetch(`http://localhost:9999/backend/api/conversations?type=${type}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${type} conversations`);
+      }
+      const data = await response.json();
+
+      // Sort conversations by latest message (newest first)
+      const sortedData = sortConversationsByLatestMessage(data.conversations || []);
+      
+      // Update conversations.[type] = sortedData
+      setConversations(prev => ({
+        ...prev,
+        [type]: sortedData
+      }));
+    } catch (err) {
+      setConversationsError(err.message);
+    } finally {
+      setLoadingConversations(false);
+    }
   };
 
   // Effect for fetching conversations
   useEffect(() => {
-    const fetchConversations = async () => {
-      setLoadingConversations(true);
-      try {
-        const response = await fetch('http://localhost:9999/backend/api/conversations', {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch conversations');
-        }
-        const data = await response.json();
-        // Sort conversations by latestMessage.createdAt (newest first)
-        const sorted = (data.conversations || []).slice().sort((a, b) => {
-          const t1 = a.latestMessage?.createdAt;
-          const t2 = b.latestMessage?.createdAt;
-          if (!t1 && !t2) return 0;
-          if (!t1) return 1;      // a has no timestamp -> after b
-          if (!t2) return -1;     // b has no timestamp -> after a
-          return new Date(t2) - new Date(t1); // descending
-        });
-        setConversations(sorted);
-      } catch (err) {
-        setConversationsError(err.message);
-      } finally {
-        setLoadingConversations(false);
-      }
+    const loadAllConversations = async () => {
+      await Promise.all([
+        fetchConversations('chat'),
+        fetchConversations('pending'),
+        fetchConversations('archived')
+      ]);
     };
-
-    fetchConversations();
+    
+    loadAllConversations();
   }, []);
+
+
+
+
+  const [activeTab, setActiveTab] = useState('chat');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Fetch conversations when component mounts or active tab changes
+  useEffect(() => {
+    fetchConversations(activeTab);
+  }, [activeTab]);
+  
+
+  
+
+  const getCurrentConversations = () => {
+    return conversations[activeTab] || [];
+  };
+
+  const getConversationCount = (type) => {
+    return conversations[type]?.length || 0;
+  };
+
+  const handleAcceptRequest = (id) => {
+    console.log('Accepting request:', id);
+    fetchConversations('pending');
+  };
+
+  const handleDeclineRequest = (id) => {
+    console.log('Declining request:', id);
+    fetchConversations('pending');
+  };
+
+  const handleArchiveConversation = (id) => {
+    console.log('Archiving conversation:', id);
+    fetchConversations('chat');
+    fetchConversations('archived');
+  };
+
+  const handleUnarchiveConversation = (id) => {
+    console.log('Unarchiving conversation:', id);
+    fetchConversations('archived');
+    fetchConversations('chat');
+  };
+
 
   // After conversations load, try to select based on query param, else first
   useEffect(() => {
-    if (conversations.length === 0) return;
-    const convIdParam = searchParams.get('conversationId');
-    if (convIdParam) {
-      const found = conversations.find(c => c.id === parseInt(convIdParam));
+    if (conversations[activeTab].length === 0) return;
+    const conversationIdParam = searchParams.get('conversationId');
+    if (conversationIdParam) {
+      const found = conversations[activeTab].find(c => c.id === parseInt(conversationIdParam));
       if (found) {
         setSelectedConversation(found);
         return;
@@ -67,9 +157,23 @@ const MessagesPage = () => {
     }
     // default if not selected
     if (!selectedConversation) {
-      setSelectedConversation(conversations[0]);
+      setSelectedConversation(conversations[activeTab][0]);
     }
-  }, [conversations, selectedConversation, searchParams]);
+  }, [conversations, selectedConversation, searchParams, activeTab]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
@@ -100,17 +204,20 @@ const MessagesPage = () => {
         }));
 
         // Update conversations list (if latestMessage is the one unsent, update its content)
-        setConversations(prev => prev.map(conv => {
-          if (conv.latestMessage && conv.latestMessage.id === messageId) {
-            return {
-              ...conv,
-              latestMessage: {
-                ...conv.latestMessage,
-                content: 'This message has been deleted',
-              }
-            };
-          }
-          return conv;
+        setConversations(prev => ({
+          ...prev,
+          [activeTab]: prev[activeTab].map(conv => {
+            if (conv.latestMessage && conv.latestMessage.id === messageId) {
+              return {
+                ...conv,
+                latestMessage: {
+                  ...conv.latestMessage,
+                  content: 'This message has been deleted',
+                }
+              };
+            }
+            return conv;
+          })
         }));
         return; // done processing unsend
       }
@@ -119,23 +226,21 @@ const MessagesPage = () => {
         const newMessage = payload.message;
         if (!newMessage) return;
 
-        // Always update the conversations list
-        setConversations((prevConversations) => {
-          const conversationIndex = prevConversations.findIndex(
-            (c) => c.id === newMessage.conversationId
-          );
-
-          if (conversationIndex === -1) return prevConversations;
-
-          const updatedConversation = {
-            ...prevConversations[conversationIndex],
-            latestMessage: newMessage,
-          };
-          const otherConversations = prevConversations.filter(
-            (c) => c.id !== newMessage.conversationId
-          );
-          return [updatedConversation, ...otherConversations];
-        });
+        // Update conversations list with the new message and re-sort
+        setConversations(prev => ({
+          ...prev,
+          [activeTab]: sortConversationsByLatestMessage(
+            prev[activeTab].map(conv => {
+              if (conv.id === newMessage.conversationId) {
+                return {
+                  ...conv,
+                  latestMessage: newMessage,
+                };
+              }
+              return conv;
+            })
+          )
+        }));
 
         // If the message is for the currently selected conversation, update its message list
         if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
@@ -145,7 +250,7 @@ const MessagesPage = () => {
     } catch (err) {
       console.error('Error parsing WebSocket message:', err);
     }
-  }, [selectedConversation]);
+  }, [selectedConversation, activeTab]);
 
   const handleSendMessage = async (messageText, attachedFile) => {
     if ((!messageText || !messageText.trim()) && !attachedFile) return;
@@ -229,13 +334,8 @@ const MessagesPage = () => {
     ws.current.send(JSON.stringify(message));
   }
 
-  // Effect for WebSocket setup and current user fetching
+  // Effect for fetching current user
   useEffect(() => {
-    ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
-    ws.current.onopen = () => console.log('WebSocket connection opened');
-    ws.current.onclose = () => console.log('WebSocket connection closed');
-    ws.current.onerror = (error) => console.error('WebSocket error:', error);
-
     const fetchCurrentUser = async () => {
       try {
         const response = await fetch('http://localhost:9999/backend/api/current-user', {
@@ -254,12 +354,22 @@ const MessagesPage = () => {
     };
 
     fetchCurrentUser();
+  }, []);
+
+  // Effect for WebSocket setup and current user fetching
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
+    ws.current.onopen = () => console.log('WebSocket connection opened');
+    ws.current.onclose = () => console.log('WebSocket connection closed');
+    ws.current.onerror = (error) => console.error('WebSocket error:', error);
 
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) 
         ws.current.close();
     };
-  }, []);
+  }, [currentUserId]);
 
   // Effect for handling incoming WebSocket messages
   useEffect(() => {
@@ -306,6 +416,13 @@ const MessagesPage = () => {
     fetchMessages();
   }, [selectedConversation]);
 
+
+
+
+
+
+
+
   if (loading) {
       return (
           <LoadingScreen />
@@ -336,84 +453,108 @@ const MessagesPage = () => {
 
 
   return (
-    <div className="flex h-screen overflow-hidden font-sans bg-gray-50 p-4 gap-4">
-      {/* Sidebar */}
-      <div className="w-1/4 border-r border-gray-200 bg-white rounded-lg shadow-sm flex flex-col">
-        <div className="p-4 border-b border-gray-200 flex-shrink-0">
-          <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <ConversationsList 
-            conversations={conversations}
-            loading={loadingConversations}
-            error={conversationsError}
-            selectedConversation={selectedConversation} 
-            onSelectConversation={handleConversationSelect} 
-          />
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
-        {selectedConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
-                  {selectedConversation.user?.avatarURL && (
-                    <img 
-                      src={selectedConversation.user.avatarURL} 
-                      alt={selectedConversation.user.fullName}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = '/default-avatar.png';
-                      }}
-                    />
-                  )}
-                </div>
-                <div>
-                  <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
-                  <p className="text-xs text-gray-500">
-                    {selectedConversation.user?.role || 'Artist'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Messages List */}
-            <div className="flex-1 overflow-hidden">
-              <MessagesList 
-                conversationId={selectedConversation?.id} 
-                currentUserId={currentUserId}
-                messages={messages}
-                loading={messagesLoading}
-                error={messagesError}
-                onUnsend={handleUnsendMessage}
+    <div className="flex flex-col h-screen bg-gray-50">
+      <Header />
+      <div className="pt-14 flex-1 overflow-hidden flex flex-col">
+        <div className="pb-2 px-2 pt-4 flex-1 flex gap-4 overflow-hidden">
+          {/* Sidebar */}
+          <div className="w-1/4 h-full bg-white rounded-lg shadow-sm flex flex-col border border-gray-200">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 flex-shrink-0">
+              <h1 className="mb-4 text-xl font-semibold text-gray-800">Messages</h1>
+              {/* Search Bar Component */}
+              <SearchBar 
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                placeholder="Search conversations..."
+              />
+              {/* Conversation Type Selector Component */}
+              <ConversationTypeSelector
+                activeType={activeTab}
+                onTypeChange={setActiveTab}
+                isOpen={isDropdownOpen}
+                onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+                getCount={getConversationCount}
               />
             </div>
-
-            {/* Message Input */}
-            <MessageInput onSend={handleSendMessage} isSending={isUploading} />
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center p-6 max-w-md">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">No conversation selected</h3>
-              <p className="text-gray-500">Select a conversation or start a new one</p>
+            {/* Conversations List */}
+            <div className="flex-1 overflow-y-auto">
+              <ConversationsList
+                conversations={getCurrentConversations()}
+                type={activeTab}
+                loading={loadingConversations}
+                error={conversationsError}
+                selectedConversation={selectedConversation}
+                onSelectConversation={handleConversationSelect}
+                searchQuery={searchQuery}
+                onAccept={handleAcceptRequest}
+                onDecline={handleDeclineRequest}
+                onArchive={handleArchiveConversation}
+                onUnarchive={handleUnarchiveConversation}
+              />
             </div>
-          </div>
-        )}
-      </div>
+          </div>  {/* End of Sidebar */}
 
+          {/* Main Chat Area */}
+          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200">
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden mr-3">
+                      {selectedConversation.user?.avatarURL && (
+                        <img 
+                          src={selectedConversation.user.avatarURL} 
+                          alt={selectedConversation.user.fullName}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
+                      <p className="text-xs text-gray-500">
+                        {selectedConversation.user?.role || ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Messages List */}
+                <div className="flex-1 overflow-auto">
+                  <MessagesList 
+                    conversationId={selectedConversation?.id} 
+                    currentUserId={currentUserId}
+                    messages={messages}
+                    loading={messagesLoading}
+                    error={messagesError}
+                    onUnsend={handleUnsendMessage}
+                    // onReport={handleReportMessage}
+                  />
+                </div>
+
+                {/* Message Input */}
+                <MessageInput onSend={handleSendMessage} isSending={isUploading} />
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-gray-50">
+                <div className="text-center p-6 max-w-md">
+                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No conversation selected</h3>
+                  <p className="text-gray-500">Select a conversation or start a new one</p>
+                </div>
+              </div>
+            )}
+          </div>  {/* End of Main Chat Area */}
+        </div>  {/* End of content container */}
+      </div>  {/* End of main container */}
     </div>
   );
 };
+
 
 export default MessagesPage;

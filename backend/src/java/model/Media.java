@@ -49,5 +49,8 @@ public class Media {
         this.Description = Description;
     }
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 8c75e2ef05496b82164cd6e26cbf6a64fe165d73
 }

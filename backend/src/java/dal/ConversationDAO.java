@@ -107,4 +107,21 @@ public class ConversationDAO extends DBContext {
         }
         return null;
     }
+    
+    /**
+     * Deletes a conversation by its ID
+     * @param conversationId The ID of the conversation to delete
+     * @return true if the conversation was deleted successfully, false otherwise
+     */
+    public boolean delete(int conversationId) {
+        String sql = "DELETE FROM Conversations WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, conversationId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

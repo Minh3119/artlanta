@@ -10,7 +10,16 @@ public class HttpSessionConfigurator extends ServerEndpointConfig.Configurator {
     public void modifyHandshake(ServerEndpointConfig config,
                                 HandshakeRequest request,
                                 HandshakeResponse response) {
+        if (config == null) {
+            // throw new IllegalArgumentException("ServerEndpointConfig cannot be null");
+        }
+        if (request == null) {
+            // throw new IllegalArgumentException("HandshakeRequest cannot be null");
+        }
+        
         HttpSession httpSession = (HttpSession) request.getHttpSession();
-        config.getUserProperties().put(HttpSession.class.getName(), httpSession);
+        if (httpSession != null) {
+            config.getUserProperties().put(HttpSession.class.getName(), httpSession);
+        }
     }
 }
