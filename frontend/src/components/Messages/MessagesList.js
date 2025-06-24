@@ -1,3 +1,4 @@
+import React, { useEffect, useRef } from 'react';
 import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
 import Message from './Message';
 
@@ -24,7 +25,19 @@ function ScrollToBottomButton() {
   );
 }
 
-const MessagesList = ({ conversationId, currentUserId, messages, loading, error, onUnsend, onReport }) => {
+const MessagesList = React.memo(({ conversationId, currentUserId, messages, loading, error, onUnsend, onReport }) => {
+  const scrollRef = useRef();
+
+  // Force scroll to bottom when messages change
+  useEffect(() => {
+    if (messages.length > 0 && scrollRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        scrollRef.current.scrollToBottom();
+      }, 100);
+    }
+  }, [messages.length]);
+
   if (!conversationId) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
@@ -58,7 +71,14 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error,
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <ScrollToBottom className="flex-1 px-4 overflow-y-auto overflow-x-hidden relative">
+      <ScrollToBottom 
+        ref={scrollRef}
+        className="flex-1 px-4 overflow-y-auto overflow-x-hidden relative"
+        follow={true}
+        mode="bottom"
+        initialScrollBehavior="smooth"
+        key={conversationId}
+      >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="bg-gray-100 p-4 rounded-full mb-4">
@@ -88,6 +108,8 @@ const MessagesList = ({ conversationId, currentUserId, messages, loading, error,
       </ScrollToBottom>
     </div>
   );
-};
+});
+
+MessagesList.displayName = 'MessagesList';
 
 export default MessagesList;

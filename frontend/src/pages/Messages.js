@@ -444,6 +444,7 @@ const MessagesPage = () => {
                 {/* Messages List */}
                 <div className="flex-1 overflow-auto">
                   <MessagesList 
+                    key={selectedConversation?.id}
                     conversationId={selectedConversation?.id} 
                     currentUserId={currentUserId}
                     messages={messages}
