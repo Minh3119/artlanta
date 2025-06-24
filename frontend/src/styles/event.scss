@@ -1,0 +1,589 @@
+/* Event Creation Modal Styles */
+
+// Overlay that covers the entire screen with a semi-transparent background
+.create-event-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+// The main modal container
+.create-event-popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+// Error message styling
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+// Header section of the modal
+.create-event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  // Modal title
+  h2 {
+    margin: 0;
+  }
+
+  // Close button (X)
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    color: #666;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+
+// Form styles
+.create-event-form {
+  // Each form group (label + input)
+  .form-group {
+    margin-bottom: 15px;
+
+    // Input labels
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    // Common styles for inputs and textareas
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
+    }
+
+    // Specific textarea styles
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    // Header for image input section
+    .image-input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      // Toggle button between file and URL input
+      .toggle-input-type {
+        background: none;
+        border: 1px solid #4a90e2;
+        color: #4a90e2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        // Hover state
+        &:hover:not(:disabled) {
+          background: #4a90e2;
+          color: white;
+        }
+
+        // Disabled state
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          border-color: #999;
+          color: #999;
+        }
+      }
+    }
+  }
+
+  // Container for image upload/URL input
+  .image-upload-container {
+    border: 2px dashed #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+
+    &:hover {
+      border-color: #4a90e2;
+    }
+
+    // File input styling
+    .file-input {
+      width: 100%;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+    }
+
+    // URL input styling
+    .url-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      &::placeholder {
+        color: #999;
+      }
+    }
+
+    // Image preview container
+    .image-preview {
+      margin-top: 10px;
+      
+      img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+    }
+
+    // Loading indicator during upload
+    .upload-loading {
+      margin-top: 10px;
+      color: #4a90e2;
+      font-weight: 500;
+    }
+  }
+}
+
+// Form action buttons container
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  // Common button styles
+  button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    // Disabled state for all buttons
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    // Primary action button (Create)
+    &.create-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+
+      &:hover:not(:disabled) {
+        background-color: #357abd;
+      }
+    }
+
+    // Secondary action button (Cancel)
+    &.cancel-button {
+      background-color: #fff;
+      color: #666;
+      border: 1px solid #ddd;
+
+      &:hover:not(:disabled) {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+} 
+
+.posts-selection {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 8px;
+
+  .post-selection-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+
+    label {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .post-preview {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      .post-content {
+        flex: 1;
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+      }
+
+      .post-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+// Event Page Styles
+.events-list {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .event-header {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    border-bottom: 1px solid #eee;
+
+    .event-info {
+      flex: 1;
+
+      .event-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+
+      .event-metadata {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: #666;
+        font-size: 14px;
+
+        .event-date, .event-location {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+
+    .event-cover-image {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
+
+  .event-description {
+    padding: 20px;
+    color: #444;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .event-posts {
+    padding: 20px;
+    border-top: 1px solid #eee;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      color: #333;
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+
+      .post-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        text-decoration: none;
+        color: inherit;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: #f0f2f5;
+        }
+
+        .post-content {
+          p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+          }
+
+          img {
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 10px;
+          }
+        }
+      }
+    }
+  }
+
+  .event-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .event-stats {
+      display: flex;
+      gap: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 10px;
+
+      button {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &.btn-interested {
+          background: #f0f2f5;
+          color: #333;
+
+          &:hover {
+            background: #e4e6eb;
+          }
+        }
+
+        &.btn-going {
+          background: #1877f2;
+          color: white;
+
+          &:hover {
+            background: #166fe5;
+          }
+        }
+      }
+    }
+  }
+}
+
+.no-events-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* Event actions dropdown styling */
+.event-actions-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-button {
+  background: #f3f4f6;
+  color: #222;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px 6px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 180px;
+  font-size: 1.08em;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* align left */
+}
+
+.dropdown-arrow {
+  margin-left: 0;
+  margin-right: 0px;
+  font-size: 1.2em;
+  transition: transform 0.2s;
+  color: #888;
+}
+
+.dropdown[open] .dropdown-arrow {
+  transform: rotate(-180deg);
+}
+
+.dropdown-button:hover {
+  background: #e5e7eb;
+}
+
+/* Dropup: position dropdown-content above the button */
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  bottom: 110%; /* Dropup: position above */
+  left: 0;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 10;
+  padding: 8px 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.dropdown[open] .dropdown-content {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #222;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  input[type="radio"] {
+    margin-right: 8px;
+  }
+}
+
+.animated-dropdown {
+  animation: dropdownFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-action {
+  margin-left: 12px;
+  color: #ef4444;
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 8px;
+  transition: background 0.18s, color 0.18s;
+  user-select: none;
+
+  &:hover, &:focus {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}

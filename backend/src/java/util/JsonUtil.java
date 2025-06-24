@@ -22,6 +22,10 @@ public class JsonUtil {
             .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeAdapter())
             .create();
 
+    public static Gson getGson() {
+        return gson;
+    }
+
     public static <T> T fromJsonString(String json, Class<T> clazz) throws JsonSyntaxException {
         return gson.fromJson(json, clazz);
     }

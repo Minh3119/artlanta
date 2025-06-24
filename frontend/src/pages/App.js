@@ -27,6 +27,8 @@ import Payment from './Payment.js';
 import PaymentHis from './HistoryPayment.js';
 import PaymentResult from "./PaymentResult.js";
 import AdminDashboard from './AdminDashboard';
+import EventPage from './EventPage.js';
+import RecentPosts from './RecentPosts';
 import UserStatistics from '../components/UserProfile/UserStatistics.jsx';
 import { WebSocketProvider } from '../contexts/WebSocketContext';
 
@@ -58,7 +60,8 @@ function App() {
           <Route path="/paymentHis" element={<PaymentHis/>}></Route>
           <Route path="/paymentResult" element={<PaymentResult/>}></Route>
           <Route path="/admin" element={<AdminDashboard />} />
-
+           <Route path="/recent-posts" element={<RecentPosts />} />
+                    <Route path="/event" element={<EventPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}
