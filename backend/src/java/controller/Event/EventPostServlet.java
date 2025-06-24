@@ -38,11 +38,11 @@ public class EventPostServlet extends HttpServlet {
             }
 
             int eventId = Integer.parseInt(pathInfo.substring(1));
-            List<Post> posts = eventDAO.getEventPosts(eventId);
-
-            jsonResponse.addProperty("status", "success");
-            jsonResponse.add("posts", gson.toJsonTree(posts));
-            out.println(gson.toJson(jsonResponse));
+//            List<Post> posts = eventDAO.getEventPosts(eventId);
+//
+//            jsonResponse.addProperty("status", "success");
+//            jsonResponse.add("posts", gson.toJsonTree(posts));
+//            out.println(gson.toJson(jsonResponse));
 
         } catch (NumberFormatException e) {
             response.setStatus(400);
