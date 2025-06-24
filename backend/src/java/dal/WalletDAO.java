@@ -23,6 +23,7 @@ public class WalletDAO extends DBContext {
             if (rs.next()) {
                 return rs.getBigDecimal("Balance");
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
