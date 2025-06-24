@@ -18,7 +18,6 @@ import model.Post;
 import model.User;
 import org.json.JSONArray;
 import util.JsonUtil;
-
 import static util.SessionUtil.getCurrentUserId;
 
 
