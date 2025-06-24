@@ -28,12 +28,14 @@ import PaymentHis from './HistoryPayment.js';
 import PaymentResult from "./PaymentResult.js";
 import AdminDashboard from './AdminDashboard';
 import UserStatistics from '../components/UserProfile/UserStatistics.jsx';
+import { WebSocketProvider } from '../contexts/WebSocketContext';
+
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
   return (
-    <>
+    <WebSocketProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/*" element={<HomePage />} />
@@ -74,8 +76,7 @@ function App() {
 
       </BrowserRouter >
       <ToastContainer />
-    </>
-
+    </WebSocketProvider>
   );
 }
 

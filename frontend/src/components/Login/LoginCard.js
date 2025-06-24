@@ -3,12 +3,14 @@ import "../../styles/login.css";
 import SocialLogin from "./SocialLogin.js";
 import InputField from "./InputField";
 import { useNavigate, Link } from "react-router-dom";
+import { useWebSocket } from "../../contexts/WebSocketContext";
 
 export default function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const { checkAuthentication } = useWebSocket();
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -59,6 +61,9 @@ export default function LoginCard() {
 
       if (data.success) {
         setMessage("Login success");
+
+        // Trigger WebSocket connection after successful login
+        await checkAuthentication();
 
         const role = data.user.role?.toUpperCase();
 
