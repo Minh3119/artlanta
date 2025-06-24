@@ -24,6 +24,8 @@ class VideoComponent extends React.Component {
             // type: 'video',
             // ID: 'YzRyzWzTlI8'
         },
+        totalPlayTime: 0,
+        playStartTime: null,
     }
     componentDidMount() {
         fetch(`http://localhost:9999/backend/api/music/view`, {
@@ -45,6 +47,36 @@ class VideoComponent extends React.Component {
             .catch(error => {
                 console.error('Error fetching music data:', error);
             });
+    }
+    async componentWillUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        let totalTime = this.state.totalPlayTime;
+        if (this.state.playStartTime) {
+            const now = Date.now();
+            const playedTime = (now - this.state.playStartTime) / 1000;
+            totalTime += playedTime;
+        }
+        try {
+            const res = await fetch('http://localhost:9999/backend/api/music/time/insert', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    totalPlayTime: totalTime,
+                }),
+            })
+            console.log("time" + totalTime);
+            if (res.ok) {
+                return;
+            }
+        }
+        catch (er) {
+            console.log("server error!", er);
+        }
     }
     formatYoutubeID = (item) => {
         const playlistRegex = /[?&]list=([A-Za-z0-9_-]{10,})/;
@@ -83,6 +115,27 @@ class VideoComponent extends React.Component {
     };
     onPlayerStateChange = (event) => {
         const YT = window.YT;
+        const currentTime = Date.now();
+        switch (event.data) {
+            case 1:
+                this.setState({
+                    isPlaying: true,
+                    playStartTime: currentTime
+                });
+                break;
+            case 2:
+                if (this.state.playStartTime) {
+                    const playedTime = (currentTime - this.state.playStartTime) / 1000;
+                    this.setState({
+                        totalPlayTime: this.state.totalPlayTime + playedTime,
+                        playStartTime: null,
+                        isPlaying: false,
+                    });
+                } else {
+                    this.setState({ isPlaying: false });
+                }
+                break;
+        }
         if (event.data === YT.PlayerState.PLAYING) {
             setTimeout(() => {
                 this.setState({
@@ -175,10 +228,19 @@ class VideoComponent extends React.Component {
         this.setState({ volume: newVolume });
     };
     handleChangeMusic = (event) => {
+        const now = Date.now();
+        let addedPlayTime = 0;
+
+        if (this.state.playStartTime) {
+            addedPlayTime = (now - this.state.playStartTime) / 1000;
+        }
+
         this.setState({
-            currentPlaylist: this.state.listPlaylist[event.target.value],
+            totalPlayTime: this.state.totalPlayTime + addedPlayTime,
+            playStartTime: null,
             isPlaying: false,
-        })
+            currentPlaylist: this.state.listPlaylist[event.target.value],
+        });
     }
     render() {
         const optsForVideo = {
