@@ -1,6 +1,7 @@
-
 package controller.Comment;
 
+import dal.NotificationDAO;
+import dal.UserDAO;
 import dal.PostDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,8 +9,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.User;
+import model.Post;
 import org.json.JSONObject;
+
 import java.io.IOException;
+
 import static util.SessionUtil.getCurrentUserId;
 
 @WebServlet(name = "AddCommentServlet", urlPatterns = {"/api/comment/add"})
@@ -21,29 +26,22 @@ public class AddCommentServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        System.out.println("Received GET request to /api/comment/add");
-
         HttpSession session = request.getSession(false);
         Integer userID = getCurrentUserId(session);
 
         if (userID == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\":\"Không đăng nhập\"}");
-            System.out.println("Error: User not logged in");
             return;
         }
 
         try {
-            // Lấy postID và content từ query parameters
             String postIDStr = request.getParameter("postID");
             String content = request.getParameter("content");
-
-            System.out.println("Query params - postID: " + postIDStr + ", content: " + content);
 
             if (postIDStr == null || postIDStr.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"postID không được để trống\"}");
-                System.out.println("Error: Missing postID");
                 return;
             }
 
@@ -53,14 +51,12 @@ public class AddCommentServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"postID không hợp lệ\"}");
-                System.out.println("Error: Invalid postID format");
                 return;
             }
 
             if (content == null || content.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Nội dung bình luận không được để trống\"}");
-                System.out.println("Error: Empty comment content");
                 return;
             }
 
@@ -72,15 +68,28 @@ public class AddCommentServlet extends HttpServlet {
             if (!success) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 resJson.put("error", "Không thể thêm bình luận");
-                System.out.println("Error: Failed to insert comment");
+            } else {
+                // --- Notification logic ---
+                NotificationDAO notificationDAO = new NotificationDAO();
+                UserDAO userDAO = new UserDAO();
+                Post post = pdao.getPost(postID);
+                int postOwnerId = post.getUserID();
+
+                if (postOwnerId != userID) { // Don't notify if user comments on their own post
+                    User commenter = userDAO.getOne(userID);
+                    if (commenter != null) {
+                        String notificationType = "comment";
+                        String notificationContent = commenter.getUsername() + " commented on your post";
+                        notificationDAO.saveNotification(postOwnerId, postID, notificationType, notificationContent);
+                    }
+                }
+                // --- End notification logic ---
             }
             response.getWriter().write(resJson.toString());
             pdao.closeConnection();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\":\"Yêu cầu không hợp lệ: " + e.getMessage() + "\"}");
-            System.out.println("Error: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

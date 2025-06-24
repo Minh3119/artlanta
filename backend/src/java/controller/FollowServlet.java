@@ -37,7 +37,7 @@ public class FollowServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.print("{\"error\":\"Not logged in\"}");
             return;
-        }
+        }      
 
         // Process follow/unfollow action
         String action = request.getParameter("action");

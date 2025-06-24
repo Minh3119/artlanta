@@ -10,6 +10,7 @@ import imageCompression from 'browser-image-compression';
 import SearchBar from '../components/Messages/SearchBar';
 import ConversationTypeSelector from '../components/Messages/ConversationTypeSelector';
 import Header from '../components/HomePage/Header';
+import { useWebSocket } from '../contexts/WebSocketContext';
 
 // Utility function to sort conversations by latest message timestamp (newest first)
 const sortConversationsByLatestMessage = (conversations) => {
@@ -37,7 +38,7 @@ const sortConversationsByLatestMessage = (conversations) => {
 };
 
 const MessagesPage = () => {
-  const ws = useRef(null);
+  const { currentUserId, sendMessage, registerMessageHandler } = useWebSocket();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [conversations, setConversations] = useState({
@@ -98,9 +99,6 @@ const MessagesPage = () => {
     loadAllConversations();
   }, []);
 
-
-
-
   const [activeTab, setActiveTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -109,9 +107,6 @@ const MessagesPage = () => {
   useEffect(() => {
     fetchConversations(activeTab);
   }, [activeTab]);
-  
-
-  
 
   const getCurrentConversations = () => {
     return conversations[activeTab] || [];
@@ -143,7 +138,6 @@ const MessagesPage = () => {
     fetchConversations('chat');
   };
 
-
   // After conversations load, try to select based on query param, else first
   useEffect(() => {
     if (conversations[activeTab].length === 0) return;
@@ -161,96 +155,81 @@ const MessagesPage = () => {
     }
   }, [conversations, selectedConversation, searchParams, activeTab]);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const [messages, setMessages] = useState([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [messagesError, setMessagesError] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleOnMessage = useCallback((event) => {
-    try {
-      const payload = JSON.parse(event.data);
+  const handleOnMessage = useCallback((payload) => {
+    // Handle unsend action broadcast
+    if (payload.action === 'unsend') {
+      const { messageId } = payload;
 
-      // Handle unsend action broadcast
-      if (payload.action === 'unsend') {
-        const { messageId } = payload;
+      // Instead of removing, mark the message as deleted and replace its content
+      setMessages(prev => prev.map(m => {
+        if (m.id === messageId) {
+          return {
+            ...m,
+            content: 'This message has been deleted',
+            isDeleted: true,
+          };
+        }
+        return m;
+      }));
 
-        // Instead of removing, mark the message as deleted and replace its content
-        setMessages(prev => prev.map(m => {
-          if (m.id === messageId) {
+      // Update conversations list (if latestMessage is the one unsent, update its content)
+      setConversations(prev => ({
+        ...prev,
+        [activeTab]: prev[activeTab].map(conv => {
+          if (conv.latestMessage && conv.latestMessage.id === messageId) {
             return {
-              ...m,
-              content: 'This message has been deleted',
-              isDeleted: true,
+              ...conv,
+              latestMessage: {
+                ...conv.latestMessage,
+                content: 'This message has been deleted',
+              }
             };
           }
-          return m;
-        }));
+          return conv;
+        })
+      }));
+      return; // done processing unsend
+    }
+    else if (!payload.action || payload.action === 'send') {
+      // Otherwise it's a new message object coming from backend
+      const newMessage = payload.message;
+      if (!newMessage) return;
 
-        // Update conversations list (if latestMessage is the one unsent, update its content)
-        setConversations(prev => ({
-          ...prev,
-          [activeTab]: prev[activeTab].map(conv => {
-            if (conv.latestMessage && conv.latestMessage.id === messageId) {
+      // Update conversations list with the new message and re-sort
+      setConversations(prev => ({
+        ...prev,
+        [activeTab]: sortConversationsByLatestMessage(
+          prev[activeTab].map(conv => {
+            if (conv.id === newMessage.conversationId) {
               return {
                 ...conv,
-                latestMessage: {
-                  ...conv.latestMessage,
-                  content: 'This message has been deleted',
-                }
+                latestMessage: newMessage,
               };
             }
             return conv;
           })
-        }));
-        return; // done processing unsend
-      }
-      else if (!payload.action || payload.action === 'send') {
-        // Otherwise it's a new message object coming from backend
-        const newMessage = payload.message;
-        if (!newMessage) return;
+        )
+      }));
 
-        // Update conversations list with the new message and re-sort
-        setConversations(prev => ({
-          ...prev,
-          [activeTab]: sortConversationsByLatestMessage(
-            prev[activeTab].map(conv => {
-              if (conv.id === newMessage.conversationId) {
-                return {
-                  ...conv,
-                  latestMessage: newMessage,
-                };
-              }
-              return conv;
-            })
-          )
-        }));
-
-        // If the message is for the currently selected conversation, update its message list
-        if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
-          setMessages((prevMessages) => [...prevMessages, newMessage]);
-        }
+      // If the message is for the currently selected conversation, update its message list
+      if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
-    } catch (err) {
-      console.error('Error parsing WebSocket message:', err);
     }
   }, [selectedConversation, activeTab]);
+
+  // Register message handler with WebSocket context
+  useEffect(() => {
+    const cleanup = registerMessageHandler(handleOnMessage);
+    return cleanup;
+  }, [handleOnMessage, registerMessageHandler]);
 
   const handleSendMessage = async (messageText, attachedFile) => {
     if ((!messageText || !messageText.trim()) && !attachedFile) return;
@@ -303,87 +282,27 @@ const MessagesPage = () => {
     }
 
     // 2. Build and send WebSocket payload
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      const messagePayload = {
-        action: 'send',
-        conversationId: selectedConversation.id,
-        senderId: currentUserId,
-        content: {
-          text: messageText,
-          media, // may be null
-        },
-      };
-      ws.current.send(JSON.stringify(messagePayload));
-    } else {
-      console.error('(handleSendMessage) WebSocket is not connected');
-    }
+    const messagePayload = {
+      action: 'send',
+      conversationId: selectedConversation.id,
+      senderId: currentUserId,
+      content: {
+        text: messageText,
+        media, // may be null
+      },
+    };
+    sendMessage(messagePayload);
   };
 
   const handleUnsendMessage = (messageId) => {
-    if (ws.current && ws.current.readyState !== WebSocket.OPEN) {
-      console.error('(handleUnsendMessage) WebSocket is not connected');
-      return;
-    }
-
     const message = {
       action: 'unsend',
       messageId: messageId,
       currentUserId: currentUserId
     };
 
-    ws.current.send(JSON.stringify(message));
+    sendMessage(message);
   }
-
-  // Effect for fetching current user
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const response = await fetch('http://localhost:9999/backend/api/current-user', {
-          method: 'GET',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Not logged in');
-        setCurrentUserId(data.response.id);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
-
-  // Effect for WebSocket setup and current user fetching
-  useEffect(() => {
-    if (!currentUserId) return;
-
-    ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
-    ws.current.onopen = () => console.log('WebSocket connection opened');
-    ws.current.onclose = () => console.log('WebSocket connection closed');
-    ws.current.onerror = (error) => console.error('WebSocket error:', error);
-
-    return () => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) 
-        ws.current.close();
-    };
-  }, [currentUserId]);
-
-  // Effect for handling incoming WebSocket messages
-  useEffect(() => {
-    if (!ws.current) return;
-
-    ws.current.onmessage = handleOnMessage;
-
-    // cleanup
-    return () => {
-      if (ws.current) {
-        ws.current.onmessage = null;
-      }
-    };
-  }, [handleOnMessage]);
 
   // Effect for fetching messages when a conversation is selected
   useEffect(() => {
@@ -416,12 +335,15 @@ const MessagesPage = () => {
     fetchMessages();
   }, [selectedConversation]);
 
-
-
-
-
-
-
+  // Check if user is logged in
+  useEffect(() => {
+    if (currentUserId) {
+      setLoading(false);
+    } else {
+      setError('Not logged in');
+      setLoading(false);
+    }
+  }, [currentUserId]);
 
   if (loading) {
       return (
@@ -450,7 +372,6 @@ const MessagesPage = () => {
       console.log("(MessagesPage) No current user, redirecting to login");
       return <Navigate to="/login" replace />;
   }
-
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -555,6 +476,5 @@ const MessagesPage = () => {
     </div>
   );
 };
-
 
 export default MessagesPage;

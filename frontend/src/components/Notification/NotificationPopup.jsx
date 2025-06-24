@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Masonry from "react-masonry-css";
 import { formatDistanceToNow, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import "../../styles/notification.css";
 
 function NotificationPopup({ onClose }) {
   const [notifications, setNotifications] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // First fetch current user
@@ -37,6 +39,7 @@ function NotificationPopup({ onClose }) {
   const toggleRead = (id, currentIsRead) => {
     if (!currentUser) return;
     
+
     fetch("http://localhost:9999/backend/api/notifications", {
       method: "POST",
       credentials: 'include',
@@ -117,10 +120,7 @@ function NotificationPopup({ onClose }) {
 
   return (
     <div className="notification-popup-outer">
-      <div
-        className="notification-popup-inner"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="notification-popup-inner" onClick={e => e.stopPropagation()}>
         <div className="notification-popup-header">
           <span>Notifications</span>
         </div>
@@ -134,7 +134,23 @@ function NotificationPopup({ onClose }) {
             columnClassName="notification-masonry-grid_column"
           >
             {notifications.map((n, idx) => (
-              <div className="notification-card" key={n.id}>
+              <div
+                className="notification-card"
+                key={n.id}
+                style={n.postId ? { cursor: "pointer" } : {}}
+                onClick={n.postId ? () => navigate(`/post/${n.postId}`) : undefined}
+                tabIndex={n.postId ? 0 : undefined}
+                role={n.postId ? "button" : undefined}
+                onKeyDown={
+                  n.postId
+                    ? e => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate(`/post/${n.postId}`);
+                        }
+                      }
+                    : undefined
+                }
+              >
                 <div className="notification-card-content">
                   <div className="notification-card-title">
                     {n.type || "Heading"}
