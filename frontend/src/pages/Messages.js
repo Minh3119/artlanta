@@ -313,7 +313,6 @@ const MessagesPage = () => {
       }
 
       try {
-        setMessagesLoading(true);
         setMessagesError(null);
         const response = await fetch(`http://localhost:9999/backend/api/messages?conversationId=${selectedConversation.id}`, {
           credentials: 'include',
@@ -327,8 +326,6 @@ const MessagesPage = () => {
         setMessages(data.messages || []);
       } catch (err) {
         setMessagesError(err.message || 'Failed to load messages');
-      } finally {
-        setMessagesLoading(false);
       }
     };
 
@@ -444,7 +441,6 @@ const MessagesPage = () => {
                 {/* Messages List */}
                 <div className="flex-1 overflow-auto">
                   <MessagesList 
-                    key={selectedConversation?.id}
                     conversationId={selectedConversation?.id} 
                     currentUserId={currentUserId}
                     messages={messages}

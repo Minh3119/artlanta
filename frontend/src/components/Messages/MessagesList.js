@@ -32,11 +32,15 @@ const MessagesList = React.memo(({ conversationId, currentUserId, messages, load
   useEffect(() => {
     if (messages.length > 0 && scrollRef.current) {
       // Small delay to ensure DOM is updated
-      setTimeout(() => {
-        scrollRef.current.scrollToBottom();
-      }, 100);
+      const timer = setTimeout(() => {
+        if (scrollRef.current && scrollRef.current.scrollToBottom) {
+          scrollRef.current.scrollToBottom();
+        }
+      }, 50);
+      
+      return () => clearTimeout(timer);
     }
-  }, [messages.length]);
+  }, [messages.length, messages]);
 
   if (!conversationId) {
     return (
