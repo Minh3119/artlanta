@@ -1,13 +1,20 @@
 import React, { useState,useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useWebSocket } from "../../contexts/WebSocketContext";
 
 export default function HeaderDropDown({ userID, dropdownActive, setDropdownActive }) {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const [balance, setBalance] = useState(0);
+  const { ws } = useWebSocket();
 
   const handleLogout = async () => {
     try {
+      // Close WebSocket connection first
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+
       const res = await fetch("http://localhost:9999/backend/api/logout", {
         method: "POST",
         credentials: "include",
