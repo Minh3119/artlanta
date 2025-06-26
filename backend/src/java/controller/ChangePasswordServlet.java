@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.User;
 import org.json.JSONObject;
 import util.JsonUtil;
 import util.SessionUtil;
@@ -83,7 +84,7 @@ public class ChangePasswordServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         response.setHeader("Access-Control-Allow-Credentials", "true");
 
-        JSONObject jsonResponse = new JSONObject();
+        JSONObject json = new JSONObject();
 
         try {
             // Get user ID from session
@@ -91,9 +92,9 @@ public class ChangePasswordServlet extends HttpServlet {
             Integer userId = SessionUtil.getCurrentUserId(session);
             if (userId == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Unauthorized: User not logged in");
-                response.getWriter().write(jsonResponse.toString());
+                json.put("success", false);
+                json.put("message", "Unauthorized: User not logged in");
+                response.getWriter().write(json.toString());
                 return;
             }
 
@@ -106,42 +107,59 @@ public class ChangePasswordServlet extends HttpServlet {
             }
             JSONObject body = new JSONObject(sb.toString());
 
+            String oldPassword = body.optString("oldPassword", "").trim();
             String newPassword = body.optString("newPassword", "").trim();
+            
+            if (oldPassword.isEmpty()) {
+                json.put("success", false);
+                json.put("message", "Old password is required");
+                response.getWriter().write(json.toString());
+                return;
+            }
+            
             if (newPassword.isEmpty()) {
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "New password is required");
-                response.getWriter().write(jsonResponse.toString());
+                json.put("success", false);
+                json.put("message", "New password is required");
+                response.getWriter().write(json.toString());
+                return;
+            }
+
+            // Get current user to check old password
+            UserDAO userDao = new UserDAO();
+            User currentUser = userDao.getOne(userId);
+            
+            if (currentUser == null) {
+                json.put("success", false);
+                json.put("message", "User not found");
+                response.getWriter().write(json.toString());
+                return;
+            }
+            
+            // Check if old password matches current password
+            if (!oldPassword.equals(currentUser.getPasswordHash())) {
+                json.put("success", false);
+                json.put("message", "Old password is incorrect");
+                response.getWriter().write(json.toString());
                 return;
             }
 
             // Update password hash
-            UserDAO userDao = new UserDAO();
             boolean updated = userDao.updatePasswordHashByID(userId, newPassword);
 
             if (updated) {
-                jsonResponse.put("success", true);
-                jsonResponse.put("message", "Password updated successfully");
+                json.put("success", true);
+                json.put("message", "Password updated successfully");
             } else {
-                jsonResponse.put("success", false);
-                jsonResponse.put("message", "Failed to update password");
+                json.put("success", false);
+                json.put("message", "Failed to update password");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            jsonResponse.put("success", false);
-            jsonResponse.put("message", "Internal server error");
+            json.put("success", false);
+            json.put("message", "Internal server error");
         }
 
-        response.getWriter().write(jsonResponse.toString());
-    }
-
-    @Override
-    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().write(json.toString());
     }
 
     /**

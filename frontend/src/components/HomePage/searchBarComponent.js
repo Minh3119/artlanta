@@ -22,17 +22,17 @@ class SearchBarComponent extends React.Component {
         }
 
         if (newContent.length > 750) {
-            toast.error('Search value too long!', {
-                toastId: "fullname-toast",
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-                className: "toast-complete"
+                toast.error('Search value too long!', {
+                    toastId: "fullname-toast",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
             });
             return;
         }
@@ -46,7 +46,7 @@ class SearchBarComponent extends React.Component {
         try {
             const [postRes, userRes] = await Promise.all([
                 fetch(`http://localhost:9999/backend/api/search/post`, {
-                    method: "POST",
+            method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ searchValue: newContent }),
                     credentials: 'include'
@@ -55,8 +55,8 @@ class SearchBarComponent extends React.Component {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ searchValue: newContent }),
-                    credentials: 'include'
-                })
+            credentials: 'include'
+        })
             ]);
             let postList = [];
             let userList = [];
@@ -68,10 +68,10 @@ class SearchBarComponent extends React.Component {
                 const userData = await userRes.json();
                 userList = userData.response || [];
             }
-            this.setState({
+                this.setState({
                 postList,
                 userList
-            });
+                });
         } catch (error) {
             console.error('Error fetching search data:', error);
         }
@@ -93,13 +93,13 @@ class SearchBarComponent extends React.Component {
                         <>
                             {this.state.postList.map((item, index) => (
                                 <a className="search-item" key={"post-"+item.postID} href={`/post/${item.postID}`}>
-                                    <div className="item-img">
+                                        <div className="item-img">
                                         <img src={item.image} alt="post" />
-                                    </div>
-                                    <p className="item-content">{item.content}</p>
-                                    <p className="item-author">{item.author}</p>
-                                    <p className="item-date">{item.createAt}</p>
-                                </a>
+                                        </div>
+                                        <p className="item-content">{item.content}</p>
+                                        <p className="item-author">{item.author}</p>
+                                        <p className="item-date">{item.createAt}</p>
+                                    </a>
                             ))}
                             {this.state.userList.map((user, index) => (
                                 <a className="search-item" key={"user-"+user.id} href={`/user/${user.id}`}>

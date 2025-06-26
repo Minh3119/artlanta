@@ -50,7 +50,7 @@ const EditPasswordComponent = () => {
     setLoading(false);
   };
 
-  return (
+        return (
     <div className="edit-password-container">
       <h2>Change Password</h2>
       {message && <div style={{ color: message.includes("success") ? "green" : "red", marginBottom: 10 }}>{message}</div>}
