@@ -101,6 +101,7 @@
                     transition: all 0.3s ease;
                     margin-top: 2px;
                     padding: 5px;
+                    max-width: 150px;
                 }
                 .playlist:hover{
                     box-shadow: 0 4px 10px rgb(255, 2, 2);
@@ -142,6 +143,8 @@
                     transition: all 0.3s ease;
                     margin-top: 2px;
                     padding: 5px;
+                    max-width: 150px;
+                    
                 }
                 .playlist:hover{
                     box-shadow: 0 4px 10px rgb(255, 2, 2);
