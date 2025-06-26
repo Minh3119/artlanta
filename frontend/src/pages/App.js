@@ -19,6 +19,7 @@ import PassForget from './PassForget.js';
 import PostListPage from "./Post.js"
 import PostDetail from './PostDetail.js';
 import MessagesPage from './Messages.js';
+import SavedPostPage from './SavedPostPage.js';
 
 import MusicComponent from '../components/MusicBox/musicComponent.js';
 import { FiHeadphones } from "react-icons/fi";
@@ -60,8 +61,9 @@ function App() {
           <Route path="/paymentHis" element={<PaymentHis/>}></Route>
           <Route path="/paymentResult" element={<PaymentResult/>}></Route>
           <Route path="/admin" element={<AdminDashboard />} />
-           <Route path="/recent-posts" element={<RecentPosts />} />
-                    <Route path="/event" element={<EventPage />} />
+          <Route path="/recent-posts" element={<RecentPosts />} />
+          <Route path="/event" element={<EventPage />} />
+          <Route path="/saved" element={<SavedPostPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
         </Routes >
         <MusicComponent setIsMusicOpen={setIsMusicOpen}

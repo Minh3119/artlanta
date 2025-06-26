@@ -111,6 +111,14 @@ export default function HomePage() {
       </div>
       <div className="homepage-title">
         <div className="tab-buttons">
+          <Link to="/saved">
+            <button 
+            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+              onClick={() => setSelectedTab('saved')}
+            >
+              Saved
+            </button>
+          </Link>
           <Link to="/homepage">
             <button
               className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
