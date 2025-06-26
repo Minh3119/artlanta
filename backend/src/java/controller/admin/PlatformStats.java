@@ -69,42 +69,62 @@ public class PlatformStats extends HttpServlet {
 			throws ServletException, IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		UserDAO udao = new UserDAO();
 
-		List<User> ULists = udao.getAll();
-
-		JSONArray jsonUsers = new JSONArray();
-		for (User user : ULists) {
-			JSONObject jsonUser = new JSONObject();
-			jsonUser.put("ID", user.getID());
-			jsonUser.put("username", user.getUsername());
-			jsonUser.put("email", user.getEmail());
-			jsonUser.put("passwordHash", user.getPasswordHash());
-			jsonUser.put("fullName", user.getFullName());
-			jsonUser.put("bio", user.getBio());
-			jsonUser.put("avatarURL", user.getAvatarURL());
-			jsonUser.put("gender", user.getGender());
-			jsonUser.put("DOB", user.getDOB() != null ? user.getDOB().toString() : null);
-			jsonUser.put("location", user.getLocation());
-			jsonUser.put("role", user.getRole());
-			jsonUser.put("status", user.getStatus());
-			jsonUser.put("language", user.getLanguage());
-			jsonUser.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString().substring(0, 10) : null);
-			jsonUser.put("lastLogin", user.getLastLogin() != null ? user.getLastLogin().toString() : null);
-			jsonUser.put("isFlagged", user.isFlagged());
-			jsonUser.put("isPrivate", user.isPrivate());
-			jsonUsers.put(jsonUser);
-		}
+		HttpSession session = request.getSession(false);
+		Integer currentUserId = getCurrentUserId(session);
 
 		JSONObject jsonResponse = new JSONObject();
-		jsonResponse.put("mostUserCreDay", udao.getMostUserCreatedDate());
-		jsonResponse.put("response", jsonUsers);
-		jsonResponse.put("total_user", udao.countUsers());
-		jsonResponse.put("total_BUser", udao.countBannedUsers());
-		jsonResponse.put("total_Mod", udao.countMod());
-		JsonUtil.writeJsonResponse(response, jsonResponse);
+		UserDAO udao = new UserDAO();
 
-		udao.closeConnection();
+		try {
+			if (currentUserId == null || !udao.isAdmin(currentUserId)) {
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+				jsonResponse.put("isLogged", false);
+				jsonResponse.put("message", "Unauthorized");
+				JsonUtil.writeJsonResponse(response, jsonResponse);
+				return;
+			}
+
+			List<User> ULists = udao.getAll();
+			JSONArray jsonUsers = new JSONArray();
+
+			for (User user : ULists) {
+				JSONObject jsonUser = new JSONObject();
+				jsonUser.put("ID", user.getID());
+				jsonUser.put("username", user.getUsername());
+				jsonUser.put("email", user.getEmail());
+				jsonUser.put("passwordHash", user.getPasswordHash());
+				jsonUser.put("fullName", user.getFullName());
+				jsonUser.put("bio", user.getBio());
+				jsonUser.put("avatarURL", user.getAvatarURL());
+				jsonUser.put("gender", user.getGender());
+				jsonUser.put("DOB", user.getDOB() != null ? user.getDOB().toString() : null);
+				jsonUser.put("location", user.getLocation());
+				jsonUser.put("role", user.getRole());
+				jsonUser.put("status", user.getStatus());
+				jsonUser.put("language", user.getLanguage());
+				jsonUser.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString().substring(0, 10) : null);
+				jsonUser.put("lastLogin", user.getLastLogin() != null ? user.getLastLogin().toString() : null);
+				jsonUser.put("isFlagged", user.isFlagged());
+				jsonUser.put("isPrivate", user.isPrivate());
+				jsonUsers.put(jsonUser);
+			}
+
+			jsonResponse.put("isLogged", true);
+			jsonResponse.put("response", jsonUsers);
+			jsonResponse.put("mostUserCreDay", udao.getMostUserCreatedDate());
+			jsonResponse.put("total_user", udao.countUsers());
+			jsonResponse.put("total_BUser", udao.countBannedUsers());
+			jsonResponse.put("total_Mod", udao.countMod());
+
+			JsonUtil.writeJsonResponse(response, jsonResponse);
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			jsonResponse.put("error", "Server error");
+			JsonUtil.writeJsonResponse(response, jsonResponse);
+		} finally {
+			udao.closeConnection();
+		}
 	}
 
 	/**

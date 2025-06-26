@@ -103,7 +103,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
+    <div className="homepage-container" id="scrollableDiv" style={{overflowX:'hidden'}}>
       {/* Pass the type to openCreatePopup */}
       <Header openCreatePopup={openCreatePopup} />
 
