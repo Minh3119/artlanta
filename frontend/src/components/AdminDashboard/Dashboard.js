@@ -3,13 +3,16 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import {  PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import AddStaffForm from './AddStaff';
 import reload from '../../assets/images/reload.svg';
+import { useNavigate } from "react-router-dom";
+
 export default function Dashboard() {
     const [users, setUsers] = useState({raw: [], chart_data: [], total_user: 0, mostUserCreDay: "",  total_Mod:0, total_BUser:0});
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [searchText, setSearchText] = useState("");
     const [showForm, setShowForm] = useState(false);
-
+    const navigate = useNavigate();
+    const [isAuthorized, setIsAuthorized] = useState(null); 
 
     const filteredUsers = users.raw.filter(user =>
         user.username?.toLowerCase().includes(searchText.toLowerCase())
@@ -29,8 +32,13 @@ export default function Dashboard() {
                         total_Mod: data.total_Mod,
                         total_BUser: data.total_BUser
                     });
+                    setIsAuthorized(true);
                 })
-                .catch((err) => console.error(err));
+               .catch((err) => {
+            console.error("Fetch failed:", err);
+    setIsAuthorized(false);
+            navigate("/home");
+        });
     };
 
     const groupUsersByDate = (data) => {
@@ -114,6 +122,8 @@ const statusData = Object.entries(statusCount).map(([status, value]) => ({
   value,
 }));
 
+if (isAuthorized === null) return <div>Đang kiểm tra quyền truy cập...</div>;
+if (isAuthorized === false) return null;
 
     return (
             <div className="dashboard">

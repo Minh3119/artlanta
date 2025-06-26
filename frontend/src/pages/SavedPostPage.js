@@ -5,53 +5,12 @@ import Header from "../components/HomePage/Header";
 import { format } from "date-fns";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SavePost from "../components/HomePage/SavePost";
 
 export default function TemplatePage() {
-  const [currentID, setCurrentID] = useState(0);
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
   const location = useLocation();
-
-  useEffect(() => {
-    fetch("http://localhost:9999/backend/api/user/userid", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setCurrentID(data.response.userID);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch('http://localhost:9999/backend/api/events', {
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Set events from backend response
-      setEvents(data.events);
-      setLoading(false);
-    } catch (error) {
-      toast.error(error.message);
-      setLoading(false);
-    }
-  };
 
   const openCreatePopup = (type) => {
     if (type === 'event') {
@@ -99,7 +58,7 @@ export default function TemplatePage() {
       </div>
 
       {/* Add your page content here */}
-
+      <SavePost />
       <ToastContainer />
     </div>
   );

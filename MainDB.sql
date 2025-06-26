@@ -232,18 +232,17 @@ CREATE TABLE Review (
 );
 
 -- REPORTS -- Đang thử rút ngắn report user, post xem sao
-CREATE TABLE Report (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE ReportPost (
     ReporterID INT,
-    TargetUserID INT,
-    TargetPostID INT,
+    PostID INT,
     Reason VARCHAR(255),
     ReportAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status VARCHAR(20) DEFAULT 'PENDING',
-    FOREIGN KEY(ReporterID) REFERENCES Users(ID),
-    FOREIGN KEY(TargetUserID) REFERENCES Users(ID),
-    FOREIGN KEY(TargetPostID) REFERENCES Posts(ID)
+    PRIMARY KEY (ReporterID, PostID),
+    FOREIGN KEY (ReporterID) REFERENCES Users(ID),
+    FOREIGN KEY (PostID) REFERENCES Posts(ID)
 );
+
 
 -- NOTIFICATIONS
 CREATE TABLE Notifications (
