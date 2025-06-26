@@ -44,7 +44,6 @@ public class ZaloPayCallbackServlet extends HttpServlet {
             String jsonStr = buffer.toString();
             logger.info("ZaloPay callback received: " + jsonStr);
 
-            // Parse JSON
             JsonObject callbackData = JsonParser.parseString(jsonStr).getAsJsonObject();
             String dataStr = callbackData.get("data").getAsString();
             String reqMac = callbackData.get("mac").getAsString();
@@ -67,10 +66,8 @@ public class ZaloPayCallbackServlet extends HttpServlet {
             int amount = data.get("amount").getAsInt();
             String appUser = data.get("app_user").getAsString();
 
-            // Log for debugging
             logger.info("Processing payment - TransID: " + appTransId + ", Amount: " + amount);
 
-            // Kiểm tra xem transaction đã được xử lý chưa (tránh duplicate)
             TransactionDAO transactionDAO = new TransactionDAO();
             if (transactionDAO.isTransactionProcessed(appTransId)) {
                 logger.info("Transaction already processed: " + appTransId);
@@ -80,16 +77,13 @@ public class ZaloPayCallbackServlet extends HttpServlet {
                 return;
             }
 
-            // Parse userId từ app_user
             int userId = Integer.parseInt(appUser);
 
-            // Xử lý cộng tiền
             BigDecimal amountVND = new BigDecimal(amount);
             WalletDAO walletDAO = new WalletDAO();
 
             String description = "Nạp tiền qua ZaloPay - Mã GD: " + appTransId;
 
-            // Insert transaction và update wallet trong transaction DB
             transactionDAO.insertTransaction(
                     userId,
                     amountVND,
@@ -101,7 +95,7 @@ public class ZaloPayCallbackServlet extends HttpServlet {
 
             logger.info("Payment processed successfully for user: " + userId);
 
-            // Response success cho ZaloPay
+
             result.addProperty("return_code", 1);
             result.addProperty("return_message", "success");
 

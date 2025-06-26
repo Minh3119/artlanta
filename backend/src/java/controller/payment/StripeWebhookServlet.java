@@ -22,15 +22,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.ExchangeRateUtil;
 import validation.EnvConfig;
 
 @WebServlet(name = "StripeWebhookServlet", urlPatterns = {"/api/payment/stripe/webhook"})
 public class StripeWebhookServlet extends HttpServlet {
 
-    private static final Logger LOGGER = Logger.getLogger(StripeWebhookServlet.class.getName());
     private static final Set<String> processedEvents = ConcurrentHashMap.newKeySet();
 
     @Override
@@ -43,7 +40,6 @@ public class StripeWebhookServlet extends HttpServlet {
         String webhookSecret = configReader.getProperty("stripe_webhook_secret");
 
         if (webhookSecret == null || webhookSecret.isEmpty()) {
-            LOGGER.severe("❌ Webhook secret không được cấu hình.");
             response.setStatus(500);
             return;
         }
@@ -52,14 +48,11 @@ public class StripeWebhookServlet extends HttpServlet {
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
 
             if (processedEvents.contains(event.getId())) {
-                LOGGER.info("Đã xử lý event này rồi: " + event.getId());
                 response.setStatus(200);
                 return;
             }
 
             if ("checkout.session.completed".equals(event.getType())) {
-                LOGGER.info("=== [Stripe] checkout.session.completed ===");
-                LOGGER.info("Event ID: " + event.getId());
 
                 Optional<StripeObject> opt = event.getDataObjectDeserializer().getObject();
                 String sessionId = "";
@@ -72,13 +65,11 @@ public class StripeWebhookServlet extends HttpServlet {
                     userIdStr = session.getMetadata().get("userId");
                     amountUSD = new BigDecimal(session.getAmountTotal()).divide(new BigDecimal("100"));
                 } else {
-                    LOGGER.warning("⚠ Không parse được StripeObject, fallback parse JSON.");
 
                     String rawJson = event.getDataObjectDeserializer().getRawJson();
                     CheckoutSessionPartial parsed = new Gson().fromJson(rawJson, CheckoutSessionPartial.class);
 
                     if (parsed == null || parsed.metadata == null || parsed.metadata.get("userId") == null) {
-                        LOGGER.warning("⚠ Metadata không hợp lệ.");
                         response.setStatus(400);
                         return;
                     }
@@ -91,8 +82,6 @@ public class StripeWebhookServlet extends HttpServlet {
                 int userId = Integer.parseInt(userIdStr);
                 BigDecimal amountVND = amountUSD.multiply(ExchangeRateUtil.getUsdToVndRate());
 
-                LOGGER.info("userId = " + userId);
-                LOGGER.info("amount = $" + amountUSD + " ~ " + amountVND + " VND");
 
                 TransactionDAO transactionDAO = new TransactionDAO();
                 WalletDAO walletDAO = new WalletDAO();
@@ -102,17 +91,13 @@ public class StripeWebhookServlet extends HttpServlet {
                 walletDAO.addBalance(userId, amountVND);
 
                 processedEvents.add(event.getId());
-                LOGGER.info("✅ Ghi nhận thanh toán thành công cho userId = " + userId);
             } else {
-                LOGGER.info("Bỏ qua event loại: " + event.getType());
             }
 
             response.setStatus(200);
         } catch (SignatureVerificationException e) {
-            LOGGER.warning("❌ Webhook signature không hợp lệ: " + e.getMessage());
             response.setStatus(400);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "❌ Lỗi xử lý webhook", e);
             response.setStatus(500);
         }
     }
