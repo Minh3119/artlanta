@@ -19,16 +19,33 @@ function AccountStatsPage() {
   const [stats, setStats] = useState(null);
   const [topPosts, setTopPosts] = useState([]);
   const [topCommenters, setTopCommenters] = useState([]);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetch(`http://localhost:9999/backend/api/statistics?userId=${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        setStats(data);
-        setTopPosts(data.topPosts || []);
-        setTopCommenters(data.topCommenters || []);
-      });
-  }, [userId]);
+useEffect(() => {
+  fetch(`http://localhost:9999/backend/api/statistics?`, {
+    method: "GET",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then(async res => {
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "An unknown error occurred.");
+        return;
+      }
+
+      setStats(data);
+      setTopPosts(data.topPosts || []);
+      setTopCommenters(data.topCommenters || []);
+    })
+    .catch(err => {
+      setError("Failed to connect to server.");
+    });
+}, [userId]);
+
+
+  if (error) return <div style={{ color: "red", textAlign: "center" }}>{error}</div>;
 
   if (!stats) return <div>Loading...</div>;
 
@@ -95,12 +112,12 @@ function AccountStatsPage() {
           <div className="stat-value">{stats.likesReceived}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Votes per post</div>
+          <div className="stat-label">Likes per post</div>
           <div className="stat-value">{stats.votesPerPost}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Flagged items</div>
-          <div className="stat-value">{stats.flagsReceived}</div>
+          <div className="stat-label">Comments per post</div>
+          <div className="stat-value">{stats.commentsPerPost}</div>
         </div>
       </div>
 
