@@ -108,9 +108,9 @@ const UserInfo = ({
         <div className="bg-white rounded-3xl shadow-lg p-8">
             <div className="flex items-start space-x-4">
                 <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-gray-100 shadow-lg">
-                    {userData.avatarUrl ? (
+                    {userData.avatarURL ? (
                         <AvatarImage 
-                            avatarUrl={userData.avatarUrl}
+                            avatarUrl={userData.avatarURL}
                             displayName={userData.displayName || userData.username}
                             size="md"
                         />

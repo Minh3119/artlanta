@@ -134,7 +134,7 @@ CREATE TABLE SavedPost (
 CREATE TABLE Follows (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     FollowerID INT,
-    Followed INT,
+    FollowedID INT,
     Status VARCHAR(10) DEFAULT 'ACCEPTED' CHECK (Status IN ('PENDING', 'ACCEPTED', 'REJECT')),
     FollowAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(FollowerID) REFERENCES Users(ID),
@@ -556,7 +556,7 @@ INSERT INTO SavedPost (UserID, PostID, SavedAt) VALUES
 (1, 9, '2025-04-24');
 
 
-INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
+INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (1, 2, 'ACCEPTED', '2025-04-10'),
 (2, 3, 'PENDING', '2025-04-11'),
 (3, 4, 'ACCEPTED', '2025-04-12'),
@@ -815,7 +815,7 @@ VALUES
 
 
 
-INSERT INTO Follows (FollowerID, FollowingID, Status, FollowAt) VALUES
+INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (1, 2, 'ACCEPTED', '2025-04-10'),
 (2, 3, 'PENDING', '2025-04-11'),
 (3, 4, 'ACCEPTED', '2025-04-12'),
