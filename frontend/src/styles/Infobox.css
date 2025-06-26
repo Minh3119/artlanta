@@ -1,0 +1,256 @@
+
+
+.section {
+  width: 1654px;
+  height: 1700px;
+  position: relative;
+  font-family: 'Source Sans Pro', sans-serif !important; 
+  background: #f8f9fa;
+  padding: 20px;
+  margin-left:30px;
+}
+
+.heading5-info-box {
+  height: 24px;
+  position: absolute;
+  left: 7px;
+  top: 0px;
+  color: #212529;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.background-shadow {
+  width: 398.5px;
+  height: 80px;
+  position: absolute;
+  background: white;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.background {
+  width: 70px;
+  height: 54px;
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  border-radius: 4px;
+}
+
+.bg-cyan {
+  background: #17A2B8;
+}
+
+.bg-green {
+  background: #28A745;
+}
+
+.bg-yellow {
+  background: #FFC107;
+}
+
+.bg-red {
+  background: #DC3545;
+}
+
+.symbol {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  left: 20px;
+  top: 17px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 30px;
+}
+
+.bg-yellow .symbol {
+  color: #1F2D3D;
+}
+
+.container {
+  width: 312.5px;
+  height: 64px;
+  position: absolute;
+  left: 78px;
+  top: 8px;
+  overflow: hidden;
+}
+
+.info-title {
+  width: 292.5px;
+  height: 20px;
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  color: white;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.info-value {
+  width: 508.91px;
+  height: 20px;
+  position: absolute;
+  left: 10px;
+  top: 44px;
+  color: #212529;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+/* Shadow Variations */
+.small-shadow {
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.regular-shadow {
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.large-shadow {
+  box-shadow: 0px 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Info Box with Custom Shadows section */
+.info-box-with-custom-shadows {
+  width: 262.58px;
+  height: 25px;
+  position: absolute;
+  left: 0px;
+  color: #212529;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.small-using-bootstrap {
+  width: 214.07px;
+  height: 20px;
+  position: absolute;
+  left: 262.38px;
+  top: 3px;
+  color: #212529;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 19.2px;
+}
+
+/* Info Box With section */
+.info-box-with {
+  width: 114.34px;
+  height: 25px;
+  position: absolute;
+  left: 0px;
+  color: #212529;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.code-bg {
+  width: 42.22px;
+  height: 20px;
+  position: absolute;
+  left: 114.14px;
+  top: 4px;
+  color: #E83E8C;
+  font-family: Consolas, monospace;
+  font-size: 17.5px;
+  font-weight: 400;
+  line-height: 21px;
+}
+
+/* Solid color boxes */
+.bg-cyan, .bg-green, .bg-yellow, .bg-red {
+  width: 398.5px;
+  height: 88.39px;
+  position: absolute;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.bg-yellow .info-title,
+.bg-yellow .info-value,
+.bg-yellow .info-footer {
+  color: #1F2D3D;
+}
+
+.bg-cyan .info-title,
+.bg-cyan .info-value,
+.bg-cyan .info-footer,
+.bg-green .info-title,
+.bg-green .info-value,
+.bg-green .info-footer,
+.bg-red .info-title,
+.bg-red .info-value,
+.bg-red .info-footer {
+  color: white;
+}
+
+.horizontal-divider {
+  width: 292.5px;
+  height: 2px;
+  position: absolute;
+  left: 10px;
+  top: 66.59px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 1px;
+}
+
+.horizontal-divider::after {
+  content: '';
+  position: absolute;
+  width: 204.75px;
+  height: 2px;
+  background: white;
+}
+
+.bg-yellow .horizontal-divider::after {
+  background: white;
+}
+
+.info-footer {
+  width: 158.95px;
+  height: 20px;
+  position: absolute;
+  left: 10px;
+  top: 73.59px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.styled-table thead tr {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.styled-table th, .styled-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+}
+
+.styled-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+
+/* Other sections (Small Box, Cards) would follow similar patterns */

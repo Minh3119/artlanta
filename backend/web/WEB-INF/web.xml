@@ -96,11 +96,14 @@
         <servlet-name>StatisticsServlet</servlet-name>
         <servlet-class>controller.StatisticsServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PaymentStats</servlet-name>
+        <servlet-class>controller.admin.PaymentStats</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>UserProfileEdit</servlet-name>
         <url-pattern>/api/user-profile</url-pattern>
     </servlet-mapping>
-    
     <servlet-mapping>
         <servlet-name>UserIDServlet</servlet-name>
         <url-pattern>/api/user/userid</url-pattern>
@@ -129,7 +132,7 @@
         <servlet-name>PostViewerServlet</servlet-name>
         <url-pattern>/api/post/view/*</url-pattern>
     </servlet-mapping>
-        <servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ReportPost</servlet-name>
         <url-pattern>/api/post/report</url-pattern>
     </servlet-mapping>
@@ -182,11 +185,14 @@
         <url-pattern>/api/admin/statics</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>PaymentStats</servlet-name>
+        <url-pattern>/api/admin/payment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ChangePasswordServlet</servlet-name>
         <url-pattern>/api/changepassword</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-    
 </web-app>

@@ -28,7 +28,7 @@ export default function RecentPosts() {
         throw new Error(data.error);
       }
 
-      // Fetch post details for each history entry
+      // Fetch post details bằng cách lặp qua lịch sử đã xem
       const postPromises = data.history.map(entry =>
         fetch(`http://localhost:9999/backend/api/post/view/${entry.postId}`, {
           credentials: 'include'
@@ -42,8 +42,8 @@ export default function RecentPosts() {
 
       const postResults = await Promise.all(postPromises);
       const validPosts = postResults
-        .filter(post => post && !post.error)
-        .sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt));
+        .filter(post => post && !post.error) // Lọc các bài viết hợp lệ
+        .sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt)); // Sắp xếp theo thời gian xem gần nhất
       
       setViewedPosts(validPosts);
       setLoading(false);
@@ -53,6 +53,7 @@ export default function RecentPosts() {
     }
   };
 
+  // Chuyển string thành định dạng Date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -64,6 +65,7 @@ export default function RecentPosts() {
     });
   };
 
+  //-------------------Phần render component-------------------
   return (
     <div className="homepage-container">
       <Header />

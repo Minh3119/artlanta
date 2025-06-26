@@ -928,3 +928,32 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 (6, 4, 'Are we still meeting tomorrow?', NULL, '2025-06-23 09:00:00'),
 (6, 3, 'Yes, at 2 PM at the cafe?', NULL, '2025-06-23 09:05:00'),
 (6, 4, 'Perfect, see you then!', NULL, '2025-06-23 09:06:00');
+
+INSERT INTO Wallets (UserID, Balance, Currency)
+VALUES 
+  (1, 150000.00, 'VND'),
+  (2, 82000.00, 'VND'),
+  (3, 1200000.00, 'VND'),
+  (4, 350000.00, 'VND'),
+  (5, 50000.00, 'VND'),
+  (6, 999999.99, 'VND'),
+  (7, 70000.00, 'VND'),
+  (8, 440000.00, 'VND'),
+  (9, 0.00, 'VND'),
+  (10, 300000.00, 'VND');
+  
+
+  
+INSERT INTO Transactions (UserID, PaymentMethod, Amount, Currency, Status, Description, CreatedAt)
+VALUES
+(1, 'vnpay', 150000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: a1', '2025-01-01 10:15:00'),
+(2, 'vnpay', 22000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: b2', '2025-06-03 14:20:00'),
+(3, 'stripe', 250.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s1', '2025-06-04 09:10:00'),
+(4, 'paypal', 120.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p1', '2025-07-05 16:00:00'),
+(5, 'vnpay', 10000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: c3', '2025-08-08 13:30:00'),
+(6, 'stripe', 800.99, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s2', '2025-09-10 11:25:00'),
+(7, 'paypal', 600.75, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p2', '2025-012-12 15:40:00'),
+(8, 'vnpay', 50000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: d4', '2026-06-15 18:05:00'),
+(9, 'stripe', 100.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s3', '2028-06-20 08:45:00'),
+(10, 'paypal', 50.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p3', '2027-06-25 17:50:00');
+
