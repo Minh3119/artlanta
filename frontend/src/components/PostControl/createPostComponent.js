@@ -183,7 +183,18 @@ class CreatePostComponent extends React.Component {
     }
     handleSubmit = async () => {
         if (!(this.state.content.trim())) {
-            toast.error("Content cannot be blank");
+            toast.error(`Content cannot be blank`, {
+                toastId: "content-blank",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                className: "toast-complete"
+            });
             return;
         }
         const formData = new FormData();

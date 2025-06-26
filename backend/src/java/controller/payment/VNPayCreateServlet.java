@@ -1,3 +1,5 @@
+package controller.payment;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.ServletException;
@@ -31,12 +33,6 @@ public class VNPayCreateServlet extends HttpServlet {
         String vnpPayUrl = config.getProperty("vnp_payUrl");
         String vnpReturnUrl = "http://localhost:3000/paymentResult";
 
-        // DEBUG: Kiểm tra config
-        System.out.println("=== DEBUG CONFIG ===");
-        System.out.println("vnpTMNCode: " + vnpTMNCode);
-        System.out.println("vnpHashSecret: " + (vnpHashSecret != null ? "có giá trị" : "null"));
-        System.out.println("vnpPayUrl: " + vnpPayUrl);
-        System.out.println("vnpReturnUrl: " + vnpReturnUrl);
 
         JsonObject json = JsonParser.parseReader(new BufferedReader(new InputStreamReader(request.getInputStream())))
                 .getAsJsonObject();
@@ -85,13 +81,6 @@ public class VNPayCreateServlet extends HttpServlet {
         String secureHash = hmacSHA512(vnpHashSecret, hashData.toString());
         query.append("&vnp_SecureHash=").append(secureHash);
         String paymentUrl = vnpPayUrl + "?" + query;
-
-        // DEBUG: Kiểm tra URL cuối cùng
-        System.out.println("=== DEBUG URL ===");
-        System.out.println("hashData: " + hashData.toString());
-        System.out.println("secureHash: " + secureHash);
-        System.out.println("query: " + query.toString());
-        System.out.println("paymentUrl: " + paymentUrl);
 
         JsonObject result = new JsonObject();
         result.addProperty("paymentUrl", paymentUrl);
