@@ -116,6 +116,10 @@ export default function Header({ openCreatePopup }) {
           {showCreateMenu && (
             <div className="create-menu-dropdown">
               <div className="create-menu-item" onClick={() => {
+                if (userID === 0) {
+                  navigate("/login");
+                  return;
+                };
                 openCreatePopup('post');
                 setShowCreateMenu(false);
               }}>
@@ -152,18 +156,18 @@ export default function Header({ openCreatePopup }) {
 
 
         <div className="header-more" ref={userMenuRef}>
-          <div 
-            onClick={() => setShowUserMenu(!showUserMenu)} 
+          <div
+            onClick={() => setShowUserMenu(!showUserMenu)}
             style={{ cursor: "pointer", position: "relative" }}
           >
-            <img 
-              src={ava} 
+            <img
+              src={ava}
               alt="ava"
               style={{ width: "2.5vw", height: "", borderRadius: "50%" }}
             />
-            <img 
-              src={arrowDown} 
-              alt="more" 
+            <img
+              src={arrowDown}
+              alt="more"
               style={{
                 transform: showUserMenu ? 'rotate(180deg)' : 'none',
                 transition: 'transform 0.2s ease'
@@ -171,20 +175,20 @@ export default function Header({ openCreatePopup }) {
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
-                {userID!=0 && (
+                {userID != 0 && (
                   <Link to={`/user/${userID}`} className="user-menu-item">
                     Profile
                   </Link>
                 )}
-                {userID!=0 && (
-                <Link to="/settings" className="user-menu-item">
-                  Settings
-                </Link>
+                {userID != 0 && (
+                  <Link to="/settings" className="user-menu-item">
+                    Settings
+                  </Link>
                 )}
-                {userID!=0 && (
-                <Link to="/recent-posts" className="user-menu-item">
-                  Recent Posts
-                </Link>
+                {userID != 0 && (
+                  <Link to="/recent-posts" className="user-menu-item">
+                    Recent Posts
+                  </Link>
                 )}
                 {userID !== 0 && (
                   <div className="user-menu-item" onClick={handleLogout}>
