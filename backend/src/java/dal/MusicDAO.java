@@ -115,21 +115,17 @@ public class MusicDAO extends DBContext {
             }
 
             connection.commit();
+            rs.close();
         } catch (SQLException e) {
             if (connection != null) {
                 connection.rollback();
             }
             e.printStackTrace();
         } finally {
-            if (timeSelect != null) {
                 timeSelect.close();
-            }
-            if (timeInsert != null) {
                 timeInsert.close();
-            }
-            if (timeUpdate != null) {
                 timeUpdate.close();
-            }
+                
             if (connection != null) {
                 connection.setAutoCommit(true);
                 connection.close();
@@ -162,11 +158,13 @@ public class MusicDAO extends DBContext {
 
             ResultSet rs = timeSelect.executeQuery();
             if (rs.next()) {
-                return rs.getInt("PlayTime");
+                int play= rs.getInt("PlayTime");
+                rs.close();
+                return play;
             } else {
+                rs.close();
                 return 0;
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

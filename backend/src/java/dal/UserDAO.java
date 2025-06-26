@@ -81,6 +81,7 @@ public class UserDAO extends DBContext {
                         rs.getBoolean("IsPrivate"));
                 list.add(user);
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
