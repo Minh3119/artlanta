@@ -62,9 +62,9 @@ function App() {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/payment" element={<Payment />}></Route>
-          <Route path="/paymentHis" element={<PaymentHis />}></Route>
-          <Route path="/paymentResult" element={<PaymentResult />}></Route>
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/paymentHis" element={<PaymentHis/>}></Route>
+          <Route path="/paymentResult" element={<PaymentResult/>}></Route>
+          <Route path="/471408451d6070899bba1548031a2cf3/admin" element={<AdminDashboard />} />
           <Route path="/recent-posts" element={<RecentPosts />} />
           <Route path="/event" element={<EventPage />} />
           <Route path="/saved" element={<SavedPostPage />} />

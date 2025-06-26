@@ -193,7 +193,7 @@ class UpdatePostComponent extends React.Component {
                     previewUrls.map(async (item, index) => {
                         const response = await fetch(item.mediaURL);
                         const blob = await response.blob();
-                        return new File([blob], `image_${index}.jpg`, { type: blob.type });
+                        return new File([blob], `image_${index}`, { type: blob.type });
                     })
                 );
                 this.setState({

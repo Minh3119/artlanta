@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import dotsIcon from "../../assets/images/dots.svg";
 import ReportForm from "./ReportForm";
 
-const OptionsDropdown = ({ openDeletePopup, openUpdatePopup, post, currentID}) => {
+const OptionsDropdown = ({ openDeletePopup, openUpdatePopup, post, currentID, removePost}) => {
   const [showMenu, setShowMenu] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
+const [forceUpdate, setForceUpdate] = useState(false);
 
   const handleToggle = () => {
     setShowMenu(!showMenu);
@@ -26,30 +27,42 @@ const handleOptionClick = async (option) => {
     setShowMenu(false);
     setShowReportForm(true);
   } else if (option === 'save') {
+    // cập nhật tạm UI trước
+    post.isSaved = !post.isSaved;
+    setShowMenu(false);
+
     try {
       const res = await fetch(`http://localhost:9999/backend/api/post/save?postID=${post.postID}`, {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include'
       });
 
       const data = await res.json();
       console.log(data);
       if (data.success) {
-        alert("Đã lưu bài viết!");
+        alert(post.isSaved ? "Đã lưu bài viết!" : "Đã bỏ lưu bài viết!");
+
+        if (!post.isSaved && typeof removePost === 'function') {
+          removePost(post.postID);
+        }
       } else {
-        alert("Lỗi khi lưu bài viết!");
+        alert("Lỗi khi lưu/bỏ lưu bài viết!");
+        // rollback nếu có lỗi (optional)
+        post.isSaved = !post.isSaved;
       }
     } catch (err) {
       console.error("Fetch error:", err);
       alert("Đã xảy ra lỗi!");
-    } finally {
-      setShowMenu(false);
+      // rollback nếu có lỗi (optional)
+      post.isSaved = !post.isSaved;
     }
   } else {
-    console.log(`Clicked: ${option}`);
     setShowMenu(false);
   }
 };
+
+
+
 
   return (
     <>

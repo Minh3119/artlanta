@@ -68,7 +68,7 @@ export default function LoginCard() {
         const role = data.user.role?.toUpperCase();
 
         if (role === "ADMIN") {
-          navigate("/admin");
+          navigate("/471408451d6070899bba1548031a2cf3/admin");
         } else {
           navigate("/");
         }
