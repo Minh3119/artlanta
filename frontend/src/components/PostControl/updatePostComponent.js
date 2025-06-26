@@ -32,7 +32,7 @@ class UpdatePostComponent extends React.Component {
             :
             (
                 toast.error('Content too long!', {
-                    toastId: "fullname-toast",
+                    toastId: "update-fullname-toast",
                     position: "top-right",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -47,7 +47,7 @@ class UpdatePostComponent extends React.Component {
     };
     handleCancel = () => {
         toast.error("The process has been canceled!", {
-            toastId: "cancel",
+            toastId: "update-cancel",
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -117,7 +117,7 @@ class UpdatePostComponent extends React.Component {
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
                 toast.error(`File "${file.name}" wrong format (only PNG or JPG)`, {
-                    toastId: "file-type-toast",
+                    toastId: "update-file-type-toast",
                     position: "top-right",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -211,7 +211,18 @@ class UpdatePostComponent extends React.Component {
     }
     handleSubmit = async () => {
         if (!(this.state.content.trim())) {
-            toast.error("Content cannot be blank");
+            toast.error(`Content cannot be blank`, {
+                toastId: "update-content-blank",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                className: "toast-complete"
+            });
             return;
         }
         const formData = new FormData();
@@ -249,10 +260,32 @@ class UpdatePostComponent extends React.Component {
                     visibility: 'PUBLIC',
                     isPosting: false,
                 });
-                toast.success("Update completed!");
+                toast.success(`Update completed!`, {
+                    toastId: "update-complete",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                });
                 this.props.closeUpdatePopup();
             } else {
-                toast.error("Update error, try again later.");
+                toast.error(`Update error, try again later.`, {
+                    toastId: "update-error",
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    className: "toast-complete"
+                });
             }
         }
         catch (er) {

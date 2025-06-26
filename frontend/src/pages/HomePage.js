@@ -9,7 +9,7 @@ import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function HomePage() {
@@ -113,8 +113,8 @@ export default function HomePage() {
       <div className="homepage-title">
         <div className="tab-buttons">
           <Link to="/saved">
-            <button 
-            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+            <button
+              className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
               onClick={() => setSelectedTab('saved')}
             >
               Saved
@@ -168,7 +168,6 @@ export default function HomePage() {
           deletePostID={deletePostID}
         />
       )}
-      <ToastContainer />
     </div>
   );
 }

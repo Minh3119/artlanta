@@ -1,13 +1,26 @@
 import React from "react";
 import search from "../../assets/images/search.svg";
+import arlanta from "../../assets/images/arlanta.svg";
 import '../../styles/searchbar.scss';
 import { toast } from 'react-toastify';
 class SearchBarComponent extends React.Component {
     state = {
         searchValue: "",
         isSearching: false,
-        postList: [],
-        userList: []
+        postList: [{
+            // postID
+            // image
+            // content
+            // author
+            // date
+            //visibility
+        }],
+        userList: [{
+            // id
+            // username
+            // email
+            // avatarUrl
+        }]
     }
     handleOnChangeSearch = async (e) => {
         const newContent = e.target.value;
@@ -94,7 +107,7 @@ class SearchBarComponent extends React.Component {
                             {this.state.postList.map((item, index) => (
                                 <a className="search-item" key={"post-"+item.postID} href={`/post/${item.postID}`}>
                                         <div className="item-img">
-                                        <img src={item.image} alt="post" />
+                                            <img src={item.image == "null" ? arlanta : item.image} />
                                         </div>
                                         <p className="item-content">{item.content}</p>
                                         <p className="item-author">{item.author}</p>
