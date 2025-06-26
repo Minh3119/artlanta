@@ -416,11 +416,12 @@ public class PostDAO extends DBContext {
     public List<Post> getPostBySearch(String searchValue) {
         List<Post> list = new ArrayList<>();
         String sql = """
-                       SELECT Posts.ID, posts.Content,posts.CreatedAt,posts.Visibility, Users.Username 
-                       FROM Posts
-                       JOIN Users ON Posts.UserID = Users.ID
-                       WHERE Posts.Content LIKE CONCAT('%', ?, '%')
-                          OR Users.Username LIKE CONCAT('%', ?, '%');
+                        SELECT Posts.ID, posts.Content,posts.CreatedAt,posts.Visibility, Users.Username 
+                        FROM Posts
+                        JOIN Users ON Posts.UserID = Users.ID
+                        WHERE Posts.Content LIKE CONCAT('%', ?, '%')
+                            OR Users.Username LIKE CONCAT('%', ?, '%')
+                        ORDER BY Posts.ID DESC;
                        """;
         try {
             PreparedStatement st = connection.prepareStatement(sql);

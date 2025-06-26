@@ -1,5 +1,6 @@
 import React from "react";
 import search from "../../assets/images/search.svg";
+import arlanta from "../../assets/images/arlanta.svg";
 import '../../styles/searchbar.scss';
 import { toast } from 'react-toastify';
 class SearchBarComponent extends React.Component {
@@ -12,6 +13,7 @@ class SearchBarComponent extends React.Component {
             // content
             // author
             // date
+            //visibility
         }]
     }
     handleOnChangeSearch = async (e) => {
@@ -88,8 +90,7 @@ class SearchBarComponent extends React.Component {
                                 return (
                                     <a className="search-item" key={item.postID} href={`/post/${item.postID}`}>
                                         <div className="item-img">
-                                            <img
-                                                src={item.image} />
+                                            <img src={item.image == "null" ? arlanta : item.image} />
                                         </div>
                                         <p className="item-content">{item.content}</p>
                                         <p className="item-author">{item.author}</p>

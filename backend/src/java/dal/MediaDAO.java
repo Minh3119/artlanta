@@ -206,7 +206,7 @@ public class MediaDAO extends DBContext {
     }
 
     public String getMediaByPostID(int ID) {
-        String result = "khongco";
+        String result = "null";
         try {
             String sql = """
                        select pm.PostID, m.ID, m.URL 

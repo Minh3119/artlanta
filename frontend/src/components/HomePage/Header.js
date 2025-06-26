@@ -141,13 +141,14 @@ export default function Header({ openCreatePopup }) {
           />
           {showCreateMenu && (
             <div className="create-menu-dropdown">
-              <div
-                className="create-menu-item"
-                onClick={() => {
-                  openCreatePopup("post");
-                  setShowCreateMenu(false);
-                }}
-              >
+              <div className="create-menu-item" onClick={() => {
+                if (userID === 0) {
+                  navigate("/login");
+                  return;
+                };
+                openCreatePopup('post');
+                setShowCreateMenu(false);
+              }}>
                 Create Post
               </div>
               <div
@@ -228,7 +229,7 @@ export default function Header({ openCreatePopup }) {
                 )}
                 {userID != 0 && (
                   <Link to="/paymentHis" className="user-menu-item">
-                    Transaction History 
+                    Transaction History
                   </Link>
                 )}
                 {userID !== 0 && (
