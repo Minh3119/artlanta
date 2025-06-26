@@ -35,7 +35,7 @@ export default function PostDetailCard({ postId }) {
             const data = await res.json();
             setPost(data.response);
 
-            // Record this view in user history
+            // Ghi lại lịch sử xem Post
             await fetch('http://localhost:9999/backend/api/history/add', {
                 method: 'POST',
                 credentials: 'include',

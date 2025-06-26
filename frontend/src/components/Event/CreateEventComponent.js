@@ -17,14 +17,14 @@ export default function CreateEventComponent({ closeEventPopup }) {
     endTime: '',
     location: '',
     imageUrl: '',
-    creatorId: null // Will be set from session
+    creatorId: null
   });
-  const [error, setError] = useState(''); // For displaying error messages
-  const [selectedImage, setSelectedImage] = useState(null); // For image preview
-  const [isUploading, setIsUploading] = useState(false); // Loading state during image upload
-  const [imageInputType, setImageInputType] = useState('file'); // Toggle between file upload and URL input
-  const [userPosts, setUserPosts] = useState([]); // List of user's posts
-  const [selectedPosts, setSelectedPosts] = useState([]); // Selected posts to add to event
+  const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageInputType, setImageInputType] = useState('file');
+  const [userPosts, setUserPosts] = useState([]);
+  const [selectedPosts, setSelectedPosts] = useState([]);
   
   // Refs for DOM elements
   const popupRef = useRef(null); // Reference to the modal container for click outside detection
@@ -40,9 +40,8 @@ export default function CreateEventComponent({ closeEventPopup }) {
     }
   };
 
-  // Effect for initialization and cleanup
   useEffect(() => {
-    // Fetch the current user's ID when component mounts
+    // Fetch user ID
     const fetchUserId = async () => {
       try {
         const response = await fetch('http://localhost:9999/backend/api/user/userid', {
@@ -55,7 +54,7 @@ export default function CreateEventComponent({ closeEventPopup }) {
         }));
       } catch (error) {
         console.error('Error fetching user ID:', error);
-        toast.error('Failed to fetch user ID');
+        toast.error('You need to log in to use this feature');
       }
     };
 
@@ -69,30 +68,8 @@ export default function CreateEventComponent({ closeEventPopup }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [closeEventPopup]);
-
-  useEffect(() => {
-    // Fetch user's posts when component mounts
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('http://localhost:9999/backend/api/post/view?includeFriends=true', {
-          credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch posts');
-        const data = await response.json();
-        setUserPosts(data.response || []);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        toast.error('Failed to fetch posts');
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  /**
-   * Validates that end date is after start date
-   * @returns {boolean} True if dates are valid
-   */
+  
+  //Tạo date và check date valid
   const validateDates = () => {
     const startDate = new Date(eventData.startTime);
     const endDate = new Date(eventData.endTime);
@@ -105,11 +82,7 @@ export default function CreateEventComponent({ closeEventPopup }) {
     return true;
   };
 
-  /**
-   * Validates if a string is a valid URL
-   * @param {string} url - The URL to validate
-   * @returns {boolean} True if URL is valid
-   */
+  // Check URL valid
   const validateImageUrl = (url) => {
     try {
       new URL(url);
@@ -119,11 +92,7 @@ export default function CreateEventComponent({ closeEventPopup }) {
     }
   };
 
-  /**
-   * Handles changes to the image URL input
-   * Updates preview if URL is valid
-   * @param {Event} e - The change event
-   */
+  // Handle thay đổi URL
   const handleImageUrlChange = (e) => {
     const url = e.target.value;
     setEventData(prev => ({
@@ -131,7 +100,7 @@ export default function CreateEventComponent({ closeEventPopup }) {
       imageUrl: url
     }));
 
-    // Show preview if it's a valid URL
+    // Show preview nếu URL valid
     if (validateImageUrl(url)) {
       setSelectedImage(url);
     } else {
@@ -139,79 +108,68 @@ export default function CreateEventComponent({ closeEventPopup }) {
     }
   };
 
-  /**
-   * Handles file upload for images
-   * Compresses image and uploads to Cloudinary
-   * @param {Event} e - The file input change event
-   */
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
 
-    try {
-      // Show preview immediately
-      setSelectedImage(URL.createObjectURL(file));
+  // --- BEGIN handleImageUpload (Not done yet )---
+  // const handleImageUpload = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
 
-      // Image compression options
-      const options = {
-        maxSizeMB: 0.4,
-        maxWidthOrHeight: 1024,
-        useWebWorker: true,
-      };
+  //   try {
+  //     // Show preview immediately
+  //     setSelectedImage(URL.createObjectURL(file));
 
-      setIsUploading(true);
-      const compressedFile = await imageCompression(file, options);
+  //     // Image compression options
+  //     const options = {
+  //       maxSizeMB: 0.4,
+  //       maxWidthOrHeight: 1024,
+  //       useWebWorker: true,
+  //     };
+
+  //     setIsUploading(true);
+  //     const compressedFile = await imageCompression(file, options);
       
-      // Prepare and send to server
-      const formData = new FormData();
-      formData.append('file[]', compressedFile);
+  //     // Prepare and send to server
+  //     const formData = new FormData();
+  //     formData.append('file[]', compressedFile);
 
-      const response = await fetch('http://localhost:9999/backend/api/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: formData
-      });
+  //     const response = await fetch('http://localhost:9999/backend/api/upload', {
+  //       method: 'POST',
+  //       credentials: 'include',
+  //       body: formData
+  //     });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Upload failed');
+  //     }
 
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
+  //     const data = await response.json();
+  //     if (data.error) {
+  //       throw new Error(data.error);
+  //     }
 
-      // Store the Cloudinary URL
-      setEventData(prev => ({
-        ...prev,
-        imageUrl: data.response[0].URL
-      }));
+  //     // Store the Cloudinary URL
+  //     setEventData(prev => ({
+  //       ...prev,
+  //       imageUrl: data.response[0].URL
+  //     }));
 
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image: ' + error.message);
-      setSelectedImage(null);
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  //     toast.success('Image uploaded successfully');
+  //   } catch (error) {
+  //     console.error('Upload error:', error);
+  //     toast.error('Failed to upload image: ' + error.message);
+  //     setSelectedImage(null);
+  //   } finally {
+  //     setIsUploading(false);
+  //   }
+  // };
+  // --- END handleImageUpload ---
 
-  /**
-   * Toggles between file upload and URL input modes
-   * Clears existing image data when switching
-   */
   const toggleImageInputType = () => {
     setSelectedImage(null);
     setEventData(prev => ({ ...prev, imageUrl: '' }));
     setImageInputType(prev => prev === 'file' ? 'url' : 'file');
   };
 
-  /**
-   * Handles form submission
-   * Validates all data and sends to server
-   * @param {Event} e - The form submit event
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -251,20 +209,20 @@ export default function CreateEventComponent({ closeEventPopup }) {
 
       const eventResult = await response.json();
 
-      // Add selected posts to the event
-      if (selectedPosts.length > 0) {
-        await Promise.all(selectedPosts.map(postId =>
-          fetch('http://localhost:9999/backend/api/event/post', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            credentials: 'include',
-            body: `eventId=${eventResult.eventId}&postId=${postId}`
-          })
-        ));
-      }
-
+      // Add selected posts to the event ( To be implemented later )
+      // if (selectedPosts.length > 0) {
+      //   await Promise.all(selectedPosts.map(postId =>
+      //     fetch('http://localhost:9999/backend/api/event/post', {
+      //       method: 'POST',
+      //       headers: {
+      //         'Content-Type': 'application/x-www-form-urlencoded',
+      //       },
+      //       credentials: 'include',
+      //       body: `eventId=${eventResult.eventId}&postId=${postId}`
+      //     })
+      //   ));
+      // }
+      
       toast.success('Event created successfully!');
       closeEventPopup();
     } catch (error) {
@@ -275,31 +233,27 @@ export default function CreateEventComponent({ closeEventPopup }) {
     }
   };
 
-  const handlePostSelection = (postId) => {
-    setSelectedPosts(prev => {
-      if (prev.includes(postId)) {
-        return prev.filter(id => id !== postId);
-      } else {
-        return [...prev, postId];
-      }
-    });
-  };
+  //--- Fetch user posts ( Not done )---
+  // const handlePostSelection = (postId) => {
+  //   setSelectedPosts(prev => {
+  //     if (prev.includes(postId)) {
+  //       return prev.filter(id => id !== postId);
+  //     } else {
+  //       return [...prev, postId];
+  //     }
+  //   });
+  // };
 
-  /**
-   * Handles changes to form inputs
-   * @param {Event} e - The input change event
-   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventData(prev => ({
       ...prev,
       [name]: value
     }));
-    // Clear error when user makes changes
     if (error) setError('');
   };
 
-  // Component render
+  // -------------------- phần Render giao diện --------------------
   return (
     <div className="create-event-overlay">
       <div className="create-event-popup" ref={popupRef}>
@@ -367,6 +321,7 @@ export default function CreateEventComponent({ closeEventPopup }) {
           <div className="form-group">
             <div className="image-input-header">
               <label>Event Image</label>
+              {/*
               <button 
                 type="button" 
                 className="toggle-input-type" 
@@ -375,8 +330,10 @@ export default function CreateEventComponent({ closeEventPopup }) {
               >
                 Switch to {imageInputType === 'file' ? 'URL' : 'File'} Upload
               </button>
+              */}
             </div>
             <div className="image-upload-container">
+              {/*
               {imageInputType === 'file' ? (
                 <input
                   type="file"
@@ -387,15 +344,16 @@ export default function CreateEventComponent({ closeEventPopup }) {
                   disabled={isUploading}
                 />
               ) : (
-                <input
-                  type="url"
-                  value={eventData.imageUrl}
-                  onChange={handleImageUrlChange}
-                  placeholder="Enter image URL"
-                  className="url-input"
-                  disabled={isUploading}
-                />
-              )}
+              */}
+              <input
+                type="url"
+                value={eventData.imageUrl}
+                onChange={handleImageUrlChange}
+                placeholder="Enter image URL"
+                className="url-input"
+                disabled={isUploading}
+              />
+              {/* )} */}
               {/* Image preview */}
               {selectedImage && (
                 <div className="image-preview">
@@ -423,4 +381,4 @@ export default function CreateEventComponent({ closeEventPopup }) {
       </div>
     </div>
   );
-} 
+}

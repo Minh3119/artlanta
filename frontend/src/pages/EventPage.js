@@ -20,6 +20,7 @@ export default function EventPage() {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('post');
 
+  // Handle location state for success/error messages
   useEffect(() => {
     if (location.state?.success) {
       toast.success(location.state.success);
@@ -29,10 +30,12 @@ export default function EventPage() {
     }
 
     if (location.state) {
-      navigate(location.pathname, { replace: true });
+      navigate(location.pathname, { replace: true }); 
     }
   }, [location, navigate]);
 
+
+  // Fetch userId hiện tại
   useEffect(() => {
     fetch("http://localhost:9999/backend/api/user/userid", {
       credentials: "include",
@@ -48,6 +51,7 @@ export default function EventPage() {
     fetchEvents();
   }, []);
 
+  // Fetch events
   const fetchEvents = async () => {
     try {
       const response = await fetch('http://localhost:9999/backend/api/events', {
@@ -63,21 +67,6 @@ export default function EventPage() {
       if (data.error) {
         throw new Error(data.error);
       }
-
-      // Fetch posts for each event
-      //const eventsWithPosts = await Promise.all(data.events.map(async event => {
-       // const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
-      //    credentials: 'include'
-      //  });
-       // const postsData = await postsResponse.json();
-      //  return {
-       //   ...event,
-       //   posts: postsData.posts || []
-        //};
-     // }));
-
-      //setEvents(eventsWithPosts);
-      // Set events from backend response
       setEvents(data.events);
       setLoading(false);
     } catch (error) {
@@ -111,7 +100,7 @@ export default function EventPage() {
     });
   };
 
-  // Add handlers for follow and join
+  // handle follow và join
   const handleFollow = async (eventId) => {
     try {
       const response = await fetch(`http://localhost:9999/backend/api/event/follow`, {
@@ -152,53 +141,17 @@ export default function EventPage() {
     }
   };
 
-  // Helper to get current user's status for an event
+  // lấy trạng thái follow
   const getUserEventStatus = (event) => {
     if (!event.followers) return null;
-    const follower = event.followers.find(f => f.userId === currentID);
+    const follower = event.followers.find(f => f.userId === currentID); // tìm trong danh sách followers
     return follower ? follower.status : null;
   };
 
-  // Unfollow and Unjoin handlers
-  const handleUnfollow = async (eventId) => {
-    try {
-      const response = await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.success !== false) {
-        toast.success('Unfollowed event!');
-        fetchEvents();
-      } else {
-        toast.error(data.error || 'Failed to unfollow event');
-      }
-    } catch (error) {
-      toast.error('Failed to unfollow event');
-    }
-  };
-  const handleUnjoin = async (eventId) => {
-    try {
-      const response = await fetch(`http://localhost:9999/backend/api/event/join?eventId=${eventId}&userId=${currentID}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.success !== false) {
-        toast.success('Unjoined event!');
-        fetchEvents();
-      } else {
-        toast.error(data.error || 'Failed to unjoin event');
-      }
-    } catch (error) {
-      toast.error('Failed to unjoin event');
-    }
-  };
-
-  // Add handler for not interested
+  // Set status thành "not interested"
   const handleNotInterested = async (eventId) => {
     try {
-      // Unfollow/unjoin by deleting any status
+      // Xoá follow/ join bằng cách gửi DELETE request
       await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -213,6 +166,8 @@ export default function EventPage() {
     }
   };
 
+
+  //----------------Phần render component----------------
   return (
     <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
       <Header openCreatePopup={openCreatePopup} />
