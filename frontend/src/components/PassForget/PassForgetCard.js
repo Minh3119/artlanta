@@ -23,10 +23,10 @@ export default function PassForgetCard() {
           }
         );
         const data = await res.json();
-        if (data.loggedIn) {
-          console.log(data);
-          navigate("/");
-        }
+        // if (data.loggedIn) {
+        //   console.log(data);
+        //   navigate("/");
+        // }
       } catch (error) {
         console.error("Error checking session:", error);
       }
