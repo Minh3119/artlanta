@@ -295,6 +295,19 @@ public class UserDAO extends DBContext {
         }
     }
 
+    public boolean updatePasswordHashByID(int userID, String newHash) {
+        String sql = "UPDATE Users SET PasswordHash = ? WHERE ID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, newHash);
+            st.setInt(2, userID);
+            st.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public int getUserIdByEmail(String email) {
         int userId = -1; // giá trị mặc định nếu không tìm thấy
         String sql = "SELECT ID FROM Users WHERE Email = ?";
@@ -489,5 +502,47 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<User> getUserBySearch(String searchValue) {
+        List<User> list = new ArrayList<>();
+        String sql = """
+            SELECT * FROM Users
+            WHERE Username LIKE CONCAT('%', ?, '%')
+               OR Email LIKE CONCAT('%', ?, '%')
+               OR FullName LIKE CONCAT('%', ?, '%')
+        """;
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, searchValue);
+            st.setString(2, searchValue);
+            st.setString(3, searchValue);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User(
+                        rs.getInt("ID"),
+                        rs.getString("Username"),
+                        rs.getString("Email"),
+                        rs.getString("PasswordHash"),
+                        rs.getString("FullName"),
+                        rs.getString("Bio"),
+                        rs.getString("AvatarURL"),
+                        rs.getBoolean("Gender"),
+                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                        rs.getString("Location"),
+                        rs.getString("Role"),
+                        rs.getString("Status"),
+                        rs.getString("Language"),
+                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                        rs.getBoolean("IsFlagged"),
+                        rs.getBoolean("IsPrivate")
+                    );
+                    list.add(user);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

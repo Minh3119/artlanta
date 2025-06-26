@@ -8,13 +8,11 @@ class UserProfileTabsComponent extends React.Component {
         return (
 
             <div className="profile-left">
-                <NavLink to="/editprofile" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Profile</NavLink>
-                <NavLink to="/editpassword" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Password</NavLink>
-                <NavLink to="/editnotification" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Notification</NavLink>
-                <NavLink to="/editpricing" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Pricing</NavLink>
-                <div className="profile-item profile-delete" onClick={() => console.log("Delete acc")}>
-                    Delete your account
-                </div>
+                <NavLink to="/settings/editprofile" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Profile</NavLink>
+                <NavLink to="/settings/editpassword" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Password</NavLink>
+                <NavLink to="/settings/editnotification" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Notification</NavLink>
+                <NavLink to="/settings/editpricing" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Pricing</NavLink>
+                <NavLink to="/settings/deleteaccount" className={({ isActive }) => isActive ? "profile-item active" : "profile-item"}>Delete your account</NavLink>
 
             </div>
         );

@@ -6,13 +6,8 @@ class SearchBarComponent extends React.Component {
     state = {
         searchValue: "",
         isSearching: false,
-        postList: [{
-            // postID
-            // image
-            // content
-            // author
-            // date
-        }]
+        postList: [],
+        userList: []
     }
     handleOnChangeSearch = async (e) => {
         const newContent = e.target.value;
@@ -20,55 +15,66 @@ class SearchBarComponent extends React.Component {
             this.setState({
                 searchValue: e.target.value,
                 isSearching: false,
+                postList: [],
+                userList: []
             })
             return
         }
 
-        newContent.length <= 750 ?
-            (
-                this.setState({
-                    searchValue: newContent,
-                    isSearching: true
-                })
-            )
-            :
-            (
-                toast.error('Search value too long!', {
-                    toastId: "fullname-toast",
-                    position: "top-right",
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    className: "toast-complete"
-                })
-            )
-
-        await fetch(`http://localhost:9999/backend/api/search/post`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                searchValue: e.target.value
-            }),
-            credentials: 'include'
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch post data');
-                return response.json();
-            })
-            .then(async data => {
-                this.setState({
-                    postList: data.response,
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching post data:', error);
+        if (newContent.length > 750) {
+            toast.error('Search value too long!', {
+                toastId: "fullname-toast",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                className: "toast-complete"
             });
+            return;
+        }
+
+        this.setState({
+            searchValue: newContent,
+            isSearching: true
+        });
+
+        // Fetch posts and users in parallel
+        try {
+            const [postRes, userRes] = await Promise.all([
+                fetch(`http://localhost:9999/backend/api/search/post`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ searchValue: newContent }),
+                    credentials: 'include'
+                }),
+                fetch(`http://localhost:9999/backend/api/search/user`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ searchValue: newContent }),
+                    credentials: 'include'
+                })
+            ]);
+            let postList = [];
+            let userList = [];
+            if (postRes.ok) {
+                const postData = await postRes.json();
+                postList = postData.response || [];
+            }
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                userList = userData.response || [];
+            }
+            this.setState({
+                postList,
+                userList
+            });
+        } catch (error) {
+            console.error('Error fetching search data:', error);
+        }
     }
     render() {
         return (
@@ -83,25 +89,32 @@ class SearchBarComponent extends React.Component {
                 <img src={search} alt="" className="search-icon"></img>
                 <div className="search-list">
                     {
-                        this.state.isSearching ?
-                            this.state.postList.map((item, index) => {
-                                return (
-                                    <a className="search-item" key={item.postID} href={`/post/${item.postID}`}>
-                                        <div className="item-img">
-                                            <img
-                                                src={item.image} />
-                                        </div>
-                                        <p className="item-content">{item.content}</p>
-                                        <p className="item-author">{item.author}</p>
-                                        <p className="item-date">{item.createAt}</p>
-                                    </a>
-                                )
-                            })
-                            :
-                            null
+                        this.state.isSearching && (this.state.postList.length > 0 || this.state.userList.length > 0) ?
+                        <>
+                            {this.state.postList.map((item, index) => (
+                                <a className="search-item" key={"post-"+item.postID} href={`/post/${item.postID}`}>
+                                    <div className="item-img">
+                                        <img src={item.image} alt="post" />
+                                    </div>
+                                    <p className="item-content">{item.content}</p>
+                                    <p className="item-author">{item.author}</p>
+                                    <p className="item-date">{item.createAt}</p>
+                                </a>
+                            ))}
+                            {this.state.userList.map((user, index) => (
+                                <a className="search-item" key={"user-"+user.id} href={`/user/${user.id}`}>
+                                    <div className="item-img">
+                                        <img src={user.avatarUrl || search} alt="avatar" />
+                                    </div>
+                                    <p className="item-content">{user.username}</p>
+                                    <p className="item-author">{user.email}</p>
+                                    <p className="item-date">User</p>
+                                </a>
+                            ))}
+                        </>
+                        : null
                     }
                 </div>
-
             </div>
         )
     }
