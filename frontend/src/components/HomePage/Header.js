@@ -9,11 +9,12 @@ import ava from "../../assets/images/avatar.svg";
 import NotificationPopup from "../Notification/NotificationPopup";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
-import '../../styles/Header.scss';
+import "../../styles/Header.scss";
 import SearchBarComponent from "./searchBarComponent";
 
 export default function Header({ openCreatePopup }) {
   const [showNotifications, setShowNotifications] = useState(false);
+  const [balance, setBalance] = useState(0);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userID, setUserID] = useState(0);
@@ -23,7 +24,10 @@ export default function Header({ openCreatePopup }) {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (createMenuRef.current && !createMenuRef.current.contains(event.target)) {
+      if (
+        createMenuRef.current &&
+        !createMenuRef.current.contains(event.target)
+      ) {
         setShowCreateMenu(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -31,10 +35,32 @@ export default function Header({ openCreatePopup }) {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, []);
+
+  useEffect(() => {
+    const checkWallet = async () => {
+      try {
+        const res = await fetch("http://localhost:9999/backend/api/wallet", {
+          credentials: "include",
+          method: "POST"
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.balance) {
+          setBalance(data.balance);
+        }
+      } catch (error) {
+        console.error("Failed to check wallet:", error);
+      }
+    };
+
+    checkWallet();
   }, []);
 
   useEffect(() => {
@@ -109,8 +135,8 @@ export default function Header({ openCreatePopup }) {
             src={arrowDown}
             alt=""
             style={{
-              transform: showCreateMenu ? 'rotate(180deg)' : 'none',
-              transition: 'transform 0.2s ease'
+              transform: showCreateMenu ? "rotate(180deg)" : "none",
+              transition: "transform 0.2s ease",
             }}
           />
           {showCreateMenu && (
@@ -125,10 +151,13 @@ export default function Header({ openCreatePopup }) {
               }}>
                 Create Post
               </div>
-              <div className="create-menu-item" onClick={() => {
-                openCreatePopup('event');
-                setShowCreateMenu(false);
-              }}>
+              <div
+                className="create-menu-item"
+                onClick={() => {
+                  openCreatePopup("event");
+                  setShowCreateMenu(false);
+                }}
+              >
                 Create Event
               </div>
             </div>
@@ -137,7 +166,6 @@ export default function Header({ openCreatePopup }) {
       </div>
 
       <SearchBarComponent />
-
 
       <div className="header-icons">
         <div
@@ -154,7 +182,6 @@ export default function Header({ openCreatePopup }) {
           <img src={chat} alt="chat"></img>
         </Link>
 
-
         <div className="header-more" ref={userMenuRef}>
           <div
             onClick={() => setShowUserMenu(!showUserMenu)}
@@ -169,12 +196,17 @@ export default function Header({ openCreatePopup }) {
               src={arrowDown}
               alt="more"
               style={{
-                transform: showUserMenu ? 'rotate(180deg)' : 'none',
-                transition: 'transform 0.2s ease'
+                transform: showUserMenu ? "rotate(180deg)" : "none",
+                transition: "transform 0.2s ease",
               }}
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
+                {userID != 0 && (
+                  <Link to="/" className="user-menu-item">
+                    Balance: {Math.floor(balance).toLocaleString()} VND
+                  </Link>
+                )}
                 {userID != 0 && (
                   <Link to={`/user/${userID}`} className="user-menu-item">
                     Profile
@@ -190,9 +222,19 @@ export default function Header({ openCreatePopup }) {
                     Recent Posts
                   </Link>
                 )}
+                {userID != 0 && (
+                  <Link to="/payment" className="user-menu-item">
+                    Top Up
+                  </Link>
+                )}
+                {userID != 0 && (
+                  <Link to="/paymentHis" className="user-menu-item">
+                    Transaction History
+                  </Link>
+                )}
                 {userID !== 0 && (
                   <div className="user-menu-item" onClick={handleLogout}>
-                    <FiLogOut style={{ marginRight: '8px' }} />
+                    <FiLogOut style={{ marginRight: "8px" }} />
                     Logout
                   </div>
                 )}

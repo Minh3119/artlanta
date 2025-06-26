@@ -51,11 +51,6 @@ public class VNPayReturnServlet extends HttpServlet {
         }
 
         int userId = SessionUtil.getCurrentUserId(request.getSession(false));
-        if (userId == -1) {
-            result.addProperty("error", "Unauthorized");
-            response.getWriter().write(result.toString());
-            return;
-        }
 
         try {
             BigDecimal amountVND = new BigDecimal(vnp_AmountStr).divide(new BigDecimal(100));
