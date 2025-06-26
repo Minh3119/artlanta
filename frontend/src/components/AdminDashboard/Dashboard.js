@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { useEffect, useState, useRef, useMemo } from "react";
 import {  PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import AddStaffForm from './AddStaff';
+import AddModForm from './AddMod';
 import reload from '../../assets/images/reload.svg';
 import { useNavigate } from "react-router-dom";
 
@@ -329,7 +329,7 @@ if (isAuthorized === false) return null;
                                                         >
                                                         Back
                                                     </button>
-                                                    <AddStaffForm />
+                                                    <AddModForm />
                                                 </div>
                                             </div>
                         )}
