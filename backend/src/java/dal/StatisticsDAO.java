@@ -18,7 +18,7 @@ public class StatisticsDAO extends DBContext {
         stats.setLikesReceived(getCount("SELECT COUNT(*) FROM Likes l JOIN Posts p ON l.PostID = p.ID WHERE p.UserID = ?", userId));
         stats.setCommentsMade(getCount("SELECT COUNT(*) FROM Comments WHERE UserID = ?", userId));
         stats.setRepliesReceived(getCount("SELECT COUNT(*) FROM Comments c JOIN Posts p ON c.PostID = p.ID WHERE p.UserID = ?", userId));
-        stats.setFlagsReceived(getCount("SELECT COUNT(*) FROM Posts WHERE UserId = ? AND isFlagged = 1", userId));
+        stats.setCommentsPerPost(getCommentsPerPost(userId));
         stats.setVotesPerPost(getVotesPerPost(userId));
         return stats;
     }
@@ -33,6 +33,24 @@ public class StatisticsDAO extends DBContext {
             }
         }
         return 0;
+    }
+
+    private double getCommentsPerPost(int userId) throws SQLException {
+        String sql = "SELECT AVG(commentCount) FROM (" +
+                     "  SELECT COUNT(*) as commentCount FROM Comments c " +
+                     "  JOIN Posts p ON c.PostID = p.ID " +
+                     "  WHERE p.UserID = ? " +
+                     "  GROUP BY p.ID" +
+                     ") as commentCounts";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        }
+        return 0.0;
     }
 
     // Calculate average likes per post for the user
@@ -86,22 +104,35 @@ public class StatisticsDAO extends DBContext {
 
     public List<TopUser> getTopCommenters(int userId) throws SQLException {
         String sql =
-            "SELECT u.ID, u.Username, " +
-            "  SUM(CASE WHEN l.UserID IS NOT NULL THEN 1 ELSE 0 END) AS likeInteractions, " +
-            "  SUM(CASE WHEN c.UserID IS NOT NULL THEN 1 ELSE 0 END) AS commentInteractions, " +
-            "  (SUM(CASE WHEN l.UserID IS NOT NULL THEN 1 ELSE 0 END) + " +
-            "   SUM(CASE WHEN c.UserID IS NOT NULL THEN 1 ELSE 0 END)) AS totalInteractions " +
-            "FROM Posts p " +
-            "LEFT JOIN Likes l ON l.PostID = p.ID " +
-            "LEFT JOIN Comments c ON c.PostID = p.ID " +
-            "LEFT JOIN Users u ON (u.ID = l.UserID OR u.ID = c.UserID) " +
-            "WHERE p.UserID = ? AND u.ID IS NOT NULL AND u.ID <> ? " +
-            "GROUP BY u.ID, u.Username " +
+            "SELECT " +
+            "  u.ID, " +
+            "  u.Username, " +
+            "  COALESCE(l.likeInteractions, 0) AS likeInteractions, " +
+            "  COALESCE(c.commentInteractions, 0) AS commentInteractions, " +
+            "  COALESCE(l.likeInteractions, 0) + COALESCE(c.commentInteractions, 0) AS totalInteractions " +
+            "FROM Users u " +
+            "LEFT JOIN ( " +
+            "    SELECT l.UserID, COUNT(*) AS likeInteractions " +
+            "    FROM Likes l " +
+            "    JOIN Posts p ON l.PostID = p.ID " +
+            "    WHERE p.UserID = ? " +
+            "    GROUP BY l.UserID " +
+            ") l ON u.ID = l.UserID " +
+            "LEFT JOIN ( " +
+            "    SELECT c.UserID, COUNT(*) AS commentInteractions " +
+            "    FROM Comments c " +
+            "    JOIN Posts p ON c.PostID = p.ID " +
+            "    WHERE p.UserID = ? " +
+            "    GROUP BY c.UserID " +
+            ") c ON u.ID = c.UserID " +
+            "WHERE (l.likeInteractions IS NOT NULL OR c.commentInteractions IS NOT NULL) " +
+            "  AND u.ID <> ? " +
             "ORDER BY totalInteractions DESC";
         List<TopUser> result = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ps.setInt(2, userId); // Exclude self
+            ps.setInt(2, userId);
+            ps.setInt(3, userId); // Exclude self
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     TopUser tu = new TopUser(

@@ -53,6 +53,18 @@
         <servlet-class>controller.Search.SearchPost</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>SearchUser</servlet-name>
+        <servlet-class>controller.Search.SearchUser</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <servlet-class>controller.ChangePasswordServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SearchUser</servlet-name>
+        <url-pattern>/api/search/user</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>UserProfileEdit</servlet-name>
         <servlet-class>controller.UserProfileEdit.UserProfileEditServlet</servlet-class>
     </servlet>
@@ -175,6 +187,10 @@
     <servlet-mapping>
         <servlet-name>PaymentStats</servlet-name>
         <url-pattern>/api/admin/payment</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <url-pattern>/api/changepassword</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

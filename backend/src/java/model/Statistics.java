@@ -7,29 +7,30 @@ public class Statistics {
     private int likesReceived;
     private int commentsMade;
     private int repliesReceived;
-    private int flagsReceived;
+    private double commentsPerPost;
     private double votesPerPost;
+    public boolean getCommentsPerPost;
 
     public Statistics() {
     }
 
-    public Statistics(int posts, int followers, int following, int likesReceived, int commentsMade, int repliesReceived, int flagsReceived, double votesPerPost) {
+    public Statistics(int posts, int followers, int following, int likesReceived, int commentsMade, int repliesReceived, int commentPerPost, double votesPerPost) {
         this.posts = posts;
         this.followers = followers;
         this.following = following;
         this.likesReceived = likesReceived;
         this.commentsMade = commentsMade;
         this.repliesReceived = repliesReceived;
-        this.flagsReceived = flagsReceived;
+        this.commentsPerPost = commentPerPost;
         this.votesPerPost = votesPerPost;
     }
     
-    public int getFlagsReceived() {
-        return flagsReceived;
+    public double getCommentsPerPost() {
+        return commentsPerPost;
     }
 
-    public void setFlagsReceived(int flagsReceived) {
-        this.flagsReceived = flagsReceived;
+    public void setCommentsPerPost(double commentsPerPost) {
+        this.commentsPerPost = commentsPerPost;
     }
     
     public double getVotesPerPost() {
@@ -97,7 +98,7 @@ public class Statistics {
                 ", likesReceived=" + likesReceived +
                 ", commentsMade=" + commentsMade +
                 ", repliesReceived=" + repliesReceived +
-                ", flagsReceived=" + flagsReceived +
+                ", commentPerPost=" +  commentsPerPost +
                 ", votesPerPost=" + votesPerPost +
                 '}';
     }
