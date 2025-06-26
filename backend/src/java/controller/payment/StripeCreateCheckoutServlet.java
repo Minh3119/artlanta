@@ -15,15 +15,11 @@ import jakarta.servlet.http.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.SessionUtil;
 import validation.EnvConfig;
 
 @WebServlet(name = "StripeCreateCheckoutServlet", urlPatterns = {"/api/payment/stripe/create-checkout-session"})
 public class StripeCreateCheckoutServlet extends HttpServlet {
-
-    private static final Logger LOGGER = Logger.getLogger(StripeCreateCheckoutServlet.class.getName());
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -35,7 +31,6 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
         try {
             Integer userId = SessionUtil.getCurrentUserId(request.getSession(false));
             if (userId == null || userId == 0) {
-                LOGGER.warning("Unauthorized payment attempt");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{\"error\": \"unauthorized\"}");
                 return;
@@ -60,11 +55,9 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
             long amountCents = amountUSD.multiply(new BigDecimal("100")).longValue();
 
             EnvConfig configReader = new EnvConfig();
-            // Fix typo: thêm 'r' vào secret
             String stripeSecret = configReader.getProperty("stripe_secret");
 
             if (stripeSecret == null || stripeSecret.isEmpty()) {
-                LOGGER.severe("Stripe secret key không được cấu hình");
                 response.setStatus(500);
                 response.getWriter().write("{\"error\": \"configuration_error\"}");
                 return;
@@ -72,7 +65,6 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
 
             Stripe.apiKey = stripeSecret;
 
-            // Get base URL from request or config
             String baseUrl = getBaseUrl(request);
 
             SessionCreateParams params = SessionCreateParams.builder()
@@ -107,7 +99,6 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
 
             Session session = Session.create(params);
 
-            LOGGER.info("Created Stripe checkout session: " + session.getId() + " for user: " + userId + " amount: $" + amountUSD);
 
             JsonObject json = new JsonObject();
             json.addProperty("url", session.getUrl());
@@ -115,14 +106,12 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
             response.getWriter().write(json.toString());
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating Stripe checkout session", e);
             response.setStatus(500);
             response.getWriter().write("{\"error\": \"stripe_error\", \"message\": \"" + e.getMessage() + "\"}");
         }
     }
 
     private String getBaseUrl(HttpServletRequest request) {
-        // Try to get from config first
         EnvConfig configReader = new EnvConfig();
         String frontendUrl = configReader.getProperty("frontend_url");
 
@@ -130,7 +119,6 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
             return frontendUrl;
         }
 
-        // Fallback to localhost
         return "http://localhost:3000";
     }
 
@@ -151,7 +139,6 @@ public class StripeCreateCheckoutServlet extends HttpServlet {
         try {
             return JsonParser.parseString(jsonString).getAsJsonObject();
         } catch (Exception e) {
-            LOGGER.warning("Failed to parse JSON body: " + e.getMessage());
             return null;
         }
     }

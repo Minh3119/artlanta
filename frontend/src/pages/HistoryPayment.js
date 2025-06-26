@@ -40,7 +40,7 @@ export default function HistoryPayment() {
     <div className="p-4">
       <div className="history-container flex justify-between items-center">
         <h2 className="text-xl font-bold mb-4">Biến động số dư</h2>
-        <Link to="/payment"> back
+        <Link to="/"> back
         </Link>
       </div>
       <table className="w-full table-auto border-collapse border border-gray-300">
