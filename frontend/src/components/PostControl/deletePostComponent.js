@@ -22,11 +22,11 @@ class DeletePostComponent extends React.Component {
         }
         else {
             toast.error('No more words!', {
-                toastId: "result-toast",
+                toastId: "delete-result-toast",
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
-                closeOnClick: false,
+                closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
                 progress: undefined,
@@ -37,11 +37,11 @@ class DeletePostComponent extends React.Component {
     }
     handleCancel = () => {
         toast.error("The process has been canceled!", {
-            toastId: "cancel",
+            toastId: "delete-cancel",
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
-            closeOnClick: false,
+            closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
             progress: undefined,
@@ -76,10 +76,33 @@ class DeletePostComponent extends React.Component {
                         result: "",
                         isDelete: false,
                     });
-                    toast.success("Delete completed!");
+                    toast.success('Delete completed!', {
+                        toastId: "delete-complete",
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                        className: "toast-complete"
+                    })
                     this.props.closeDeletePopup();
                 } else {
-                    toast.error("Delete error, try again later");
+                    toast.error('Delete error, try again later', {
+                        toastId: "delete-error",
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                        className: "toast-complete"
+                    })
+
                 }
             }
             catch (er) {
@@ -88,11 +111,11 @@ class DeletePostComponent extends React.Component {
         }
         else {
             toast.error('The result is not equal to the script!', {
-                toastId: "error-toast",
+                toastId: "delete-error-notequal",
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
-                closeOnClick: false,
+                closeOnClick: true,
                 pauseOnHover: true,
                 draggable: true,
                 progress: undefined,
@@ -156,7 +179,7 @@ class DeletePostComponent extends React.Component {
                                 }}
                             />
                             <div className="post-button">
-                                <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Confirm</button>
+                                <button onClick={() => this.handleSubmit()} style={{ backgroundColor: "lightgreen" }}>Confirm</button>
                                 <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
                             </div>
                         </div>
