@@ -172,8 +172,5 @@
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-    <servlet-mapping>
-        <servlet-name>StatisticsServlet</servlet-name>
-        <url-pattern>/api/statistics</url-pattern>
-    </servlet-mapping>
+    
 </web-app>

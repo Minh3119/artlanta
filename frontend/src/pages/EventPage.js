@@ -64,18 +64,20 @@ export default function EventPage() {
       }
 
       // Fetch posts for each event
-      const eventsWithPosts = await Promise.all(data.events.map(async event => {
-        const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
-          credentials: 'include'
-        });
-        const postsData = await postsResponse.json();
-        return {
-          ...event,
-          posts: postsData.posts || []
-        };
-      }));
+      //const eventsWithPosts = await Promise.all(data.events.map(async event => {
+       // const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
+      //    credentials: 'include'
+      //  });
+       // const postsData = await postsResponse.json();
+      //  return {
+       //   ...event,
+       //   posts: postsData.posts || []
+        //};
+     // }));
 
-      setEvents(eventsWithPosts);
+      //setEvents(eventsWithPosts);
+      // Set events from backend response
+      setEvents(data.events);
       setLoading(false);
     } catch (error) {
       toast.error(error.message);

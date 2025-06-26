@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ques from "../../assets/images/question.svg";
 import PostImageSlider from "./PostImageSlider";
@@ -35,6 +34,20 @@ export default function PostDetailCard({ postId }) {
             if (!res.ok) throw new Error(`Lỗi khi lấy bài viết: ${res.status}`);
             const data = await res.json();
             setPost(data.response);
+
+            // Record this view in user history
+            await fetch('http://localhost:9999/backend/api/history/add', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    postId: postId,
+                    artistId: data.response.authorID
+                })
+            });
+
             setLoading(false);
         } catch (err) {
             setError(err.message);
