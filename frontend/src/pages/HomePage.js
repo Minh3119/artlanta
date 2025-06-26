@@ -50,13 +50,14 @@ export default function HomePage() {
   const openCreatePopup = (type) => {
     setCreateType(type); // 'post' or 'event'
     setIsCreateOpen(true);
-    // REMOVE setIsRefresh(!isRefresh);
+    // setIsRefresh(!isRefresh);
   };
 
   const closeCreatePopup = (shouldRefresh = false) => {
     setIsCreateOpen(false);
     setCreateType(null);
-    if (shouldRefresh) setIsRefresh((prev) => !prev);
+    // if (shouldRefresh) setIsRefresh((prev) => !prev);
+    setIsRefresh(!isRefresh);
   };
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -64,7 +65,7 @@ export default function HomePage() {
   const openUpdatePopup = (postID) => {
     setUpdatePostID(postID);
     setIsUpdateOpen(true);
-    // REMOVE setIsRefresh(!isRefresh);
+    // setIsRefresh(!isRefresh);
   };
   const closeUpdatePopup = () => {
     setIsUpdateOpen(false);
@@ -75,7 +76,7 @@ export default function HomePage() {
   const openDeletePopup = (postID) => {
     setDeletePostID(postID);
     setIsDeleteOpen(true);
-    // REMOVE setIsRefresh(!isRefresh);sRefresh);
+    //setIsRefresh(!isRefresh);sRefresh);
   };
   const closeDeletePopup = () => {
     setIsDeleteOpen(false);
@@ -111,6 +112,14 @@ export default function HomePage() {
       </div>
       <div className="homepage-title">
         <div className="tab-buttons">
+          <Link to="/saved">
+            <button 
+            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+              onClick={() => setSelectedTab('saved')}
+            >
+              Saved
+            </button>
+          </Link>
           <Link to="/homepage">
             <button
               className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}

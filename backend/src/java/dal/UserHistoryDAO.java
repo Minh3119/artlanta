@@ -24,15 +24,16 @@ public class UserHistoryDAO extends DBContext {
         // Then insert the new history entry
         String insertSql = "INSERT INTO UserHistory (UserID, PostID, ArtistID) VALUES (?, ?, ?)";
         
-        try {
+        try(PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
             // Delete old entry if exists
             PreparedStatement deleteStmt = connection.prepareStatement(deleteSql);
             deleteStmt.setInt(1, userId);
             deleteStmt.setInt(2, postId);
             deleteStmt.executeUpdate();
+            deleteStmt.close();
             
             // Insert new entry
-            PreparedStatement insertStmt = connection.prepareStatement(insertSql);
+            
             insertStmt.setInt(1, userId);
             insertStmt.setInt(2, postId);
             insertStmt.setInt(3, artistId);
