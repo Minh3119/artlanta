@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import org.json.JSONObject;
 import util.JsonUtil;
-import static util.SessionUtil.getCurrentUserId;
+import util.SessionUtil;
 
 @WebServlet("/api/history/add")
 public class AddUserHistoryServlet extends HttpServlet {
@@ -22,8 +22,7 @@ public class AddUserHistoryServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession(false);
-        Integer currentUserId = getCurrentUserId(session);
+        Integer currentUserId = SessionUtil.getCurrentUserId(request.getSession(false));
 
         if (currentUserId == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

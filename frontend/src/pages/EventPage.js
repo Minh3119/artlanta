@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PostImageSlider from '../components/HomePage/PostImageSlider';
 import '../styles/event.scss';
+import '../styles/homepage.css';
 
 export default function EventPage() {
   const [currentID, setCurrentID] = useState(0);
@@ -18,6 +18,7 @@ export default function EventPage() {
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('post');
 
   useEffect(() => {
     if (location.state?.success) {
@@ -64,18 +65,20 @@ export default function EventPage() {
       }
 
       // Fetch posts for each event
-      const eventsWithPosts = await Promise.all(data.events.map(async event => {
-        const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
-          credentials: 'include'
-        });
-        const postsData = await postsResponse.json();
-        return {
-          ...event,
-          posts: postsData.posts || []
-        };
-      }));
+      //const eventsWithPosts = await Promise.all(data.events.map(async event => {
+       // const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
+      //    credentials: 'include'
+      //  });
+       // const postsData = await postsResponse.json();
+      //  return {
+       //   ...event,
+       //   posts: postsData.posts || []
+        //};
+     // }));
 
-      setEvents(eventsWithPosts);
+      //setEvents(eventsWithPosts);
+      // Set events from backend response
+      setEvents(data.events);
       setLoading(false);
     } catch (error) {
       toast.error(error.message);
@@ -220,14 +223,20 @@ export default function EventPage() {
 
       <div className="homepage-title">
         <div className="tab-buttons">
+          <Link to="/saved">
+            <button className={`tab-button${location.pathname === "/saved" ? " active" : ""}`}>
+              Saved
+            </button>
+          </Link>
+
           <Link to="/homepage">
-            <button className="tab-button">
+            <button className={`tab-button${location.pathname === "/homepage" ? " active" : ""}`}>
               Artwork Posts
             </button>
           </Link>
 
           <Link to="/event">
-            <button className="tab-button active">
+            <button className={`tab-button${location.pathname === "/event" ? " active" : ""}`}>
               Events
             </button>
           </Link>

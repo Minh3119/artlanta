@@ -13,7 +13,8 @@ import model.UserHistory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
-import static util.SessionUtil.getCurrentUserId;
+import util.SessionUtil;
+
 
 @WebServlet("/api/history/get")
 public class GetUserHistoryServlet extends HttpServlet {
@@ -26,8 +27,7 @@ public class GetUserHistoryServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession(false);
-        Integer currentUserId = getCurrentUserId(session);
+        Integer currentUserId = SessionUtil.getCurrentUserId(request.getSession(false));
 
         if (currentUserId == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
