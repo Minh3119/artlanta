@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function AddStaffForm() {
+function AddModForm() {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -39,7 +39,7 @@ function AddStaffForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <h3>Add new Staff</h3>
+      <h3>Add new Moderator</h3>
 
       <div style={{ marginBottom: '10px' }}>
         <label>Username</label>
@@ -84,4 +84,4 @@ function AddStaffForm() {
   );
 }
 
-export default AddStaffForm;
+export default AddModForm;
