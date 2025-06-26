@@ -566,7 +566,37 @@ INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (7, 8, 'PENDING', '2025-04-16'),
 (8, 9, 'ACCEPTED', '2025-04-17'),
 (9, 10, 'ACCEPTED', '2025-04-18'),
-(10, 1, 'ACCEPTED', '2025-04-19');
+(10, 1, 'ACCEPTED', '2025-04-19'),
+(1, 2, 'ACCEPTED', '2025-04-10'),
+(2, 3, 'PENDING', '2025-04-11'),
+(3, 4, 'ACCEPTED', '2025-04-12'),
+(4, 5, 'REJECT', '2025-04-13'),
+(5, 6, 'ACCEPTED', '2025-04-14'),
+(6, 7, 'ACCEPTED', '2025-04-15'),
+(7, 8, 'PENDING', '2025-04-16'),
+(8, 9, 'ACCEPTED', '2025-04-17'),
+(9, 10, 'ACCEPTED', '2025-04-18'),
+(10, 1, 'ACCEPTED', '2025-04-19'),
+
+(11, 6, 'ACCEPTED', '2025-06-10'),
+(12, 4, 'ACCEPTED', '2025-06-10'),
+(13, 8, 'ACCEPTED', '2025-06-10'),
+(14, 20, 'ACCEPTED', '2025-06-10'),
+(15, 10, 'ACCEPTED', '2025-06-10'),
+(16, 7, 'ACCEPTED', '2025-06-10'),
+(17, 22, 'ACCEPTED', '2025-06-10'),
+(18, 24, 'ACCEPTED', '2025-06-10'),
+(19, 9, 'ACCEPTED', '2025-06-10'),
+(20, 16, 'ACCEPTED', '2025-06-10'),
+
+(21, 3, 'ACCEPTED', '2025-06-11'),
+(22, 25, 'ACCEPTED', '2025-06-11'),
+(23, 6, 'ACCEPTED', '2025-06-11'),
+(24, 12, 'ACCEPTED', '2025-06-11'),
+(25, 15, 'ACCEPTED', '2025-06-11'),
+(26, 4, 'ACCEPTED', '2025-06-11'),
+(27, 19, 'ACCEPTED', '2025-06-11'),
+(28, 7, 'ACCEPTED', '2025-06-11');
 
 
 INSERT INTO CommissionPricing (ArtistID, Title, Description, Price, EstimatedDays) VALUES
