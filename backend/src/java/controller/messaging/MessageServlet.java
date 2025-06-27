@@ -11,6 +11,7 @@ import util.SessionUtil;
 import util.JsonUtil;
 import org.json.JSONObject;
 import java.io.IOException;
+import util.Formatter;
 
 @WebServlet("/api/messages")
 public class MessageServlet extends HttpServlet {
@@ -32,29 +33,36 @@ public class MessageServlet extends HttpServlet {
             JsonUtil.writeJsonError(response, "Missing conversationId parameter", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-
-        try {
-            int conversationId = Integer.parseInt(conversationIdStr);
-            
-            // Verify the current user is part of the conversation
-            int currentUserId = SessionUtil.getCurrentUserId(session);
-            if (!messagingService.isUserInConversation(currentUserId, conversationId)) {
-                JsonUtil.writeJsonError(response, "Not authorized to view this conversation", 
-                    HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
-
-            JSONObject jsonResponse = messagingService.getMessagesByConversationId(conversationId);
-            
-            // Send response
-            JsonUtil.writeJsonResponse(response, jsonResponse);
-            
-        } catch (NumberFormatException e) {
-            JsonUtil.writeJsonError(response, "Invalid conversation ID format", HttpServletResponse.SC_BAD_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            JsonUtil.writeJsonError(response, "Error retrieving messages: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        
+        // Get offset from query parameters
+        String offsetStr = request.getParameter("offset");
+        if (offsetStr == null || offsetStr.isEmpty()) {
+            JsonUtil.writeJsonError(response, "Missing offset parameter", HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
+
+        int conversationId = Formatter.getPositiveInt(conversationIdStr);
+        if (conversationId < 0) {
+            JsonUtil.writeJsonError(response, "Invalid conversation ID format", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        int offset = Formatter.getPositiveInt(offsetStr);
+        if (offset < 0) {
+            JsonUtil.writeJsonError(response, "Invalid offset format", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // Verify the current user is part of the conversation
+        int currentUserId = SessionUtil.getCurrentUserId(session);
+        if (!messagingService.isUserInConversation(currentUserId, conversationId)) {
+            JsonUtil.writeJsonError(response, "Not authorized to view this conversation", HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        // Respond
+        JSONObject jsonResponse = messagingService.getMessagesByConversationId(conversationId, offset);
+        JsonUtil.writeJsonResponse(response, jsonResponse);
     }
 
 }

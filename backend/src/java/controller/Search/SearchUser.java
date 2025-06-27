@@ -103,6 +103,7 @@ public class SearchUser extends HttpServlet {
             obj.put("status", user.getStatus());
             arr.put(obj);
         }
+	userDao.closeConnection();
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", arr);
         JsonUtil.writeJsonResponse(response, jsonResponse);

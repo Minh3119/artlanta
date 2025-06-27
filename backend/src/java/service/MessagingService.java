@@ -24,6 +24,9 @@ import java.util.List;
 
 public class MessagingService {
 
+    public static final int DEFAULT_LIMIT = 15;
+    public static final int DEFAULT_OFFSET = 0;
+
     private UserService userService;
     public MessagingService() {
         userService = new UserService();
@@ -128,25 +131,28 @@ public class MessagingService {
         }
     }
 
+    // overload 1
     public JSONObject getMessagesByConversationId(int conversationId) {
+        return getMessagesByConversationId(conversationId, DEFAULT_LIMIT, DEFAULT_OFFSET);
+    }
+
+    // overload 2
+    public JSONObject getMessagesByConversationId(int conversationId, int offset) {
+        return getMessagesByConversationId(conversationId, DEFAULT_LIMIT, offset);
+    }
+
+    // overload 3
+    public JSONObject getMessagesByConversationId(int conversationId, int limit, int offset) {
         MessageDAO messageDAO = new MessageDAO();
         try {
-            List<Message> messages = messageDAO.getMessagesByConversationId(conversationId);
+            List<Message> messages = messageDAO.getMessagesByConversationId(conversationId, limit, offset);
+            
+            // Reverse the list (oldest first) for frontend display
+            java.util.Collections.reverse(messages);
             
             // Convert messages to JSON
             JSONObject jsonResponse = new JSONObject();
             JSONArray messagesArray = new JSONArray(JsonUtil.toJsonString(messages));
-            
-            // for (Message message : messages) {
-            //     JSONObject messageJson = new JSONObject();
-            //     messageJson.put("id", message.getId());
-            //     messageJson.put("conversationId", message.getConversationId());
-            //     messageJson.put("senderId", message.getSenderId());
-            //     messageJson.put("content", message.getContent());
-            //     messageJson.put("mediaUrl", message.getMediaUrl());
-            //     messageJson.put("createdAt", message.getCreatedAt().toString());
-            //     messagesArray.put(messageJson);
-            // }
             
             jsonResponse.put("success", true);
             jsonResponse.put("messages", messagesArray);
@@ -213,7 +219,6 @@ public class MessagingService {
             
             if (!success) {
                 // If we failed to create user conversation entries, clean up the conversation
-                // Note: In a real application, you might want to implement proper transaction handling
                 conversationDAO.delete(conversationId);
                 return -1;
             }
@@ -238,14 +243,14 @@ public class MessagingService {
      * @param currentUserId ID of the current user
      * @return JSONArray containing conversation data
      */
-    public JSONArray buildConversationsJson(List<dto.ConversationDTO> conversations, int currentUserId) {
+    public JSONArray buildConversationsJson(List<ConversationDTO> conversations, int currentUserId) {
         JSONArray conversationsJson = new JSONArray();
         
         if (conversations == null || conversations.isEmpty()) {
             return conversationsJson;
         }
         
-        for (dto.ConversationDTO conversation : conversations) {
+        for (ConversationDTO conversation : conversations) {
             try {
                 JSONObject convJson = new JSONObject();
                 

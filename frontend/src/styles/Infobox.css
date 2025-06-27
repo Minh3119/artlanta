@@ -1,6 +1,6 @@
 
 
-.section {
+.section-payment {
   width: 1654px;
   height: 1700px;
   position: relative;
@@ -76,7 +76,7 @@
   color: #1F2D3D;
 }
 
-.container {
+.container-payment {
   width: 312.5px;
   height: 64px;
   position: absolute;

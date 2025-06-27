@@ -62,6 +62,8 @@ public class SearchPost extends HttpServlet {
 
                 arr.put(obj);
             }
+			pd.closeConnection();
+			md.closeConnection();
             JSONObject jsonPost = new JSONObject();
             jsonPost.put("response", arr);
 
