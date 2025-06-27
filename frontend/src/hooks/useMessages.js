@@ -21,16 +21,40 @@ export const useMessages = (
   const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const isInitialLoad = useRef(true);
   const lastFetchedOffset = useRef(-1);
+  
+  // Use refs to store current values to avoid callback recreation
+  const selectedConversationRef = useRef(selectedConversation);
+  const activeTabRef = useRef(activeTab);
+  const setConversationsRef = useRef(setConversations);
+  const sortConversationsByLatestMessageRef = useRef(sortConversationsByLatestMessage);
+  
+  // Update refs when values change
+  useEffect(() => {
+    selectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
+  
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+  
+  useEffect(() => {
+    setConversationsRef.current = setConversations;
+  }, [setConversations]);
+  
+  useEffect(() => {
+    sortConversationsByLatestMessageRef.current = sortConversationsByLatestMessage;
+  }, [sortConversationsByLatestMessage]);
 
   const fetchMessages = useCallback(async (offset) => {
     console.log(`Fetching messages with offset=${offset}}`)
-    if (!selectedConversation) {
+    if (!selectedConversationRef.current) {
       setMessages([]);
       return;
     }
     
     // Prevent duplicate API calls with the same offset
     if (lastFetchedOffset.current === offset) {
+      console.log(`Duplicated offset with offset=${offset}`)
       return;
     }
     
@@ -45,7 +69,7 @@ export const useMessages = (
     
     try {
       setMessagesError(null);
-      const response = await fetch(`http://localhost:9999/backend/api/messages?conversationId=${selectedConversation.id}&offset=${offset}`, {
+      const response = await fetch(`http://localhost:9999/backend/api/messages?conversationId=${selectedConversationRef.current.id}&offset=${offset}`, {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -80,7 +104,7 @@ export const useMessages = (
         setIsLoadingOlder(false);
       }
     }
-  }, [selectedConversation]);
+  }, [selectedConversation]); // Add selectedConversation as dependency to ensure fetchMessages updates when conversation changes
 
   // Fetch messages when a conversation is selected
   useEffect(() => {
@@ -94,60 +118,71 @@ export const useMessages = (
     };
     
     loadInitialMessages();
-  }, [selectedConversation, fetchMessages]);
+  }, [selectedConversation, fetchMessages]); // Include fetchMessages since it depends on selectedConversation
 
-  const handleOnMessage = useCallback((payload) => {
-    if (payload.action === 'unsend') {
-      const { messageId } = payload;
-      setMessages(prev => prev.map(m => 
-        m.id === messageId ? { ...m, content: 'This message has been deleted', isDeleted: true } : m
-      ));
-      setConversations(prev => ({
-        ...prev,
-        [activeTab]: prev[activeTab].map(conv => {
-          if (conv.latestMessage && conv.latestMessage.id === messageId) {
-            return {
-              ...conv,
-              latestMessage: { ...conv.latestMessage, content: 'This message has been deleted' },
-            };
-          }
-          return conv;
-        }),
-      }));
-    } else if (!payload.action || payload.action === 'send') {
-      const newMessage = payload.message;
-      if (!newMessage) return;
+  // Split message handlers for better organization
+  const handleIncomingUnsend = useCallback((payload) => {
+    if (payload.action !== 'unsend') return;
+    
+    const { messageId } = payload;
+    setMessages(prev => prev.map(m => 
+      m.id === messageId ? { ...m, content: 'This message has been deleted', isDeleted: true } : m
+    ));
+    setConversationsRef.current(prev => ({
+      ...prev,
+      [activeTabRef.current]: prev[activeTabRef.current].map(conv => {
+        if (conv.latestMessage && conv.latestMessage.id === messageId) {
+          return {
+            ...conv,
+            latestMessage: { ...conv.latestMessage, content: 'This message has been deleted' },
+          };
+        }
+        return conv;
+      }),
+    }));
+  }, []);
 
-      setConversations(prev => ({
-        ...prev,
-        [activeTab]: sortConversationsByLatestMessage(
-          prev[activeTab].map(conv =>
-            conv.id === newMessage.conversationId ? { ...conv, latestMessage: newMessage } : conv
-          )
-        ),
-      }));
+  const handleIncomingMessage = useCallback((payload) => {
+    if (payload.action && payload.action !== 'send') return;
+    
+    const newMessage = payload.message;
+    if (!newMessage) return;
 
-      if (selectedConversation && newMessage.conversationId === selectedConversation.id) {
-        setMessages(prev => {
-          // Check if message already exists to prevent duplicates
-          const messageExists = prev.some(msg => msg.id === newMessage.id);
-          if (messageExists) {
-            return prev;
-          }
-          return [...prev, newMessage];
-        });
-      }
+    setConversationsRef.current(prev => ({
+      ...prev,
+      [activeTabRef.current]: sortConversationsByLatestMessageRef.current(
+        prev[activeTabRef.current].map(conv =>
+          conv.id === newMessage.conversationId ? { ...conv, latestMessage: newMessage } : conv
+        )
+      ),
+    }));
+
+    if (selectedConversationRef.current && newMessage.conversationId === selectedConversationRef.current.id) {
+      setMessages(prev => {
+        // Check if message already exists to prevent duplicates
+        const messageExists = prev.some(msg => msg.id === newMessage.id);
+        if (messageExists) {
+          return prev;
+        }
+        return [...prev, newMessage];
+      });
     }
-  }, [selectedConversation, activeTab, setConversations, sortConversationsByLatestMessage]);
+  }, []);
 
+  // Register both message handlers
   useEffect(() => {
-    const cleanup = registerMessageHandler(handleOnMessage);
-    return cleanup;
-  }, [handleOnMessage, registerMessageHandler]);
+    const cleanup1 = registerMessageHandler(handleIncomingUnsend);
+    const cleanup2 = registerMessageHandler(handleIncomingMessage);
+    
+    return () => {
+      cleanup1();
+      cleanup2();
+    };
+  }, [handleIncomingUnsend, handleIncomingMessage, registerMessageHandler]);
 
   const handleSendMessage = async (messageText, attachedFile) => {
     if ((!messageText || !messageText.trim()) && !attachedFile) return;
-    if (!selectedConversation || !currentUserId) return;
+    if (!selectedConversationRef.current || !currentUserId) return;
 
     let media = null;
     if (attachedFile) {
@@ -186,7 +221,7 @@ export const useMessages = (
 
     const messagePayload = {
       action: 'send',
-      conversationId: selectedConversation.id,
+      conversationId: selectedConversationRef.current.id,
       senderId: currentUserId,
       content: { text: messageText, media },
     };
@@ -231,9 +266,9 @@ export const useMessages = (
     isUploading,
     isLoadingOlder,
     handleSendMessage,
-    handleUnsendMessage,
     handleScroll,
     loadOlderMessages,
-    isInitialLoad
+    isInitialLoad,
+    handleUnsendMessage
   };
 }; 
