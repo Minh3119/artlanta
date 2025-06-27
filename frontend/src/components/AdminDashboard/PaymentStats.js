@@ -151,7 +151,7 @@ const MonthlyRevenueChart = ({ data }) => {
   ];
 
   return (
-    <div className="section">
+    <div className="section-payment">
       <div className="heading5-info-box">Payment Statistics</div>
 
       {metrics.map((metric, index) => (
@@ -163,7 +163,7 @@ const MonthlyRevenueChart = ({ data }) => {
           <div className={`background ${metric.color}`}>
             <div className="symbol">{metric.icon}</div>
           </div>
-          <div className="container">
+          <div className="container-payment">
             <div className="info-title">{metric.title}</div>
             <div className="info-value">{metric.value}</div>
           </div>
