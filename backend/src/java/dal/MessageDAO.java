@@ -36,11 +36,13 @@ public class MessageDAO extends DBContext {
     }
 
     // Get all messages in a conversation
-    public List<Message> getMessagesByConversationId(int conversationId) {
+    public List<Message> getMessagesByConversationId(int conversationId, int limit, int offset) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT * FROM Messages WHERE ConversationID = ? ORDER BY CreatedAt ASC";
+        String sql = "SELECT * FROM Messages WHERE ConversationID = ? ORDER BY CreatedAt DESC LIMIT ? OFFSET ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, conversationId);
+            stmt.setInt(2, limit);
+            stmt.setInt(3, offset);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     messages.add(new Message(

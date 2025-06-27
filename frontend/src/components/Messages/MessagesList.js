@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import ScrollToBottom, { useScrollToBottom, useSticky } from 'react-scroll-to-bottom';
+import React, { useState, useEffect, useRef } from 'react';
+import ScrollToBottom, { useScrollToBottom, useSticky, useAtTop } from 'react-scroll-to-bottom';
 import Message from './Message';
 
 function ScrollToBottomButton() {
@@ -25,22 +25,23 @@ function ScrollToBottomButton() {
   );
 }
 
-const MessagesList = React.memo(({ conversationId, currentUserId, messages, loading, error, onUnsend, onReport }) => {
+const MessagesList = React.memo(({ 
+  conversationId, 
+  currentUserId, 
+  messages, 
+  loading, 
+  error, 
+  onUnsend, 
+  onReport,
+  handleScroll,
+  isLoadingOlder,
+  loadOlderMessages,
+  isInitialLoad
+}) => {
   const scrollRef = useRef();
+  
 
-  // Force scroll to bottom when messages change
-  useEffect(() => {
-    if (messages.length > 0 && scrollRef.current) {
-      // Small delay to ensure DOM is updated
-      const timer = setTimeout(() => {
-        if (scrollRef.current && scrollRef.current.scrollToBottom) {
-          scrollRef.current.scrollToBottom();
-        }
-      }, 50);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [messages.length, messages]);
+
 
   if (!conversationId) {
     return (
@@ -73,16 +74,22 @@ const MessagesList = React.memo(({ conversationId, currentUserId, messages, load
     );
   }
 
-  return (
-    <div className="flex-1 flex flex-col h-full">
-      <ScrollToBottom 
-        ref={scrollRef}
-        className="flex-1 px-4 overflow-y-auto overflow-x-hidden relative"
-        follow={true}
-        mode="bottom"
-        initialScrollBehavior="smooth"
-        key={conversationId}
-      >
+  const MessageContent = () => {
+    const [atTop] = useAtTop();
+    const [prevAtTop, setPrevAtTop] = useState(false);
+
+    // Trigger pagination when user reaches top
+    useEffect(() => {
+      if (atTop && !prevAtTop && !isInitialLoad.current && !loading && messages.length > 0) {
+        loadOlderMessages();
+        // Reset the flag after a short delay to prevent rapid successive calls
+        setTimeout(() => isInitialLoad.current=false, 1000);
+      }
+      setPrevAtTop(atTop);
+    }, [atTop, prevAtTop, loadOlderMessages, isInitialLoad, loading]);
+
+    return (
+      <>
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6">
             <div className="bg-gray-100 p-4 rounded-full mb-4">
@@ -97,6 +104,13 @@ const MessagesList = React.memo(({ conversationId, currentUserId, messages, load
           </div>
         ) : (
           <div className="space-y-2">
+            {/* Loading indicator for older messages */}
+            {isLoadingOlder && (
+              <div className="flex justify-center py-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
+                <span className="ml-2 text-sm text-gray-500">Loading older messages...</span>
+              </div>
+            )}
             {messages.map((message) => (
               <Message 
                 key={message.id}
@@ -108,6 +122,19 @@ const MessagesList = React.memo(({ conversationId, currentUserId, messages, load
             ))}
           </div>
         )}
+      </>
+    );
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full">
+      <ScrollToBottom 
+        className="flex-1 px-4 overflow-y-auto overflow-x-hidden relative"
+        follow={false}
+        mode="bottom"
+        initialScrollBehavior="smooth"
+      >
+        <MessageContent />
         <ScrollToBottomButton />
       </ScrollToBottom>
     </div>
