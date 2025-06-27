@@ -46,7 +46,6 @@ export const useMessages = (
   }, [sortConversationsByLatestMessage]);
 
   const fetchMessages = useCallback(async (offset) => {
-    console.log(`Fetching messages with offset=${offset}}`)
     if (!selectedConversationRef.current) {
       setMessages([]);
       return;
@@ -54,11 +53,9 @@ export const useMessages = (
     
     // Prevent duplicate API calls with the same offset
     if (lastFetchedOffset.current === offset) {
-      console.log(`Duplicated offset with offset=${offset}`)
       return;
     }
     
-    console.log('fetchMessages called - offset:', offset, 'isInitialLoad:', isInitialLoad.current);
     lastFetchedOffset.current = offset;
     
     if (isInitialLoad.current) {
@@ -78,8 +75,6 @@ export const useMessages = (
       
       const data = await response.json();
       await messagesResponseSchema.validate(data);
-      
-      console.log('Messages received:', data.messages?.length || 0, 'messages');
       
       if (isInitialLoad.current) {
         // For initial load, replace all messages

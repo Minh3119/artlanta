@@ -78,7 +78,6 @@ const MessagesPage = () => {
     if (conversationIdParam) {
       const found = conversations.find(c => c.id === parseInt(conversationIdParam));
       if (found) {
-        console.log('Selecting conversation from URL param:', found.id);
         setSelectedConversation(found);
         hasSelectedInitialConversation.current = true;
         return;
