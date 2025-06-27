@@ -20,9 +20,9 @@ export default function LoginCard() {
           credentials: "include",
         });
         const data = await res.json();
-        if (data.loggedIn) {
-          navigate("/");
-        }
+        // if (data.loggedIn) {
+        //   navigate("/");
+        // }
       } catch (error) {
         console.error("Error checking session:", error);
       }
