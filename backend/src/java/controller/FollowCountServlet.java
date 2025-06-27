@@ -49,7 +49,7 @@ public class FollowCountServlet extends HttpServlet {
         
         // Fetch both follower and following counts
         int followers = followDAO.countFollowers(userId);
-        int following = followDAO.countFollowing(userId);
+        int following = followDAO.countFollowed(userId);
         
         // Build and send JSON response
         JSONObject jsonResponse = new JSONObject();

@@ -23,7 +23,7 @@ function NotificationPopup({ onClose }) {
           // Then fetch notifications using the user's ID
           return fetch(`http://localhost:9999/backend/api/notifications?userId=${data.response.id}`, {
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json'},
           });
         }
       })

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Follow {
     private int id;
     private int followerId;
-    private int followingId;
+    private int followedId;
     private String status;
     private LocalDateTime followAt;
     private String username;
@@ -14,10 +14,10 @@ public class Follow {
     public Follow() {
     }
 
-    public Follow(int id, int followerId, int followingId, String status, LocalDateTime followAt) {
+    public Follow(int id, int followerId, int followedId, String status, LocalDateTime followAt) {
         this.id = id;
         this.followerId = followerId;
-        this.followingId = followingId;
+        this.followedId = followedId;
         this.status = status;
         this.followAt = followAt;
     }
@@ -38,12 +38,12 @@ public class Follow {
         this.followerId = followerId;
     }
 
-    public int getFollowingId() {
-        return followingId;
+    public int getFollowedId() {
+        return followedId;
     }
 
-    public void setFollowingId(int followingId) {
-        this.followingId = followingId;
+    public void setFollowedId(int followedId) {
+        this.followedId = followedId;
     }
 
     public String getStatus() {

@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import "../styles/homepage.css";
 import Header from "../components/HomePage/Header";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PostImageSlider from '../components/HomePage/PostImageSlider';
 import '../styles/event.scss';
+import '../styles/homepage.css';
 
 export default function EventPage() {
   const [currentID, setCurrentID] = useState(0);
@@ -18,7 +18,9 @@ export default function EventPage() {
   const [isEventOpen, setIsEventOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('post');
 
+  // Handle location state for success/error messages
   useEffect(() => {
     if (location.state?.success) {
       toast.success(location.state.success);
@@ -28,10 +30,12 @@ export default function EventPage() {
     }
 
     if (location.state) {
-      navigate(location.pathname, { replace: true });
+      navigate(location.pathname, { replace: true }); 
     }
   }, [location, navigate]);
 
+
+  // Fetch userId hiện tại
   useEffect(() => {
     fetch("http://localhost:9999/backend/api/user/userid", {
       credentials: "include",
@@ -47,6 +51,7 @@ export default function EventPage() {
     fetchEvents();
   }, []);
 
+  // Fetch events
   const fetchEvents = async () => {
     try {
       const response = await fetch('http://localhost:9999/backend/api/events', {
@@ -62,20 +67,7 @@ export default function EventPage() {
       if (data.error) {
         throw new Error(data.error);
       }
-
-      // Fetch posts for each event
-      const eventsWithPosts = await Promise.all(data.events.map(async event => {
-        const postsResponse = await fetch(`http://localhost:9999/backend/api/event/post/${event.eventId}`, {
-          credentials: 'include'
-        });
-        const postsData = await postsResponse.json();
-        return {
-          ...event,
-          posts: postsData.posts || []
-        };
-      }));
-
-      setEvents(eventsWithPosts);
+      setEvents(data.events);
       setLoading(false);
     } catch (error) {
       toast.error(error.message);
@@ -108,7 +100,7 @@ export default function EventPage() {
     });
   };
 
-  // Add handlers for follow and join
+  // handle follow và join
   const handleFollow = async (eventId) => {
     try {
       const response = await fetch(`http://localhost:9999/backend/api/event/follow`, {
@@ -149,53 +141,17 @@ export default function EventPage() {
     }
   };
 
-  // Helper to get current user's status for an event
+  // lấy trạng thái follow
   const getUserEventStatus = (event) => {
     if (!event.followers) return null;
-    const follower = event.followers.find(f => f.userId === currentID);
+    const follower = event.followers.find(f => f.userId === currentID); // tìm trong danh sách followers
     return follower ? follower.status : null;
   };
 
-  // Unfollow and Unjoin handlers
-  const handleUnfollow = async (eventId) => {
-    try {
-      const response = await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.success !== false) {
-        toast.success('Unfollowed event!');
-        fetchEvents();
-      } else {
-        toast.error(data.error || 'Failed to unfollow event');
-      }
-    } catch (error) {
-      toast.error('Failed to unfollow event');
-    }
-  };
-  const handleUnjoin = async (eventId) => {
-    try {
-      const response = await fetch(`http://localhost:9999/backend/api/event/join?eventId=${eventId}&userId=${currentID}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const data = await response.json();
-      if (data.success !== false) {
-        toast.success('Unjoined event!');
-        fetchEvents();
-      } else {
-        toast.error(data.error || 'Failed to unjoin event');
-      }
-    } catch (error) {
-      toast.error('Failed to unjoin event');
-    }
-  };
-
-  // Add handler for not interested
+  // Set status thành "not interested"
   const handleNotInterested = async (eventId) => {
     try {
-      // Unfollow/unjoin by deleting any status
+      // Xoá follow/ join bằng cách gửi DELETE request
       await fetch(`http://localhost:9999/backend/api/event/follow?eventId=${eventId}&userId=${currentID}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -210,6 +166,8 @@ export default function EventPage() {
     }
   };
 
+
+  //----------------Phần render component----------------
   return (
     <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
       <Header openCreatePopup={openCreatePopup} />
@@ -220,14 +178,20 @@ export default function EventPage() {
 
       <div className="homepage-title">
         <div className="tab-buttons">
+          <Link to="/saved">
+            <button className={`tab-button${location.pathname === "/saved" ? " active" : ""}`}>
+              Saved
+            </button>
+          </Link>
+
           <Link to="/homepage">
-            <button className="tab-button">
+            <button className={`tab-button${location.pathname === "/homepage" ? " active" : ""}`}>
               Artwork Posts
             </button>
           </Link>
 
           <Link to="/event">
-            <button className="tab-button active">
+            <button className={`tab-button${location.pathname === "/event" ? " active" : ""}`}>
               Events
             </button>
           </Link>

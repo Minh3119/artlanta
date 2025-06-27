@@ -11,15 +11,13 @@ import java.time.LocalDateTime;
  * @author Asus
  */
 public class ReportPost {
-	private int ID;
 	private int reportedID;
 	private int postID;
 	private String reason;
 	 private LocalDateTime reportAt;
 	private String status;
 
-	public ReportPost(int ID, int reportedID, int postID, String reason, LocalDateTime reportAt, String status) {
-		this.ID = ID;
+	public ReportPost(int reportedID, int postID, String reason, LocalDateTime reportAt, String status) {
 		this.reportedID = reportedID;
 		this.postID = postID;
 		this.reason = reason;
@@ -27,13 +25,7 @@ public class ReportPost {
 		this.status = status;
 	}
 
-	public int getID() {
-		return ID;
-	}
 
-	public void setID(int ID) {
-		this.ID = ID;
-	}
 
 	public int getReportedID() {
 		return reportedID;

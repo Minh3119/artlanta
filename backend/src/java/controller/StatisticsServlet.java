@@ -7,7 +7,6 @@ package controller;
 import dal.StatisticsDAO;
 import model.Statistics;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -16,6 +15,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import util.SessionUtil;
 
 /**
  *
@@ -62,26 +63,20 @@ public class StatisticsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        String userIdParam = request.getParameter("userId");
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        // Check for session or authentication
+        Integer userId = SessionUtil.getCurrentUserId(request.getSession(false));
+        if (userId == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Unauthorized: session not found\"}");
+            return;
+        }
+
         JSONObject json = new JSONObject();
-
-        if (userIdParam == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            json.put("error", "Missing userId parameter");
-            response.getWriter().write(json.toString());
-            return;
-        }
-
-        int userId;
-        try {
-            userId = Integer.parseInt(userIdParam);
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            json.put("error", "Invalid userId parameter");
-            response.getWriter().write(json.toString());
-            return;
-        }
 
         try (PrintWriter out = response.getWriter()) {
             StatisticsDAO statsDAO = new StatisticsDAO();
@@ -93,7 +88,7 @@ public class StatisticsServlet extends HttpServlet {
             json.put("likesReceived", stats.getLikesReceived());
             json.put("commentsMade", stats.getCommentsMade());
             json.put("repliesReceived", stats.getRepliesReceived());
-            json.put("flagsReceived", stats.getFlagsReceived());
+            json.put("commentsPerPost", stats.getCommentsPerPost());
             json.put("votesPerPost", stats.getVotesPerPost());
 
             // Add top posts

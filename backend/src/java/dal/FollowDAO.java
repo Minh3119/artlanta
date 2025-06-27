@@ -11,19 +11,12 @@ import model.Follow;
 // Handles all database operations related to follow functionality
 public class FollowDAO extends DBContext {
 
-    // -------------------- Core Follow Actions --------------------
-    /**
-     * Creates a new follow relationship between users
-     *
-     * @param followerId The user who is following
-     * @param followingId The user being followed
-     * @return boolean indicating success of the operation
-     */
-    public boolean follow(int followerId, int followingId) {
-        String sql = "INSERT INTO Follows (followerId, followingId, status, followAt) VALUES (?, ?, 'ACCEPTED', CURRENT_TIMESTAMP)";
+
+    public boolean follow(int followerId, int followedId) {
+        String sql = "INSERT INTO Follows (followerId, followedId, status, followAt) VALUES (?, ?, 'ACCEPTED', CURRENT_TIMESTAMP)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, followerId);
-            ps.setInt(2, followingId);
+            ps.setInt(2, followedId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -34,15 +27,15 @@ public class FollowDAO extends DBContext {
     /**
      * Removes a follow relationship between users
      *
-     * @param followerId The user who is unfollowing
-     * @param followingId The user being unfollowed
+     * @param followerId The user who is unfollowed
+     * @param followedId The user being unfollowed
      * @return boolean indicating success of the operation
      */
-    public boolean unfollow(int followerId, int followingId) {
-        String sql = "DELETE FROM Follows WHERE followerId = ? AND followingId = ?";
+    public boolean unfollow(int followerId, int followedId) {
+        String sql = "DELETE FROM Follows WHERE followerId = ? AND followedId = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, followerId);
-            ps.setInt(2, followingId);
+            ps.setInt(2, followedId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,7 +51,7 @@ public class FollowDAO extends DBContext {
      * @return The number of followers
      */
     public int countFollowers(int userId) {
-        String sql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
+        String sql = "SELECT COUNT(*) FROM Follows WHERE followedId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -72,12 +65,12 @@ public class FollowDAO extends DBContext {
     }
 
     /**
-     * Counts how many users a user is following
+     * Counts how many users a user is followed
      *
-     * @param userId The user whose following count is being checked
+     * @param userId The user whose followed count is being checked
      * @return The number of users being followed
      */
-    public int countFollowing(int userId) {
+    public int countFollowed(int userId) {
         String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -102,7 +95,7 @@ public class FollowDAO extends DBContext {
         List<Follow> followers = new ArrayList<>();
         String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f "
                 + "JOIN Users u ON f.followerId = u.ID "
-                + "WHERE f.followingId = ? AND f.status = 'ACCEPTED'";
+                + "WHERE f.followedId = ? AND f.status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -110,7 +103,7 @@ public class FollowDAO extends DBContext {
                 Follow f = new Follow();
                 f.setId(rs.getInt("id"));
                 f.setFollowerId(rs.getInt("followerId"));
-                f.setFollowingId(rs.getInt("followingId"));
+                f.setFollowedId(rs.getInt("followedId"));
                 f.setStatus(rs.getString("status"));
                 f.setFollowAt(rs.getTimestamp("followAt").toLocalDateTime());
                 f.setUsername(rs.getString("Username"));
@@ -124,15 +117,15 @@ public class FollowDAO extends DBContext {
     }
 
     /**
-     * Retrieves the list of users that a user is following
+     * Retrieves the list of users that a user is followed
      *
-     * @param userId The user whose following list is being retrieved
-     * @return List of Follow objects containing following information
+     * @param userId The user whose followed list is being retrieved
+     * @return List of Follow objects containing followed information
      */
-    public List<Follow> getFollowing(int userId) {
-        List<Follow> following = new ArrayList<>();
+    public List<Follow> getFollowed(int userId) {
+        List<Follow> followed = new ArrayList<>();
         String sql = "SELECT f.*, u.Username, u.AvatarURL FROM Follows f "
-                + "JOIN Users u ON f.followingId = u.ID "
+                + "JOIN Users u ON f.followedId = u.ID "
                 + "WHERE f.followerId = ? AND f.status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
@@ -141,32 +134,32 @@ public class FollowDAO extends DBContext {
                 Follow f = new Follow();
                 f.setId(rs.getInt("id"));
                 f.setFollowerId(rs.getInt("followerId"));
-                f.setFollowingId(rs.getInt("followingId"));
+                f.setFollowedId(rs.getInt("followedId"));
                 f.setStatus(rs.getString("status"));
                 f.setFollowAt(rs.getTimestamp("followAt").toLocalDateTime());
                 f.setUsername(rs.getString("Username"));
                 f.setAvatarUrl(rs.getString("AvatarURL"));
-                following.add(f);
+                followed.add(f);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return following;
+        return followed;
     }
 
     // -------------------- Follow Status --------------------
     /**
-     * Checks if one user is following another
+     * Checks if one user is followed another
      *
      * @param followerId The potential follower
-     * @param followingId The potential user being followed
+     * @param followedId The potential user being followed
      * @return boolean indicating if the follow relationship exists
      */
-    public boolean isFollowing(int followerId, int followingId) {
-        String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND followingId = ? AND status = 'ACCEPTED'";
+    public boolean isFollowed(int followerId, int followedId) {
+        String sql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND followedId = ? AND status = 'ACCEPTED'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, followerId);
-            ps.setInt(2, followingId);
+            ps.setInt(2, followedId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1) > 0;
@@ -179,15 +172,15 @@ public class FollowDAO extends DBContext {
 
     // -------------------- Aggregate Counts --------------------
     /**
-     * Gets both follower and following counts for a user
+     * Gets both follower and followed counts for a user
      *
      * @param userId The user whose counts are being retrieved
-     * @return Map containing both follower and following counts
+     * @return Map containing both follower and followed counts
      */
     public Map<String, Integer> getFollowerCounts(int userId) {
         Map<String, Integer> counts = new HashMap<>();
-        String followersSql = "SELECT COUNT(*) FROM Follows WHERE followingId = ? AND status = 'ACCEPTED'";
-        String followingSql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
+        String followersSql = "SELECT COUNT(*) FROM Follows WHERE followedId = ? AND status = 'ACCEPTED'";
+        String followedSql = "SELECT COUNT(*) FROM Follows WHERE followerId = ? AND status = 'ACCEPTED'";
 
         try {
             // Get followers count
@@ -198,17 +191,17 @@ public class FollowDAO extends DBContext {
                 counts.put("followers", rs.getInt(1));
             }
 
-            // Get following count
-            ps = connection.prepareStatement(followingSql);
+            // Get followed count
+            ps = connection.prepareStatement(followedSql);
             ps.setInt(1, userId);
             rs = ps.executeQuery();
             if (rs.next()) {
-                counts.put("following", rs.getInt(1));
+                counts.put("followed", rs.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
             counts.put("followers", 0);
-            counts.put("following", 0);
+            counts.put("followed", 0);
         }
         return counts;
     }
@@ -216,10 +209,10 @@ public class FollowDAO extends DBContext {
     public List<Integer> getTop5FollowedUserIDs() {
         List<Integer> userIds = new ArrayList<>();
         String sql = """
-        SELECT f.FollowingID AS UserID
+        SELECT f.FollowedID AS UserID
         FROM Follows f
         WHERE f.Status = 'ACCEPTED'
-        GROUP BY f.FollowingID
+        GROUP BY f.FollowedID
         ORDER BY COUNT(*) DESC
         LIMIT 5
     """;
@@ -243,13 +236,13 @@ public class FollowDAO extends DBContext {
         String sql = """
         SELECT DISTINCT C.FollowerID AS SuggestedUserID
         FROM Follows A
-        JOIN Follows C ON A.FollowingID = C.FollowingID
+        JOIN Follows C ON A.FollowedID = C.FollowedID
         WHERE A.FollowerID = ?
           AND A.Status = 'ACCEPTED'
           AND C.Status = 'ACCEPTED'
           AND C.FollowerID != A.FollowerID
           AND C.FollowerID NOT IN (
-              SELECT FollowingID
+              SELECT FollowedID
               FROM Follows
               WHERE FollowerID = A.FollowerID
                 AND Status = 'ACCEPTED'

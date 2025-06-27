@@ -20,9 +20,9 @@ export default function LoginCard() {
           credentials: "include",
         });
         const data = await res.json();
-        if (data.loggedIn) {
-          navigate("/");
-        }
+        // if (data.loggedIn) {
+        //   navigate("/");
+        // }
       } catch (error) {
         console.error("Error checking session:", error);
       }
@@ -68,7 +68,7 @@ export default function LoginCard() {
         const role = data.user.role?.toUpperCase();
 
         if (role === "ADMIN") {
-          navigate("/admin");
+          navigate("/471408451d6070899bba1548031a2cf3/admin");
         } else {
           navigate("/");
         }

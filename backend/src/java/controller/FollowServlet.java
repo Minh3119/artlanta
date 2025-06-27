@@ -140,7 +140,7 @@ public class FollowServlet extends HttpServlet {
 
                 sb.append("{\"id\":").append(f.getId())
                   .append(",\"followerId\":").append(f.getFollowerId())
-                  .append(",\"followingId\":").append(f.getFollowingId())
+                  .append(",\"followingId\":").append(f.getFollowedId())
                   .append(",\"status\":\"").append(f.getStatus()).append("\"")
                   .append(",\"followAt\":\"").append(f.getFollowAt()).append("\"")
                   .append(",\"username\":\"").append(f.getUsername()).append("\"")
@@ -151,7 +151,7 @@ public class FollowServlet extends HttpServlet {
             sb.append("]");
             out.print(sb.toString());
         } 
-        // -------------------- Following List --------------------
+        // -------------------- Followed List --------------------
         // Returns list of users being followed with privacy filtering
         else if ("following".equals(type)) {
             // Privacy check for private profiles
@@ -162,14 +162,14 @@ public class FollowServlet extends HttpServlet {
             }
 
             // Get and filter following list based on privacy settings
-            List<Follow> following = followDAO.getFollowing(targetUserId);
+            List<Follow> following = followDAO.getFollowed(targetUserId);
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             boolean first = true;
 
             for (Follow f : following) {
                 // Get followed user's privacy settings
-                User followedUser = userDAO.getOne(f.getFollowingId());
+                User followedUser = userDAO.getOne(f.getFollowedId());
                 
                 // Skip private profiles unless viewer has permission
                 if (followedUser.isPrivate() && 
@@ -186,7 +186,7 @@ public class FollowServlet extends HttpServlet {
 
                 sb.append("{\"id\":").append(f.getId())
                   .append(",\"followerId\":").append(f.getFollowerId())
-                  .append(",\"followingId\":").append(f.getFollowingId())
+                  .append(",\"followingId\":").append(f.getFollowedId())
                   .append(",\"status\":\"").append(f.getStatus()).append("\"")
                   .append(",\"followAt\":\"").append(f.getFollowAt()).append("\"")
                   .append(",\"username\":\"").append(followedUser.getUsername()).append("\"")
@@ -205,8 +205,8 @@ public class FollowServlet extends HttpServlet {
                 out.print("{\"error\":\"Not logged in\"}");
                 return;
             }
-            boolean isFollowing = followDAO.isFollowing(currentUserId, targetUserId);
-            out.print("{\"isFollowing\":" + isFollowing + "}");
+            boolean isFollowed = followDAO.isFollowed(currentUserId, targetUserId);
+            out.print("{\"isFollowed\":" + isFollowed + "}");
         } else {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             out.print("{\"error\":\"Invalid type\"}");
