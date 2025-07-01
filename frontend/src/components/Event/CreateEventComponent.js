@@ -3,11 +3,6 @@ import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 import '../../styles/event.scss';
 
-/**
- * CreateEventComponent - A modal form component for creating events
- * @param {Object} props
- * @param {Function} props.closeEventPopup - Function to close the modal
- */
 export default function CreateEventComponent({ closeEventPopup }) {
   // State for form data and UI control
   const [eventData, setEventData] = useState({
@@ -30,10 +25,6 @@ export default function CreateEventComponent({ closeEventPopup }) {
   const popupRef = useRef(null); // Reference to the modal container for click outside detection
   const fileInputRef = useRef(null); // Reference to the file input element
 
-  /**
-   * Handles clicks outside the modal to close it
-   * @param {Event} event - The click event
-   */
   const handleClickOutside = (event) => {
     if (popupRef.current && !popupRef.current.contains(event.target)) {
       closeEventPopup();

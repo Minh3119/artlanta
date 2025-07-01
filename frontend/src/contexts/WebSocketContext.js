@@ -16,25 +16,36 @@ export const WebSocketProvider = ({ children }) => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [messageHandlers, setMessageHandlers] = useState(new Set());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const messageHandlersRef = useRef(messageHandlers);
 
-  // Check if user is authenticated
+  // Update ref when messageHandlers state changes
+  useEffect(() => {
+    messageHandlersRef.current = messageHandlers;
+  }, [messageHandlers]);
+
+  // Check if user is authenticated, if yes, update currentUserId and isAuthenticated
   const checkAuthentication = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:9999/backend/api/session/check', {
+      const response = await fetch('http://localhost:9999/backend/api/current-user', {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
       
+      if (!response.ok) {
+        // User not authenticated
+        setIsAuthenticated(false);
+        setCurrentUserId(null);
+        return false;
+      }
+      
       const data = await response.json();
       
-      if (data.loggedIn && data.userId) {
-        console.log('User authenticated:', data.userId);
+      if (data.response && data.response.id) {   // user authenticated
         setIsAuthenticated(true);
-        setCurrentUserId(data.userId);
+        setCurrentUserId(data.response.id);
         return true;
-      } else {
-        console.log('User not authenticated');
+      } else {    // user not authenticated
         setIsAuthenticated(false);
         setCurrentUserId(null);
         return false;
@@ -50,8 +61,6 @@ export const WebSocketProvider = ({ children }) => {
   // Fetch current user and establish WebSocket connection
   const initializeWebSocket = useCallback(async () => {
     try {
-      console.log('Initializing WebSocket connection...');
-      
       // First, get the current user
       const response = await fetch('http://localhost:9999/backend/api/current-user', {
         method: 'GET',
@@ -69,8 +78,6 @@ export const WebSocketProvider = ({ children }) => {
       setCurrentUserId(userId);
       setIsAuthenticated(true);
 
-      console.log('Creating WebSocket connection for user:', userId);
-      
       // Now establish WebSocket connection
       ws.current = new WebSocket('ws://localhost:9999/backend/ws/message');
       
@@ -80,7 +87,7 @@ export const WebSocketProvider = ({ children }) => {
       };
       
       ws.current.onclose = (event) => {
-        console.log('WebSocket connection closed:', event.code, event.reason);
+        console.log('WebSocket close details - Code:', event.code, 'Reason:', event.reason, 'WasClean:', event.wasClean);
         setIsConnected(false);
         
         // If the connection was closed due to authentication issues, re-check auth
@@ -100,7 +107,7 @@ export const WebSocketProvider = ({ children }) => {
           const payload = JSON.parse(event.data);
           
           // Notify all registered message handlers
-          messageHandlers.forEach(handler => {
+          messageHandlersRef.current.forEach(handler => {
             try {
               handler(payload);
             } catch (err) {
@@ -116,7 +123,7 @@ export const WebSocketProvider = ({ children }) => {
       setIsConnected(false);
       setIsAuthenticated(false);
     }
-  }, [messageHandlers, checkAuthentication]);
+  }, [checkAuthentication]);
 
   // Register a message handler
   const registerMessageHandler = useCallback((handler) => {
@@ -143,28 +150,15 @@ export const WebSocketProvider = ({ children }) => {
 
   // Check authentication on mount
   useEffect(() => {
-    console.log('WebSocketProvider: Checking authentication on mount');
     checkAuthentication();
-  }, [checkAuthentication]);
-
-  // Re-check authentication when window gains focus (e.g., returning from OAuth)
-  useEffect(() => {
-    const handleFocus = () => {
-      console.log('Window gained focus, re-checking authentication');
-      checkAuthentication();
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
   }, [checkAuthentication]);
 
   // Initialize WebSocket when user is authenticated
   useEffect(() => {
     if (isAuthenticated && currentUserId) {
-      console.log('WebSocketProvider: User authenticated, initializing WebSocket');
       initializeWebSocket();
     } else if (!isAuthenticated) {
-      console.log('WebSocketProvider: User not authenticated, closing WebSocket if exists');
+      console.log('WebSocketProvider: User not authenticated, closing WebSocket');
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.close();
       }

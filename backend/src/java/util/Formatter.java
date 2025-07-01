@@ -43,4 +43,16 @@ public class Formatter {
 
         return formattedDate;
     }
+
+    public static int getPositiveInt(String s) {
+        try {
+            int i = Integer.parseInt(s);
+            if (i < 0) {
+                throw new Exception();
+            }
+            return i;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
 }

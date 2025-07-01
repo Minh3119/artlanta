@@ -16,6 +16,8 @@ import util.SessionUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import dto.ConversationDTO;
+
 @WebServlet("/api/conversations")
 public class ConversationServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -50,7 +52,7 @@ public class ConversationServlet extends HttpServlet {
             UserConversation.ConversationType type = UserConversation.ConversationType.fromString(typeParam);
             
             // Get conversations based on type
-            List<dto.ConversationDTO> conversations;
+            List<ConversationDTO> conversations;
             switch (type) {
                 case PENDING:
                     conversations = messagingService.getPendingConversations(userId);
