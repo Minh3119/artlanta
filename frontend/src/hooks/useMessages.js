@@ -18,7 +18,7 @@ export const useMessages = (
   const [isUploading, setIsUploading] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const isLoadingOlder = useRef(false);
   const isInitialLoad = useRef(true);
   const lastFetchedOffset = useRef(-1);
   
@@ -36,10 +36,6 @@ export const useMessages = (
   useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
-  
-  useEffect(() => {
-    setConversationsRef.current = setConversations;
-  }, [setConversations]);
   
   useEffect(() => {
     sortConversationsByLatestMessageRef.current = sortConversationsByLatestMessage;
@@ -61,7 +57,7 @@ export const useMessages = (
     if (isInitialLoad.current) {
       setIsMessagesLoading(true);
     } else {
-      setIsLoadingOlder(true);
+      isLoadingOlder.current = true;
     }
     
     try {
@@ -96,7 +92,8 @@ export const useMessages = (
       if (isInitialLoad.current) {
         setIsMessagesLoading(false);
       } else {
-        setIsLoadingOlder(false);
+        // Reset the flag after a short delay to prevent rapid successive calls
+        setTimeout(() => isLoadingOlder.current = false, 1000);
       }
     }
   }, [selectedConversation]); // Add selectedConversation as dependency to ensure fetchMessages updates when conversation changes
@@ -109,7 +106,8 @@ export const useMessages = (
       lastFetchedOffset.current = -1; // Reset for new conversation
       isInitialLoad.current = true; // Reset to true for new conversation
       await fetchMessages(0);
-      isInitialLoad.current = false; // Set to false after first fetch completes
+      // Set the flag after a short delay to prevent rapid successive calls
+      setTimeout(() => isInitialLoad.current=false, 1000);
     };
     
     loadInitialMessages();
@@ -223,29 +221,16 @@ export const useMessages = (
     sendMessage(messagePayload);
   };
 
-  const handleUnsendMessage = (messageId) => {
+  const handleUnsendMessage = useCallback((messageId) => {
     sendMessage({
       action: 'unsend',
       messageId: messageId,
       currentUserId: currentUserId,
     });
-  };
-
-  const handleScroll = useCallback((event) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.target;
-    
-    // Use a small threshold (10px) to detect when user is near the top
-    if (scrollTop <= 10 && hasMore && !isMessagesLoading && !isLoadingOlder && !isInitialLoad.current) {
-      setOffset(prevOffset => {
-        const nextOffset = prevOffset + MESSAGE_FETCH_LIMIT;
-        fetchMessages(nextOffset);
-        return nextOffset;
-      });
-    }
-  }, [hasMore, isMessagesLoading, isLoadingOlder, offset, fetchMessages]);
+  }, [currentUserId, sendMessage]);
 
   const loadOlderMessages = useCallback(() => {
-    if (hasMore && !isMessagesLoading && !isLoadingOlder && !isInitialLoad.current) {
+    if (hasMore && !isMessagesLoading && !isLoadingOlder.current && !isInitialLoad.current) {
       setOffset(prevOffset => {
         const nextOffset = prevOffset + MESSAGE_FETCH_LIMIT;
         fetchMessages(nextOffset);
@@ -261,7 +246,6 @@ export const useMessages = (
     isUploading,
     isLoadingOlder,
     handleSendMessage,
-    handleScroll,
     loadOlderMessages,
     isInitialLoad,
     handleUnsendMessage
