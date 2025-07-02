@@ -57,7 +57,7 @@ const CurrentUserMessage = ({ message, onUnsend, onReport }) => {
             )}
             {/* Message media */}
             {!message.isDeleted && (
-              <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={true} />
+              <MessageMedia mediaUrl={message.mediaUrl}/>
             )}
           </div>
 
@@ -105,7 +105,7 @@ const OtherUserMessage = ({ message, onReport }) => {
             )}
             {/* Message media */}
             {!message.isDeleted && (
-              <MessageMedia mediaUrl={message.mediaUrl} isCurrentUser={false} />
+              <MessageMedia mediaUrl={message.mediaUrl} />
             )}
           </div>
 
