@@ -1,0 +1,83 @@
+.artist-form {
+    background-color: #f3f2eb;
+    height: 100vh;
+}
+
+.artist-form p {
+    margin-bottom: 0;
+}
+
+.artist-form a {
+    text-decoration: none;
+}
+
+.artist-form__navbar {
+    margin-top: 60px;
+    padding: 0 100px;
+
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.artist-form__item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    font-weight: 600;
+    padding: 10px 20px;
+    background-color: white;
+    border-radius: 15px;
+
+    width: fit-content;
+}
+
+.artist-form__cancel-a {
+    font-weight: 500;
+    color: black;
+}
+
+.artist-form__cancel {
+    background-color: white;
+    padding: 7px 14px;
+    border-radius: 14px;
+}
+
+.artist-form__title:first-of-type {
+    margin-top: 60px;
+}
+
+.artist-form__title {
+    padding: 0 50px 0 100px;   
+    font-weight: 600;
+    font-size: 60px;
+}
+
+.title-span {
+    color: #03C36F;
+}
+
+.artist-form .artist-form__imgDeco {
+    width: 100%;
+    margin-top: 20px;
+    height: auto;
+}
+
+.form-submit__container {
+    display: flex;
+    justify-content: center;
+
+    margin-top: 75px;
+}
+
+.form-submit__item {
+    background-color: #fec020;
+    padding: 20px 60px;
+    border-radius: 40px;
+}
+
+.form-submit__item p {
+    font-size: 24px;
+    font-weight: 500;
+}

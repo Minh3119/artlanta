@@ -46,7 +46,7 @@ export default function Header({ openCreatePopup }) {
       try {
         const res = await fetch("http://localhost:9999/backend/api/wallet", {
           credentials: "include",
-          method: "POST"
+          method: "POST",
         });
 
         if (!res.ok) return;
@@ -112,6 +112,11 @@ export default function Header({ openCreatePopup }) {
         <Link to="/">
           <img src={arlanta} alt="Artlanta" />
         </Link>
+        <div className="artist-invitation-container">
+          <Link to="/artistPost" className="artist-invitation__link">
+            <p>Bạn muốn làm artist</p>
+          </Link>
+        </div>
       </div>
       <div className="header-navbar">
         <Link to="/">
@@ -141,14 +146,17 @@ export default function Header({ openCreatePopup }) {
           />
           {showCreateMenu && (
             <div className="create-menu-dropdown">
-              <div className="create-menu-item" onClick={() => {
-                if (userID === 0) {
-                  navigate("/login");
-                  return;
-                };
-                openCreatePopup('post');
-                setShowCreateMenu(false);
-              }}>
+              <div
+                className="create-menu-item"
+                onClick={() => {
+                  if (userID === 0) {
+                    navigate("/login");
+                    return;
+                  }
+                  openCreatePopup("post");
+                  setShowCreateMenu(false);
+                }}
+              >
                 Create Post
               </div>
               <div
