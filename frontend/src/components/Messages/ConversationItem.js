@@ -2,10 +2,6 @@ import { useState } from 'react';
 import { Check, X, Archive } from 'lucide-react';
 
 function getRelativeTime(timestamp) {
-  // console.log("Browser Local Time:", new Date().toString());
-  // console.log("Message UTC Time:", new Date(timestamp).toString());
-  // console.log("ISO:", new Date(timestamp).toISOString());
-
   const now = new Date();
   const target = new Date(timestamp);
 

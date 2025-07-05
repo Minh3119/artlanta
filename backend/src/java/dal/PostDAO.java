@@ -78,7 +78,7 @@ public class PostDAO extends DBContext {
     public List<Post> getAllPosts(int limit, int offset) {
         List<Post> posts = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Posts LIMIT ?,?";
+            String sql = "SELECT * FROM Posts ORDER BY CreatedAt DESC LIMIT ?,?";
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, limit);
             st.setInt(2, offset);
