@@ -98,14 +98,14 @@
 }
 
 .modal-content {
-  background: white;
+  /* background: white; */
   border-radius: 15px;
   padding: 30px;
   max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  /* box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); */
   animation: modalSlideIn 0.3s ease-out;
 }
 
