@@ -2,7 +2,18 @@
     width: 100vw;
     height: 100vh;
     .live-header{
-
+        display: flex;
+        h1{
+            width: 95%;
+            padding-left: 10px;
+        }
+        button{
+            width: 5%;
+            border: none;
+        }
+        button:hover{
+            border: 1px solid orange;
+        }
     }
     .live-body{
         display: flex;

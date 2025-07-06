@@ -28,6 +28,7 @@ class LiveDetailComponent extends React.Component {
             <div className="live-container">
                 <div className="live-header">
                     <h1>{this.state.author} / {this.state.liveContent}</h1>
+                    <button>X</button>
 
                 </div>
                 <div className="live-body">
