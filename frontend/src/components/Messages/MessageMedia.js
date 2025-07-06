@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const MessageMedia = ({ mediaUrl, isCurrentUser }) => {
+const MessageMedia = ({ mediaUrl }) => {
   const [imageError, setImageError] = useState(false);
 
   if (!mediaUrl) return null;
