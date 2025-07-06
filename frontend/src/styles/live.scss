@@ -1,0 +1,81 @@
+.live-container{
+    width: 100vw;
+    height: 100vh;
+    .live-header{
+
+    }
+    .live-body{
+        display: flex;
+        width: 100%;
+        height: 90%;
+        gap: 10px;
+        padding: 10px;
+        .live-display{
+            width: 75%;
+            height: 600px;
+        }
+        .live-chat{
+            width: 25%;
+            height: 600px;
+            background-color: wheat;
+            .live-chat-header{
+                padding: 5px 10px;
+                display: flex;
+                span{
+                    width: 70%;
+                    border-bottom: 1px solid black;
+                    padding: 3px;
+                }
+                .live-view{
+                    width: 30%;
+                    border: 1px solid red;
+                    background-color: red;
+                    border-radius: 10px;
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                }
+            }
+            .live-chat-body{
+                padding: 5px 10px;
+                height: 520px;
+                background-color: aqua;
+                overflow-y: auto;
+                .chat-item{
+                    display: flex;
+                    gap: 5px;
+                    img{
+
+                    }
+                    .user{
+                        display: flex;
+                        gap: 10px;
+                        width: 90%;
+
+                        .user-name{
+                            font-weight: bolder;
+                            width: 15%;
+                            word-break: break-word;
+                        }
+                        .user-text{
+                            border: 1px solid orange;
+                            border-radius: 10px;
+                            width: 70%;
+                            text-align: left;
+                            padding-left: 10px;
+                            word-break: break-word;
+                        }
+                    }
+                }
+            }
+            .live-chat-input{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding-top: 5px;
+            }
+        }
+    }
+}
