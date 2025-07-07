@@ -38,6 +38,7 @@ import EditNotificationComponent from "../components/UserProfileEdit/editNotific
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
 import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountComponent";
 import LiveDetailComponent from "../components/LiveStream/liveDetailComponent.js";
+import LivePageComponent from "../components/LiveStream/livePageComponent.js";
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
@@ -68,6 +69,7 @@ function App() {
           <Route path="/recent-posts" element={<RecentPosts />} />
           <Route path="/event" element={<EventPage />} />
           <Route path="/saved" element={<SavedPostPage />} />
+          <Route path="/live" element={<LivePageComponent />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
           <Route path="/live/detail" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>

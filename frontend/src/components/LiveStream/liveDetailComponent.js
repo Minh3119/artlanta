@@ -2,6 +2,7 @@ import React from "react";
 import YouTube from 'react-youtube';
 import '../../styles/live.scss';
 import { GrStreetView } from "react-icons/gr";
+import { MdInsertEmoticon } from "react-icons/md";
 class LiveDetailComponent extends React.Component {
     state = {
         author: 'Natlife',
@@ -10,17 +11,24 @@ class LiveDetailComponent extends React.Component {
         liveID: 'zyDKOmP6BaU',
 
     }
-
+    onPlayerReady = (event) => {
+        event.target.playVideo();
+    };
 
     render() {
         const optsForVideo = {
             // height: '0',
             // width: '0',
-            height: '600px',
+            height: '580px',
             width: '100%',
             playerVars: {
-                autoplay: 0,
-                loop: 1,
+                autoplay: 1,
+                controls: 1,
+                modestbranding: 1,
+                rel: 0,
+                fs: 1,
+                disablekb: 1,
+                iv_load_policy: 3,
             }
 
         };
@@ -36,7 +44,7 @@ class LiveDetailComponent extends React.Component {
                         <YouTube
                             videoId={this.state.liveID}
                             opts={optsForVideo}
-                        // onReady={this.onPlayerReady}
+                            onReady={this.onPlayerReady}
                         // onStateChange={this.onPlayerStateChange}
                         // onError={this.onPlayerError}
                         />
@@ -57,7 +65,7 @@ class LiveDetailComponent extends React.Component {
 
                         </div>
                         <div className="live-chat-input">
-                            <div>icon</div>
+                            {/* <MdInsertEmoticon className="icon-select" /> */}
                             <input type="text" />
                             <button>send</button>
                         </div>
