@@ -6,7 +6,7 @@ import { MdInsertEmoticon } from "react-icons/md";
 class LiveDetailComponent extends React.Component {
     state = {
         author: 'Natlife',
-        liveContent: 'Introduce about ReactJS',
+        liveTitle: 'Introduce about ReactJS',
         view: '1000000',
         liveID: 'zyDKOmP6BaU',
 
@@ -35,7 +35,7 @@ class LiveDetailComponent extends React.Component {
         return (
             <div className="live-container">
                 <div className="live-header">
-                    <h1>{this.state.author} / {this.state.liveContent}</h1>
+                    <h1>{this.state.author} / {this.state.liveTitle}</h1>
                     <button>X</button>
 
                 </div>

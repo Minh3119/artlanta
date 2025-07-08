@@ -69,6 +69,17 @@ CREATE TABLE Posts (
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
+CREATE TABLE LivePosts (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    Title VARCHAR(100),
+    LiveView INT NOT NULL,
+    LiveStatus VARCHAR(20) default 'Live' CHECK (LiveStatus IN ('Live','Post')),
+    Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
+);
+
 -- Multi Media URL -- bắt buộc để đảm bảo khóa
 
 -- bảng nối với Post
