@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import Stepper, { Step } from "./Stepper";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ArtistForm() {
   const [address, setAddress] = useState("");
@@ -11,11 +12,38 @@ export default function ArtistForm() {
   const [otp, setOtp] = useState("");
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (isPhoneVerified) {
       setIsPhoneVerified(false);
     }
   }, [phoneNumber]);
+
+  // useEffect(() => {
+  //   const checkLogin = async () => {
+  //     console.log("Checking login");
+  //     try {
+  //       const res = await fetch(
+  //         "http://localhost:9999/backend/api/session/check",
+  //         {
+  //           method: "GET",
+  //           credentials: "include",
+  //         }
+  //       );
+
+  //       const data = await res.json();
+  //       console.log("HMM");
+  //       if (!data.loggedIn) {
+  //         navigate("/");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking session:", error);
+  //     }
+  //   };
+
+  //   checkLogin();
+  // }, []);
 
   const isFormValid = () => {
     let isValid = true;
@@ -62,6 +90,7 @@ export default function ArtistForm() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             phoneNumber,
             step: currentStep,
@@ -96,6 +125,7 @@ export default function ArtistForm() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             otp,
             step: currentStep,
@@ -136,6 +166,7 @@ export default function ArtistForm() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(artistInfo),
         }
       );
