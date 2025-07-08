@@ -13,12 +13,15 @@ public class PhoneOtpSender {
         
         try {
             SpeedSMSAPI api = new SpeedSMSAPI(apiKey);
+            System.out.println("API KEY = " + apiKey);
 
             String message = "Ma OTP cua ban la: " + otp;
-            int type = 2;           // 2 = OTP
-            String sender = "";    
-
-            return api.sendSMS(phone, message, type, sender);
+            int type = 2;        
+            String sender = null;    
+            
+            String result = api.sendSMS(phone, message, type, sender);
+            System.out.println("SpeedSMS response: " + result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"status\":\"error\", \"message\":\"" + e.getMessage() + "\"}";
