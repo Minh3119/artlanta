@@ -147,6 +147,14 @@ export default function HomePage() {
           {/* </Link> */}
         </div>
       </div>
+      {/* <ArtistPost
+        refetch={isRefresh}
+        currentID={currentID}
+        openUpdatePopup={openUpdatePopup}
+        openDeletePopup={openDeletePopup}
+        scrollableTarget="scrollableDiv"
+        addToHistory={addToHistory}
+      /> */}
 
       {
         selectedTab === 'post' ?

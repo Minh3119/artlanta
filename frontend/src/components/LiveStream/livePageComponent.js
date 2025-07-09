@@ -27,7 +27,7 @@ class LivePageComponent extends React.Component {
         ],
     }
     componentDidMount() {
-        fetch(`http://localhost:9999/backend/api/`, {
+        fetch(`http://localhost:9999/backend/api/live`, {
             credentials: 'include'
         })
             .then(response => {
@@ -48,7 +48,7 @@ class LivePageComponent extends React.Component {
                     // CreatedAt: data.response.CreatedAt,
                     // LiveStatus: data.response.LiveStatus,
                     // Visibility: data.response.Visibility,
-                    LiveList: data.response.LiveList,
+                    LiveList: data.response,
 
                 });
             })
@@ -66,7 +66,7 @@ class LivePageComponent extends React.Component {
             })
             .then(async data => {
                 this.setState({
-                    LiveList: data.response.LiveList,
+                    LiveList: data.response,
 
                 });
             })
@@ -83,18 +83,18 @@ class LivePageComponent extends React.Component {
                 {
                     this.state.LiveList.map((item, index) => {
                         return (
-                            <div className="live-post" style={{ border: item.LiveStatus === 'Live' ? '5px solid Red' : '3px solid aqua' }}>
+                            <div className="live-post" style={{ border: item.liveStatus === "Live" ? '5px solid Red' : '3px solid aqua' }}>
                                 <div className="user-info">
                                     <img src={item.avatar} alt="user-avatar" />
-                                    <span className="user-name">{item.UserName}</span>
+                                    <span className="user-name">{item.userName}</span>
                                 </div>
                                 <div className="live-post-body">
                                     <div className="live-post-content">
                                         {item.title}
                                     </div>
                                     <div className="live-post-stat">
-                                        <span className="live-post-view"><GrStreetView /> {item.LiveView}</span>
-                                        <span className="live-post-time"><BiSolidTime /> {item.CreatedAt}</span>
+                                        <span className="live-post-view"><GrStreetView /> {item.view}</span>
+                                        <span className="live-post-time"><BiSolidTime /> {item.createdAt}</span>
                                     </div>
                                 </div>
                             </div>

@@ -31,21 +31,22 @@ public class LivePage extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        LiveDAO ld = new LiveDAO();
+        List<Live> list = new ArrayList<>();
+//        list.add(new Live(1, 29, "Luong", "AVT", "TItle", 100, null, "Live", "PUBLIC"));
 
         try {
-            LiveDAO ld= new LiveDAO();
-            List<Live> list = ld.getAll();
-            JSONArray liveArr = new JSONArray();
-            for (Live live : list) {
-                JSONObject obj = new JSONObject(live);
-                liveArr.put(obj);
-            }
-            JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("response", liveArr);
-            
 
-        } catch (NumberFormatException e) {
-            JsonUtil.writeJsonError(response, "postID must be an integer >0");
+            list = ld.getAll();
+//            JSONArray liveArr = new JSONArray();
+//            for (Live live : list) {
+//                JSONObject obj = new JSONObject(live);
+//                liveArr.put(obj);
+//            }
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("response", list);
+            JsonUtil.writeJsonResponse(response, jsonResponse);
+
         } catch (Exception e) {
             JsonUtil.writeJsonError(response, "Server error: " + e.getMessage());
             e.printStackTrace();
