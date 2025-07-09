@@ -520,23 +520,23 @@ public class UserDAO extends DBContext {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     User user = new User(
-                        rs.getInt("ID"),
-                        rs.getString("Username"),
-                        rs.getString("Email"),
-                        rs.getString("PasswordHash"),
-                        rs.getString("FullName"),
-                        rs.getString("Bio"),
-                        rs.getString("AvatarURL"),
-                        rs.getBoolean("Gender"),
-                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                        rs.getString("Location"),
-                        rs.getString("Role"),
-                        rs.getString("Status"),
-                        rs.getString("Language"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                        rs.getBoolean("IsFlagged"),
-                        rs.getBoolean("IsPrivate")
+                            rs.getInt("ID"),
+                            rs.getString("Username"),
+                            rs.getString("Email"),
+                            rs.getString("PasswordHash"),
+                            rs.getString("FullName"),
+                            rs.getString("Bio"),
+                            rs.getString("AvatarURL"),
+                            rs.getBoolean("Gender"),
+                            rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                            rs.getString("Location"),
+                            rs.getString("Role"),
+                            rs.getString("Status"),
+                            rs.getString("Language"),
+                            rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                            rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                            rs.getBoolean("IsFlagged"),
+                            rs.getBoolean("IsPrivate")
                     );
                     list.add(user);
                 }
@@ -545,5 +545,34 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public boolean isArtistById(int userId) {
+        String sql = "SELECT Role FROM Users WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String role = rs.getString("Role");
+                    System.out.println("Fetched role for user " + userId + ": " + role);
+                    return "ARTIST".equalsIgnoreCase(role != null ? role.trim() : "");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean setUserRoleToArtist(int userId) {
+        String sql = "UPDATE Users SET Role = 'ARTIST' WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

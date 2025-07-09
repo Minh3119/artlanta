@@ -5,6 +5,7 @@
 package controller;
 
 import dal.ArtistInfoDAO;
+import dal.UserDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -43,16 +44,10 @@ public class ArtistFormServlet extends HttpServlet {
             }
         }
         JSONObject body = new JSONObject(sb.toString());
-        int step = body.optInt("step", -1);
+        int step = body.optInt("currentStep", -1);
 
         try {
             switch (step) {
-                case 3:
-                    sendPhoneOTP(request, response, body);
-                    break;
-                case 4:
-                    validateOTP(request, response, body);
-                    break;
                 case 8:
                     saveArtistInfo(request, response, body);
                     break;
@@ -70,47 +65,10 @@ public class ArtistFormServlet extends HttpServlet {
         }
     }
 
-    private void sendPhoneOTP(HttpServletRequest request, HttpServletResponse response, JSONObject body) throws IOException {
-        JSONObject json = new JSONObject();
-
-        String otp = generateOtp();
-        String phoneNumber = body.optString("phoneNumber", "");
-        String sid = util.PhoneOtpSender.sendOtp(phoneNumber, otp);
-
-        if (sid != null) {
-            json.put("success", true);
-            json.put("message", "OTP sent to phone");
-            HttpSession session = request.getSession(false);
-            session.setAttribute("OTP", otp);
-        } else {
-            json.put("success", false);
-            json.put("message", "Failed to send OTP");
-        }
-
-        response.getWriter().write(json.toString());
-    }
-
-    private void validateOTP(HttpServletRequest request, HttpServletResponse response, JSONObject body) throws IOException {
-        JSONObject json = new JSONObject();
-
-        HttpSession session = request.getSession(false);
-        String systemOTP = (String) session.getAttribute("OTP");
-        String userOTP = body.optString("otp");
-
-        if (systemOTP.equals(userOTP)) {
-            json.put("success", true);
-            json.put("message", "OTP true");
-        } else {
-            json.put("success", false);
-            json.put("message", "OTP wrong");
-        }
-
-        response.getWriter().write(json.toString());
-    }
-
     private void saveArtistInfo(HttpServletRequest request, HttpServletResponse response, JSONObject body) throws IOException {
         JSONObject json = new JSONObject();
         ArtistInfoDAO artistInfoDao = new ArtistInfoDAO();
+        UserDAO userDAO = new UserDAO();
 
         String phoneNumber = body.optString("phoneNumber", "");
         String address = body.optString("address", "");
@@ -124,18 +82,15 @@ public class ArtistFormServlet extends HttpServlet {
         if (success) {
             json.put("success", true);
             json.put("message", "Artist info saved.");
+            
+            boolean changeRoleToArtist = userDAO.setUserRoleToArtist(userID);
         } else {
             json.put("success", false);
             json.put("message", "Failed to insert artist info.");
         }
         
+        
         response.getWriter().write(json.toString());
-    }
-
-    private String generateOtp() {
-        SecureRandom secureRandom = new SecureRandom();
-        int otp = secureRandom.nextInt(1_000_000);
-        return String.format("%06d", otp);
     }
 
     @Override

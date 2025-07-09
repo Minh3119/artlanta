@@ -1,12 +1,38 @@
 import imgs from "../../assets/images/img-artistPost.svg";
 import icon from "../../assets/images/img-artistIcon.svg";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ArtistForm from "./ArtistForm";
+import { useNavigate } from "react-router-dom";
 import "../../styles/ArtistForm.css";
 
 export default function ArtistFormContainer() {
-    const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/session/check",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const data = await res.json();
+        console.log("HMM");
+        if (!data.loggedIn) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkLogin();
+  }, []);
 
   const handleLetsGoClick = () => {
     setShowModal(true);
@@ -43,11 +69,11 @@ export default function ArtistFormContainer() {
         in Artlanta
       </p>
 
-      <img src={imgs} alt="" className="artist-form__imgDeco"/>
+      <img src={imgs} alt="" className="artist-form__imgDeco" />
 
       <div className="form-submit__container">
         <div className="form-submit__item" onClick={handleLetsGoClick}>
-            <p>Let's go</p>
+          <p>Let's go</p>
         </div>
       </div>
 
