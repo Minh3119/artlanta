@@ -17,7 +17,7 @@ export default function RegisterCard() {
           "http://localhost:9999/backend/api/session/check",
           {
             method: "GET",
-            credentials: "include", 
+            credentials: "include",
           }
         );
         const data = await res.json();
@@ -47,6 +47,26 @@ export default function RegisterCard() {
     e.preventDefault();
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (email.length < 2 || email.length > 100) {
+      setMessage("Email must be between 3 and 100 characters.");
+      return;
+    }
+
+    if (username.length < 1 || username.length > 50) {
+      setMessage("Username must be between 3 and 50 characters.");
+      return;
+    }
+
+    if (password.length < 8 || password.length > 255) {
+      setMessage("Password must be between 8 and 255 characters.");
+      return;
+    }
+
+    if (cpassword.length > 255) {
+      setMessage("Confirm password must be between 8 and 255 characters.");
+      return;
+    }
 
     if (!passwordRegex.test(password)) {
       setMessage(

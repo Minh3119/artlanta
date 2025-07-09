@@ -957,3 +957,17 @@ VALUES
 (9, 'stripe', 100.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s3', '2028-06-20 08:45:00'),
 (10, 'paypal', 50.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p3', '2027-06-25 17:50:00');
 
+CREATE TABLE ArtistInfo (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL UNIQUE,
+    
+    PhoneNumber VARCHAR(20) NOT NULL,
+    Address VARCHAR(255) NOT NULL,
+    Specialty VARCHAR(100),
+    ExperienceYears INT DEFAULT 0 CHECK (ExperienceYears >= 0),
+    
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
+);
