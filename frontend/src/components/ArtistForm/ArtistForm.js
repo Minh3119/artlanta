@@ -9,6 +9,7 @@ export default function ArtistForm() {
   const [specialty, setSpecialty] = useState("");
   const [yoe, setYoe] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
+  const [agreed, setAgreed] = useState(false);
 
   const navigate = useNavigate();
 
@@ -16,6 +17,11 @@ export default function ArtistForm() {
 
   const isFormValid = () => {
     let isValid = true;
+
+    if (!agreed) {
+      toast.error("Bạn phải đồng ý cung cấp thông tin để tiếp tục.");
+      isValid = false;
+    }
 
     if (!address.trim()) {
       toast.error("Address is required.");
@@ -28,7 +34,7 @@ export default function ArtistForm() {
     }
 
     if (!phoneRegex.test(phoneNumber.trim())) {
-      toast.error("Phone number is invalid. Must be Vietnamese format.");
+      toast.error("Phone number must contain 10–20 digits only.");
       isValid = false;
     }
 
@@ -103,14 +109,26 @@ export default function ArtistForm() {
           </p>
         </Step>
         <Step>
-          <h2>Welcome, future artist!</h2>
+          <h2>Identity Verification Policy</h2>
           <p>
-            Thanks for joining us. Let’s get you set up as an artist on the
-            platform.
+            To ensure secure transactions and build a trusted artist community,
+            we require identity verification.
           </p>
-          <p>
-            Click <b>Continue</b> to get started!
+          <p style={{ fontWeight: "bold" }}>
+            Purpose: To verify the identity of artists for safe and trustworthy
+            transactions.
           </p>
+          <div style={{ marginTop: "1em" }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+              />{" "}
+              I agree to provide my personal information for identity
+              verification.
+            </label>
+          </div>
         </Step>
         <Step>
           <h2>Tell us about your address</h2>
