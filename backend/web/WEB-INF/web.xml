@@ -64,6 +64,10 @@
         <servlet-name>LivePage</servlet-name>
         <servlet-class>controller.Live.LivePage</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LiveCheck</servlet-name>
+        <servlet-class>controller.Live.LiveCheck</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -199,6 +203,10 @@
     <servlet-mapping>
         <servlet-name>LivePage</servlet-name>
         <url-pattern>/api/live</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LiveCheck</servlet-name>
+        <url-pattern>/api/live/check</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

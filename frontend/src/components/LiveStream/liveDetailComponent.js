@@ -3,6 +3,7 @@ import YouTube from 'react-youtube';
 import '../../styles/live.scss';
 import { GrStreetView } from "react-icons/gr";
 import { MdInsertEmoticon } from "react-icons/md";
+import { useParams } from 'react-router-dom';
 class LiveDetailComponent extends React.Component {
     state = {
         author: 'Natlife',
@@ -16,6 +17,7 @@ class LiveDetailComponent extends React.Component {
     };
 
     render() {
+        const { ID } = this.props.params;
         const optsForVideo = {
             // height: '0',
             // width: '0',
@@ -35,6 +37,7 @@ class LiveDetailComponent extends React.Component {
         return (
             <div className="live-container">
                 <div className="live-header">
+                    {/* <h1>{ID}</h1> */}
                     <h1>{this.state.author} / {this.state.liveTitle}</h1>
                     <button>X</button>
 
@@ -77,4 +80,8 @@ class LiveDetailComponent extends React.Component {
         )
     }
 }
-export default LiveDetailComponent
+function LiveDetailWrapper() {
+    const params = useParams();
+    return <LiveDetailComponent params={params} />;
+}
+export default (LiveDetailWrapper);

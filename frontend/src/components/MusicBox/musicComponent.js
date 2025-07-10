@@ -2,7 +2,7 @@ import React from "react";
 
 // import { toast } from 'react-toastify';
 // import { Rnd } from "react-rnd";
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { AiOutlineClose } from "react-icons/ai";
 import '../../styles/music.scss';
 

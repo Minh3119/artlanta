@@ -71,7 +71,7 @@ function App() {
           <Route path="/saved" element={<SavedPostPage />} />
           <Route path="/live" element={<LivePageComponent />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
-          <Route path="/live/detail" element={<LiveDetailComponent />} />
+          <Route path="/live/detail/:ID" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>
             <Route path="editprofile" element={<EditProfileComponent />} />
             <Route path="editpassword" element={<EditPasswordComponent />} />

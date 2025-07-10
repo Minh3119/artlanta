@@ -1,8 +1,11 @@
 import React from "react";
 import { GrStreetView } from "react-icons/gr";
 import { BiSolidTime } from "react-icons/bi";
+
+import { Navigate } from 'react-router-dom';
 class LivePageComponent extends React.Component {
     state = {
+        redirect: null,
         LiveList: [
             {
                 ID: '1',
@@ -74,7 +77,15 @@ class LivePageComponent extends React.Component {
                 console.error('Error fetching data:', error);
             });
     }
+    handelNavigate = (ID) => {
+        this.setState({
+            redirect: `/live/detail/${ID}`
+        })
+    }
     render() {
+        if (this.state.redirect) {
+            return <Navigate to={this.state.redirect} />;
+        }
         return (
             <div className="live-page-container">
                 <h1>
@@ -89,7 +100,9 @@ class LivePageComponent extends React.Component {
                                     <span className="user-name">{item.userName}</span>
                                 </div>
                                 <div className="live-post-body">
-                                    <div className="live-post-content">
+                                    <div className="live-post-content"
+                                        onClick={() => this.handelNavigate(item.ID)}
+                                    >
                                         {item.title}
                                     </div>
                                     <div className="live-post-stat">
