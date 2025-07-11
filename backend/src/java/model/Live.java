@@ -16,6 +16,7 @@ public class Live {
     private String userName;
     private String avatar;
     private String title;
+    private String LiveID;
     private int view;
     private LocalDateTime createdAt;
     private String LiveStatus;
@@ -24,17 +25,20 @@ public class Live {
     public Live() {
     }
 
-    public Live(int ID, int userID, String userName, String avatar, String title, int view, LocalDateTime createdAt, String LiveStatus, String visibility) {
+    public Live(int ID, int userID, String userName, String avatar, String title, String LiveID, int view, LocalDateTime createdAt, String LiveStatus, String visibility) {
         this.ID = ID;
         this.userID = userID;
         this.userName = userName;
         this.avatar = avatar;
         this.title = title;
+        this.LiveID = LiveID;
         this.view = view;
         this.createdAt = createdAt;
         this.LiveStatus = LiveStatus;
         this.visibility = visibility;
     }
+    
+    
 
     public int getID() {
         return ID;

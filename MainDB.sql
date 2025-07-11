@@ -73,6 +73,7 @@ CREATE TABLE LivePosts (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
     Title VARCHAR(100),
+    LiveID VARCHAR(255),
     LiveView INT NOT NULL,
     LiveStatus VARCHAR(20) default 'Live' CHECK (LiveStatus IN ('Live','Post')),
     Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
