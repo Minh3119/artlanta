@@ -82,7 +82,7 @@ class LivePageComponent extends React.Component {
                 {
                     this.state.LiveList.map((item, index) => {
                         return (
-                            <div className="live-post" style={{ border: item.liveStatus === "Live" ? '5px solid Red' : '3px solid aqua' }}>
+                            <div key={item.ID} className="live-post" style={{ border: item.liveStatus === "Live" ? '5px solid Red' : '3px solid aqua' }}>
                                 <div className="user-info">
                                     <img src={item.avatar} alt="user-avatar" />
                                     <span className="user-name">{item.userName}</span>

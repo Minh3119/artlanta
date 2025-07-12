@@ -3,6 +3,8 @@ import YouTube from 'react-youtube';
 import '../../styles/live.scss';
 import { GrStreetView } from "react-icons/gr";
 import { Navigate, useParams } from 'react-router-dom';
+import LiveChatComponent from "./liveChatComponent";
+import axios from 'axios';
 class LiveDetailComponent extends React.Component {
     state = {
         redirect: null,
@@ -13,6 +15,7 @@ class LiveDetailComponent extends React.Component {
         Avt: '',
         Title: '',
         View: '',
+        peakView: '',
         CreatedAt: '',
         LiveStatus: '',
         Visibility: '',
@@ -20,44 +23,38 @@ class LiveDetailComponent extends React.Component {
 
     }
     componentDidMount() {
-        fetch("http://localhost:9999/backend/api/user/userid", {
-            method: "GET",
-            credentials: 'include'
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
+            .then((res) => {
                 this.setState({
-                    currentUserID: data.response.userID,
-                })
+                    currentUserID: res.data.response.userID,
+                });
             })
             .catch((err) => console.error(err));
 
 
-        fetch("http://localhost:9999/backend/api/live/get", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+        axios.post("http://localhost:9999/backend/api/live/get",
+            {
+                ID: this.props.params.ID
             },
-            body: JSON.stringify({
-                ID: this.props.params.ID,
-
-            }),
-            credentials: 'include'
-        })
-            .then((res) => res.json())
-            .then((data) => {
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            })
+            .then((res) => {
+                const data = res.data.response;
                 this.setState({
-                    userID: data.response.UserID,
-                    UserName: data.response.UserName,
-                    Avt: data.response.Avt,
-                    Title: data.response.Title,
-                    View: data.response.View,
-                    CreatedAt: data.response.CreatedAt,
-                    LiveStatus: data.response.LiveStatus,
-                    Visibility: data.response.Visibility,
-                    LiveID: data.response.LiveID,
-
-                })
+                    userID: data.UserID,
+                    UserName: data.UserName,
+                    Avt: data.Avt,
+                    Title: data.Title,
+                    View: data.View,
+                    CreatedAt: data.CreatedAt,
+                    LiveStatus: data.LiveStatus,
+                    Visibility: data.Visibility,
+                    LiveID: data.LiveID,
+                });
             })
             .catch((err) => console.error(err));
 
@@ -91,12 +88,25 @@ class LiveDetailComponent extends React.Component {
             redirect: '/'
         })
     }
+    handleUpdateView = async () => {
+        try {
+            const API_KEY = 'YOUR_API_KEY';
+            const response = await axios.get(
+                `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${API_KEY}`
+            );
+            const views = response.data.items[0].statistics.viewCount;
+            setViewCount(views);
+        } catch (error) {
+            console.error('Lỗi khi lấy lượt xem:', error);
+        }
+
+    }
 
     render() {
         if (this.state.redirect) {
             return <Navigate to={this.state.redirect} />;
         }
-        const { ID } = this.props.params;
+        // const { ID } = this.props.params;
         const optsForVideo = {
             // height: '0',
             // width: '0',
@@ -131,28 +141,13 @@ class LiveDetailComponent extends React.Component {
                         // onError={this.onPlayerError}
                         />
                     </div>
-                    <div className="live-chat">
-                        <div className="live-chat-header">
-                            <span>Live Chat</span>
-                            <span className="live-view"><GrStreetView />{this.state.View}</span>
-                        </div>
-                        <div className="live-chat-body">
-                            <div className="chat-item">
-                                <img alt="1" />
-                                <div className="user">
-                                    <span className="user-name">user</span>
-                                    <span className="user-text">text</span>
-                                </div>
-                            </div>
+                    <LiveChatComponent
+                        View={this.state.View}
+                        handleUpdateView={this.handleUpdateView}
 
-                        </div>
-                        <div className="live-chat-input">
-                            {/* <MdInsertEmoticon className="icon-select" /> */}
-                            <input type="text" />
-                            <button>send</button>
-                        </div>
+                    />
 
-                    </div>
+
                 </div>
 
             </div >

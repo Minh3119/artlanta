@@ -10,7 +10,7 @@ class LiveChatComponent extends React.Component {
         this.connectWebSocket();
     }
     connectWebSocket = () => {
-        const IDs = this.props.params.ID;
+        const ID = this.props.params.ID;
 
         this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
 
@@ -47,8 +47,27 @@ class LiveChatComponent extends React.Component {
     }
     render() {
         return (
-            <div>
-                chat
+            <div className="live-chat">
+                <div className="live-chat-header">
+                    <span>Live Chat</span>
+                    <span className="live-view"><GrStreetView />{this.props.View}</span>
+                </div>
+                <div className="live-chat-body">
+                    <div className="chat-item">
+                        <img alt="1" />
+                        <div className="user">
+                            <span className="user-name">user</span>
+                            <span className="user-text">text</span>
+                        </div>
+                    </div>
+
+                </div>
+                <div className="live-chat-input">
+                    {/* <MdInsertEmoticon className="icon-select" /> */}
+                    <input type="text" />
+                    <button>send</button>
+                </div>
+
             </div>
         )
     }
