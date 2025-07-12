@@ -17,15 +17,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-public class LiveChatEndpoint extends HttpServlet {
+@ServerEndpoint(value = "/api/live/chat")
+public class LiveChatEndpoint{
 
     private static final Map<String, Set<Session>> roomMap = new HashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
-        String liveID = getLiveID(session);
-        if (liveID == null) {
+        String ID = getLiveID(session);
+        if (ID == null) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Missing ID"));
             } catch (IOException e) {
@@ -35,21 +35,21 @@ public class LiveChatEndpoint extends HttpServlet {
         }
 
         synchronized (roomMap) {
-            roomMap.putIfAbsent(liveID, new HashSet<>());
-            roomMap.get(liveID).add(session);
+            roomMap.putIfAbsent(ID, new HashSet<>());
+            roomMap.get(ID).add(session);
         }
 
-        session.getUserProperties().put("liveID", liveID);
-        System.out.println("User joined room: " + liveID + " sessionID=" + session.getId());
+        session.getUserProperties().put("ID", ID);
+        System.out.println("User joined room: " + ID + " sessionID=" + session.getId());
     }
 
     @OnMessage
     public void onMessage(String message, Session senderSession) throws IOException {
-        String liveID = (String) senderSession.getUserProperties().get("liveID");
-        if (liveID == null) return;
+        String ID = (String) senderSession.getUserProperties().get("ID");
+        if (ID == null) return;
 
         synchronized (roomMap) {
-            Set<Session> sessionsInRoom = roomMap.get(liveID);
+            Set<Session> sessionsInRoom = roomMap.get(ID);
             if (sessionsInRoom != null) {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
@@ -62,14 +62,14 @@ public class LiveChatEndpoint extends HttpServlet {
 
     @OnClose
     public void onClose(Session session) {
-        String liveID = (String) session.getUserProperties().get("liveID");
-        if (liveID != null) {
+        String ID = (String) session.getUserProperties().get("ID");
+        if (ID != null) {
             synchronized (roomMap) {
-                Set<Session> sessions = roomMap.get(liveID);
+                Set<Session> sessions = roomMap.get(ID);
                 if (sessions != null) {
                     sessions.remove(session);
                     if (sessions.isEmpty()) {
-                        roomMap.remove(liveID); // dọn rác nếu không còn ai
+                        roomMap.remove(ID); // dọn rác nếu không còn ai
                     }
                 }
             }
@@ -84,9 +84,9 @@ public class LiveChatEndpoint extends HttpServlet {
     private String getLiveID(Session session) {
         try {
             URI uri = new URI(session.getRequestURI().toString() + "?" + session.getQueryString());
-            String query = uri.getQuery(); // ví dụ: liveID=abc123
-            if (query != null && query.contains("liveID=")) {
-                return query.split("liveID=")[1];
+            String query = uri.getQuery(); 
+            if (query != null && query.contains("ID=")) {
+                return query.split("ID=")[1];
             }
         } catch (Exception e) {
             e.printStackTrace();

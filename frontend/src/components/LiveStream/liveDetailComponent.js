@@ -1,7 +1,7 @@
 import React from "react";
 import YouTube from 'react-youtube';
 import '../../styles/live.scss';
-import { GrStreetView } from "react-icons/gr";
+
 import { Navigate, useParams } from 'react-router-dom';
 import LiveChatComponent from "./liveChatComponent";
 import axios from 'axios';
@@ -90,14 +90,17 @@ class LiveDetailComponent extends React.Component {
     }
     handleUpdateView = async () => {
         try {
-            const API_KEY = 'YOUR_API_KEY';
+            const API_KEY = ProcessingInstruction.env.REACT_APP_YOUTUBE_API_KEY;
             const response = await axios.get(
-                `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${API_KEY}`
+                `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${this.state.LiveID}&key=${API_KEY}`
             );
-            const views = response.data.items[0].statistics.viewCount;
-            setViewCount(views);
+
+            this.setState({
+                View: response.data.items[0].statistics.viewCount,
+                peakView: this.state.View > this.state.peakView ? this.state.View : this.state.peakView
+            });
         } catch (error) {
-            console.error('Lỗi khi lấy lượt xem:', error);
+            console.error('Error get view:', error);
         }
 
     }
@@ -144,6 +147,7 @@ class LiveDetailComponent extends React.Component {
                     <LiveChatComponent
                         View={this.state.View}
                         handleUpdateView={this.handleUpdateView}
+                        ID={this.props.params.ID}
 
                     />
 

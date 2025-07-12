@@ -1,16 +1,17 @@
 import React from "react";
+import { GrStreetView } from "react-icons/gr";
 class LiveChatComponent extends React.Component {
 
     state = {
         messagesList: [],
-        currentMessages: '',
+        currentMessage: '',
     }
     socket = null;
     componentDidMount() {
         this.connectWebSocket();
     }
     connectWebSocket = () => {
-        const ID = this.props.params.ID;
+        const ID = this.props.ID;
 
         this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
 
@@ -19,9 +20,10 @@ class LiveChatComponent extends React.Component {
         };
 
         this.socket.onmessage = (event) => {
+            console.log("Received message:", event.data);
             const message = event.data;
             this.setState((prevState) => ({
-                messages: [...prevState.messages, message]
+                messagesList: [...prevState.messagesList, message]
             }));
         };
 
@@ -53,19 +55,28 @@ class LiveChatComponent extends React.Component {
                     <span className="live-view"><GrStreetView />{this.props.View}</span>
                 </div>
                 <div className="live-chat-body">
-                    <div className="chat-item">
-                        <img alt="1" />
-                        <div className="user">
-                            <span className="user-name">user</span>
-                            <span className="user-text">text</span>
-                        </div>
-                    </div>
+                    {
+                        this.state.messagesList.map((message, index) => {
+                            return (
+                                <div className="chat-item" key={index}>
+                                    <img alt="1" />
+                                    <div className="user">
+                                        <span className="user-name">user</span>
+                                        <span className="user-text">{message}</span>
+                                    </div>
+                                </div>
+                            )
+                        }
+                        )
+                    }
 
                 </div>
                 <div className="live-chat-input">
                     {/* <MdInsertEmoticon className="icon-select" /> */}
-                    <input type="text" />
-                    <button>send</button>
+                    <input type="text" value={this.state.currentMessage}
+                        onChange={(e) => this.setState({ currentMessage: e.target.value })} placeholder="Type your message here"
+                    />
+                    <button onClick={() => this.handleSendMessage()}>send</button>
                 </div>
 
             </div>
