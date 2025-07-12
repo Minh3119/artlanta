@@ -38,19 +38,7 @@ class LivePageComponent extends React.Component {
                 return response.json();
             })
             .then(async data => {
-                // const response = await fetch(item.mediaURL);
-                // const blob = await response.blob();
-                // const avt = new File([blob], `image_${index}`, { type: blob.type });
                 this.setState({
-                    // ID: data.response.ID,
-                    // UserID: data.response.UserID,
-                    // UserName: data.response.UserName,
-                    // Avatar: data.response.Avatar,
-                    // Title: data.response.Title,
-                    // View: data.response.View,
-                    // CreatedAt: data.response.CreatedAt,
-                    // LiveStatus: data.response.LiveStatus,
-                    // Visibility: data.response.Visibility,
                     LiveList: data.response,
 
                 });

@@ -76,6 +76,11 @@ public class LiveCheck extends HttpServlet {
         try {
 
             Integer userID = SessionUtil.getCurrentUserId(session);
+            if(userID==null){
+                JSONObject jsonResponse = new JSONObject();
+                jsonResponse.put("error", "Login first");
+                JsonUtil.writeJsonResponse(response, jsonResponse);
+            }
             String liveID=getLiveID(channelName, api_key);
             if (liveID != null) {
                 String api = "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=" + liveID + "&eventType=live&type=video&key=" + api_key;

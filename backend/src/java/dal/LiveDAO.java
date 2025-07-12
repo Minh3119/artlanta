@@ -33,15 +33,38 @@ public class LiveDAO extends DBContext {
 
         return list;
     }
-    public int insertLive(int userID,String title,String liveID,String visibility){
-        int ID=0;
-        try{
-            String sql="""
+
+    public Live getOne(int ID) {
+        String sql = """
+                   Select lp.ID,lp.UserID,u.Username,u.AvatarURL,lp.Title, lp.LiveID,
+                        lp.LiveView,lp.CreatedAt,lp.LiveStatus,lp.Visibility 
+                        from LivePosts as lp join Users as u on lp.UserID=u.ID
+                        where lp.ID=? and lp.LiveStatus='Live';
+                   """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, ID);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return (new Live(rs.getInt("ID"), rs.getInt("UserID"), rs.getString("Username"), rs.getString("AvatarURL"), rs.getString("Title"), rs.getString("LiveID"), rs.getInt("LiveView"), rs.getTimestamp("CreatedAt").toLocalDateTime(), rs.getString("LiveStatus"), rs.getString("Visibility")));
+            }
+            st.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Live();
+    }
+
+    public int insertLive(int userID, String title, String liveID, String visibility) {
+        int ID = 0;
+        try {
+            String sql = """
                        insert into LivePosts(UserID,Title,LiveID,LiveView,LiveStatus,Visibility) 
                        values(?,?,?,0,'Live',?);
                        """;
-            PreparedStatement st = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-            st.setInt(1,userID );
+            PreparedStatement st = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            st.setInt(1, userID);
             st.setString(2, title);
             st.setString(3, liveID);
             st.setString(4, visibility);
@@ -49,12 +72,10 @@ public class LiveDAO extends DBContext {
             ResultSet rs = st.getGeneratedKeys();
             rs.next();
             ID = rs.getInt(1);
-            
-            
+
             st.close();
             rs.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ID;

@@ -37,9 +37,10 @@ public class Live {
         this.LiveStatus = LiveStatus;
         this.visibility = visibility;
     }
-    
-    
 
+    public String getLiveID() {
+        return LiveID;
+    }
     public int getID() {
         return ID;
     }

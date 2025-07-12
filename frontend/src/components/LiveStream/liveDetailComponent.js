@@ -2,19 +2,91 @@ import React from "react";
 import YouTube from 'react-youtube';
 import '../../styles/live.scss';
 import { GrStreetView } from "react-icons/gr";
-import { MdInsertEmoticon } from "react-icons/md";
 import { useParams } from 'react-router-dom';
 class LiveDetailComponent extends React.Component {
     state = {
-        author: 'Natlife',
-        liveTitle: 'Introduce about ReactJS',
-        view: '1000000',
-        liveID: 'zyDKOmP6BaU',
+        currentUserID: '',
+        ID: '',
+        userID: '',
+        UserName: '',
+        Avt: '',
+        Title: '',
+        View: '',
+        CreatedAt: '',
+        LiveStatus: '',
+        Visibility: '',
+        LiveID: '',
+
+    }
+    componentDidMount() {
+        fetch("http://localhost:9999/backend/api/user/userid", {
+            method: "GET",
+            credentials: 'include'
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                this.setState({
+                    currentUserID: data.response.userID,
+                })
+            })
+            .catch((err) => console.error(err));
+
+
+        fetch("http://localhost:9999/backend/api/live/get", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                ID: this.props.params.ID,
+
+            }),
+            credentials: 'include'
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                this.setState({
+                    userID: data.response.UserID,
+                    UserName: data.response.UserName,
+                    Avt: data.response.Avt,
+                    Title: data.response.Title,
+                    View: data.response.View,
+                    CreatedAt: data.response.CreatedAt,
+                    LiveStatus: data.response.LiveStatus,
+                    Visibility: data.response.Visibility,
+                    LiveID: data.response.LiveID,
+
+                })
+            })
+            .catch((err) => console.error(err));
 
     }
     onPlayerReady = (event) => {
         event.target.playVideo();
     };
+    handleExit = () => {
+        if (this.state.currentUserID === this.state.userID) {
+            fetch("http://localhost:9999/backend/api/live/exit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ID: this.props.params.ID,
+                }),
+                credentials: 'include'
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        window.location.href = '/live';
+                    } else {
+                        console.error(data.error);
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+    }
 
     render() {
         const { ID } = this.props.params;
@@ -38,14 +110,14 @@ class LiveDetailComponent extends React.Component {
             <div className="live-container">
                 <div className="live-header">
                     {/* <h1>{ID}</h1> */}
-                    <h1>{this.state.author} / {this.state.liveTitle}</h1>
-                    <button>X</button>
+                    <h1>{this.state.UserName} / {this.state.Title}</h1>
+                    <button onClick={() => this.handleExit()}>X</button>
 
-                </div>
+                </div >
                 <div className="live-body">
                     <div className="live-display">
                         <YouTube
-                            videoId={this.state.liveID}
+                            videoId={this.state.LiveID}
                             opts={optsForVideo}
                             onReady={this.onPlayerReady}
                         // onStateChange={this.onPlayerStateChange}
@@ -55,7 +127,7 @@ class LiveDetailComponent extends React.Component {
                     <div className="live-chat">
                         <div className="live-chat-header">
                             <span>Live Chat</span>
-                            <span className="live-view"><GrStreetView />{this.state.view}</span>
+                            <span className="live-view"><GrStreetView />{this.state.View}</span>
                         </div>
                         <div className="live-chat-body">
                             <div className="chat-item">
@@ -76,7 +148,7 @@ class LiveDetailComponent extends React.Component {
                     </div>
                 </div>
 
-            </div>
+            </div >
         )
     }
 }
