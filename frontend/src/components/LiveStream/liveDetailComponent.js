@@ -90,7 +90,7 @@ class LiveDetailComponent extends React.Component {
     }
     handleUpdateView = async () => {
         try {
-            const API_KEY = ProcessingInstruction.env.REACT_APP_YOUTUBE_API_KEY;
+            const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
             const response = await axios.get(
                 `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${this.state.LiveID}&key=${API_KEY}`
             );

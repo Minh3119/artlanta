@@ -10,6 +10,9 @@ class LiveChatComponent extends React.Component {
     componentDidMount() {
         this.connectWebSocket();
     }
+    componentDidUpdate() {
+        this.props.handleUpdateView();
+    }
     connectWebSocket = () => {
         const ID = this.props.ID;
 
