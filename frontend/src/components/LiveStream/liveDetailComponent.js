@@ -2,9 +2,10 @@ import React from "react";
 import YouTube from 'react-youtube';
 import '../../styles/live.scss';
 import { GrStreetView } from "react-icons/gr";
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 class LiveDetailComponent extends React.Component {
     state = {
+        redirect: null,
         currentUserID: '',
         ID: '',
         userID: '',
@@ -66,29 +67,35 @@ class LiveDetailComponent extends React.Component {
     };
     handleExit = () => {
         if (this.state.currentUserID === this.state.userID) {
-            fetch("http://localhost:9999/backend/api/live/exit", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    ID: this.props.params.ID,
-                }),
-                credentials: 'include'
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    if (data.success) {
-                        window.location.href = '/live';
-                    } else {
-                        console.error(data.error);
-                    }
-                })
-                .catch((err) => console.error(err));
+            // fetch("http://localhost:9999/backend/api/live/exit", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json"
+            //     },
+            //     body: JSON.stringify({
+            //         ID: this.props.params.ID,
+            //     }),
+            //     credentials: 'include'
+            // })
+            // .then((res) => res.json())
+            // .then((data) => {
+            //     if (data.success) {
+            //         window.location.href = '/live';
+            //     } else {
+            //         console.error(data.error);
+            //     }
+            // })
+            // .catch((err) => console.error(err));
         }
+        this.setState({
+            redirect: '/'
+        })
     }
 
     render() {
+        if (this.state.redirect) {
+            return <Navigate to={this.state.redirect} />;
+        }
         const { ID } = this.props.params;
         const optsForVideo = {
             // height: '0',

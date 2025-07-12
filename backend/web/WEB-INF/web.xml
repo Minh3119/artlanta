@@ -72,6 +72,10 @@
         <servlet-name>GetLive</servlet-name>
         <servlet-class>controller.Live.GetLive</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LiveChatEndpoint</servlet-name>
+        <servlet-class>controller.Live.LiveChatEndpoint</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -215,6 +219,10 @@
     <servlet-mapping>
         <servlet-name>GetLive</servlet-name>
         <url-pattern>/api/live/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LiveChatEndpoint</servlet-name>
+        <url-pattern>/api/live/chat</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
