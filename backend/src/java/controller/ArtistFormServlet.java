@@ -36,6 +36,14 @@ public class ArtistFormServlet extends HttpServlet {
         JSONObject json = new JSONObject();
         Integer userId = SessionUtil.getCurrentUserId(request.getSession(false));
 
+        if (userId == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            json.put("success", false);
+            json.put("message", "User not logged in.");
+            response.getWriter().write(json.toString());
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = request.getReader()) {
             String line;
@@ -73,23 +81,23 @@ public class ArtistFormServlet extends HttpServlet {
         String phoneNumber = body.optString("phoneNumber", "");
         String address = body.optString("address", "");
         String specialty = body.optString("specialty", "");
+        boolean eKYC = false;
         int experienceYears = body.optInt("experienceYears", 0);
 
         Integer userID = SessionUtil.getCurrentUserId(request.getSession(false));
 
-        boolean success = artistInfoDao.insertArtistInfo(userID, phoneNumber, address, specialty, experienceYears);
+        boolean success = artistInfoDao.insertArtistInfo(userID, phoneNumber, address, specialty, experienceYears, eKYC);
 
         if (success) {
             json.put("success", true);
             json.put("message", "Artist info saved.");
-            
+
             boolean changeRoleToArtist = userDAO.setUserRoleToArtist(userID);
         } else {
             json.put("success", false);
             json.put("message", "Failed to insert artist info.");
         }
-        
-        
+
         response.getWriter().write(json.toString());
     }
 

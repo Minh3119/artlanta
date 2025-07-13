@@ -12,8 +12,8 @@ import java.sql.PreparedStatement;
  */
 public class ArtistInfoDAO extends DBContext {
 
-    public boolean insertArtistInfo(Integer userId, String phoneNumber, String address, String specialty, int experienceYears) {
-        String query = "INSERT INTO ArtistInfo (UserID, PhoneNumber, Address, Specialty, ExperienceYears) VALUES (?, ?, ?, ?, ?)";
+    public boolean insertArtistInfo(Integer userId, String phoneNumber, String address, String specialty, int experienceYears, boolean eKYC) {
+        String query = "INSERT INTO ArtistInfo (UserID, PhoneNumber, Address, Specialty, ExperienceYears, eKYC) VALUES (?, ?, ?, ?, ?,?)";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
@@ -21,7 +21,7 @@ public class ArtistInfoDAO extends DBContext {
             ps.setString(3, address);
             ps.setString(4, specialty);
             ps.setInt(5, experienceYears);
-
+            ps.setBoolean(6, eKYC);
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
