@@ -130,7 +130,7 @@ export default function Header({ openCreatePopup }) {
           onClick={() => setShowCreateMenu(!showCreateMenu)}
           style={{ cursor: "pointer", position: "relative" }}
         >
-          <p className="header-navbar__title">Create</p>
+          <p className="header-navbar__title" id="test-create-btn">Create</p>
           <img
             src={arrowDown}
             alt=""
@@ -141,7 +141,7 @@ export default function Header({ openCreatePopup }) {
           />
           {showCreateMenu && (
             <div className="create-menu-dropdown">
-              <div className="create-menu-item" onClick={() => {
+              <div className="create-menu-item" id="test-create-post" onClick={() => {
                 if (userID === 0) {
                   navigate("/login");
                   return;

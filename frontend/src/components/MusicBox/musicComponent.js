@@ -14,7 +14,7 @@ class MusicComponent extends React.Component {
         isMP3: "mp3",//mp3 | video | setting
         userID: 0
     }
-    async componentDidUpdate() {
+    async componentDidUpdate(isMP3) {
         try {
             const res = await fetch(
                 "http://localhost:9999/backend/api/session/check",
