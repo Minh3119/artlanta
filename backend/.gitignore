@@ -24,6 +24,8 @@ web/WEB-INF/env.txt
 web/WEB-INF/env.txt
 
 ### NetBeans ###
+ant_build.xml
+/ant_nbproject
 /nbproject/genfiles.properties
 /nbproject/private/
 /nbbuild/
