@@ -24,7 +24,7 @@ public class LiveCheck extends HttpServlet {
 
     public String getLiveID(String channelName, String api_key) {
         try {
-            String url = "https://www.youtube.com/" + channelName; // Ví dụ: "@Natlife19"
+            String url = "https://www.youtube.com/" + channelName; // @Natlife19
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
