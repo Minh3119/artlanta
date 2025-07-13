@@ -42,6 +42,14 @@ public class SessionUtil {
         }
         return null;
     }
+    
+    public static String getCurrentUserName(HttpSession session) {
+        if (session != null) {
+            Object userName = session.getAttribute(USER_NAME);
+            return userName != null ? (String) userName : null;
+        }
+        return null;
+    }
 
     /**
      * Checks if any user is currently logged in
