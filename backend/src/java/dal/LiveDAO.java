@@ -20,7 +20,7 @@ public class LiveDAO extends DBContext {
     public List<Live> getAll() {
         List<Live> list = new ArrayList<>();
         try {
-            PreparedStatement st = connection.prepareStatement("Select lp.ID,lp.UserID,u.Username,u.AvatarURL,lp.Title, lp.LiveID, lp.LiveView,lp.CreatedAt,lp.LiveStatus,lp.Visibility from LivePosts as lp join Users as u on lp.UserID=u.ID");
+            PreparedStatement st = connection.prepareStatement("Select lp.ID,lp.UserID,u.Username,u.AvatarURL,lp.Title, lp.LiveID, lp.LiveView,lp.CreatedAt,lp.LiveStatus,lp.Visibility from LivePosts as lp join Users as u on lp.UserID=u.ID order by lp.CreatedAt DESC;");
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 list.add(new Live(rs.getInt("ID"), rs.getInt("UserID"), rs.getString("Username"), rs.getString("AvatarURL"), rs.getString("Title"), rs.getString("LiveID"), rs.getInt("LiveView"), rs.getTimestamp("CreatedAt").toLocalDateTime(), rs.getString("LiveStatus"), rs.getString("Visibility")));

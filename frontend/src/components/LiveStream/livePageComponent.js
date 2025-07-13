@@ -95,7 +95,16 @@ class LivePageComponent extends React.Component {
                                     </div>
                                     <div className="live-post-stat">
                                         <span className="live-post-view"><GrStreetView /> {item.view}</span>
-                                        <span className="live-post-time"><BiSolidTime /> {item.createdAt}</span>
+                                        <span className="live-post-time"><BiSolidTime /> {
+                                            (new Date(item.createdAt)).toLocaleString('vi-VN', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false,
+                                            })
+                                        }</span>
                                     </div>
                                 </div>
                             </div>
