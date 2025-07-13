@@ -33,7 +33,6 @@ const MessagesList = React.memo(({
   error, 
   onUnsend, 
   onReport,
-  handleScroll,
   isLoadingOlder,
   loadOlderMessages,
   isInitialLoad
@@ -82,8 +81,6 @@ const MessagesList = React.memo(({
     useEffect(() => {
       if (atTop && !prevAtTop && !isInitialLoad.current && !loading && messages.length > 0) {
         loadOlderMessages();
-        // Reset the flag after a short delay to prevent rapid successive calls
-        setTimeout(() => isInitialLoad.current=false, 1000);
       }
       setPrevAtTop(atTop);
     }, [atTop, prevAtTop, loadOlderMessages, isInitialLoad, loading]);
@@ -105,7 +102,7 @@ const MessagesList = React.memo(({
         ) : (
           <div className="space-y-2">
             {/* Loading indicator for older messages */}
-            {isLoadingOlder && (
+            {isLoadingOlder.current && (
               <div className="flex justify-center py-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
                 <span className="ml-2 text-sm text-gray-500">Loading older messages...</span>

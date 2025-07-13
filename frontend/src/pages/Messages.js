@@ -47,7 +47,6 @@ const MessagesPage = () => {
     isLoadingOlder,
     handleSendMessage,
     handleUnsendMessage,
-    handleScroll,
     loadOlderMessages,
     isInitialLoad
   } = useMessages(selectedConversation, activeTab, setConversations, sortConversationsByLatestMessage);
@@ -75,17 +74,13 @@ const MessagesPage = () => {
     if (hasSelectedInitialConversation.current) return;
 
     const conversationIdParam = searchParams.get('conversationId');
-    if (conversationIdParam) {
+    if (conversationIdParam && conversationIdParam !== selectedConversation.id) {
       const found = conversations.find(c => c.id === parseInt(conversationIdParam));
       if (found) {
         setSelectedConversation(found);
         hasSelectedInitialConversation.current = true;
         return;
       }
-    }
-    
-    if (!selectedConversation && conversations.length > 0) {
-      handleConversationSelect(conversations[0]);
     }
   }, [getCurrentConversations, searchParams, activeTab, selectedConversation]);
 
@@ -194,7 +189,6 @@ const MessagesPage = () => {
                     loading={isMessagesLoading}
                     error={messagesError}
                     onUnsend={handleUnsendMessage}
-                    handleScroll={handleScroll}
                     isLoadingOlder={isLoadingOlder}
                     loadOlderMessages={loadOlderMessages}
                     isInitialLoad={isInitialLoad}
