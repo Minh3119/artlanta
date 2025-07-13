@@ -1,12 +1,13 @@
-
 package controller.Live;
 
+import controller.messaging.HttpSessionConfigurator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.Collections;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
@@ -17,14 +18,26 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-@ServerEndpoint(value = "/api/live/chat")
-public class LiveChatEndpoint{
+import model.LiveChatMessage;
+import org.json.JSONObject;
+import util.JsonUtil;
+import util.SessionUtil;
+
+@ServerEndpoint(value = "/api/live/chat",
+        encoders= {ChatMessageEncode.class},
+        configurator = HttpSessionConfigurator.class)
+public class LiveChatEndpoint {
 
     private static final Map<String, Set<Session>> roomMap = new HashMap<>();
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session, EndpointConfig config) {
         String ID = getLiveID(session);
+        HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+        String Username = "Anonymous";
+        if (httpSession != null && httpSession.getAttribute("user") != null) {
+            Username = (String) httpSession.getAttribute("user");
+        }
         if (ID == null) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Missing ID"));
@@ -40,20 +53,27 @@ public class LiveChatEndpoint{
         }
 
         session.getUserProperties().put("ID", ID);
-        System.out.println("User joined room: " + ID + " sessionID=" + session.getId());
+        session.getUserProperties().put("Username", Username);
+//        System.out.println(session.getId());
     }
 
     @OnMessage
-    public void onMessage(String message, Session senderSession) throws IOException {
+    public void onMessage(String message, Session senderSession) throws IOException, EncodeException {
         String ID = (String) senderSession.getUserProperties().get("ID");
-        if (ID == null) return;
+        String Username = (String) senderSession.getUserProperties().get("Username");
+        
+
+        if (ID == null) {
+            return;
+        }
 
         synchronized (roomMap) {
             Set<Session> sessionsInRoom = roomMap.get(ID);
             if (sessionsInRoom != null) {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
-                        session.getBasicRemote().sendText(message);
+//                        session.getBasicRemote().sendText(message);
+                        session.getBasicRemote().sendObject(new LiveChatMessage(Username,message));
                     }
                 }
             }
@@ -69,7 +89,7 @@ public class LiveChatEndpoint{
                 if (sessions != null) {
                     sessions.remove(session);
                     if (sessions.isEmpty()) {
-                        roomMap.remove(ID); // dọn rác nếu không còn ai
+                        roomMap.remove(ID);
                     }
                 }
             }
@@ -84,7 +104,7 @@ public class LiveChatEndpoint{
     private String getLiveID(Session session) {
         try {
             URI uri = new URI(session.getRequestURI().toString() + "?" + session.getQueryString());
-            String query = uri.getQuery(); 
+            String query = uri.getQuery();
             if (query != null && query.contains("ID=")) {
                 return query.split("ID=")[1];
             }

@@ -28,6 +28,14 @@
                 opacity: 1;
             }
         }
+
+@media (max-width: 768px){
+    .floating-icon{
+        width: 20px;
+        height: 20px;
+        font-size: 18px;
+    }
+}
 .music-container{
     position: fixed;
     bottom: 20px;

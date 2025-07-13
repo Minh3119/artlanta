@@ -10,9 +10,9 @@ class LiveChatComponent extends React.Component {
     componentDidMount() {
         this.connectWebSocket();
     }
-    componentDidUpdate() {
-        this.props.handleUpdateView();
-    }
+    // componentDidUpdate() {
+    //     this.props.handleUpdateView();
+    // }
     connectWebSocket = () => {
         const ID = this.props.ID;
 
@@ -23,7 +23,11 @@ class LiveChatComponent extends React.Component {
         };
 
         this.socket.onmessage = (event) => {
-            const message = event.data;
+            const data = JSON.parse(event.data);
+            const message = {
+                Username: data.Username,
+                Message: data.Message
+            }
             this.setState((prevState) => ({
                 messagesList: [...prevState.messagesList, message]
             }));
@@ -53,8 +57,8 @@ class LiveChatComponent extends React.Component {
         return (
             <div className="live-chat">
                 <div className="live-chat-header">
-                    <span>Live Chat</span>
-                    <span className="live-view"><GrStreetView />{this.props.View}</span>
+                    <div>Live Chat</div>
+                    <div className="live-view"><GrStreetView />{this.props.View}</div>
                 </div>
                 <div className="live-chat-body">
                     {
@@ -63,8 +67,8 @@ class LiveChatComponent extends React.Component {
                                 <div className="chat-item" key={index}>
                                     <img alt="1" />
                                     <div className="user">
-                                        <span className="user-name">user</span>
-                                        <span className="user-text">{message}</span>
+                                        <span className="user-name">{message.Username}</span>
+                                        <span className="user-text">{message.Message}</span>
                                     </div>
                                 </div>
                             )
@@ -75,8 +79,13 @@ class LiveChatComponent extends React.Component {
                 </div>
                 <div className="live-chat-input">
                     {/* <MdInsertEmoticon className="icon-select" /> */}
-                    <input type="text" value={this.state.currentMessage}
+                    <input type="text" value={this.state.currentMessage} className="live-message"
                         onChange={(e) => this.setState({ currentMessage: e.target.value })} placeholder="Type your message here"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                this.handleSendMessage();
+                            }
+                        }}
                     />
                     <button onClick={() => this.handleSendMessage()}>send</button>
                 </div>

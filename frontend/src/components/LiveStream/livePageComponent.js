@@ -29,8 +29,8 @@ class LivePageComponent extends React.Component {
             }
         ],
     }
-    componentDidMount() {
-        fetch(`http://localhost:9999/backend/api/live`, {
+    async componentDidMount() {
+        await fetch(`http://localhost:9999/backend/api/live`, {
             credentials: 'include'
         })
             .then(response => {
@@ -47,24 +47,24 @@ class LivePageComponent extends React.Component {
                 console.error('Error fetching data:', error);
             });
     }
-    componentDidUpdate() {
-        fetch(`http://localhost:9999/backend/api/`, {
-            credentials: 'include'
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch data');
-                return response.json();
-            })
-            .then(async data => {
-                this.setState({
-                    LiveList: data.response,
+    // async componentDidUpdate() {
+    //     await fetch(`http://localhost:9999/backend/api/live`, {
+    //         credentials: 'include'
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) throw new Error('Failed to fetch data');
+    //             return response.json();
+    //         })
+    //         .then(async data => {
+    //             this.setState({
+    //                 LiveList: data.response,
 
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }
+    //             });
+    //         })
+    //         .catch(error => {
+    //             console.error('Error fetching data:', error);
+    //         });
+    // }
     handelNavigate = (ID) => {
         this.setState({
             redirect: `/live/detail/${ID}`

@@ -22,8 +22,8 @@ class LiveDetailComponent extends React.Component {
         LiveID: '',
 
     }
-    componentDidMount() {
-        axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
+    async componentDidMount() {
+        await axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
             .then((res) => {
                 this.setState({
                     currentUserID: res.data.response.userID,
@@ -32,7 +32,7 @@ class LiveDetailComponent extends React.Component {
             .catch((err) => console.error(err));
 
 
-        axios.post("http://localhost:9999/backend/api/live/get",
+        await axios.post("http://localhost:9999/backend/api/live/get",
             {
                 ID: this.props.params.ID
             },
@@ -57,32 +57,40 @@ class LiveDetailComponent extends React.Component {
                 });
             })
             .catch((err) => console.error(err));
+        this.handleUpdateView();
 
     }
     onPlayerReady = (event) => {
         event.target.playVideo();
     };
-    handleExit = () => {
-        if (this.state.currentUserID === this.state.userID) {
-            // fetch("http://localhost:9999/backend/api/live/exit", {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "application/json"
-            //     },
-            //     body: JSON.stringify({
-            //         ID: this.props.params.ID,
-            //     }),
-            //     credentials: 'include'
-            // })
-            // .then((res) => res.json())
-            // .then((data) => {
-            //     if (data.success) {
-            //         window.location.href = '/live';
-            //     } else {
-            //         console.error(data.error);
-            //     }
-            // })
-            // .catch((err) => console.error(err));
+    handleExit = async () => {
+        if (this.state.currentUserID === this.state.userID[0] && this.state.LiveStatus == 'Live') {
+            console.log('End live');
+            axios.post(`http://localhost:9999/backend/api/live/detail/end`, {
+                ID: this.props.params.ID,
+                View: this.state.View[0],
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            }
+
+            ).catch((err) => console.error(err));
+        }
+        else {
+            console.log('Exit live');
+            await axios.post(`http://localhost:9999/backend/api/live/update/view`, {
+                ID: this.props.params.ID,
+                View: this.state.View,
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            }
+
+            ).catch((err) => console.error(err));
         }
         this.setState({
             redirect: '/'
@@ -113,10 +121,10 @@ class LiveDetailComponent extends React.Component {
         const optsForVideo = {
             // height: '0',
             // width: '0',
-            height: '580px',
-            width: '100%',
+            // height: '580px',
+            // width: '100%',
             playerVars: {
-                autoplay: 1,
+                autoplay: 0,
                 controls: 1,
                 modestbranding: 1,
                 rel: 0,
@@ -139,7 +147,7 @@ class LiveDetailComponent extends React.Component {
                         <YouTube
                             videoId={this.state.LiveID}
                             opts={optsForVideo}
-                            onReady={this.onPlayerReady}
+                        // onReady={this.onPlayerReady}
                         // onStateChange={this.onPlayerStateChange}
                         // onError={this.onPlayerError}
                         />

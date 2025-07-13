@@ -72,6 +72,14 @@
         <servlet-name>GetLive</servlet-name>
         <servlet-class>controller.Live.GetLive</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UpdateView</servlet-name>
+        <servlet-class>controller.Live.UpdateView</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EndLive</servlet-name>
+        <servlet-class>controller.Live.EndLive</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -215,6 +223,14 @@
     <servlet-mapping>
         <servlet-name>GetLive</servlet-name>
         <url-pattern>/api/live/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateView</servlet-name>
+        <url-pattern>/api/live/update/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EndLive</servlet-name>
+        <url-pattern>/api/live/detail/end</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

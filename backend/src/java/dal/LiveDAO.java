@@ -39,7 +39,7 @@ public class LiveDAO extends DBContext {
                    Select lp.ID,lp.UserID,u.Username,u.AvatarURL,lp.Title, lp.LiveID,
                         lp.LiveView,lp.CreatedAt,lp.LiveStatus,lp.Visibility 
                         from LivePosts as lp join Users as u on lp.UserID=u.ID
-                        where lp.ID=? and lp.LiveStatus='Live';
+                        where lp.ID=?;
                    """;
         try {
             PreparedStatement st = connection.prepareStatement(sql);
@@ -79,6 +79,44 @@ public class LiveDAO extends DBContext {
             e.printStackTrace();
         }
         return ID;
+    }
+    public void updateView(int ID, int View){
+        String sql="""
+                   update LivePosts
+                   set LiveView= ?
+                   where ID=?;
+                   """;
+        try{
+            PreparedStatement st= connection.prepareStatement(sql);
+            st.setInt(1, View);
+            st.setInt(2, ID);
+            st.executeUpdate();
+            
+            st.close();
+            
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void endLive(int ID, int View){
+        String sql="""
+                   update LivePosts
+                   set LiveView= ?, LiveStatus='Post'
+                   where ID=?;
+                   """;
+        try{
+            PreparedStatement st= connection.prepareStatement(sql);
+            st.setInt(1, View);
+            st.setInt(2, ID);
+            st.executeUpdate();
+            
+            st.close();
+            
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

@@ -37,14 +37,13 @@ public class LiveCheck extends HttpServlet {
             }
             in.close();
 
-            
             Pattern pattern = Pattern.compile("https://www\\.youtube\\.com/channel/(UC[\\w-]+)");
             Matcher matcher = pattern.matcher(html.toString());
 
             if (matcher.find()) {
                 return matcher.group(1);
             } else {
-                return null; 
+                return null;
             }
 
         } catch (Exception e) {
@@ -76,17 +75,20 @@ public class LiveCheck extends HttpServlet {
         try {
 
             Integer userID = SessionUtil.getCurrentUserId(session);
-            if(userID==null){
+//            Integer userID = 29;
+            if (userID == null) {
                 JSONObject jsonResponse = new JSONObject();
                 jsonResponse.put("error", "Login first");
                 JsonUtil.writeJsonResponse(response, jsonResponse);
             }
-            String liveID=getLiveID(channelName, api_key);
+            String liveID = getLiveID(channelName, api_key);
             if (liveID != null) {
                 String api = "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=" + liveID + "&eventType=live&type=video&key=" + api_key;
                 URL url = new URL(api);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
+//                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+//                conn.setRequestProperty("Accept", "application/json");
 
                 reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder videoData = new StringBuilder();
@@ -103,6 +105,7 @@ public class LiveCheck extends HttpServlet {
                     String videoID = idObj.getString("videoId");
                     LiveDAO ld = new LiveDAO();
                     int ID = ld.insertLive(userID, Title, videoID, Visibility);
+                    System.out.println("ID:" + ID);
                     JSONObject jsonResponse = new JSONObject();
                     jsonResponse.put("response", ID);
                     JsonUtil.writeJsonResponse(response, jsonResponse);

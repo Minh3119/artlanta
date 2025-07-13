@@ -38,11 +38,6 @@ public class LivePage extends HttpServlet {
         try {
 
             list = ld.getAll();
-//            JSONArray liveArr = new JSONArray();
-//            for (Live live : list) {
-//                JSONObject obj = new JSONObject(live);
-//                liveArr.put(obj);
-//            }
             JSONObject jsonResponse = new JSONObject();
             jsonResponse.put("response", list);
             JsonUtil.writeJsonResponse(response, jsonResponse);
