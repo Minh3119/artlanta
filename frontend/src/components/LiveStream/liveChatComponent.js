@@ -23,7 +23,6 @@ class LiveChatComponent extends React.Component {
         };
 
         this.socket.onmessage = (event) => {
-            console.log("Received message:", event.data);
             const message = event.data;
             this.setState((prevState) => ({
                 messagesList: [...prevState.messagesList, message]
