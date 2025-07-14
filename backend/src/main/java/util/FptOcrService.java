@@ -6,17 +6,21 @@ package util;
 
 import jakarta.servlet.http.Part;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.logging.Logger;
+import validation.EnvConfig;
+
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.ContentType;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import validation.EnvConfig;
 
 public class FptOcrService {
     private static final EnvConfig CONFIG_READER = new EnvConfig();
@@ -29,37 +33,53 @@ public class FptOcrService {
             return false;
         }
         
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            String boundary = generateBoundary();
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
             
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(OCR_URL))
-                .header("api-key", API_KEY)
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(buildBodyWithOnePart(cccdImage, "image", boundary))
-                .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            // Tạo multipart entity
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addBinaryBody("image", 
+                                cccdImage.getInputStream(), 
+                                ContentType.create(cccdImage.getContentType()), 
+                                cccdImage.getSubmittedFileName());
             
-            if (response.statusCode() != 200) {
-                return false;
-            }
+            // Tạo POST request
+            HttpPost post = new HttpPost(OCR_URL);
+            post.setHeader("api-key", API_KEY);
+            post.setEntity(builder.build());
             
-            String body = response.body();
-            
-            try {
-                JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
+            // Thực hiện request
+            try (CloseableHttpResponse response = client.execute(post)) {
+                int statusCode = response.getStatusLine().getStatusCode();
                 
-                if (jsonObject.has("id_number")) {
-                    String idNumber = jsonObject.get("id_number").getAsString();
-                    return idNumber != null && !idNumber.trim().isEmpty();
+                if (statusCode != 200) {
+                    return false;
                 }
                 
-                return false;
+                String body = EntityUtils.toString(response.getEntity());
                 
-            } catch (JsonSyntaxException e) {
-                return body.contains("\"id_number\"");
+                try {
+                    JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
+                    
+                    // Kiểm tra errorCode = 0 (thành công)
+                    if (jsonObject.has("errorCode") && jsonObject.get("errorCode").getAsInt() == 0) {
+                        // Kiểm tra có data array không
+                        if (jsonObject.has("data") && jsonObject.get("data").isJsonArray()) {
+                            var dataArray = jsonObject.getAsJsonArray("data");
+                            if (dataArray.size() > 0) {
+                                var firstItem = dataArray.get(0).getAsJsonObject();
+                                if (firstItem.has("id")) {
+                                    String idNumber = firstItem.get("id").getAsString();
+                                    return idNumber != null && !idNumber.trim().isEmpty();
+                                }
+                            }
+                        }
+                    }
+                    
+                    return false;
+                    
+                } catch (JsonSyntaxException e) {
+                    return body.contains("\"id\":");
+                }
             }
 
         } catch (Exception e) {
@@ -73,88 +93,60 @@ public class FptOcrService {
             return false;
         }
         
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            String boundary = generateBoundary();
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
             
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(FACE_MATCH_URL))
-                .header("api-key", API_KEY)
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(buildBodyWithTwoParts(cccdImage, faceImage, boundary))
-                .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            // Tạo multipart entity với 2 images sử dụng file[]
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addBinaryBody("file[]", 
+                                cccdImage.getInputStream(), 
+                                ContentType.create(cccdImage.getContentType()), 
+                                cccdImage.getSubmittedFileName());
+            builder.addBinaryBody("file[]", 
+                                faceImage.getInputStream(), 
+                                ContentType.create(faceImage.getContentType()), 
+                                faceImage.getSubmittedFileName());
             
-            if (response.statusCode() != 200) {
-                return false;
-            }
+            // Tạo POST request
+            HttpPost post = new HttpPost(FACE_MATCH_URL);
+            post.setHeader("api_key", API_KEY);  // Sử dụng api_key thay vì api-key
+            post.setEntity(builder.build());
             
-            String body = response.body();
-            
-            try {
-                JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
+            // Thực hiện request
+            try (CloseableHttpResponse response = client.execute(post)) {
+                int statusCode = response.getStatusLine().getStatusCode();
                 
-                if (jsonObject.has("confidence")) {
-                    double confidence = jsonObject.get("confidence").getAsDouble();
-                    return confidence >= 0.8;
+                if (statusCode != 200) {
+                    return false;
                 }
                 
-                return false;
+                String body = EntityUtils.toString(response.getEntity());
                 
-            } catch (JsonSyntaxException | NumberFormatException e) {
-                return body.contains("\"confidence\":") && body.contains("0.8");
+                try {
+                    JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
+                    
+                    // Kiểm tra code = "200" (thành công)
+                    if (jsonObject.has("code") && "200".equals(jsonObject.get("code").getAsString())) {
+                        // Kiểm tra có data object không
+                        if (jsonObject.has("data") && jsonObject.get("data").isJsonObject()) {
+                            var dataObject = jsonObject.getAsJsonObject("data");
+                            
+                            // Lấy kết quả isMatch
+                            if (dataObject.has("isMatch")) {
+                                return dataObject.get("isMatch").getAsBoolean();
+                            }
+                        }
+                    }
+                    
+                    return false;
+                    
+                } catch (JsonSyntaxException e) {
+                    return body.contains("\"isMatch\":true");
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-    }
-    
-    private static String generateBoundary() {
-        return "----FormBoundary" + UUID.randomUUID().toString().replace("-", "");
-    }
-    
-    private static HttpRequest.BodyPublisher buildBodyWithOnePart(Part part, String fieldName, String boundary) throws IOException {
-        List<byte[]> byteArrays = new ArrayList<>();
-
-        byteArrays.add(("--" + boundary + "\r\n").getBytes());
-        byteArrays.add(("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + part.getSubmittedFileName() + "\"\r\n").getBytes());
-        byteArrays.add(("Content-Type: " + part.getContentType() + "\r\n\r\n").getBytes());
-        
-        try (var inputStream = part.getInputStream()) {
-            byteArrays.add(inputStream.readAllBytes());
-        }
-        
-        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes());
-
-        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
-    }
-    
-    private static HttpRequest.BodyPublisher buildBodyWithTwoParts(Part part1, Part part2, String boundary) throws IOException {
-        List<byte[]> byteArrays = new ArrayList<>();
-
-        // Part 1 - CCCD Image
-        byteArrays.add(("--" + boundary + "\r\n").getBytes());
-        byteArrays.add(("Content-Disposition: form-data; name=\"image1\"; filename=\"" + part1.getSubmittedFileName() + "\"\r\n").getBytes());
-        byteArrays.add(("Content-Type: " + part1.getContentType() + "\r\n\r\n").getBytes());
-        
-        try (var inputStream = part1.getInputStream()) {
-            byteArrays.add(inputStream.readAllBytes());
-        }
-
-        // Part 2 - Face Image
-        byteArrays.add(("\r\n--" + boundary + "\r\n").getBytes());
-        byteArrays.add(("Content-Disposition: form-data; name=\"image2\"; filename=\"" + part2.getSubmittedFileName() + "\"\r\n").getBytes());
-        byteArrays.add(("Content-Type: " + part2.getContentType() + "\r\n\r\n").getBytes());
-        
-        try (var inputStream = part2.getInputStream()) {
-            byteArrays.add(inputStream.readAllBytes());
-        }
-
-        byteArrays.add(("\r\n--" + boundary + "--\r\n").getBytes());
-
-        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
     }
 }

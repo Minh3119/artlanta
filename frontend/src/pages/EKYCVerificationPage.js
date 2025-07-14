@@ -289,13 +289,6 @@ const EKYCVerificationPage = () => {
               <li>• <strong>Định dạng:</strong> Chỉ chấp nhận file JPEG/PNG, tối đa 5MB mỗi file</li>
             </ul>
           </div>
-
-          {/* Debug Info (remove in production) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
-              <p><strong>Debug:</strong> CCCD file: {cccdImage?.name || 'None'} | Face file: {faceImage?.name || 'None'}</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
