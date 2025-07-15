@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Loader2, CreditCard, BookOpen } from 'lucide-react';
+import "../styles/eKyc.css";
 
 const EKYCVerificationPage = () => {
-  const [cccdImage, setCccdImage] = useState(null);
+  const [documentType, setDocumentType] = useState('cccd'); 
+  const [documentImage, setDocumentImage] = useState(null);
   const [faceImage, setFaceImage] = useState(null);
-  const [cccdPreview, setCccdPreview] = useState(null);
+  const [documentPreview, setDocumentPreview] = useState(null);
   const [facePreview, setFacePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -41,9 +43,9 @@ const EKYCVerificationPage = () => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (type === 'cccd') {
-        setCccdImage(file);
-        setCccdPreview(e.target.result);
+      if (type === 'document') {
+        setDocumentImage(file);
+        setDocumentPreview(e.target.result);
       } else {
         setFaceImage(file);
         setFacePreview(e.target.result);
@@ -64,9 +66,16 @@ const EKYCVerificationPage = () => {
     e.preventDefault();
   };
 
+  const handleDocumentTypeChange = (type) => {
+    setDocumentType(type);
+    setDocumentImage(null);
+    setDocumentPreview(null);
+    setErrors(prev => ({ ...prev, document: null }));
+  };
+
   const handleSubmit = async () => {
-    if (!cccdImage || !faceImage) {
-      setErrors({ general: 'Thiếu ảnh CCCD hoặc ảnh chân dung.' });
+    if (!documentImage || !faceImage) {
+      setErrors({ general: `Thiếu ảnh ${documentType === 'cccd' ? 'CCCD' : 'Passport'} hoặc ảnh chân dung.` });
       return;
     }
 
@@ -75,8 +84,9 @@ const EKYCVerificationPage = () => {
     setErrors({});
 
     const formData = new FormData();
-    formData.append('cccd', cccdImage);
+    formData.append('document', documentImage);
     formData.append('face', faceImage);
+    formData.append('documentType', documentType);
 
     try {
       const response = await fetch('http://localhost:9999/backend/api/verify-identity', {
@@ -93,20 +103,16 @@ const EKYCVerificationPage = () => {
           status: response.status
         });
       } else {
-        // Handle different error status codes from backend
         let errorMessage = data.message || 'Có lỗi xảy ra trong quá trình xác thực';
         
         switch (response.status) {
           case 400:
-            // "Thiếu ảnh CCCD hoặc ảnh chân dung." or "File ảnh không được để trống." or "File phải là ảnh định dạng JPEG hoặc PNG."
             errorMessage = data.message;
             break;
           case 413:
-            // "Mỗi ảnh không được vượt quá 5MB."
             errorMessage = data.message;
             break;
           case 422:
-            // "Ảnh CCCD không hợp lệ hoặc không đọc được số ID." or "Khuôn mặt không khớp với ảnh trên CCCD."
             errorMessage = data.message;
             break;
           default:
@@ -132,48 +138,52 @@ const EKYCVerificationPage = () => {
   };
 
   const handleReset = () => {
-    setCccdImage(null);
+    setDocumentImage(null);
     setFaceImage(null);
-    setCccdPreview(null);
+    setDocumentPreview(null);
     setFacePreview(null);
     setResult(null);
     setErrors({});
   };
 
   const FileUploadArea = ({ type, preview, onFileSelect, error, title, icon: Icon }) => (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 text-gray-700 font-medium">
+    <div className="upload-area">
+      <div className="upload-label">
         <Icon size={20} />
         <span>{title}</span>
       </div>
       
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer
-          ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'}
-          ${preview ? 'border-green-300 bg-green-50' : ''}`}
+        className={`upload-zone ${error ? 'error' : ''} ${preview ? 'success' : ''}`}
         onDrop={(e) => handleDrop(e, type)}
         onDragOver={handleDragOver}
         onClick={() => document.getElementById(`file-input-${type}`).click()}
       >
         {preview ? (
-          <div className="space-y-3">
-            <img src={preview} alt={`Preview ${type}`} className="max-h-40 mx-auto rounded-lg shadow-md object-contain" />
-            <p className="text-green-600 font-medium">✓ Đã chọn file</p>
-            <p className="text-sm text-gray-500">{type === 'cccd' ? cccdImage?.name : faceImage?.name}</p>
+          <div className="preview-container">
+            <img 
+              src={preview} 
+              alt={`Preview ${type}`} 
+              className="preview-image"
+            />
+            <p className="preview-success">✓ Đã chọn file</p>
+            <p className="preview-filename">
+              {type === 'document' ? documentImage?.name : faceImage?.name}
+            </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            <Upload size={48} className="mx-auto text-gray-400" />
+          <div className="upload-content">
+            <Upload size={48} className="upload-icon" />
             <div>
-              <p className="text-gray-600">Kéo thả file vào đây hoặc click để chọn</p>
-              <p className="text-sm text-gray-500 mt-1">Định dạng: JPEG, PNG • Tối đa: 5MB</p>
+              <p className="upload-text">Kéo thả file vào đây hoặc click để chọn</p>
+              <p className="upload-hint">Định dạng: JPEG, PNG • Tối đa: 5MB</p>
             </div>
           </div>
         )}
       </div>
       
       {error && (
-        <div className="flex items-center gap-2 text-red-600 text-sm">
+        <div className="upload-error">
           <AlertCircle size={16} />
           <span>{error}</span>
         </div>
@@ -184,31 +194,55 @@ const EKYCVerificationPage = () => {
         type="file"
         accept="image/jpeg,image/jpg,image/png"
         onChange={(e) => e.target.files[0] && handleFileSelect(e.target.files[0], type)}
-        className="hidden"
+        className="file-input"
       />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Xác thực eKYC</h1>
-          <p className="text-gray-600">Tải lên ảnh CCCD và ảnh chân dung để xác thực danh tính</p>
+    <div className="ekyc-container">
+      <div className="ekyc-wrapper">
+        <div className="ekyc-header">
+          <h1 className="ekyc-title">Xác thực eKYC</h1>
+          <p className="ekyc-subtitle">Tải lên ảnh giấy tờ tùy thân và ảnh chân dung để xác thực danh tính</p>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* File Upload Areas */}
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
+        <div className="ekyc-card">
+          <div className="document-type-section">
+            <h3 className="section-title">Chọn loại giấy tờ tùy thân</h3>
+            <div className="document-type-buttons">
+              <button
+                onClick={() => handleDocumentTypeChange('cccd')}
+                className={`document-type-btn ${documentType === 'cccd' ? 'active' : ''}`}
+              >
+                <CreditCard size={24} />
+                <div className="document-type-info">
+                  <div className="document-type-name">CCCD/CMND</div>
+                  <div className="document-type-desc">Căn cước công dân</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleDocumentTypeChange('passport')}
+                className={`document-type-btn ${documentType === 'passport' ? 'active' : ''}`}
+              >
+                <BookOpen size={24} />
+                <div className="document-type-info">
+                  <div className="document-type-name">Passport</div>
+                  <div className="document-type-desc">Hộ chiếu</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="upload-grid">
             <FileUploadArea
-              type="cccd"
-              preview={cccdPreview}
+              type="document"
+              preview={documentPreview}
               onFileSelect={handleFileSelect}
-              error={errors.cccd}
-              title="Ảnh CCCD/CMND"
-              icon={Camera}
+              error={errors.document}
+              title={`Ảnh ${documentType === 'cccd' ? 'CCCD/CMND' : 'Passport'}`}
+              icon={documentType === 'cccd' ? CreditCard : BookOpen}
             />
             
             <FileUploadArea
@@ -221,26 +255,20 @@ const EKYCVerificationPage = () => {
             />
           </div>
 
-          {/* General Error */}
           {errors.general && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+            <div className="general-error">
               <AlertCircle size={20} />
               <span>{errors.general}</span>
             </div>
           )}
 
-          {/* Result */}
           {result && (
-            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              result.success 
-                ? 'bg-green-50 border border-green-200 text-green-700' 
-                : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
+            <div className={`result-container ${result.success ? 'result-success' : 'result-error'}`}>
               {result.success ? <CheckCircle size={24} /> : <XCircle size={24} />}
-              <div className="flex-1">
-                <p className="font-medium">{result.message}</p>
+              <div className="result-content">
+                <p className="result-message">{result.message}</p>
                 {result.status && (
-                  <p className="text-sm opacity-75 mt-1">
+                  <p className="result-status">
                     Status: {result.status} • {new Date().toLocaleString('vi-VN')}
                   </p>
                 )}
@@ -248,17 +276,15 @@ const EKYCVerificationPage = () => {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 justify-center">
+          <div className="action-buttons">
             <button
               onClick={handleSubmit}
-              disabled={isLoading || !cccdImage || !faceImage}
-              className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white font-medium rounded-lg 
-                       hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              disabled={isLoading || !documentImage || !faceImage}
+              className="btn btn-primary"
             >
               {isLoading ? (
                 <>
-                  <Loader2 size={20} className="animate-spin" />
+                  <Loader2 size={20} className="spinner" />
                   <span>Đang xác thực...</span>
                 </>
               ) : (
@@ -272,21 +298,22 @@ const EKYCVerificationPage = () => {
             <button
               onClick={handleReset}
               disabled={isLoading}
-              className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg 
-                       hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn btn-secondary"
             >
               Làm mới
             </button>
           </div>
 
-          {/* Instructions */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-medium text-blue-800 mb-2">Hướng dẫn chụp ảnh:</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• <strong>Ảnh CCCD:</strong> Chụp rõ nét, đầy đủ 4 góc, không bị che khuất hoặc phản quang</li>
+          <div className="instructions">
+            <h3 className="instructions-title">Hướng dẫn chụp ảnh:</h3>
+            <ul className="instructions-list">
+              <li>• <strong>Ảnh {documentType === 'cccd' ? 'CCCD/CMND' : 'Passport'}:</strong> Chụp rõ nét, đầy đủ 4 góc, không bị che khuất hoặc phản quang</li>
               <li>• <strong>Ảnh chân dung:</strong> Nhìn thẳng vào camera, đủ ánh sáng, không đeo khẩu trang</li>
               <li>• <strong>Chất lượng:</strong> Cả hai ảnh phải có độ phân giải cao và không bị mờ</li>
               <li>• <strong>Định dạng:</strong> Chỉ chấp nhận file JPEG/PNG, tối đa 5MB mỗi file</li>
+              {documentType === 'passport' && (
+                <li>• <strong>Passport:</strong> Chụp trang có thông tin cá nhân và ảnh chân dung</li>
+              )}
             </ul>
           </div>
         </div>
