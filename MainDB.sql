@@ -81,6 +81,14 @@ CREATE TABLE LivePosts (
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
+CREATE TABLE Auctions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    LivePostID INT NOT NULL,
+    ImageUrl VARCHAR(500) NOT NULL,
+    StartPrice INT NOT NULL CHECK (StartPrice >= 0),
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+
 -- Multi Media URL -- bắt buộc để đảm bảo khóa
 
 -- bảng nối với Post

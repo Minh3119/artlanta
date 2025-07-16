@@ -11,7 +11,10 @@ import jakarta.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
+import model.Auction;
 import model.Live;
+import model.Media;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import util.JsonUtil;
 
@@ -43,8 +46,20 @@ public class GetLive extends HttpServlet {
         try {
             int ID = Integer.parseInt(ID_raw);
             Live live = ld.getOne(ID);
+            List<Auction> list= ld.getAuction(ID);
             JSONObject jsonResponse = new JSONObject();
             JSONObject obj = new JSONObject();
+            
+            JSONArray imageArr = new JSONArray();
+            for (Auction auc : list) {
+                JSONObject item = new JSONObject();
+                item.put("mediaURL", auc.getImageUrl());
+                item.put("startPrice", auc.getStartPrice());
+                imageArr.put(obj);
+            }
+            obj.append("imageUrl", imageArr);
+            
+            
             obj.append("ID", live.getID());
             obj.append("UserID", live.getUserID());
             obj.append("UserName", live.getUserName());

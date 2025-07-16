@@ -20,6 +20,7 @@ class LiveDetailComponent extends React.Component {
         LiveStatus: '',
         Visibility: '',
         LiveID: '',
+        imageList: [],
 
     }
     async componentDidMount() {
@@ -42,8 +43,21 @@ class LiveDetailComponent extends React.Component {
                 },
                 withCredentials: true
             })
-            .then((res) => {
+            .then(async (res) => {
                 const data = res.data.response;
+                const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
+
+                // const filesFromUrls = await Promise.all(
+                //     previewUrls.map(async (item, index) => {
+                //         const response = await fetch(item.mediaURL);
+                //         const blob = await response.blob();
+                //         return ({
+                //             file: new File([blob], `image_${index}`, { type: blob.type }),
+                //             preview: URL.createObjectURL(blob),
+                //             startPrice: item.startPrice,
+                //         });
+                //     })
+                // );
                 this.setState({
                     userID: data.UserID,
                     UserName: data.UserName,
@@ -54,6 +68,7 @@ class LiveDetailComponent extends React.Component {
                     LiveStatus: data.LiveStatus,
                     Visibility: data.Visibility,
                     LiveID: data.LiveID,
+                    imageList: previewUrls,
                 });
             })
             .catch((err) => console.error(err));
@@ -151,6 +166,16 @@ class LiveDetailComponent extends React.Component {
                         // onStateChange={this.onPlayerStateChange}
                         // onError={this.onPlayerError}
                         />
+                        <div className="live-auction-container">
+                            <h2>
+                                Live Auction
+                            </h2>
+                        </div>
+                        <div className="live-gallery-container">
+                            <h2>
+                                Live Gallery
+                            </h2>
+                        </div>
                     </div>
                     <LiveChatComponent
                         View={this.state.View}
