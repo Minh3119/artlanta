@@ -55,9 +55,9 @@ public class GetLive extends HttpServlet {
                 JSONObject item = new JSONObject();
                 item.put("mediaURL", auc.getImageUrl());
                 item.put("startPrice", auc.getStartPrice());
-                imageArr.put(obj);
+                imageArr.put(item);
             }
-            obj.append("imageUrl", imageArr);
+            obj.put("imageUrl", imageArr);
             
             
             obj.append("ID", live.getID());

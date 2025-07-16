@@ -46,7 +46,6 @@ class LiveDetailComponent extends React.Component {
             .then(async (res) => {
                 const data = res.data.response;
                 const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
-
                 // const filesFromUrls = await Promise.all(
                 //     previewUrls.map(async (item, index) => {
                 //         const response = await fetch(item.mediaURL);
@@ -170,6 +169,20 @@ class LiveDetailComponent extends React.Component {
                             <h2>
                                 Live Auction
                             </h2>
+                            <div className="live-auction-list">
+                                {this.state.imageList.map((item, index) => {
+                                    return (
+                                        <div className="live-auction-item" key={index}>
+                                            <div className="image-wrapper">
+                                                <img src={item.mediaURL} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
+                                            </div>
+                                            <p>{item.startPrice}</p>
+                                        </div>
+                                    )
+                                })
+
+                                }
+                            </div>
                         </div>
                         <div className="live-gallery-container">
                             <h2>

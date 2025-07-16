@@ -1,40 +1,55 @@
 import React from "react";
 import { GrStreetView } from "react-icons/gr";
-import ChatStore from "./chatStore";
 class LiveChatComponent extends React.Component {
 
     state = {
         messagesList: [],
         currentMessage: '',
-    };
-    unsubcribe = null;
+    }
     socket = null;
     componentDidMount() {
-        const store = ChatStore.getState();
-        store.connect(this.props.ID);
+        this.connectWebSocket();
+    }
+    // componentDidUpdate() {
+    //     this.props.handleUpdateView();
+    // }
+    connectWebSocket = () => {
+        const ID = this.props.ID;
 
+        this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
 
-        this.unsubscribe = ChatStore.subscribe(
-            (state) => state.messages,
-            (messages) => {
-                this.setState({ messagesList: messages });
+        this.socket.onopen = () => {
+            console.log(" WebSocket connected to ID:", ID);
+        };
+
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const message = {
+                Username: data.Username,
+                Message: data.Message
             }
-        );
+            this.setState((prevState) => ({
+                messagesList: [...prevState.messagesList, message]
+            }));
+        };
+
+        this.socket.onclose = () => {
+            console.log(" WebSocket disconnected");
+        };
+
+        this.socket.onerror = (err) => {
+            console.error(" WebSocket error:", err);
+        };
     }
     componentWillUnmount() {
-        const store = ChatStore.getState();
-        store.disconnect();
-
-
-        if (this.unsubscribe) {
-            this.unsubscribe();
+        if (this.socket) {
+            this.socket.close();
         }
     }
 
     handleSendMessage = () => {
-        if (this.state.currentMessage.trim() !== '') {
-            const store = ChatStore.getState();
-            store.sendMessage(currentMessage);
+        if (this.socket && this.state.currentMessage.trim() !== '') {
+            this.socket.send(this.state.currentMessage);
             this.setState({ currentMessage: '' });
         }
     }
