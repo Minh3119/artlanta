@@ -65,7 +65,15 @@ public class VNPayReturnServlet extends HttpServlet {
             }
 
             String description = "Nạp tiền qua VNPAY, txnRef: " + vnp_TxnRef;
-            transactionDAO.insertTransaction(userId, amountVND, "Nạp tiền vào tài khoản", "vnpay", "VND", description);
+            transactionDAO.insertTransaction(
+                    userId,
+                    amountVND,
+                    "success",
+                    "vnpay",
+                    "VND",
+                    "deposit",
+                    description
+            );
             walletDAO.addBalance(userId, amountVND);
 
             result.addProperty("status", "PAID");

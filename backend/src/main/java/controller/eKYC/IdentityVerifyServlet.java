@@ -4,6 +4,7 @@
  */
 package controller.eKYC;
 
+import dal.ArtistInfoDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import org.json.JSONObject;
 import util.FptOcrService;
+import util.SessionUtil;
 
 /**
  *
@@ -29,6 +31,14 @@ public class IdentityVerifyServlet extends HttpServlet {
         setCORSHeaders(response);
         response.setContentType("application/json");
         JSONObject json = new JSONObject();
+
+        Integer userId = SessionUtil.getCurrentUserId(request.getSession(false));
+        ArtistInfoDAO artistInfoDao = new ArtistInfoDAO();
+
+        if (userId == null) {
+            json.put("success", false);
+            json.put("message", "Phiên đăng nhập hết hạn");
+        }
 
         int maxSizeFile = 5242880;
 
@@ -106,8 +116,15 @@ public class IdentityVerifyServlet extends HttpServlet {
             return;
         }
 
-        json.put("success", true);
-        json.put("message", "Xác thực eKYC thành công.");
+        boolean success = artistInfoDao.updateArtistEKYCToTrue(userId);
+        if (success) {
+            json.put("success", true);
+            json.put("message", "Xác thực eKYC thành công.");
+        } else {
+            json.put("success", false);
+            json.put("message", "Lỗi server");
+        }
+
         response.getWriter().write(json.toString());
     }
 

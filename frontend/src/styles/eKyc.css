@@ -364,3 +364,14 @@ body {
 .instructions-list strong {
   font-weight: 600;
 }
+
+.div-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.div-flex a {
+  color: black;
+  font-size: 18px;
+}

@@ -5,6 +5,7 @@
 package dal;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /**
  *
@@ -29,5 +30,35 @@ public class ArtistInfoDAO extends DBContext {
         }
 
         return false;
+    }
+
+    public boolean updateArtistEKYCToTrue(int userId) {
+        String query = "UPDATE ArtistInfo SET eKYC = TRUE WHERE UserID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean isArtistEKYCVerified(int userId) {
+        String query = "SELECT eKYC FROM ArtistInfo WHERE UserID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("eKYC"); // true hoặc false
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false; 
     }
 }

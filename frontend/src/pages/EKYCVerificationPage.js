@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Loader2, CreditCard, BookOpen } from 'lucide-react';
+import { useNavigate, Link} from "react-router-dom";
 import "../styles/eKyc.css";
 
 const EKYCVerificationPage = () => {
@@ -11,6 +12,28 @@ const EKYCVerificationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
+  useEffect((
+    () => {
+      const checkLogin = async () => {
+      try {
+        const res = await fetch("http://localhost:9999/backend/api/session/check", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!data.loggedIn) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkLogin();
+    }
+  ),[]) 
 
   const validateFile = (file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -92,6 +115,7 @@ const EKYCVerificationPage = () => {
       const response = await fetch('http://localhost:9999/backend/api/verify-identity', {
         method: 'POST',
         body: formData,
+        credentials: "include",
       });
 
       const data = await response.json();
@@ -209,7 +233,12 @@ const EKYCVerificationPage = () => {
 
         <div className="ekyc-card">
           <div className="document-type-section">
-            <h3 className="section-title">Chọn loại giấy tờ tùy thân</h3>
+            <div className="div-flex">
+              <h3 className="section-title">Chọn loại giấy tờ tùy thân</h3>
+              <Link to="/" className="forgot-pass-link">
+                        Back
+              </Link>
+            </div>
             <div className="document-type-buttons">
               <button
                 onClick={() => handleDocumentTypeChange('cccd')}

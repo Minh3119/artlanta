@@ -159,6 +159,7 @@ CREATE TABLE Transactions (
     Amount DECIMAL(12,2),
     Currency VARCHAR(10) DEFAULT 'VND',
     Status VARCHAR(99),
+    TransactionType VARCHAR(50),   -- deposit, withdraw, donate_send, donate_receive
     Description VARCHAR(255),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(ID)
@@ -944,18 +945,19 @@ VALUES
   
 
   
-INSERT INTO Transactions (UserID, PaymentMethod, Amount, Currency, Status, Description, CreatedAt)
+INSERT INTO Transactions (UserID, PaymentMethod, Amount, Currency, Status, TransactionType, Description, CreatedAt)
 VALUES
-(1, 'vnpay', 150000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: a1', '2025-01-01 10:15:00'),
-(2, 'vnpay', 22000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: b2', '2025-06-03 14:20:00'),
-(3, 'stripe', 250.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s1', '2025-06-04 09:10:00'),
-(4, 'paypal', 120.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p1', '2025-07-05 16:00:00'),
-(5, 'vnpay', 10000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: c3', '2025-08-08 13:30:00'),
-(6, 'stripe', 800.99, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s2', '2025-09-10 11:25:00'),
-(7, 'paypal', 600.75, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p2', '2025-012-12 15:40:00'),
-(8, 'vnpay', 50000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: d4', '2026-06-15 18:05:00'),
-(9, 'stripe', 100.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s3', '2028-06-20 08:45:00'),
-(10, 'paypal', 50.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p3', '2027-06-25 17:50:00');
+(1, 'vnpay', 150000.00, 'VND', 'success', 'deposit', 'Nạp tiền qua VNPay, txnRef: a1', '2025-01-01 10:15:00'),
+(2, 'vnpay', 22000.00, 'VND', 'success', 'deposit', 'Nạp tiền qua VNPay, txnRef: b2', '2025-06-03 14:20:00'),
+(3, 'stripe', 250.00, 'USD', 'success', 'deposit', 'Nạp tiền qua Stripe, sessionId: s1', '2025-06-04 09:10:00'),
+(4, 'paypal', 120.50, 'USD', 'success', 'deposit', 'Nạp tiền qua PayPal, orderId: p1', '2025-07-05 16:00:00'),
+(5, 'vnpay', 10000.00, 'VND', 'success', 'deposit', 'Nạp tiền qua VNPay, txnRef: c3', '2025-08-08 13:30:00'),
+(6, 'stripe', 800.99, 'USD', 'success', 'deposit', 'Nạp tiền qua Stripe, sessionId: s2', '2025-09-10 11:25:00'),
+(7, 'paypal', 600.75, 'USD', 'success', 'deposit', 'Nạp tiền qua PayPal, orderId: p2', '2025-12-12 15:40:00'),
+(8, 'vnpay', 50000.00, 'VND', 'success', 'deposit', 'Nạp tiền qua VNPay, txnRef: d4', '2026-06-15 18:05:00'),
+(9, 'stripe', 100.00, 'USD', 'success', 'deposit', 'Nạp tiền qua Stripe, sessionId: s3', '2028-06-20 08:45:00'),
+(10, 'paypal', 50.50, 'USD', 'success', 'deposit', 'Nạp tiền qua PayPal, orderId: p3', '2027-06-25 17:50:00');
+
 
 CREATE TABLE ArtistInfo (
     ID INT AUTO_INCREMENT PRIMARY KEY,

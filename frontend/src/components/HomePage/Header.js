@@ -23,6 +23,7 @@ export default function Header({ openCreatePopup }) {
   const userMenuRef = useRef(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
+  const [eKYC,setEKYC] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -90,6 +91,31 @@ export default function Header({ openCreatePopup }) {
     checkSession();
   }, []);
 
+  useEffect(() => {
+    const checkEKYC = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/check/eKYC",
+          {
+            credentials: "include",
+            method: "POST"
+          }
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.isKYC) {
+          setEKYC(true);
+        }
+      } catch (error) {
+        console.error("Failed to check session:", error);
+      }
+    };
+
+    checkEKYC();
+  }, []);
+
     useEffect(() => {
       const checkRole = async () => {
         try {
@@ -143,6 +169,13 @@ export default function Header({ openCreatePopup }) {
           <div className="artist-invitation-container">
             <Link to="/artistPost" className="artist-invitation__link">
               <p>Bạn muốn làm artist</p>
+            </Link>
+          </div>
+        )}
+        {isLogin && isArtist && !eKYC && (
+          <div className="artist-invitation-container">
+            <Link to="/eKYC" className="artist-invitation__link">
+              <p>Xác minh eKYC</p>
             </Link>
           </div>
         )}
