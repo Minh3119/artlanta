@@ -80,6 +80,10 @@
         <servlet-name>EndLive</servlet-name>
         <servlet-class>controller.Live.EndLive</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LiveKey</servlet-name>
+        <servlet-class>controller.Live.LiveKey</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -231,6 +235,10 @@
     <servlet-mapping>
         <servlet-name>EndLive</servlet-name>
         <url-pattern>/api/live/detail/end</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LiveKey</servlet-name>
+        <url-pattern>/api/live/key</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

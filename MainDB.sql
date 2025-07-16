@@ -421,6 +421,18 @@ CREATE TABLE Messages (
     deletedAt DATETIME NULL
 );
 
+Create table LiveMessages(
+	ID INT AUTO_INCREMENT PRIMARY KEY,
+    SenderID INT,
+    Content TEXT,
+    RoomID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(RoomID) REFERENCES LivePosts(ID),
+    FOREIGN KEY(SenderID) REFERENCES Users(ID),
+    isDeleted BOOLEAN DEFAULT FALSE,
+    deletedAt DATETIME NULL
+);
+
 CREATE TABLE ConversationReads (
     ConversationID INT not null,
     UserID INT not null,

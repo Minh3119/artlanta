@@ -33,7 +33,7 @@ public class CreatePostTest {
     }
 
     @Test
-    void testCreatePostMaxChar() throws InterruptedException {
+    void testCreatePostOneChar() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
         WebElement openPostPopup= driver.findElement(By.id("test-create-btn"));
         openPostPopup.click();
@@ -48,10 +48,52 @@ public class CreatePostTest {
 
         WebElement fileInput = driver.findElement(By.id("file"));
         fileInput.sendKeys("C:/Users/ADMIN/OneDrive/Pictures/ChrisTree.png");
+        Thread.sleep(2000);
 
-//        WebElement visibilitySelect = driver.findElement(By.className("visibility"));
-//        visibilitySelect.click();
-//        visibilitySelect.findElement(By.xpath("//option[@value='PUBLIC']")).click();
+        WebElement createButton = driver.findElement(By.xpath("//button[text()='Create']"));
+        createButton.click();
+
+        Thread.sleep(3000);
+        WebElement toast = driver.findElement(By.className("Toastify__toast"));
+        Assertions.assertTrue(toast.getText().contains("completed"));
+    }
+
+    @Test
+    void testCreatePostNoChar() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        WebElement openPostPopup= driver.findElement(By.id("test-create-btn"));
+        openPostPopup.click();
+        WebElement createPost = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("test-create-post"))
+        );
+        createPost.click();
+        Thread.sleep(1000);
+
+        WebElement content = driver.findElement(By.className("content"));
+        content.sendKeys("      ");
+        Thread.sleep(2000);
+
+        WebElement createButton = driver.findElement(By.xpath("//button[text()='Create']"));
+        createButton.click();
+
+        Thread.sleep(3000);
+        WebElement toast = driver.findElement(By.className("Toastify__toast"));
+        Assertions.assertFalse(toast.getText().contains("completed"));
+    }
+
+    @Test
+    void testCreatePostMaxChar() throws InterruptedException {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+        WebElement openPostPopup= driver.findElement(By.id("test-create-btn"));
+        openPostPopup.click();
+        WebElement createPost = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.id("test-create-post"))
+        );
+        createPost.click();
+        Thread.sleep(1000);
+        WebElement content = driver.findElement(By.className("content"));
+        content.sendKeys("ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+        Thread.sleep(3000);
 
         WebElement createButton = driver.findElement(By.xpath("//button[text()='Create']"));
         createButton.click();
