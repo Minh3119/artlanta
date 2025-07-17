@@ -33,6 +33,11 @@
 			<artifactId>cloudinary-core</artifactId>
 			<version>1.32.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.32.0</version>
+		</dependency>
 		
 		
 		<dependency>
@@ -100,9 +105,30 @@
 			<artifactId>httpcore</artifactId>
 			<version>4.4.16</version>
 		</dependency>
+		
+		<!-- Selenium WebDriver dependencies -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.15.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chrome-driver</artifactId>
+			<version>4.15.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
     
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/webapp/WEB-INF/classes</directory>
+				<targetPath>WEB-INF/classes</targetPath>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
