@@ -6,13 +6,13 @@ import reload from '../../assets/images/reload.svg';
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-    const [users, setUsers] = useState({raw: [], chart_data: [], total_user: 0, mostUserCreDay: "",  total_Mod:0, total_BUser:0});
+    const [users, setUsers] = useState({raw: [], chart_data: [], total_user: 0, mostUserCreDay: "", total_Mod: 0, total_BUser: 0});
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [searchText, setSearchText] = useState("");
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
-    const [isAuthorized, setIsAuthorized] = useState(null); 
+    const [isAuthorized, setIsAuthorized] = useState(null);
 
     const filteredUsers = users.raw.filter(user =>
         user.username?.toLowerCase().includes(searchText.toLowerCase())
@@ -34,11 +34,11 @@ export default function Dashboard() {
                     });
                     setIsAuthorized(true);
                 })
-               .catch((err) => {
-            console.error("Fetch failed:", err);
-    setIsAuthorized(false);
-            navigate("/home");
-        });
+                .catch((err) => {
+                    console.error("Fetch failed:", err);
+                    setIsAuthorized(false);
+                    navigate("/home");
+                });
     };
 
     const groupUsersByDate = (data) => {
@@ -56,10 +56,12 @@ export default function Dashboard() {
 
     const filteredData = useMemo(() => {
         return users.chart_data.filter((item) => {
-            if (fromDate && item.date < fromDate)
+            if (fromDate && item.date < fromDate) {
                 return false;
-            if (toDate && item.date > toDate)
+            }
+            if (toDate && item.date > toDate) {
                 return false;
+            }
             return true;
         });
     }, [users.chart_data, fromDate, toDate]);
@@ -106,24 +108,26 @@ export default function Dashboard() {
         }));
 
 
-   const statusCount = useMemo(() => {
-  const count = {};
-  users.raw.forEach(user => {
-    const status = user.status;
-    if (status) {
-      count[status] = (count[status] || 0) + 1;
-    }
-  });
-  return count;
-}, [users.raw]);
+    const statusCount = useMemo(() => {
+        const count = {};
+        users.raw.forEach(user => {
+            const status = user.status;
+            if (status) {
+                count[status] = (count[status] || 0) + 1;
+            }
+        });
+        return count;
+    }, [users.raw]);
 
-const statusData = Object.entries(statusCount).map(([status, value]) => ({
-  name: status,
-  value,
-}));
+    const statusData = Object.entries(statusCount).map(([status, value]) => ({
+            name: status,
+            value,
+        }));
 
-if (isAuthorized === null) return <div>Đang kiểm tra quyền truy cập...</div>;
-if (isAuthorized === false) return null;
+    if (isAuthorized === null)
+        return <div>Đang kiểm tra quyền truy cập...</div>;
+    if (isAuthorized === false)
+        return null;
 
     return (
             <div className="dashboard">
@@ -190,7 +194,6 @@ if (isAuthorized === false) return null;
                                     <CartesianGrid strokeDasharray="1 3" />
                                     <XAxis dataKey="date" />
                                     <YAxis />
-                                    <Tooltip />
                                     <Line type="monotone" dataKey="count" stroke="#8884d8" />
                                 </LineChart>
                             </ResponsiveContainer>
@@ -244,7 +247,7 @@ if (isAuthorized === false) return null;
                                                                                         padding: '6px 12px',
                                                                                         borderRadius: 6,
                                                                                         border: 'none',
-                                                                                        backgroundColor: user.status === 'ACTIVE' ? '#28a745' : '#dc3545',
+                                                backgroundColor: user.status === 'ACTIVE' ? '#28a745' : '#dc3545',
                                                 color: '#fff',
                                                 cursor: 'pointer'
                                             }}
@@ -273,7 +276,7 @@ if (isAuthorized === false) return null;
                                         padding: '6px 12px',
                                         borderRadius: 6,
                                         border: 'none',
-                                        backgroundColor: '#007bff',
+                    backgroundColor: '#007bff',
                     color: '#fff',
                     cursor: 'pointer'
                 }}
@@ -285,7 +288,7 @@ if (isAuthorized === false) return null;
                                 onClick={() => window.location.reload()}
                                 style={{
                     borderRadius: 6,
-                    border: 'none',
+                                        border: 'none',
                                     }}
                                 >
                                 <img src={reload} alt="alt" style={{
@@ -301,16 +304,16 @@ if (isAuthorized === false) return null;
                                                                                     top: 0, left: 0, right: 0, bottom: 0,
                                                                                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                                                                     display: 'flex',
-                                                                                    justifyContent: 'center',
+                                                                justifyContent: 'center',
                                                                 alignItems: 'center',
                                                                 zIndex: 1000
-                                                            }}
+                                                                                    }}
                                                 >
                                                 <div
                                                     style={{
                                                                                 backgroundColor: '#fff',
                                                                                 padding: 20,
-                                                                                borderRadius: 10,
+                                                        borderRadius: 10,
                                                         width: '400px',
                                                         position: 'relative'
                                                     }}
@@ -322,7 +325,7 @@ if (isAuthorized === false) return null;
                                                                                     top: 10,
                                                                                     right: 10,
                                                                                     background: 'transparent',
-                                                                                    border: 'none',
+                                                        border: 'none',
                                                         fontSize: 18,
                                                         cursor: 'pointer'
                                                     }}
@@ -369,7 +372,7 @@ if (isAuthorized === false) return null;
                                                                                         padding: '6px 12px',
                                                                                         borderRadius: 6,
                                                                                         border: 'none',
-                                                                                        backgroundColor: user.status === 'ACTIVE' ? '#28a745' : '#dc3545',
+                                                backgroundColor: user.status === 'ACTIVE' ? '#28a745' : '#dc3545',
                                                 color: '#fff',
                                                 cursor: 'pointer'
                                             }}
@@ -416,56 +419,56 @@ if (isAuthorized === false) return null;
                                 </div>
                             </div>
                         </div>
-                        <div style={{display:'flex', marginTop:'50px'}}>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie
-                                    data={roleData}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={100}
-                                    label
-                                    >
-                                    {roleData.map((entry, index) => (
-                                                            <Cell
-                                                            key={`cell-${index}`}
-                                                            fill={
-                                                                ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#a28fd0"][
-                                                                        index % 5
-                                                                                        ]
-                                                            }
-                                                            />
+                        <div style={{display: 'flex', marginTop: '50px'}}>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={roleData}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        label
+                                        >
+                                        {roleData.map((entry, index) => (
+                                                                <Cell
+                                                                key={`cell-${index}`}
+                                                                fill={
+                                                                    ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#a28fd0"][
+                                                                                                        index % 5
+                                                                    ]
+                                                                }
+                                                                />
                             ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <ResponsiveContainer width="100%" height={300}>
-  <PieChart>
-    <Pie
-      data={statusData}
-      dataKey="value"
-      nameKey="name"
-      cx="50%"
-      cy="50%"
-      outerRadius={100}
-      label
-    >
-      {statusData.map((entry, index) => (
-        <Cell
-          key={`status-cell-${index}`}
-          fill={["#28a745", "#ffc107", "#dc3545"][index % 3]} // Active - Yellow - Red
-        />
-      ))}
-    </Pie>
-    <Tooltip />
-    <Legend />
-  </PieChart>
-</ResponsiveContainer>
-</div>
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={statusData}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={100}
+                                        label
+                                        >
+                                        {statusData.map((entry, index) => (
+                                                            <Cell
+                                                                key={`status-cell-${index}`}
+                                                                fill={["#28a745", "#ffc107", "#dc3545"][index % 3]} // Active - Yellow - Red
+                                                                />
+                            ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     </section>
                 </div>
             </div>

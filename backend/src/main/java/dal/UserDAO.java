@@ -575,4 +575,23 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+	
+	public boolean isEKYCVerified(int userId) {
+    String sql = "SELECT eKYC FROM ArtistInfo WHERE UserID = ?";
+    
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getBoolean("eKYC");
+        } else {
+            return false; // không tìm thấy userID
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false; 
+    }
+}
+
 }
