@@ -39,6 +39,7 @@ import EditPricingComponent from "../components/UserProfileEdit/editPricingCompo
 import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountComponent";
 import ArtistFormContainer from "../components/ArtistForm/ArtistFormContainer";
 import EKYC from "./EKYCVerificationPage.js";
+import Withdraw from "./Withdraw.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -80,6 +81,7 @@ function App() {
           </Route>
           <Route path="/artistPost" element={<ArtistFormContainer />}></Route>
           <Route path="/eKYC" element={<EKYC/>}></Route>
+          <Route path="/withdraw" element={<Withdraw/>}></Route>
         </Routes>
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}

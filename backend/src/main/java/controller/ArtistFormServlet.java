@@ -4,6 +4,7 @@
  */
 package controller;
 
+import com.stripe.exception.StripeException;
 import dal.ArtistInfoDAO;
 import dal.UserDAO;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.io.BufferedReader;
 import org.json.JSONObject;
 import util.SessionUtil;
 import java.security.SecureRandom;
+import util.PayoutUtils;
 
 /**
  *
@@ -73,7 +75,7 @@ public class ArtistFormServlet extends HttpServlet {
         }
     }
 
-    private void saveArtistInfo(HttpServletRequest request, HttpServletResponse response, JSONObject body) throws IOException {
+    private void saveArtistInfo(HttpServletRequest request, HttpServletResponse response, JSONObject body) throws IOException, StripeException {
         JSONObject json = new JSONObject();
         ArtistInfoDAO artistInfoDao = new ArtistInfoDAO();
         UserDAO userDAO = new UserDAO();
@@ -93,6 +95,13 @@ public class ArtistFormServlet extends HttpServlet {
             json.put("message", "Artist info saved.");
 
             boolean changeRoleToArtist = userDAO.setUserRoleToArtist(userID);
+            String userEmail = userDAO.getOne(userID).getEmail();
+            System.out.println("Creating Stripe account for: " + userEmail);
+            String stripeAccountId = PayoutUtils.createConnectedAccount(userEmail);
+            System.out.println("Stripe account created: " + stripeAccountId);
+            boolean updateStripeAccount = artistInfoDao.updateStripeAccountId(userID, stripeAccountId);
+            System.out.println("Updated DB with Stripe ID: " + updateStripeAccount);
+            
         } else {
             json.put("success", false);
             json.put("message", "Failed to insert artist info.");

@@ -298,6 +298,11 @@ export default function Header({ openCreatePopup }) {
                   </Link>
                 )}
                 {userID != 0 && (
+                  <Link to="/withdraw" className="user-menu-item">
+                    Withdraw
+                  </Link>
+                )}
+                {userID != 0 && (
                   <Link to="/paymentHis" className="user-menu-item">
                     Transaction History
                   </Link>
