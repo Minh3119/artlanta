@@ -141,6 +141,14 @@ class LiveDetailComponent extends React.Component {
                 this.setState({ timeLeft: data.Message });
                 return;
             }
+            else if (data.Type === "HideAuction") {
+                // Ẩn auction có index = data.AuctionIndex
+                this.setState(prev => ({
+                    imageBidList: prev.imageBidList.map((item, index) =>
+                        index === data.Message ? { ...item, hidden: true } : item
+                    )
+                }));
+            }
 
 
         };
@@ -273,6 +281,7 @@ class LiveDetailComponent extends React.Component {
 
                                 <div className="live-auction-list">
                                     {this.state.imageBidList.map((item, index) => {
+                                        if (item.hidden) return null;
                                         return (
                                             <div className="live-auction-item" key={index}>
                                                 <div className="image-wrapper">
