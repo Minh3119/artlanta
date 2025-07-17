@@ -37,6 +37,8 @@ import EditPasswordComponent from "../components/UserProfileEdit/editPasswordCom
 import EditNotificationComponent from "../components/UserProfileEdit/editNotificationComponent";
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
 import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountComponent";
+import ArtistFormContainer from "../components/ArtistForm/ArtistFormContainer";
+import EKYC from "./EKYCVerificationPage.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -76,6 +78,8 @@ function App() {
             <Route path="editpricing" element={<EditPricingComponent />} />
             <Route path="deleteaccount" element={<DeleteAccountComponent />} />
           </Route>
+          <Route path="/artistPost" element={<ArtistFormContainer />}></Route>
+          <Route path="/eKYC" element={<EKYC/>}></Route>
         </Routes>
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}

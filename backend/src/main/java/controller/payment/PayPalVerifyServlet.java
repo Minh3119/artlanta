@@ -54,9 +54,10 @@ public class PayPalVerifyServlet extends HttpServlet {
         transactionDAO.insertTransaction(
                 userId,
                 amountUSD,
-                "Nạp tiền vào tài khoản",
-                "paypal",
-                "USD",
+                "success", 
+                "paypal", 
+                "USD", 
+                "deposit", 
                 "PayPal order ID: " + orderID
         );
 
@@ -71,15 +72,16 @@ public class PayPalVerifyServlet extends HttpServlet {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = request.getReader()) {
             String line;
-            while ((line = br.readLine()) != null)
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
+            }
         }
         return JsonParser.parseString(sb.toString()).getAsJsonObject();
     }
 
     private void setCORSHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        response.setHeader("Access-Control-Allow-Credentials", "true"); 
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
     }
