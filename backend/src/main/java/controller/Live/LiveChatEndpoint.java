@@ -24,11 +24,59 @@ import util.JsonUtil;
 import util.SessionUtil;
 
 @ServerEndpoint(value = "/api/live/chat",
-        encoders= {ChatMessageEncode.class},
+        encoders = {ChatMessageEncode.class},
         configurator = HttpSessionConfigurator.class)
 public class LiveChatEndpoint {
 
     private static final Map<String, Set<Session>> roomMap = new HashMap<>();
+    private static final Map<String, Integer> roomTimers = new HashMap<>();
+    private static final Map<String, Thread> timerThreads = new HashMap<>();
+
+    private void startTimerForRoom(String ID, int startTimeInSeconds) {
+        if (timerThreads.containsKey(ID)) {
+            return;
+        }
+        Thread timerThread = new Thread(() -> {
+            int time = startTimeInSeconds;
+            roomTimers.put(ID, time);
+            while (time >= 0) {
+                synchronized (roomMap) {
+                    Set<Session> sessions = roomMap.get(ID);
+                    if (sessions != null) {
+                        for (Session session : sessions) {
+                            if (session.isOpen()) {
+                                try {
+                                    session.getBasicRemote().sendText(
+                                            new JSONObject()
+                                                    .put("Type", "Timer")
+                                                    .put("Timer", time)
+                                                    .toString()
+                                    );
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+                time--;
+            }
+
+            // timeout
+            synchronized (roomMap) {
+                roomTimers.remove(ID);
+                timerThreads.remove(ID);
+            }
+        });
+
+        timerThread.start();
+        timerThreads.put(ID, timerThread);
+    }
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -54,14 +102,38 @@ public class LiveChatEndpoint {
 
         session.getUserProperties().put("ID", ID);
         session.getUserProperties().put("Username", Username);
-//        System.out.println(session.getId());
+
+
+        if (!roomTimers.containsKey(ID)) {
+            startTimerForRoom(ID, 60);
+        } else {
+            int currentTimeLeft = roomTimers.get(ID);
+            try {
+                session.getBasicRemote().sendText(
+                        new JSONObject()
+                                .put("Type", "Timer")
+                                .put("Timer", currentTimeLeft)
+                                .toString()
+                );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @OnMessage
     public void onMessage(String message, Session senderSession) throws IOException, EncodeException {
         String ID = (String) senderSession.getUserProperties().get("ID");
         String Username = (String) senderSession.getUserProperties().get("Username");
-        
+        String Type;
+        if (message.startsWith("Bid")) {
+            Type = "Bid";
+        } else {
+            Type = "Chat";
+        }
+//        else{
+//            Type= "Timer";
+//        }
 
         if (ID == null) {
             return;
@@ -73,7 +145,7 @@ public class LiveChatEndpoint {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
 //                        session.getBasicRemote().sendText(message);
-                        session.getBasicRemote().sendObject(new LiveChatMessage(Username,message));
+                        session.getBasicRemote().sendObject(new LiveChatMessage(ID, Username, Type, message));
                     }
                 }
             }
@@ -90,10 +162,15 @@ public class LiveChatEndpoint {
                     sessions.remove(session);
                     if (sessions.isEmpty()) {
                         roomMap.remove(ID);
+                        Thread t = timerThreads.remove(ID);
+                        if (t != null) {
+                            t.interrupt();
+                        }
                     }
                 }
             }
         }
+
     }
 
     @OnError

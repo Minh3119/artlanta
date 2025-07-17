@@ -11,8 +11,11 @@ public class ChatMessageEncode implements Encoder.Text<LiveChatMessage> {
     @Override
     public String encode(LiveChatMessage msg) {
         JSONObject json = new JSONObject();
+        json.put("UserID", msg.getUserID());  
         json.put("Username", msg.getUsername());
         json.put("Message", msg.getMessage());
+        json.put("Type", msg.getType());
+         
         return json.toString();
     }
 

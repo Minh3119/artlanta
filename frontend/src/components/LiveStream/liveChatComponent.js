@@ -5,6 +5,7 @@ class LiveChatComponent extends React.Component {
     state = {
         messagesList: [],
         currentMessage: '',
+
     }
     socket = null;
     componentDidMount() {
@@ -13,6 +14,12 @@ class LiveChatComponent extends React.Component {
     // componentDidUpdate() {
     //     this.props.handleUpdateView();
     // }
+
+    // startTimer = (durationInSeconds) => {
+    //     if (this.socket) {
+    //         this.socket.send("Timer:" + durationInSeconds);
+    //     }
+    // };
     connectWebSocket = () => {
         const ID = this.props.ID;
 
@@ -24,14 +31,26 @@ class LiveChatComponent extends React.Component {
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            const message = {
-                Username: data.Username,
-                Message: data.Message
+            if (data.Type === "Chat") {
+                const message = {
+                    Username: data.Username,
+                    Message: data.Message
+                }
+                this.setState((prevState) => ({
+                    messagesList: [...prevState.messagesList, message]
+                }));
             }
-            this.setState((prevState) => ({
-                messagesList: [...prevState.messagesList, message]
-            }));
+            else if (data.Type === "Bid") {
+
+            }
+            else if (data.Type === "Timer") {
+                const serverTimeLeft = parseInt(data.Timer);
+                if (!isNaN(serverTimeLeft)) {
+                    this.props.onTimerChange?.(serverTimeLeft);
+                }
+            }
         };
+
 
         this.socket.onclose = () => {
             console.log(" WebSocket disconnected");
@@ -45,6 +64,7 @@ class LiveChatComponent extends React.Component {
         if (this.socket) {
             this.socket.close();
         }
+
     }
 
     handleSendMessage = () => {

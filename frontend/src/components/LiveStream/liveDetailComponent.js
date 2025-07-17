@@ -1,9 +1,10 @@
 import React from "react";
 import YouTube from 'react-youtube';
 import '../../styles/live.scss';
-
+import logo from '../../assets/images/arlanta.svg';
 import { Navigate, useParams } from 'react-router-dom';
 import LiveChatComponent from "./liveChatComponent";
+import imageCompression from 'browser-image-compression';
 import axios from 'axios';
 class LiveDetailComponent extends React.Component {
     state = {
@@ -20,9 +21,13 @@ class LiveDetailComponent extends React.Component {
         LiveStatus: '',
         Visibility: '',
         LiveID: '',
-        imageList: [],
+        imageBidList: [],
+        realBidImage: [],
+        isLoading: true,
+        timeLeft: null,
 
     }
+    timerInterval = null;
     async componentDidMount() {
         await axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
             .then((res) => {
@@ -44,19 +49,39 @@ class LiveDetailComponent extends React.Component {
                 withCredentials: true
             })
             .then(async (res) => {
+                const options = {
+                    maxSizeMB: 0.1,
+                    maxWidthOrHeight: 1024,
+                    useWebWorker: true,
+                };
                 const data = res.data.response;
                 const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
-                // const filesFromUrls = await Promise.all(
-                //     previewUrls.map(async (item, index) => {
-                //         const response = await fetch(item.mediaURL);
-                //         const blob = await response.blob();
-                //         return ({
-                //             file: new File([blob], `image_${index}`, { type: blob.type }),
-                //             preview: URL.createObjectURL(blob),
-                //             startPrice: item.startPrice,
-                //         });
-                //     })
-                // );
+                const filesFromUrls = await Promise.all(
+                    previewUrls.map(async (item, index) => {
+                        const response = await fetch(item.mediaURL);
+                        const blob = await response.blob();
+                        return ({
+                            file: new File([blob], `image_${index}`, { type: blob.type }),
+                            preview: URL.createObjectURL(blob),
+                            startPrice: item.startPrice,
+                            isBid: false,
+                            userIDWithBid: null,
+                        });
+                    })
+                );
+                const compressedFile = await Promise.all(
+                    filesFromUrls.map(async (item) => {
+                        const compressed = await imageCompression(item.file, options);
+                        return {
+                            file: compressed,
+                            preview: URL.createObjectURL(compressed),
+                            startPrice: item.startPrice,
+                            isBid: false,
+                            userIDWithBid: null,
+                        };
+                    })
+                )
+
                 this.setState({
                     userID: data.UserID,
                     UserName: data.UserName,
@@ -67,13 +92,30 @@ class LiveDetailComponent extends React.Component {
                     LiveStatus: data.LiveStatus,
                     Visibility: data.Visibility,
                     LiveID: data.LiveID,
-                    imageList: previewUrls,
+                    imageBidList: compressedFile,
+                    realBidImage: previewUrls,
+                    isLoading: false,
                 });
             })
             .catch((err) => console.error(err));
         this.handleUpdateView();
 
     }
+    componentWillUnmount() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+    }
+    handleTimerFromChild = (serverTimeLeft) => {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.setState({ timeLeft: serverTimeLeft });
+
+        this.timerInterval = setInterval(() => {
+            this.setState(prev => {
+                if (prev.timeLeft > 0) return { timeLeft: prev.timeLeft - 1 };
+                clearInterval(this.timerInterval);
+                return { timeLeft: 0 };
+            });
+        }, 1000);
+    };
     onPlayerReady = (event) => {
         event.target.playVideo();
     };
@@ -149,58 +191,73 @@ class LiveDetailComponent extends React.Component {
 
         };
         return (
-            <div className="live-container">
-                <div className="live-header">
-                    {/* <h1>{ID}</h1> */}
-                    <h1>{this.state.UserName} / {this.state.Title}</h1>
-                    <button onClick={() => this.handleExit()}>X</button>
 
-                </div >
-                <div className="live-body">
-                    <div className="live-display">
-                        <YouTube
-                            videoId={this.state.LiveID}
-                            opts={optsForVideo}
-                        // onReady={this.onPlayerReady}
-                        // onStateChange={this.onPlayerStateChange}
-                        // onError={this.onPlayerError}
-                        />
-                        <div className="live-auction-container">
-                            <h2>
-                                Live Auction
-                            </h2>
-                            <div className="live-auction-list">
-                                {this.state.imageList.map((item, index) => {
-                                    return (
-                                        <div className="live-auction-item" key={index}>
-                                            <div className="image-wrapper">
-                                                <img src={item.mediaURL} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
+            this.state.isLoading ?
+                <div className="loading-container">
+                    <span>Loading ...</span>
+                    <img
+                        src={logo}
+                        alt="Loading..."
+                        className="loading-spinner"
+                    /></div>
+                :
+                < div className="live-container" >
+                    <div className="live-header">
+                        {/* <h1>{ID}</h1> */}
+                        <h1>{this.state.UserName} / {this.state.Title}</h1>
+                        <button onClick={() => this.handleExit()}>X</button>
+
+                    </div >
+                    <div className="live-body">
+                        <div className="live-display">
+                            <YouTube
+                                videoId={this.state.LiveID}
+                                opts={optsForVideo}
+                            // onReady={this.onPlayerReady}
+                            // onStateChange={this.onPlayerStateChange}
+                            // onError={this.onPlayerError}
+                            />
+                            <div className="live-auction-container">
+                                <h2>
+                                    <div className="auction-header">Live Auction</div>
+                                    <div>{this.state.timeLeft}</div>
+                                </h2>
+
+                                <div className="live-auction-list">
+                                    {this.state.imageBidList.map((item, index) => {
+                                        return (
+                                            <div className="live-auction-item" key={index}>
+                                                <div className="image-wrapper">
+                                                    <img src={item.preview} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
+                                                </div>
+                                                <p>{item.startPrice}</p>
                                             </div>
-                                            <p>{item.startPrice}</p>
-                                        </div>
-                                    )
-                                })
+                                        )
+                                    })
 
-                                }
+                                    }
+                                </div>
+                            </div>
+                            <div className="live-gallery-container">
+                                <h2>
+                                    Live Gallery
+                                </h2>
                             </div>
                         </div>
-                        <div className="live-gallery-container">
-                            <h2>
-                                Live Gallery
-                            </h2>
-                        </div>
+                        <LiveChatComponent
+                            View={this.state.View}
+                            handleUpdateView={this.handleUpdateView}
+                            ID={this.props.params.ID}
+                            onTimerChange={this.handleTimerFromChild}
+
+                        />
+
+
                     </div>
-                    <LiveChatComponent
-                        View={this.state.View}
-                        handleUpdateView={this.handleUpdateView}
-                        ID={this.props.params.ID}
 
-                    />
+                </div >
 
 
-                </div>
-
-            </div >
         )
     }
 }
