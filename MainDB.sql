@@ -164,31 +164,6 @@ CREATE TABLE Transactions (
     FOREIGN KEY (UserID) REFERENCES Users(ID)
 );
 
-
-CREATE TABLE CommissionPricing (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    ArtistID INT,
-    Title VARCHAR(100),
-    Description VARCHAR(500),
-    Price INT,
-    EstimatedDays INT,
-    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
-);
-
--- COMMISSION REQUESTS
-CREATE TABLE CommissionRequest (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    ClientID INT,
-    ArtistID INT,
-    Title VARCHAR(100),
-    Description VARCHAR(1000),
-    ReferenceURL VARCHAR(255),
-    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Status VARCHAR(20) DEFAULT 'PENDING' CHECK (Status IN ('PENDING', 'APPROVED', 'REJECTED')),
-    FOREIGN KEY(ClientID) REFERENCES Users(ID),
-    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
-);
-
 -- PAYMENT
 CREATE TABLE Payment (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -197,26 +172,60 @@ CREATE TABLE Payment (
     Tax INT DEFAULT 5
 );
 
--- COMMISSIONS
-CREATE TABLE Commission (
+
+-- COMMISSION 
+CREATE TABLE CommissionRequest (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    RequestID INT NOT NULL,
-    PaymentID INT,
-    Deadline DATETIME,
-    Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
-    FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
+    ClientID INT NOT NULL,                            -- người thuê
+    ArtistID INT NOT NULL,                            -- người được thuê
+	ShortDescription TEXT NOT NULL,                   -- mô tả yêu cầu                 
+    ReferenceURL VARCHAR(255),                        -- ảnh/tham khảo gửi kèm (nếu có)
+    ProposedPrice DECIMAL(10,2),                      -- giá khách đề xuất (có thể bị thương lượng qua tin nhắn)
+    ProposedDeadline DATETIME,                        -- thời gian mong muốn hoàn thành
+    Status ENUM('PENDING', 'REJECTED', 'ACCEPTED') DEFAULT 'PENDING', -- trạng thái duyệt
+    ArtistReply TEXT,                                 -- phản hồi ngắn từ artist nếu từ chối
+    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,     -- thời điểm gửi yêu cầu
+    RespondedAt DATETIME,                             -- thời điểm artist phản hồi (accept/reject)
+    FOREIGN KEY(ClientID) REFERENCES Users(ID),
+    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
 );
 
--- COMMISSION PROGRESS
-CREATE TABLE CommissionProgress (
+
+CREATE TABLE Commission (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    CommissionID INT,
-    Note VARCHAR(1000),
-    MediaURL VARCHAR(255),
-    ProgressAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(CommissionID) REFERENCES Commission(ID)
+    RequestID INT UNIQUE NOT NULL,            -- gắn với request đã được ACCEPTED
+    Title VARCHAR(100),                       -- tiêu đề tóm tắt (có thể copy từ request)
+    Description TEXT,                         -- mô tả cuối cùng sau khi chốt
+    Price DECIMAL(10,2) NOT NULL,             -- giá cuối đã thống nhất
+    Deadline DATETIME NOT NULL,               -- hạn cuối mà artist phải nộp
+    FileDeliveryURL VARCHAR(255),             -- link tải bản hoàn chỉnh (nếu có)
+    Status ENUM('IN_PROGRESS', 'COMPLETED', 'CANCELLED') DEFAULT 'IN_PROGRESS',
+    ArtistSeenFinal BOOLEAN DEFAULT FALSE,    -- đánh dấu artist đã gửi xong chưa
+    ClientConfirmed BOOLEAN DEFAULT FALSE,    -- đánh dấu client đã xác nhận hoàn tất chưa
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID)
+);
+
+CREATE TABLE CommissionRequirementDetail (
+    ID           INT AUTO_INCREMENT PRIMARY KEY,
+    CommissionID INT NOT NULL REFERENCES Commission(ID),
+    DetailKey    VARCHAR(50) NOT NULL COMMENT 'ví dụ: specs, style, materials…',
+    DetailValue  TEXT        NOT NULL COMMENT 'giá trị tương ứng',
+    CreatedAt    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE CommissionHistory (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    CommissionID INT NOT NULL,
+    ChangedField VARCHAR(50),       
+    OldValue TEXT,
+    NewValue TEXT,
+    ChangedBy INT,                     
+    ChangedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
+    FOREIGN KEY(ChangedBy) REFERENCES Users(ID)
 );
 
 -- REVIEWS
@@ -599,31 +608,6 @@ INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (28, 7, 'ACCEPTED', '2025-06-11');
 
 
-INSERT INTO CommissionPricing (ArtistID, Title, Description, Price, EstimatedDays) VALUES
-(1, 'Portrait Sketch', 'Phác thảo chân dung đơn giản.', 100000, 3),
-(2, 'Digital Painting', 'Tranh kỹ thuật số chi tiết.', 500000, 7),
-(3, 'Custom 3D Model', 'Mẫu 3D theo yêu cầu.', 1000000, 14),
-(4, 'Watercolor Painting', 'Tranh màu nước.', 300000, 5),
-(5, 'Character Design', 'Thiết kế nhân vật.', 400000, 6),
-(6, 'Abstract Art', 'Tranh trừu tượng.', 350000, 5),
-(7, 'Photography Session', 'Chụp ảnh nghệ thuật.', 700000, 2),
-(8, 'Animation Clip', 'Video hoạt hình ngắn.', 1500000, 20),
-(9, 'Logo Design', 'Thiết kế logo cá nhân.', 200000, 3),
-(10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu.', 600000, 8);
-
-
-INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, ReferenceURL, RequestAt, Status) VALUES
-(2, 1, 'Portrait Request', 'Xin vẽ chân dung theo ảnh.', 'http://ref1.com', '2025-04-20', 'PENDING'),
-(3, 2, 'Landscape Painting', 'Tranh phong cảnh Việt Nam.', 'http://ref2.com', '2025-04-21', 'APPROVED'),
-(4, 3, '3D Model Request', 'Mẫu 3D nhân vật game.', 'http://ref3.com', '2025-04-22', 'REJECTED'),
-(5, 4, 'Watercolor Request', 'Tranh màu nước phong cảnh.', 'http://ref4.com', '2025-04-23', 'PENDING'),
-(6, 5, 'Character Design', 'Thiết kế nhân vật hoạt hình.', 'http://ref5.com', '2025-04-24', 'PENDING'),
-(7, 6, 'Abstract Painting', 'Yêu cầu tranh trừu tượng.', 'http://ref6.com', '2025-04-25', 'APPROVED'),
-(8, 7, 'Photography Shoot', 'Chụp ảnh cá nhân.', 'http://ref7.com', '2025-04-26', 'PENDING'),
-(9, 8, 'Animation Clip', 'Làm video hoạt hình.', 'http://ref8.com', '2025-04-27', 'APPROVED'),
-(10, 9, 'Logo Design', 'Thiết kế logo công ty.', 'http://ref9.com', '2025-04-28', 'REJECTED'),
-(1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
-
 -- Sample Media data with real, lightweight image URLs
 INSERT INTO Media (URL, Description) VALUES
 ('https://i.pinimg.com/736x/0e/e2/f5/0ee2f5afea2a6dc5108298b410751cc8.jpg', 'Cute character illustration'),
@@ -956,4 +940,82 @@ VALUES
 (8, 'vnpay', 50000.00, 'VND', 'Nạp tiền vào tài khoản', 'Nạp tiền qua VNPay, txnRef: d4', '2026-06-15 18:05:00'),
 (9, 'stripe', 100.00, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua Stripe, sessionId: s3', '2028-06-20 08:45:00'),
 (10, 'paypal', 50.50, 'USD', 'Nạp tiền vào tài khoản', 'Nạp tiền qua PayPal, orderId: p3', '2027-06-25 17:50:00');
+
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES
+(2, 1, 'Portrait of my pet', 'https://imgur.com/pet.jpg', 200000, '2025-07-01', 'PENDING', NULL, '2025-06-15', NULL),
+(3, 2, 'Landscape painting of Hanoi', NULL, 500000, '2025-07-10', 'REJECTED', 'Sorry, I am busy this month.', '2025-06-16', '2025-06-17'),
+(4, 3, 'Anime style character', 'https://imgur.com/char.jpg', 350000, '2025-07-05', 'ACCEPTED', NULL, '2025-06-18', '2025-06-19');
+
+-- Commission sample data (assuming the 3rd request was accepted)
+INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
+VALUES
+(3, 'Anime Character Commission', 'Finalized anime character design as discussed.', 350000, '2025-07-05', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-19', '2025-06-19');
+
+-- CommissionRequirementDetail sample data
+INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
+VALUES
+(1, 'Style', 'Anime, vibrant colors'),
+(1, 'Format', 'PNG, 3000x4000px'),
+(1, 'Background', 'Transparent');
+
+-- CommissionHistory sample data
+INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+VALUES
+(1, 'Status', 'IN_PROGRESS', 'COMPLETED', 3),
+(1, 'Price', '350000', '370000', 4);
+
+-- User 1 as Client, User 2 as Artist
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES
+(1, 2, 'Chibi portrait in anime style', 'https://imgur.com/chibi1.jpg', 120000, '2025-07-15', 'PENDING', NULL, '2025-06-20', NULL),
+(1, 2, 'Realistic pet painting', 'https://imgur.com/pet2.jpg', 300000, '2025-07-20', 'REJECTED', 'Sorry, I do not paint pets.', '2025-06-21', '2025-06-22'),
+(1, 2, 'Landscape with mountains', NULL, 250000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
+
+-- User 2 as Client, User 1 as Artist
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES
+(2, 1, 'Cartoon avatar', 'https://imgur.com/avatar2.jpg', 90000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
+(2, 1, 'Family portrait', NULL, 400000, '2025-07-30', 'REJECTED', 'Currently not accepting new commissions.', '2025-06-26', '2025-06-27'),
+(2, 1, 'Fantasy character full body', 'https://imgur.com/fantasy1.jpg', 350000, '2025-08-01', 'ACCEPTED', NULL, '2025-06-28', '2025-06-29');
+
+-- For accepted requests, create corresponding commissions
+-- Let's assume the accepted requests above have IDs 6 and 9 (update IDs as per your DB auto-increment)
+-- You may need to check the actual IDs after insertion
+
+-- For (1,2) Landscape with mountains (assume CommissionRequest ID = 6)
+INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
+VALUES
+(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 250000, '2025-07-25', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-24', '2025-06-24');
+
+-- For (2,1) Fantasy character full body (assume CommissionRequest ID = 9)
+INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
+VALUES
+(9, 'Fantasy Character Full Body', 'Full body fantasy character illustration.', 350000, '2025-08-01', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-29', '2025-06-29');
+
+-- For CommissionID 2 (Landscape with Mountains)
+INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
+VALUES
+(2, 'Style', 'Realistic'),
+(2, 'Size', 'A3'),
+(2, 'Color', 'Vibrant');
+
+-- For CommissionID 3 (Fantasy Character Full Body)
+INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
+VALUES
+(3, 'Pose', 'Dynamic action'),
+(3, 'Background', 'Simple gradient'),
+(3, 'Outfit', 'Medieval armor');
+
+-- For CommissionID 2
+INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+VALUES
+(2, 'Status', 'IN_PROGRESS', 'COMPLETED', 2),
+(2, 'Price', '250000', '270000', 1);
+
+-- For CommissionID 3
+INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+VALUES
+(3, 'Status', 'IN_PROGRESS', 'CANCELLED', 1),
+(3, 'Deadline', '2025-08-01', '2025-08-10', 2);
 
