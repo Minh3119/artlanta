@@ -25,9 +25,10 @@ class LiveDetailComponent extends React.Component {
         realBidImage: [],
         isLoading: true,
         timeLeft: null,
+        messagesList: [],
 
     }
-    timerInterval = null;
+    socket = null;
     async componentDidMount() {
         await axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
             .then((res) => {
@@ -99,26 +100,69 @@ class LiveDetailComponent extends React.Component {
             })
             .catch((err) => console.error(err));
         this.handleUpdateView();
+        if (!this.socket) {
+            this.connectWebSocket();
+        }
+    }
+    connectWebSocket = () => {
+        const ID = this.props.params.ID;
 
+        this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
+
+        this.socket.onopen = () => {
+            console.log(" WebSocket connected to ID:", ID);
+        };
+
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.Type === "Chat") {
+                const message = {
+                    Type: data.Type,
+                    UserID: data.UserID,
+                    Username: data.Username,
+                    Message: data.Message
+                }
+                this.setState((prevState) => ({
+                    messagesList: [...prevState.messagesList, message]
+                }));
+            }
+            else if (data.Type === "Bid") {
+                const message = {
+                    Type: data.Type,
+                    UserID: data.UserID,
+                    Username: data.Username,
+                    Message: data.Message
+                }
+                this.setState((prevState) => ({
+                    messagesList: [...prevState.messagesList, message]
+                }));
+            }
+
+
+        };
+
+
+        this.socket.onclose = () => {
+            console.log(" WebSocket disconnected");
+        };
+
+        this.socket.onerror = (err) => {
+            console.error(" WebSocket error:", err);
+        };
     }
     componentWillUnmount() {
-        if (this.timerInterval) clearInterval(this.timerInterval);
+        if (this.socket) {
+            this.socket.close();
+        }
     }
-    handleTimerFromChild = (serverTimeLeft) => {
-        if (this.timerInterval) clearInterval(this.timerInterval);
-        this.setState({ timeLeft: serverTimeLeft });
-
-        this.timerInterval = setInterval(() => {
-            this.setState(prev => {
-                if (prev.timeLeft > 0) return { timeLeft: prev.timeLeft - 1 };
-                clearInterval(this.timerInterval);
-                return { timeLeft: 0 };
-            });
-        }, 1000);
-    };
     onPlayerReady = (event) => {
         event.target.playVideo();
     };
+    handleOnChangeMessage = (e) => {
+        this.setState({
+            messagesList: e,
+        })
+    }
     handleExit = async () => {
         if (this.state.currentUserID === this.state.userID[0] && this.state.LiveStatus == 'Live') {
             console.log('End live');
@@ -248,7 +292,9 @@ class LiveDetailComponent extends React.Component {
                             View={this.state.View}
                             handleUpdateView={this.handleUpdateView}
                             ID={this.props.params.ID}
-                            onTimerChange={this.handleTimerFromChild}
+                            messagesList={this.state.messagesList}
+                            socket={this.socket}
+                            updateMess={this.handleOnChangeMessage}
 
                         />
 

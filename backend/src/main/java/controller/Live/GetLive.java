@@ -60,16 +60,16 @@ public class GetLive extends HttpServlet {
             obj.put("imageUrl", imageArr);
             
             
-            obj.append("ID", live.getID());
-            obj.append("UserID", live.getUserID());
-            obj.append("UserName", live.getUserName());
-            obj.append("Avt", live.getAvatar());
-            obj.append("Title", live.getTitle());
-            obj.append("View", live.getView());
-            obj.append("Visibility", live.getVisibility());
-            obj.append("CreatedAt", live.getCreatedAt());
-            obj.append("LiveStatus", live.getLiveStatus());
-            obj.append("LiveID", live.getLiveID());
+            obj.put("ID", live.getID());
+            obj.put("UserID", live.getUserID());
+            obj.put("UserName", live.getUserName());
+            obj.put("Avt", live.getAvatar());
+            obj.put("Title", live.getTitle());
+            obj.put("View", live.getView());
+            obj.put("Visibility", live.getVisibility());
+            obj.put("CreatedAt", live.getCreatedAt());
+            obj.put("LiveStatus", live.getLiveStatus());
+            obj.put("LiveID", live.getLiveID());
 
             jsonResponse.put("response", obj);
             JsonUtil.writeJsonResponse(response, jsonResponse);

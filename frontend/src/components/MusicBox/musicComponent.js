@@ -14,27 +14,27 @@ class MusicComponent extends React.Component {
         isMP3: "mp3",//mp3 | video | setting
         userID: 0
     }
-    async componentDidUpdate(isMP3) {
-        try {
-            const res = await fetch(
-                "http://localhost:9999/backend/api/session/check",
-                {
-                    credentials: "include",
-                }
-            );
+    // async componentDidUpdate(isMP3) {
+    //     try {
+    //         const res = await fetch(
+    //             "http://localhost:9999/backend/api/session/check",
+    //             {
+    //                 credentials: "include",
+    //             }
+    //         );
 
-            if (!res.ok) return;
+    //         if (!res.ok) return;
 
-            const data = await res.json();
-            if (data.loggedIn) {
-                this.setState({
-                    userID: data.userId,
-                })
-            }
-        } catch (error) {
-            console.error("Failed to check session:", error);
-        }
-    }
+    //         const data = await res.json();
+    //         if (data.loggedIn) {
+    //             this.setState({
+    //                 userID: data.userId,
+    //             })
+    //         }
+    //     } catch (error) {
+    //         console.error("Failed to check session:", error);
+    //     }
+    // }
     async componentWillUnmount() {
         try {
             const res = await fetch(

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Auction;
 import model.Live;
+import model.LiveChatMessage;
 
 /**
  *
@@ -185,6 +186,47 @@ public class LiveDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public void insertLiveMessage(LiveChatMessage mess,String postID){
+        String sql = """
+                   insert into LiveChatMessages(LivePostID,UserID,ChatType,Message) 
+                   values(?,?,?,?)
+                   """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, Integer.parseInt(postID));
+            st.setInt(2, Integer.parseInt(mess.getUserID()));
+            st.setString(3, mess.getType());
+            st.setString(4, mess.getMessage());
+            st.executeUpdate();
+
+            st.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public List<LiveChatMessage> getLiveChatMessage(String postID){
+        List<LiveChatMessage> list= new ArrayList<>();
+        String sql = """
+                   select lcm.UserID,u.Username,lcm.ChatType,lcm.Message,lcm.CreatedAt from LiveChatMessages as lcm join Users as u on lcm.UserID=u.ID
+                     where LivePostID=?;
+                   """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, Integer.parseInt(postID));
+            ResultSet rs= st.executeQuery();
+            while(rs.next()){
+                list.add(new LiveChatMessage(String.valueOf(rs.getInt("UserID")), rs.getString("Username"),rs.getString("ChatType"),rs.getString("Message"),rs.getTimestamp("CreatedAt").toLocalDateTime()));
+            }
+
+            st.close();
+            rs.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
 }

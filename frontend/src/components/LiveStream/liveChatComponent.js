@@ -1,79 +1,96 @@
 import React from "react";
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import { GrStreetView } from "react-icons/gr";
+import { redirect } from "react-router-dom";
+import { Navigate } from 'react-router-dom';
 class LiveChatComponent extends React.Component {
 
     state = {
-        messagesList: [],
+        UserID: null,
+        redirect: null,
         currentMessage: '',
 
     }
-    socket = null;
-    componentDidMount() {
-        this.connectWebSocket();
+
+    async componentDidMount() {
+        await axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
+            .then((res) => {
+                this.setState({
+                    UserID: res.data.response.userID,
+                });
+            })
+            .catch((err) => console.error(err));
+        await axios.get(`http://localhost:9999/backend/api/live/chat/get?livePost=${this.props.ID}`, { withCredentials: true })
+            .then((res) => {
+                this.props.updateMess(res.data.response);
+            })
+            .catch((err) => console.error(err));
+
     }
-    // componentDidUpdate() {
-    //     this.props.handleUpdateView();
+    // connectWebSocket = () => {
+    //     const ID = this.props.ID;
+
+    //     this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
+
+    //     this.socket.onopen = () => {
+    //         console.log(" WebSocket connected to ID:", ID);
+    //     };
+
+    //     this.socket.onmessage = (event) => {
+    //         const data = JSON.parse(event.data);
+    //         console.log("data:", data);
+    //         if (data.Type === "Chat") {
+    //             const message = {
+    //                 Type: data.Type,
+    //                 UserID: data.UserID,
+    //                 Username: data.Username,
+    //                 Message: data.Message
+    //             }
+    //             this.setState((prevState) => ({
+    //                 messagesList: [...prevState.messagesList, message]
+    //             }));
+    //         }
+    //         else if (data.Type === "Bid") {
+
+    //         }
+
+
+    //     };
+
+
+    //     this.socket.onclose = () => {
+    //         console.log(" WebSocket disconnected");
+    //     };
+
+    //     this.socket.onerror = (err) => {
+    //         console.error(" WebSocket error:", err);
+    //     };
+    // }
+    // componentWillUnmount() {
+    //     if (this.socket) {
+    //         this.socket.close();
+    //     }
+
     // }
 
-    // startTimer = (durationInSeconds) => {
-    //     if (this.socket) {
-    //         this.socket.send("Timer:" + durationInSeconds);
-    //     }
-    // };
-    connectWebSocket = () => {
-        const ID = this.props.ID;
-
-        this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
-
-        this.socket.onopen = () => {
-            console.log(" WebSocket connected to ID:", ID);
-        };
-
-        this.socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.Type === "Chat") {
-                const message = {
-                    Username: data.Username,
-                    Message: data.Message
-                }
-                this.setState((prevState) => ({
-                    messagesList: [...prevState.messagesList, message]
-                }));
-            }
-            else if (data.Type === "Bid") {
-
-            }
-            else if (data.Type === "Timer") {
-                const serverTimeLeft = parseInt(data.Timer);
-                if (!isNaN(serverTimeLeft)) {
-                    this.props.onTimerChange?.(serverTimeLeft);
-                }
-            }
-        };
-
-
-        this.socket.onclose = () => {
-            console.log(" WebSocket disconnected");
-        };
-
-        this.socket.onerror = (err) => {
-            console.error(" WebSocket error:", err);
-        };
-    }
-    componentWillUnmount() {
-        if (this.socket) {
-            this.socket.close();
-        }
-
-    }
-
     handleSendMessage = () => {
-        if (this.socket && this.state.currentMessage.trim() !== '') {
-            this.socket.send(this.state.currentMessage);
+        if (!this.state.UserID) {
+            this.setState({
+                redirect: "/login",
+            })
+            return;
+
+        }
+        if (this.props.socket && this.state.currentMessage.trim() !== '') {
+            this.props.socket.send(this.state.currentMessage);
             this.setState({ currentMessage: '' });
         }
     }
     render() {
+        if (this.state.redirect) {
+            return (<Navigate to={this.state.redirect} />)
+        }
         return (
             <div className="live-chat">
                 <div className="live-chat-header">
@@ -82,13 +99,13 @@ class LiveChatComponent extends React.Component {
                 </div>
                 <div className="live-chat-body">
                     {
-                        this.state.messagesList.map((message, index) => {
+                        this.props.messagesList.map((message, index) => {
                             return (
                                 <div className="chat-item" key={index}>
                                     <img alt="1" />
                                     <div className="user">
                                         <span className="user-name">{message.Username}</span>
-                                        <span className="user-text">{message.Message}</span>
+                                        <span className="user-text" style={{ backgroundColor: message.Type === "Bid" ? " red" : null }}>{message.Message}</span>
                                     </div>
                                 </div>
                             )
