@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import model.LiveChatMessage;
 
@@ -23,6 +26,45 @@ import model.LiveChatMessage;
 public class LiveChatEndpoint {
 
     private static final Map<String, Set<Session>> roomMap = new HashMap<>();
+    private static final Map<String, Timer> roomTimers = new ConcurrentHashMap<>();
+    private static final Map<String, Integer> roomCountdowns = new ConcurrentHashMap<>();
+    private static final int AUCTION_TIME = 60;
+    
+    
+    private void startAuctionTimer(String roomID) {
+        if (roomTimers.containsKey(roomID)) return;
+        roomCountdowns.put(roomID, AUCTION_TIME);
+        Timer timer = new Timer(true);
+        roomTimers.put(roomID, timer);
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                int timeLeft = roomCountdowns.get(roomID) - 1;
+                if (timeLeft <= 0) {
+                    // Reset
+                    timeLeft = AUCTION_TIME;
+                }
+                roomCountdowns.put(roomID, timeLeft);
+                broadcastTime(roomID, timeLeft);
+            }
+        }, 0, 1000);
+    }
+    private void broadcastTime(String roomID, int timeLeft) {
+        synchronized (roomMap) {
+            Set<Session> sessions = roomMap.get(roomID);
+            if (sessions != null) {
+                for (Session session : sessions) {
+                    if (session.isOpen()) {
+                        try {
+                            session.getBasicRemote().sendText("{\"Type\":\"Timer\",\"Message\":" + timeLeft + "}");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -51,6 +93,8 @@ public class LiveChatEndpoint {
         session.getUserProperties().put("ID", ID);
         session.getUserProperties().put("UserID", UserID);
         session.getUserProperties().put("Username", Username);
+        
+        startAuctionTimer(ID);
 
     }
 
@@ -98,6 +142,10 @@ public class LiveChatEndpoint {
                     sessions.remove(session);
                     if (sessions.isEmpty()) {
                         roomMap.remove(ID);
+                        
+                        Timer timer = roomTimers.remove(ID);
+                        if (timer != null) timer.cancel();
+                        roomCountdowns.remove(ID);
                     }
                 }
             }

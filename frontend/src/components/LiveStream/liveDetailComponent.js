@@ -137,6 +137,10 @@ class LiveDetailComponent extends React.Component {
                     messagesList: [...prevState.messagesList, message]
                 }));
             }
+            else if (data.Type === "Timer") {
+                this.setState({ timeLeft: data.Message });
+                return;
+            }
 
 
         };
