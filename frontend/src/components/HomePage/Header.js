@@ -24,6 +24,7 @@ export default function Header({ openCreatePopup }) {
   const [isLogin, setIsLogin] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
   const [eKYC,setEKYC] = useState(false);
+  const [accURL,setAccURL] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -297,7 +298,7 @@ export default function Header({ openCreatePopup }) {
                     Top Up
                   </Link>
                 )}
-                {userID != 0 && (
+                {userID != 0 && isArtist &&  (
                   <Link to="/withdraw" className="user-menu-item">
                     Withdraw
                   </Link>

@@ -93,6 +93,30 @@ const Withdraw = () => {
     } catch (error) {}
   };
 
+  const handleSendLink = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:9999/backend/api/stripe/onboardinglink",
+        {
+            credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        toast.info(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    }
+  };
+
   const quickAmounts = [
     { label: "100K", value: 100000 },
     { label: "200K", value: 200000 },
@@ -150,9 +174,12 @@ const Withdraw = () => {
             <div className="text-xs text-gray-500 mt-1">
               Số tiền tối thiểu: 100.000 VNĐ
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Note: tài khoản stripe để nhận tiền xem ở profile
-            </div>
+            <button
+              className="text-xs text-indigo-500 mt-1 hover:underline"
+              onClick={handleSendLink}
+            >
+              🔗 Lấy tài khoản nhận tiền Stripe của bạn
+            </button>
 
             <div className="flex gap-2 mt-4 flex-wrap">
               {quickAmounts.map(({ label, value }) => (

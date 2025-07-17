@@ -100,6 +100,11 @@ public class WithdrawServlet extends HttpServlet {
 
         json.put("success", true);
         json.put("message", "Rút tiền thành công.");
+        
+        artInfoDao.closeConnection();
+        walletDao.closeConnection();
+        txnDao.closeConnection();
+        esscorsDao.closeConnection();
         response.getWriter().write(json.toString());
     }
 
