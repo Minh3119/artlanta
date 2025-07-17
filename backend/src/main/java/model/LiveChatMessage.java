@@ -55,5 +55,9 @@ public class LiveChatMessage {
     public String getMessage() {
         return Message;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
     
 }

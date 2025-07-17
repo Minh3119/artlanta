@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import model.Auction;
@@ -58,8 +59,9 @@ public class LiveDAO extends DBContext {
         }
         return new Live();
     }
-    public List<Auction> getAuction(int ID){
-        List<Auction> list= new ArrayList<>();
+
+    public List<Auction> getAuction(int ID) {
+        List<Auction> list = new ArrayList<>();
         String sql = """
                    Select * from Auctions
                    where LivePostID=?;
@@ -69,7 +71,7 @@ public class LiveDAO extends DBContext {
             st.setInt(1, ID);
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                list.add(new Auction(rs.getString("ImageUrl"),rs.getInt("StartPrice")));
+                list.add(new Auction(rs.getString("ImageUrl"), rs.getInt("StartPrice")));
             }
             st.close();
             rs.close();
@@ -88,7 +90,6 @@ public class LiveDAO extends DBContext {
         try {
             connection.setAutoCommit(false);
 
-            
             String sqlPost = """
                                 INSERT INTO LivePosts(UserID, Title, LiveID, LiveView, LiveStatus, Visibility)
                                 VALUES (?, ?, ?, 0, 'Live', ?);
@@ -107,7 +108,6 @@ public class LiveDAO extends DBContext {
                 throw new SQLException("Failed to retrieve inserted LivePost ID.");
             }
 
-            
             String sqlAuction = """
                                     INSERT INTO Auctions(LivePostID, ImageUrl, StartPrice)
                                     VALUES (?, ?, ?);
@@ -187,7 +187,8 @@ public class LiveDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    public void insertLiveMessage(LiveChatMessage mess,String postID){
+
+    public void insertLiveMessage(LiveChatMessage mess, String postID) {
         String sql = """
                    insert into LiveChatMessages(LivePostID,UserID,ChatType,Message) 
                    values(?,?,?,?)
@@ -206,26 +207,39 @@ public class LiveDAO extends DBContext {
             e.printStackTrace();
         }
     }
-    public List<LiveChatMessage> getLiveChatMessage(String postID){
-        List<LiveChatMessage> list= new ArrayList<>();
+
+    public List<LiveChatMessage> getLiveChatMessage(String postID) {
+        List<LiveChatMessage> list = new ArrayList<>();
         String sql = """
-                   select lcm.UserID,u.Username,lcm.ChatType,lcm.Message,lcm.CreatedAt from LiveChatMessages as lcm join Users as u on lcm.UserID=u.ID
-                     where LivePostID=?;
-                   """;
+        SELECT lcm.UserID, u.Username, lcm.ChatType, lcm.Message, lcm.CreatedAt
+        FROM LiveChatMessages AS lcm
+        JOIN Users AS u ON lcm.UserID = u.ID
+        WHERE LivePostID = ?
+    """;
+
         try {
             PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, Integer.parseInt(postID));
-            ResultSet rs= st.executeQuery();
-            while(rs.next()){
-                list.add(new LiveChatMessage(String.valueOf(rs.getInt("UserID")), rs.getString("Username"),rs.getString("ChatType"),rs.getString("Message"),rs.getTimestamp("CreatedAt").toLocalDateTime()));
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                String userID = String.valueOf(rs.getInt("UserID"));
+                String username = rs.getString("Username");
+                String chatType = rs.getString("ChatType");
+                String message = rs.getString("Message");
+                LocalDateTime createdAt = rs.getTimestamp("CreatedAt").toLocalDateTime();
+
+                LiveChatMessage msg = new LiveChatMessage(userID, username, chatType, message, createdAt);
+                list.add(msg);
             }
 
-            st.close();
             rs.close();
+            st.close();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
