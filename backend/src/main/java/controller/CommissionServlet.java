@@ -57,4 +57,47 @@ public class CommissionServlet extends HttpServlet {
             }
         }
     }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (!SessionUtil.isLoggedIn(session)) {
+            JsonUtil.writeJsonError(response, "User not logged in", HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+        int userId = SessionUtil.getCurrentUserId(session);
+        String pathInfo = request.getPathInfo();
+        if (pathInfo == null || pathInfo.length() <= 1) {
+            JsonUtil.writeJsonError(response, "Missing commission ID", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        int commissionId;
+        try {
+            commissionId = Integer.parseInt(pathInfo.substring(1));
+        } catch (NumberFormatException e) {
+            JsonUtil.writeJsonError(response, "Invalid commission ID", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        try {
+            JSONObject body = JsonUtil.parseRequestBody(request);
+            String title = body.optString("title", null);
+            String description = body.optString("description", null);
+            double price = body.optDouble("price", -1);
+            if (title == null || description == null || price < 0) {
+                JsonUtil.writeJsonError(response, "Missing or invalid fields", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            JSONObject updated = commissionService.updateCommission(commissionId, userId, title, description, price);
+            if (updated == null) {
+                JsonUtil.writeJsonError(response, "Commission not found or not allowed", HttpServletResponse.SC_NOT_FOUND);
+            } else {
+                JSONObject result = new JSONObject();
+                result.put("success", true);
+                result.put("commission", updated);
+                JsonUtil.writeJsonResponse(response, result);
+            }
+        } catch (Exception e) {
+            JsonUtil.writeJsonError(response, "Failed to update commission: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
 } 

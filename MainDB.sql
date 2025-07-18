@@ -357,6 +357,8 @@ CREATE TABLE TRIGGERTIME (
 */
 -- TRIGGER: recursive delete for child comments
 DELIMITER $$
+
+-- Trigger xóa comment con khi comment cha bị xóa
 CREATE TRIGGER trg_DeleteChildComments
 AFTER DELETE ON Comments
 FOR EACH ROW
@@ -375,7 +377,83 @@ BEGIN
         DELETE FROM Comments WHERE ID = current_id;
     END LOOP;
     CLOSE cur;
-END $$
+END$$
+
+-- Trigger ghi lịch sử khi Commission bị cập nhật
+CREATE TRIGGER trg_commission_update
+AFTER UPDATE ON Commission
+FOR EACH ROW
+BEGIN
+    DECLARE uid INT DEFAULT NULL; -- backend nên set user id vào khi gọi query
+
+    IF NEW.Title <> OLD.Title THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'Title', OLD.Title, NEW.Title, uid);
+    END IF;
+
+    IF NEW.Description <> OLD.Description THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'Description', OLD.Description, NEW.Description, uid);
+    END IF;
+
+    IF NEW.Price <> OLD.Price THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'Price', OLD.Price, NEW.Price, uid);
+    END IF;
+
+    IF NEW.Deadline <> OLD.Deadline THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'Deadline', OLD.Deadline, NEW.Deadline, uid);
+    END IF;
+
+    IF NEW.FileDeliveryURL <> OLD.FileDeliveryURL THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'FileDeliveryURL', OLD.FileDeliveryURL, NEW.FileDeliveryURL, uid);
+    END IF;
+
+    IF NEW.Status <> OLD.Status THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'Status', OLD.Status, NEW.Status, uid);
+    END IF;
+
+    IF NEW.ArtistSeenFinal <> OLD.ArtistSeenFinal THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'ArtistSeenFinal', OLD.ArtistSeenFinal, NEW.ArtistSeenFinal, uid);
+    END IF;
+
+    IF NEW.ClientConfirmed <> OLD.ClientConfirmed THEN
+        INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
+        VALUES (NEW.ID, 'ClientConfirmed', OLD.ClientConfirmed, NEW.ClientConfirmed, uid);
+    END IF;
+END$$
+
+-- Trigger ghi log khi chi tiết yêu cầu thay đổi
+CREATE TRIGGER trg_update_commission_detail
+AFTER UPDATE ON CommissionRequirementDetail
+FOR EACH ROW
+BEGIN
+    DECLARE uid INT DEFAULT NULL;
+
+    IF NEW.DetailValue <> OLD.DetailValue THEN
+        INSERT INTO CommissionHistory (
+            CommissionID,
+            ChangedField,
+OldValue,
+            NewValue,
+            ChangedBy,
+            ChangedAt
+        )
+        VALUES (
+            NEW.CommissionID,
+            CONCAT('Requirement - ', NEW.DetailKey),
+            OLD.DetailValue,
+            NEW.DetailValue,
+            uid,
+            NOW()
+        );
+    END IF;
+END$$
+
 DELIMITER ;
 
 

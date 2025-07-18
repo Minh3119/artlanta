@@ -67,4 +67,20 @@ public class CommissionService {
         }
         return new JSONArray();
     }
+
+    public JSONObject updateCommission(int commissionId, int userId, String title, String description, double price) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            boolean updated = commissionDAO.updateCommission(commissionId, userId, title, description, price);
+            if (!updated) return null;
+            CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            if (dto == null) return null;
+            return new JSONObject(util.JsonUtil.toJsonString(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            commissionDAO.closeConnection();
+        }
+        return null;
+    }
 } 

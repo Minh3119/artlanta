@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useCallback } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
 
 const CommissionDetailPage = () => {
   const { commissionId } = useParams();
@@ -10,6 +10,8 @@ const CommissionDetailPage = () => {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyError, setHistoryError] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editFields, setEditFields] = useState({ title: '', description: '', price: '' });
 
   useEffect(() => {
     fetch(`http://localhost:9999/backend/api/commissions/${commissionId}`, {
@@ -49,6 +51,17 @@ const CommissionDetailPage = () => {
       });
   }, [commissionId]);
 
+  // When commission loads, set editFields
+  useEffect(() => {
+    if (commission) {
+      setEditFields({
+        title: commission.title || '',
+        description: commission.description || '',
+        price: commission.price || ''
+      });
+    }
+  }, [commission]);
+
   const getStatusColor = (status) => {
     switch (status?.toUpperCase()) {
       case 'IN_PROGRESS': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -70,6 +83,28 @@ const CommissionDetailPage = () => {
   const formatVND = (amount) => {
     if (typeof amount !== 'number') return 'N/A';
     return amount.toLocaleString('vi-VN') + '₫';
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editFields.title,
+          description: editFields.description,
+          price: Number(editFields.price)
+        })
+      });
+      if (!res.ok) throw new Error('Failed to update commission');
+      const data = await res.json();
+      setCommission(data.commission);
+      setEditMode(false);
+      toast.success('Commission updated successfully!');
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   if (loading) return (
@@ -113,7 +148,15 @@ const CommissionDetailPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-3xl font-bold mb-2">
-                      {commission.title || `Commission #${commission.commissionId}`}
+                      {editMode ? (
+                        <input
+                          className="border rounded px-2 py-1 w-full text-gray-800 font-bold text-2xl"
+                          value={editFields.title}
+                          onChange={e => setEditFields(f => ({ ...f, title: e.target.value }))}
+                        />
+                      ) : (
+                        commission.title || `Commission #${commission.commissionId}`
+                      )}
                     </h1>
                     <div className="flex items-center gap-4 text-blue-100">
                       <span className="flex items-center gap-2">
@@ -125,7 +168,18 @@ const CommissionDetailPage = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold">{formatVND(commission.price)}</div>
+                    <div className="text-2xl font-bold">
+                      {editMode ? (
+                        <input
+                          type="number"
+                          className="border rounded px-2 py-1 w-32 text-right font-bold text-xl"
+                          value={editFields.price}
+                          onChange={e => setEditFields(f => ({ ...f, price: e.target.value }))}
+                        />
+                      ) : (
+                        formatVND(commission.price)
+                      )}
+                    </div>
                     <div className="text-blue-100 text-sm">Total Price (VND)</div>
                   </div>
                 </div>
@@ -173,7 +227,15 @@ const CommissionDetailPage = () => {
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
                     <div className="bg-gray-50 rounded-xl p-6 text-gray-700 leading-relaxed">
-                      {commission.description}
+                      {editMode ? (
+                        <textarea
+                          className="border rounded px-2 py-1 w-full min-h-[80px] text-gray-800"
+                          value={editFields.description}
+                          onChange={e => setEditFields(f => ({ ...f, description: e.target.value }))}
+                        />
+                      ) : (
+                        commission.description
+                      )}
                     </div>
                   </div>
                 )}
@@ -237,8 +299,31 @@ const CommissionDetailPage = () => {
 
                 {/* Edit & Submit Buttons - Only show if IN_PROGRESS */}
                 {commission.status === 'IN_PROGRESS' && (
-                  <div className="flex gap-4 mb-8">
-                    <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors">Edit</button>
+                  <div className="flex gap-4 mb-8 justify-between">
+                    {editMode ? (
+                      <>
+                        <button
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
+                          onClick={handleSave}
+                        >Save</button>
+                        <button
+                          className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
+                          onClick={() => {
+                            setEditMode(false);
+                            setEditFields({
+                              title: commission.title || '',
+                              description: commission.description || '',
+                              price: commission.price || ''
+                            });
+                          }}
+                        >Cancel</button>
+                      </>
+                    ) : (
+                      <button
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
+                        onClick={() => setEditMode(true)}
+                      >Edit</button>
+                    )}
                     <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors">Submit</button>
                   </div>
                 )}
@@ -271,7 +356,7 @@ const CommissionDetailPage = () => {
               <div className="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4 text-white">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <span className="text-2xl">📊</span>
-                  Edit History
+                  History
                 </h3>
                 <p className="text-gray-300 text-sm mt-1">Track all changes made to this commission</p>
               </div>
@@ -329,6 +414,7 @@ const CommissionDetailPage = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

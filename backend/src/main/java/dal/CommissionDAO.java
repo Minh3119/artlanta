@@ -103,4 +103,22 @@ public class CommissionDAO extends DBContext {
         }
         return null;
     }
+
+    public boolean updateCommission(int commissionId, int userId, String title, String description, double price) throws SQLException {
+        // Only allow update if user is client or artist
+        String sql = "UPDATE Commission c " +
+                     "JOIN CommissionRequest cr ON c.RequestID = cr.ID " +
+                     "SET c.Title = ?, c.Description = ?, c.Price = ?, c.UpdatedAt = CURRENT_TIMESTAMP " +
+                     "WHERE c.ID = ? AND (cr.ClientID = ? OR cr.ArtistID = ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, title);
+            ps.setString(2, description);
+            ps.setDouble(3, price);
+            ps.setInt(4, commissionId);
+            ps.setInt(5, userId);
+            ps.setInt(6, userId);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        }
+    }
 } 
