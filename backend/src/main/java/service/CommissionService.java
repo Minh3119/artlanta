@@ -9,6 +9,8 @@ import java.util.*;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
+import dal.CommissionHistoryDAO;
+import model.CommissionHistory;
 
 public class CommissionService {
     public CommissionService() {}
@@ -33,5 +35,36 @@ public class CommissionService {
             commissionDAO.closeConnection();
         }
         return null;
+    }
+
+    public JSONObject getCommissionById(int commissionId, int userId) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            if (dto == null) return null;
+            // Convert to JSON
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("success", true);
+            jsonResponse.put("commission", new JSONObject(util.JsonUtil.toJsonString(dto)));
+            return jsonResponse;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            commissionDAO.closeConnection();
+        }
+        return null;
+    }
+
+    public JSONArray getCommissionHistory(int commissionId) {
+        CommissionHistoryDAO historyDAO = new CommissionHistoryDAO();
+        try {
+            List<CommissionHistory> historyList = historyDAO.getHistoryByCommissionId(commissionId);
+            return new JSONArray(JsonUtil.toJsonString(historyList));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            historyDAO.closeConnection();
+        }
+        return new JSONArray();
     }
 } 

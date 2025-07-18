@@ -37,6 +37,8 @@ import EditPasswordComponent from "../components/UserProfileEdit/editPasswordCom
 import EditNotificationComponent from "../components/UserProfileEdit/editNotificationComponent";
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
 import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountComponent";
+import CommissionListPage from "./CommissionListPage.js";
+import CommissionDetailPage from "./CommissionDetailPage.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -68,6 +70,8 @@ function App() {
           <Route path="/recent-posts" element={<RecentPosts />} />
           <Route path="/event" element={<EventPage />} />
           <Route path="/saved" element={<SavedPostPage />} />
+          <Route path="/commissions" element={<CommissionListPage />} />
+          <Route path="/commissions/:commissionId" element={<CommissionDetailPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
           <Route path="/settings" element={<Settings />}>
             <Route path="editprofile" element={<EditProfileComponent />} />
