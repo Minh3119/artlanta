@@ -87,9 +87,10 @@ public class ZaloPayCallbackServlet extends HttpServlet {
             transactionDAO.insertTransaction(
                     userId,
                     amountVND,
-                    "Nạp tiền vào tài khoản", 
+                    "success",
                     "zalopay",
                     "VND",
+                    "deposit",
                     description
             );
 

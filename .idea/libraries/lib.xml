@@ -1,0 +1,26 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lib/cloudinary-core-1.32.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.mail-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jstl-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/gson-2.13.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.activation-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/commons-logging-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/cloudinary-http44-1.35.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/json-20240303.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/commons-codec-1.18.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/httpcore-4.4.16.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/httpmime-4.5.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.servlet.jsp.jstl-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/stripe-java-24.4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/mysql-connector-j-9.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.activation-api-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/httpclient-4.5.14 (1).jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.servlet-api-5.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/backend/lib/jakarta.servlet.jsp.jstl-api-2.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
