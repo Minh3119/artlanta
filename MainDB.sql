@@ -141,8 +141,6 @@ CREATE TABLE Follows (
     FOREIGN KEY(FollowedID) REFERENCES Users(ID)
 );
 
--- COMMISSION PRICING
-
 -- WALLET AND TRANSACTION SYSTEM
 CREATE TABLE Wallets (
     UserID INT PRIMARY KEY,
@@ -840,6 +838,17 @@ INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (8, 9, 'ACCEPTED', '2025-04-17'),
 (9, 10, 'ACCEPTED', '2025-04-18'),
 (10, 1, 'ACCEPTED', '2025-04-19'),
+(1, 2, 'ACCEPTED', '2025-04-10'),
+(2, 3, 'PENDING', '2025-04-11'),
+(3, 4, 'ACCEPTED', '2025-04-12'),
+(4, 5, 'REJECT', '2025-04-13'),
+(5, 6, 'ACCEPTED', '2025-04-14'),
+(6, 7, 'ACCEPTED', '2025-04-15'),
+(7, 8, 'PENDING', '2025-04-16'),
+(8, 9, 'ACCEPTED', '2025-04-17'),
+(9, 10, 'ACCEPTED', '2025-04-18'),
+(10, 1, 'ACCEPTED', '2025-04-19'),
+
 (11, 6, 'ACCEPTED', '2025-06-10'),
 (12, 4, 'ACCEPTED', '2025-06-10'),
 (13, 8, 'ACCEPTED', '2025-06-10'),
@@ -950,7 +959,7 @@ VALUES
 -- Commission sample data (assuming the 3rd request was accepted)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
 VALUES
-(3, 'Anime Character Commission', 'Finalized anime character design as discussed.', 350000, '2025-07-05', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-19', '2025-06-19');
+(3, 'Anime Character Commission', 'Finalized anime character design as discussed.', 37000, '2025-07-05', NULL, 'COMPLETED', FALSE, FALSE, '2025-06-19', '2025-06-19');
 
 -- CommissionRequirementDetail sample data
 INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
@@ -963,21 +972,21 @@ VALUES
 INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
 VALUES
 (1, 'Status', 'IN_PROGRESS', 'COMPLETED', 3),
-(1, 'Price', '350000', '370000', 4);
+(1, 'Price', '35000', '37000', 4);
 
 -- User 1 as Client, User 2 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(1, 2, 'Chibi portrait in anime style', 'https://imgur.com/chibi1.jpg', 120000, '2025-07-15', 'PENDING', NULL, '2025-06-20', NULL),
-(1, 2, 'Realistic pet painting', 'https://imgur.com/pet2.jpg', 300000, '2025-07-20', 'REJECTED', 'Sorry, I do not paint pets.', '2025-06-21', '2025-06-22'),
-(1, 2, 'Landscape with mountains', NULL, 250000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
+(1, 2, 'Chibi portrait in anime style', 'https://imgur.com/chibi1.jpg', 12000, '2025-07-15', 'PENDING', NULL, '2025-06-20', NULL),
+(1, 2, 'Realistic pet painting', 'https://imgur.com/pet2.jpg', 30000, '2025-07-20', 'REJECTED', 'Sorry, I do not paint pets.', '2025-06-21', '2025-06-22'),
+(1, 2, 'Landscape with mountains', NULL, 25000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
 
 -- User 2 as Client, User 1 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(2, 1, 'Cartoon avatar', 'https://imgur.com/avatar2.jpg', 90000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
-(2, 1, 'Family portrait', NULL, 400000, '2025-07-30', 'REJECTED', 'Currently not accepting new commissions.', '2025-06-26', '2025-06-27'),
-(2, 1, 'Fantasy character full body', 'https://imgur.com/fantasy1.jpg', 350000, '2025-08-01', 'ACCEPTED', NULL, '2025-06-28', '2025-06-29');
+(2, 1, 'Cartoon avatar', 'https://imgur.com/avatar2.jpg', 9000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
+(2, 1, 'Family portrait', NULL, 40000, '2025-07-30', 'REJECTED', 'Currently not accepting new commissions.', '2025-06-26', '2025-06-27'),
+(2, 1, 'Fantasy character full body', 'https://imgur.com/fantasy1.jpg', 35000, '2025-08-01', 'ACCEPTED', NULL, '2025-06-28', '2025-06-29');
 
 -- For accepted requests, create corresponding commissions
 -- Let's assume the accepted requests above have IDs 6 and 9 (update IDs as per your DB auto-increment)
@@ -986,12 +995,12 @@ VALUES
 -- For (1,2) Landscape with mountains (assume CommissionRequest ID = 6)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
 VALUES
-(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 250000, '2025-07-25', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-24', '2025-06-24');
+(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 27000, '2025-07-25', NULL, 'COMPLETED', FALSE, FALSE, '2025-06-24', '2025-06-24');
 
 -- For (2,1) Fantasy character full body (assume CommissionRequest ID = 9)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
 VALUES
-(9, 'Fantasy Character Full Body', 'Full body fantasy character illustration.', 350000, '2025-08-01', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-29', '2025-06-29');
+(9, 'Fantasy Character Full Body', 'Full body fantasy character illustration.', 35000, '2025-08-10', NULL, 'CANCELLED', FALSE, FALSE, '2025-06-29', '2025-06-29');
 
 -- For CommissionID 2 (Landscape with Mountains)
 INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
@@ -1011,11 +1020,66 @@ VALUES
 INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
 VALUES
 (2, 'Status', 'IN_PROGRESS', 'COMPLETED', 2),
-(2, 'Price', '250000', '270000', 1);
+(2, 'Price', '25000', '27000', 1);
 
 -- For CommissionID 3
 INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy)
 VALUES
 (3, 'Status', 'IN_PROGRESS', 'CANCELLED', 1),
 (3, 'Deadline', '2025-08-01', '2025-08-10', 2);
+
+
+-- New commission requests for fresh commissions
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES
+-- User 3 as Client, User 6 as Artist (Fresh commission)
+(3, 6, 'Digital portrait of my daughter', 'https://imgur.com/portrait1.jpg', 18000, '2025-08-15', 'ACCEPTED', NULL, '2025-07-01', '2025-07-02'),
+-- User 4 as Client, User 1 as Artist (Fresh commission)
+(4, 1, 'Logo design for startup company', 'https://imgur.com/logo1.jpg', 45000, '2025-08-20', 'ACCEPTED', NULL, '2025-07-03', '2025-07-04'),
+-- User 5 as Client, User 2 as Artist (Fresh commission)
+(5, 2, 'Book cover illustration', 'https://imgur.com/bookcover1.jpg', 32000, '2025-08-25', 'ACCEPTED', NULL, '2025-07-05', '2025-07-06'),
+-- User 6 as Client, User 3 as Artist (Fresh commission)
+(6, 3, 'Character concept art for game', 'https://imgur.com/gamechar1.jpg', 28000, '2025-08-30', 'ACCEPTED', NULL, '2025-07-07', '2025-07-08'),
+-- User 7 as Client, User 4 as Artist (Fresh commission)
+(7, 4, 'Wedding invitation design', 'https://imgur.com/wedding1.jpg', 15000, '2025-09-05', 'ACCEPTED', NULL, '2025-07-09', '2025-07-10');
+
+-- Fresh commissions (these will have NO history records)
+INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
+VALUES
+-- Commission ID 4: Digital Portrait (Fresh - no history)
+(10, 'Digital Portrait - Daughter', 'Beautiful digital portrait of client\'s daughter in a garden setting with soft lighting and warm colors.', 18000, '2025-08-15', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-07-02', '2025-07-02'),
+-- Commission ID 5: Logo Design (Fresh - no history)
+(11, 'Startup Logo Design', 'Modern and minimalist logo design for a tech startup company. Should be scalable and work well in both color and monochrome.', 45000, '2025-08-20', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-07-04', '2025-07-04'),
+-- Commission ID 6: Book Cover (Fresh - no history)
+(12, 'Fantasy Book Cover', 'Epic fantasy book cover illustration featuring a dragon and knight in a mystical forest setting.', 32000, '2025-08-25', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-07-06', '2025-07-06'),
+-- Commission ID 7: Game Character (Fresh - no history)
+(13, 'Game Character Concept', 'Detailed character concept art for a female warrior in futuristic armor with unique weapon design.', 28000, '2025-08-30', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-07-08', '2025-07-08'),
+-- Commission ID 8: Wedding Invitation (Fresh - no history)
+(14, 'Elegant Wedding Invitation', 'Sophisticated wedding invitation design with floral elements and elegant typography for a summer wedding.', 15000, '2025-09-05', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-07-10', '2025-07-10');
+
+-- Commission requirement details for fresh commissions
+INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue)
+VALUES
+-- For Commission ID 4 (Digital Portrait)
+(4, 'Style', 'Realistic digital painting'),
+(4, 'Size', '4000x5000px'),
+(4, 'Color Palette', 'Warm tones, garden setting'),
+-- For Commission ID 5 (Logo Design)
+(5, 'Style', 'Minimalist, modern'),
+(5, 'Format', 'Vector files (AI, SVG)'),
+(5, 'Color Scheme', 'Blue and white primary'),
+-- For Commission ID 6 (Book Cover)
+(6, 'Style', 'Epic fantasy illustration'),
+(6, 'Size', 'A4 format'),
+(6, 'Elements', 'Dragon, knight, mystical forest'),
+-- For Commission ID 7 (Game Character)
+(7, 'Style', 'Concept art, detailed'),
+(7, 'Pose', 'Dynamic action pose'),
+(7, 'Armor Style', 'Futuristic, sleek design'),
+-- For Commission ID 8 (Wedding Invitation)
+(8, 'Style', 'Elegant, romantic'),
+(8, 'Theme', 'Summer garden wedding'),
+(8, 'Typography', 'Script and serif fonts');
+
+-- Note: These fresh commissions (IDs 4-8) have NO CommissionHistory records
 
