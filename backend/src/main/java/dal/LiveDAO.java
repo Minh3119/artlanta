@@ -60,26 +60,31 @@ public class LiveDAO extends DBContext {
         return new Live();
     }
 
-    public List<Auction> getAuction(int ID) {
-        List<Auction> list = new ArrayList<>();
-        String sql = """
-                   Select * from Auctions
-                   where LivePostID=?;
-                   """;
-        try {
-            PreparedStatement st = connection.prepareStatement(sql);
-            st.setInt(1, ID);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                list.add(new Auction(rs.getString("ImageUrl"), rs.getInt("StartPrice")));
-            }
-            st.close();
-            rs.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
+//    public List<Auction> getAuction(int ID) {
+//        List<Auction> list = new ArrayList<>();
+//        String sql = """
+//                   Select * from Auctions
+//                   where LivePostID=?;
+//                   """;
+//        try {
+//            PreparedStatement st = connection.prepareStatement(sql);
+//            st.setInt(1, ID);
+//            ResultSet rs = st.executeQuery();
+//            while (rs.next()) {
+//                String AucID= String.valueOf(rs.getInt("ID"));
+//                int UserID = rs.getInt("UserID");
+//                String ImageURL = rs.getString("ImageUrl");
+//                int StartPrice = rs.getInt("Price");
+//                String IsBid = rs.getString("IsBid");
+//                list.add(new  Auction());
+//            }
+//            st.close();
+//            rs.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return list;
+//    }
 
     public int insertLive(int userID, String title, String liveID, String visibility, List<Auction> list) {
         int livePostID = 0;
@@ -109,14 +114,16 @@ public class LiveDAO extends DBContext {
             }
 
             String sqlAuction = """
-                                    INSERT INTO Auctions(LivePostID, ImageUrl, StartPrice)
-                                    VALUES (?, ?, ?);
+                                    INSERT INTO Auctions(LivePostID, ImageUrl, Price,UserID,IsBid)
+                                    VALUES (?, ?, ?,?,?);
                                 """;
             stAuction = connection.prepareStatement(sqlAuction);
             for (Auction auction : list) {
                 stAuction.setInt(1, livePostID);
                 stAuction.setString(2, auction.getImageUrl());
                 stAuction.setInt(3, auction.getStartPrice());
+                stAuction.setInt(4, userID);
+                stAuction.setString(5, "NoBid");
                 stAuction.addBatch();
             }
             stAuction.executeBatch();
@@ -241,6 +248,28 @@ public class LiveDAO extends DBContext {
         }
 
         return list;
+    }
+    public boolean isLiveByID(String ID){
+        String live="Post";
+        String sql="""
+                   select LiveStatus from LivePosts
+                   where ID=?
+                   """;
+        try{
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, Integer.parseInt(ID));
+            ResultSet rs = st.executeQuery();
+            if(rs.next()){
+                live= rs.getString("LiveStatus");
+            }
+            st.close();
+            rs.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        return live.equalsIgnoreCase("Live");
     }
 
 }

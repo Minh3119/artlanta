@@ -88,6 +88,10 @@
         <servlet-name>GetLiveChat</servlet-name>
         <servlet-class>controller.Live.GetLiveChat</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ViewAuction</servlet-name>
+        <servlet-class>controller.Live.ViewAuction</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -247,6 +251,10 @@
     <servlet-mapping>
         <servlet-name>GetLiveChat</servlet-name>
         <url-pattern>/api/live/chat/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewAuction</servlet-name>
+        <url-pattern>/api/live/auction/get</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

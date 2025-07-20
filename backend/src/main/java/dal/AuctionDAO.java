@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 import java.sql.PreparedStatement;
@@ -16,9 +12,10 @@ import model.LiveChatMessage;
  *
  * @author ADMIN
  */
-public class AuctionDAO extends DBContext{
-    public List<Auction> getByID(String postID){
-        List<Auction> list=new ArrayList<>();
+public class AuctionDAO extends DBContext {
+
+    public List<Auction> getByID(String postID) {
+        List<Auction> list = new ArrayList<>();
         String sql = """
         SELECT * from Auctions
         WHERE LivePostID = ?
@@ -31,11 +28,12 @@ public class AuctionDAO extends DBContext{
 
             while (rs.next()) {
                 String ID = String.valueOf(rs.getInt("ID"));
+                int UserID = rs.getInt("UserID");
                 String ImageURL = rs.getString("ImageUrl");
-                int StartPrice = rs.getInt("StartPrice");
+                int StartPrice = rs.getInt("Price");
+                String IsBid = rs.getString("IsBid");
 
-
-                list.add(new Auction(ID,ImageURL,StartPrice));
+                list.add(new Auction(ID, ImageURL, StartPrice, UserID, IsBid));
             }
 
             rs.close();
@@ -46,22 +44,67 @@ public class AuctionDAO extends DBContext{
         }
         return list;
     }
-    public void updateAuctionPrice( int ID, int newPrice){
-        String sql="""
+
+    public Auction getByIndex(int ID) {
+        String sql = """
+        SELECT * from Auctions
+        WHERE ID = ?
+    """;
+
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, ID);
+            ResultSet rs = st.executeQuery();
+
+            if (rs.next()) {
+                int UserID = rs.getInt("UserID");
+                String ImageURL = rs.getString("ImageUrl");
+                int StartPrice = rs.getInt("Price");
+                String IsBid = rs.getString("IsBid");
+                rs.close();
+                st.close();
+                return (new Auction(String.valueOf(ID), ImageURL, StartPrice, UserID, IsBid));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void updateAuctionPrice(int ID, int newPrice, int UserID) {
+        String sql = """
                    update Auctions
-                   set StartPrice=?
+                   set Price=?, UserID=?
                    where ID=?;
                    """;
-        try{
-            PreparedStatement st= connection.prepareStatement(sql);
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
             st.setInt(1, newPrice);
+            st.setInt(2, UserID);
+            st.setInt(3, ID);
+            st.executeUpdate();
+            st.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void updateAuctionBidStatus(String status, int ID) {
+        String sql = """
+                   update Auctions
+                   set IsBid=?
+                   where ID=?;
+                   """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setString(1, status);
             st.setInt(2, ID);
             st.executeUpdate();
             st.close();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 }

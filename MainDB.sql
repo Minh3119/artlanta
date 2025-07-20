@@ -95,7 +95,10 @@ CREATE TABLE Auctions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     LivePostID INT NOT NULL,
     ImageUrl VARCHAR(500) NOT NULL,
-    StartPrice INT NOT NULL CHECK (StartPrice >= 0),
+    Price INT NOT NULL CHECK (Price >= 0),
+    UserID INT default 0,
+    IsBid VARCHAR(20) default 'NoBid',
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE,
     FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
 );
 

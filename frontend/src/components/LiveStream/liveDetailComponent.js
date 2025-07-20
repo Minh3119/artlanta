@@ -6,10 +6,12 @@ import { Navigate, useParams } from 'react-router-dom';
 import LiveChatComponent from "./liveChatComponent";
 import imageCompression from 'browser-image-compression';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 class LiveDetailComponent extends React.Component {
     state = {
         redirect: null,
         currentUserID: '',
+        currentUserName: '',
         ID: '',
         userID: '',
         UserName: '',
@@ -27,6 +29,7 @@ class LiveDetailComponent extends React.Component {
         timeLeft: null,
         messagesList: [],
 
+
     }
     socket = null;
     async componentDidMount() {
@@ -34,6 +37,7 @@ class LiveDetailComponent extends React.Component {
             .then((res) => {
                 this.setState({
                     currentUserID: res.data.response.userID,
+                    currentUserName: res.data.response.username
                 });
             })
             .catch((err) => console.error(err));
@@ -57,16 +61,19 @@ class LiveDetailComponent extends React.Component {
                 };
                 const data = res.data.response;
                 const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
+
                 const filesFromUrls = await Promise.all(
                     previewUrls.map(async (item, index) => {
                         const response = await fetch(item.mediaURL);
                         const blob = await response.blob();
                         return ({
+                            aucID: item.AucID,
+                            userIDWithBid: item.BidUserID,
                             file: new File([blob], `image_${index}`, { type: blob.type }),
                             preview: URL.createObjectURL(blob),
                             startPrice: item.startPrice,
-                            isBid: false,
-                            userIDWithBid: null,
+                            isBid: item.IsBid,
+
                         });
                     })
                 );
@@ -74,14 +81,16 @@ class LiveDetailComponent extends React.Component {
                     filesFromUrls.map(async (item) => {
                         const compressed = await imageCompression(item.file, options);
                         return {
+                            aucID: item.aucID,
+                            userIDWithBid: item.userIDWithBid,
                             file: compressed,
                             preview: URL.createObjectURL(compressed),
                             startPrice: item.startPrice,
-                            isBid: false,
-                            userIDWithBid: null,
+                            isBid: item.isBid,
                         };
                     })
                 )
+
 
                 this.setState({
                     userID: data.UserID,
@@ -104,6 +113,7 @@ class LiveDetailComponent extends React.Component {
             this.connectWebSocket();
         }
     }
+
     connectWebSocket = () => {
         const ID = this.props.params.ID;
 
@@ -141,13 +151,31 @@ class LiveDetailComponent extends React.Component {
                 this.setState({ timeLeft: data.Message });
                 return;
             }
-            else if (data.Type === "HideAuction") {
-                // Ẩn auction có index = data.AuctionIndex
-                this.setState(prev => ({
-                    imageBidList: prev.imageBidList.map((item, index) =>
-                        index === data.Message ? { ...item, hidden: true } : item
-                    )
-                }));
+            else if (data.Type === "BidResult") {
+                // const updatedList = this.state.imageBidList.map((item, index) => {
+                //     if (index == data.AuctionIndex) {
+                //         return {
+                //             // aucID: item.aucID,
+                //             // userIDWithBid: Number(data.UserID),
+                //             // file: item.file,
+                //             // preview: item.preview,
+                //             ...item,
+                //             startPrice: data.Amount,
+                //             isBid: "Bid",
+                //         };
+                //     }
+                //     return item;
+                // });
+                this.reloadAuction();
+                toast.success(`User ${data.UserID} have won the ${data.AuctionIndex} Auction with ${data.Amount}`, {
+                    toastId: "won-auction",
+                });
+
+                // this.setState(
+                //     {
+                //         imageBidList: updatedList
+                //     }
+                // );
             }
 
 
@@ -175,12 +203,69 @@ class LiveDetailComponent extends React.Component {
             messagesList: e,
         })
     }
+    reloadAuction = async () => {
+        await axios.post("http://localhost:9999/backend/api/live/auction/get",
+            {
+                ID: this.props.params.ID
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            })
+            .then(async (res) => {
+                const options = {
+                    maxSizeMB: 0.1,
+                    maxWidthOrHeight: 1024,
+                    useWebWorker: true,
+                };
+                const data = res.data.response;
+                const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
+
+                const filesFromUrls = await Promise.all(
+                    previewUrls.map(async (item, index) => {
+                        const response = await fetch(item.mediaURL);
+                        const blob = await response.blob();
+                        return ({
+                            aucID: item.AucID,
+                            userIDWithBid: item.BidUserID,
+                            file: new File([blob], `image_${index}`, { type: blob.type }),
+                            preview: URL.createObjectURL(blob),
+                            startPrice: item.startPrice,
+                            isBid: item.IsBid,
+
+                        });
+                    })
+                );
+                const compressedFile = await Promise.all(
+                    filesFromUrls.map(async (item) => {
+                        const compressed = await imageCompression(item.file, options);
+                        return {
+                            aucID: item.aucID,
+                            userIDWithBid: item.userIDWithBid,
+                            file: compressed,
+                            preview: URL.createObjectURL(compressed),
+                            startPrice: item.startPrice,
+                            isBid: item.isBid,
+                        };
+                    })
+                )
+
+
+                this.setState({
+                    imageBidList: compressedFile,
+                    realBidImage: previewUrls,
+                });
+            })
+            .catch((err) => console.error(err));
+    }
     handleExit = async () => {
-        if (this.state.currentUserID === this.state.userID[0] && this.state.LiveStatus == 'Live') {
+        if (this.state.currentUserID === this.state.userID && this.state.LiveStatus == 'Live') {
             console.log('End live');
             axios.post(`http://localhost:9999/backend/api/live/detail/end`, {
                 ID: this.props.params.ID,
-                View: this.state.View[0],
+                View: this.state.View,
             }, {
                 headers: {
                     "Content-Type": "application/json"
@@ -281,13 +366,19 @@ class LiveDetailComponent extends React.Component {
 
                                 <div className="live-auction-list">
                                     {this.state.imageBidList.map((item, index) => {
-                                        if (item.hidden) return null;
+
                                         return (
                                             <div className="live-auction-item" key={index}>
+                                                {
+                                                    item.isBid == "Bid" ?
+                                                        <p className="auction-id">Sold out!!!</p>
+                                                        :
+                                                        <p className="auction-id">ID: {item.aucID}</p>
+                                                }
                                                 <div className="image-wrapper">
                                                     <img src={item.preview} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
                                                 </div>
-                                                <p>{item.startPrice}</p>
+                                                <p>{item.startPrice} VND</p>
                                             </div>
                                         )
                                     })

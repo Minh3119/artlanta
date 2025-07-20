@@ -9,12 +9,12 @@ package model;
  * @author ADMIN
  */
 public class MaxBidInfo {
-    public String userID;
-    public String username;
+    public int userID;
     public int amount;
-    public MaxBidInfo(String userID, String username, int amount) {
+
+    public MaxBidInfo(int userID, int amount) {
         this.userID = userID;
-        this.username = username;
         this.amount = amount;
     }
+    
 }
