@@ -11,8 +11,6 @@ CREATE TABLE Media (
     Description VARCHAR(255)
 );
 
-
-
 -- USERS
 CREATE TABLE Users (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,16 +31,6 @@ CREATE TABLE Users (
     IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
-
-/* PASSWORD RESET -- Beta
-CREATE TABLE PasswordReset (
-   ID INT PRIMARY KEY IDENTITY(1,1),
-   UserID INT NOT NULL,
-   Token NVARCHAR(255) NOT NULL,
-   Expiry DATETIME NOT NULL,
-   IsCaptchaVerified BOOLEAN DEFAULT 0,
-   FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
-)  */
 
 -- PORTFOLIO
 CREATE TABLE Portfolio (
@@ -141,7 +129,7 @@ CREATE TABLE Follows (
     FOREIGN KEY(FollowedID) REFERENCES Users(ID)
 );
 
--- COMMISSION PRICING
+
 
 -- WALLET AND TRANSACTION SYSTEM
 CREATE TABLE Wallets (
@@ -165,31 +153,6 @@ CREATE TABLE Transactions (
     FOREIGN KEY (UserID) REFERENCES Users(ID)
 );
 
-
-CREATE TABLE CommissionPricing (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    ArtistID INT,
-    Title VARCHAR(100),
-    Description VARCHAR(500),
-    Price INT,
-    EstimatedDays INT,
-    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
-);
-
--- COMMISSION REQUESTS
-CREATE TABLE CommissionRequest (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    ClientID INT,
-    ArtistID INT,
-    Title VARCHAR(100),
-    Description VARCHAR(1000),
-    ReferenceURL VARCHAR(255),
-    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Status VARCHAR(20) DEFAULT 'PENDING' CHECK (Status IN ('PENDING', 'APPROVED', 'REJECTED')),
-    FOREIGN KEY(ClientID) REFERENCES Users(ID),
-    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
-);
-
 -- PAYMENT
 CREATE TABLE Payment (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -198,29 +161,65 @@ CREATE TABLE Payment (
     Tax INT DEFAULT 5
 );
 
--- COMMISSIONS
+
+-- COMMISSION 
+CREATE TABLE CommissionRequest (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ClientID INT NOT NULL,                            -- người thuê
+    ArtistID INT NOT NULL,                            -- người được thuê
+	ShortDescription TEXT NOT NULL,                   -- mô tả yêu cầu                 
+    ReferenceURL VARCHAR(255),                        -- ảnh/tham khảo gửi kèm (nếu có)
+    ProposedPrice DECIMAL(10,2),                      -- giá khách đề xuất (có thể bị thương lượng qua tin nhắn)
+    ProposedDeadline DATETIME,                        -- thời gian mong muốn hoàn thành
+    Status ENUM('PENDING', 'REJECTED', 'ACCEPTED') DEFAULT 'PENDING', -- trạng thái duyệt
+    ArtistReply TEXT,                                 -- phản hồi ngắn từ artist nếu từ chối
+    RequestAt DATETIME DEFAULT CURRENT_TIMESTAMP,     -- thời điểm gửi yêu cầu
+    RespondedAt DATETIME,                             -- thời điểm artist phản hồi (accept/reject)
+    FOREIGN KEY(ClientID) REFERENCES Users(ID),
+    FOREIGN KEY(ArtistID) REFERENCES Users(ID)
+);
+
+
 CREATE TABLE Commission (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    RequestID INT NOT NULL,
-    PaymentID INT,
-    Deadline DATETIME,
-    Status VARCHAR(20) DEFAULT 'PROCESSING' CHECK (Status IN ('PROCESSING','DONE','CANCELLED')),
+    RequestID INT UNIQUE NOT NULL,            -- gắn với request đã được ACCEPTED
+    Title VARCHAR(100),                       -- tiêu đề tóm tắt (có thể copy từ request)
+    Description TEXT,                         -- mô tả cuối cùng sau khi chốt
+    Price DECIMAL(10,2) NOT NULL,             -- giá cuối đã thống nhất
+    Deadline DATETIME NOT NULL,               -- hạn cuối mà artist phải nộp
+    FileDeliveryURL VARCHAR(255),             -- link tải bản hoàn chỉnh (nếu có)
+    Status ENUM('IN_PROGRESS', 'COMPLETED', 'CANCELLED') DEFAULT 'IN_PROGRESS',
+    ArtistSeenFinal BOOLEAN DEFAULT FALSE,    -- đánh dấu artist đã gửi xong chưa
+    ClientConfirmed BOOLEAN DEFAULT FALSE,    -- đánh dấu client đã xác nhận hoàn tất chưa
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID),
-    FOREIGN KEY(PaymentID) REFERENCES Payment(ID)
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(RequestID) REFERENCES CommissionRequest(ID)
 );
 
--- COMMISSION PROGRESS
-CREATE TABLE CommissionProgress (
+CREATE TABLE CommissionRequirementDetail (
+    ID           INT AUTO_INCREMENT PRIMARY KEY,
+    CommissionID INT NOT NULL REFERENCES Commission(ID),
+    DetailKey    VARCHAR(50) NOT NULL COMMENT 'ví dụ: specs, style, materials…',
+    DetailValue  TEXT        NOT NULL COMMENT 'giá trị tương ứng',
+    CreatedAt    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE CommissionHistory (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    CommissionID INT,
-    Note VARCHAR(1000),
-    MediaURL VARCHAR(255),
-    ProgressAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(CommissionID) REFERENCES Commission(ID)
+    CommissionID INT NOT NULL,
+    ChangedField VARCHAR(50),       
+    OldValue TEXT,
+    NewValue TEXT,
+    ChangedBy INT,                     
+    ChangedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
+    FOREIGN KEY(ChangedBy) REFERENCES Users(ID)
 );
 
--- REVIEWS
+
+
+/*-- REVIEWS
 CREATE TABLE Review (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     CommissionID INT,
@@ -230,9 +229,10 @@ CREATE TABLE Review (
     ReviewAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
     FOREIGN KEY(ReviewerID) REFERENCES Users(ID)
-);
+); */
 
--- REPORTS -- Đang thử rút ngắn report user, post xem sao
+
+-- REPORTS
 CREATE TABLE ReportPost (
     ReporterID INT,
     PostID INT,
@@ -453,7 +453,7 @@ CREATE TABLE ConversationReads (
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
 ('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Graphic Designer', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-02-28'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie Quynh', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'MODERATOR', 0, '2025-03-01'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'MODERATOR', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
@@ -600,30 +600,6 @@ INSERT INTO Follows (FollowerID, FollowedID, Status, FollowAt) VALUES
 (28, 7, 'ACCEPTED', '2025-06-11');
 
 
-INSERT INTO CommissionPricing (ArtistID, Title, Description, Price, EstimatedDays) VALUES
-(1, 'Portrait Sketch', 'Phác thảo chân dung đơn giản.', 100000, 3),
-(2, 'Digital Painting', 'Tranh kỹ thuật số chi tiết.', 500000, 7),
-(3, 'Custom 3D Model', 'Mẫu 3D theo yêu cầu.', 1000000, 14),
-(4, 'Watercolor Painting', 'Tranh màu nước.', 300000, 5),
-(5, 'Character Design', 'Thiết kế nhân vật.', 400000, 6),
-(6, 'Abstract Art', 'Tranh trừu tượng.', 350000, 5),
-(7, 'Photography Session', 'Chụp ảnh nghệ thuật.', 700000, 2),
-(8, 'Animation Clip', 'Video hoạt hình ngắn.', 1500000, 20),
-(9, 'Logo Design', 'Thiết kế logo cá nhân.', 200000, 3),
-(10, 'Mixed Media Art', 'Kết hợp nhiều chất liệu.', 600000, 8);
-
-
-INSERT INTO CommissionRequest (ClientID, ArtistID, Title, Description, ReferenceURL, RequestAt, Status) VALUES
-(2, 1, 'Portrait Request', 'Xin vẽ chân dung theo ảnh.', 'http://ref1.com', '2025-04-20', 'PENDING'),
-(3, 2, 'Landscape Painting', 'Tranh phong cảnh Việt Nam.', 'http://ref2.com', '2025-04-21', 'APPROVED'),
-(4, 3, '3D Model Request', 'Mẫu 3D nhân vật game.', 'http://ref3.com', '2025-04-22', 'REJECTED'),
-(5, 4, 'Watercolor Request', 'Tranh màu nước phong cảnh.', 'http://ref4.com', '2025-04-23', 'PENDING'),
-(6, 5, 'Character Design', 'Thiết kế nhân vật hoạt hình.', 'http://ref5.com', '2025-04-24', 'PENDING'),
-(7, 6, 'Abstract Painting', 'Yêu cầu tranh trừu tượng.', 'http://ref6.com', '2025-04-25', 'APPROVED'),
-(8, 7, 'Photography Shoot', 'Chụp ảnh cá nhân.', 'http://ref7.com', '2025-04-26', 'PENDING'),
-(9, 8, 'Animation Clip', 'Làm video hoạt hình.', 'http://ref8.com', '2025-04-27', 'APPROVED'),
-(10, 9, 'Logo Design', 'Thiết kế logo công ty.', 'http://ref9.com', '2025-04-28', 'REJECTED'),
-(1, 10, 'Mixed Media Art', 'Tranh kết hợp chất liệu.', 'http://ref10.com', '2025-04-29', 'PENDING');
 
 -- Sample Media data with real, lightweight image URLs
 INSERT INTO Media (URL, Description) VALUES
@@ -942,7 +918,8 @@ VALUES
   (8, 440000.00, 'VND'),
   (9, 0.00, 'VND'),
   (10, 300000.00, 'VND');
-  
+
+
 
   
 INSERT INTO Transactions (UserID, PaymentMethod, Amount, Currency, Status, TransactionType, Description, CreatedAt)
