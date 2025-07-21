@@ -45,7 +45,9 @@ public class InsertPlayTime extends HttpServlet {
             Integer userID = SessionUtil.getCurrentUserId(session);
 
             double time = Double.parseDouble(timeRaw);
-            md.insertPlayTime(userID, time);
+            if(userID!=null){
+                md.insertPlayTime(userID, time);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -57,7 +57,7 @@ export default function PostDetailCard({ postId }) {
 
     useEffect(() => {
         fetchPostData();
-    }, [postId] );
+    }, [postId]);
 
     const handleCommentSubmit = async () => {
         if (!commentContent.trim()) {
@@ -184,6 +184,6 @@ export default function PostDetailCard({ postId }) {
                 </div>
             </div>
         </div>
-        
+
     );
 }

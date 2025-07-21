@@ -105,6 +105,29 @@ public class WalletDAO extends DBContext {
         }
     }
 
+    public void updateAddBalance(int userID, BigDecimal amount) {
+        String updateSql = "UPDATE Wallets SET Balance = Balance + ?, UpdatedAt = CURRENT_TIMESTAMP WHERE UserID = ?";
+        try (PreparedStatement updateSt = connection.prepareStatement(updateSql)) {
+            updateSt.setBigDecimal(1, amount);
+            updateSt.setInt(2, userID);
+            int rowsAffected = updateSt.executeUpdate();
+            System.out.println("Updated wallet for user " + userID + ", rows affected: " + rowsAffected);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateRemoveBalance(int userID, BigDecimal amount) {
+        String updateSql = "UPDATE Wallets SET Balance = Balance - ?, UpdatedAt = CURRENT_TIMESTAMP WHERE UserID = ?";
+        try (PreparedStatement updateSt = connection.prepareStatement(updateSql)) {
+            updateSt.setBigDecimal(1, amount);
+            updateSt.setInt(2, userID);
+            int rowsAffected = updateSt.executeUpdate();
+            System.out.println("Updated wallet for user " + userID + ", rows affected: " + rowsAffected);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public BigDecimal getTotalTransactionAmount() throws SQLException {
         String sql = "SELECT SUM(Amount) FROM Transactions WHERE Status = 'Nạp tiền vào tài khoản'";
         try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {

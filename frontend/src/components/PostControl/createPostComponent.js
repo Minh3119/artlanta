@@ -215,6 +215,7 @@ class CreatePostComponent extends React.Component {
                 body: formData,
                 credentials: 'include'
             });
+            console.log("res", res);
             if (res.ok) {
                 this.setState({
                     title: '',

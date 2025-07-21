@@ -61,8 +61,56 @@
         <servlet-class>controller.ChangePasswordServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>LivePage</servlet-name>
+        <servlet-class>controller.Live.LivePage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LiveCheck</servlet-name>
+        <servlet-class>controller.Live.LiveCheck</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetLive</servlet-name>
+        <servlet-class>controller.Live.GetLive</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UpdateView</servlet-name>
+        <servlet-class>controller.Live.UpdateView</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EndLive</servlet-name>
+        <servlet-class>controller.Live.EndLive</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LiveKey</servlet-name>
+        <servlet-class>controller.Live.LiveKey</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>GetLiveChat</servlet-name>
+        <servlet-class>controller.Live.GetLiveChat</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewAuction</servlet-name>
+        <servlet-class>controller.Live.ViewAuction</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewViewer</servlet-name>
+        <servlet-class>controller.Live.ViewViewer</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>RequestCommisson</servlet-name>
         <servlet-class>controller.commission.RequestCommisson</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CreateGallery</servlet-name>
+        <servlet-class>controller.Live.CreateGallery</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewImagePost</servlet-name>
+        <servlet-class>controller.Live.ViewImagePost</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HandleRequestCom</servlet-name>
+        <servlet-class>controller.commission.HandleRequestCom</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
@@ -197,8 +245,56 @@
         <url-pattern>/api/changepassword</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>LivePage</servlet-name>
+        <url-pattern>/api/live</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LiveCheck</servlet-name>
+        <url-pattern>/api/live/check</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetLive</servlet-name>
+        <url-pattern>/api/live/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UpdateView</servlet-name>
+        <url-pattern>/api/live/update/view</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EndLive</servlet-name>
+        <url-pattern>/api/live/detail/end</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LiveKey</servlet-name>
+        <url-pattern>/api/live/key</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetLiveChat</servlet-name>
+        <url-pattern>/api/live/chat/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewAuction</servlet-name>
+        <url-pattern>/api/live/auction/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewViewer</servlet-name>
+        <url-pattern>/api/live/view/get</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>RequestCommisson</servlet-name>
         <url-pattern>/api/reqcom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreateGallery</servlet-name>
+        <url-pattern>/api/live/gallery/create</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewImagePost</servlet-name>
+        <url-pattern>/api/live/gallery/image/pick</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HandleRequestCom</servlet-name>
+        <url-pattern>/api/handlerequest</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

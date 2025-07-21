@@ -38,12 +38,16 @@ import EditPasswordComponent from "../components/UserProfileEdit/editPasswordCom
 import EditNotificationComponent from "../components/UserProfileEdit/editNotificationComponent";
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
 import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountComponent";
+import LiveDetailComponent from "../components/LiveStream/liveDetailComponent.js";
+import LivePageComponent from "../components/LiveStream/livePageComponent.js";
+import LiveFormComponent from "../components/LiveStream/liveFormComponent.js";
 import CommissionListPage from "./CommissionListPage.js";
 import CommissionDetailPage from "./CommissionDetailPage.js";
 import ArtistFormContainer from "../components/ArtistForm/ArtistFormContainer";
 import EKYC from "./EKYCVerificationPage.js";
 import Withdraw from "./Withdraw.js";
 import EditProfile from "./EditProfile.js";
+import CommissionDashboard from "./CommissionDashboard.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -69,15 +73,18 @@ function App() {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/payment" element={<Payment />}></Route>
-          <Route path="/paymentHis" element={<PaymentHis/>}></Route>
-          <Route path="/paymentResult" element={<PaymentResult/>}></Route>
+          <Route path="/paymentHis" element={<PaymentHis />}></Route>
+          <Route path="/paymentResult" element={<PaymentResult />}></Route>
           <Route path="/471408451d6070899bba1548031a2cf3/admin" element={<AdminDashboard />} />
           <Route path="/recent-posts" element={<RecentPosts />} />
           <Route path="/event" element={<EventPage />} />
           <Route path="/saved" element={<SavedPostPage />} />
+          <Route path="/live" element={<LivePageComponent />} />
+          <Route path="/live/form" element={<LiveFormComponent />} />
           <Route path="/commissions" element={<CommissionListPage />} />
           <Route path="/commissions/:commissionId" element={<CommissionDetailPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
+          <Route path="/live/detail/:ID" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>
             <Route path="editprofile" element={<EditProfileComponent />} />
             <Route path="editpassword" element={<EditPasswordComponent />} />
@@ -87,25 +94,31 @@ function App() {
           </Route>
           <Route path="/editprofile" element={<EditProfile />}></Route>
           <Route path="/artistPost" element={<ArtistFormContainer />}></Route>
-          <Route path="/eKYC" element={<EKYC/>}></Route>
-          <Route path="/withdraw" element={<Withdraw/>}></Route>
+          <Route path="/eKYC" element={<EKYC />}></Route>
+          <Route path="/withdraw" element={<Withdraw />}></Route>
           <Route path="/request" element={<CommissionRequestForm />} />
-        </Routes>
+           <Route path="/commissiondashboard" element={<CommissionDashboard/>}>
+            <Route path="request" element={<CommissionDashboard/>} />
+    </Route>
+        </Routes >
+       
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}
         />
-        {isMusicOpen ? null : (
-          <div
-            className="floating-icon"
-            onClick={() => setIsMusicOpen(!isMusicOpen)}
-          >
-            <FiHeadphones />
-          </div>
-        )}
-      </BrowserRouter>
+        {
+          isMusicOpen ? null : (
+            <div
+              className="floating-icon"
+              onClick={() => setIsMusicOpen(!isMusicOpen)}
+            >
+              <FiHeadphones />
+            </div>
+          )
+        }
+      </BrowserRouter >
       <ToastContainer />
-    </WebSocketProvider>
+    </WebSocketProvider >
   );
 }
 

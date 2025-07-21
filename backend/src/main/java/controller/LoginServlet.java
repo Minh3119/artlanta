@@ -41,7 +41,9 @@ public class LoginServlet extends HttpServlet {
         } else {
             HttpSession session = request.getSession(true);
             int userId = userDAO.getUserIdByEmail(email);
+            User u=userDAO.getOne(userId);
             SessionUtil.storeUserInSession(session, userId);
+            SessionUtil.storeUserNameInSession(session, u.getUsername());
 
             jsonResponse.put("success", true);
             jsonResponse.put("user", new JSONObject()

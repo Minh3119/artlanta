@@ -3,6 +3,13 @@ package dal;
 import dto.CommissionDTO;
 import java.sql.*;
 import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import model.CommissionRequest;
 
 public class CommissionDAO extends DBContext {
@@ -199,20 +206,22 @@ public class CommissionDAO extends DBContext {
     }
 
     // Kiểm tra nếu đã tồn tại request đang chờ duyệt từ client đến artist
-    public boolean hasPendingRequest(int clientID, int artistID) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM CommissionRequest WHERE ClientID = ? AND ArtistID = ? AND Status = 'PENDING'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, clientID);
-            stmt.setInt(2, artistID);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+    public boolean hasPendingRequest(int clientID, int artistID) {
+    String sql = "SELECT COUNT(*) FROM CommissionRequest WHERE ClientID = ? AND ArtistID = ? AND Status = 'PENDING'";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, clientID);
+        stmt.setInt(2, artistID);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
             }
         }
-		
-        return false;
+    } catch (SQLException e) {
+        e.printStackTrace(); // hoặc ghi log bằng logger
     }
+    return false;
+}
+
 
     // Chỉ insert nếu không có request nào đang pending
     public boolean insertCommissionRequest(CommissionRequest req) throws SQLException {
@@ -267,4 +276,81 @@ public class CommissionDAO extends DBContext {
             return affected > 0;
         }
     }
+	
+   public List<CommissionRequest> getPendingRequestsByArtistID(int artistID) {
+    List<CommissionRequest> list = new ArrayList<>();
+    String sql = "SELECT * FROM CommissionRequest WHERE ArtistID = ? AND Status = 'PENDING' ORDER BY RequestAt DESC";
+
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, artistID);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                CommissionRequest req = new CommissionRequest();
+                req.setID(rs.getInt("ID"));
+                req.setClientID(rs.getInt("ClientID"));
+                req.setArtistID(rs.getInt("ArtistID"));
+                req.setShortDescription(rs.getString("ShortDescription"));
+                req.setReferenceURL(rs.getString("ReferenceURL"));
+                req.setProposedPrice(rs.getDouble("ProposedPrice"));
+
+                Timestamp deadlineTS = rs.getTimestamp("ProposedDeadline");
+                if (deadlineTS != null) {
+                    req.setProposedDeadline(deadlineTS.toLocalDateTime());
+                }
+
+                req.setStatus(rs.getString("Status"));
+                req.setArtistReply(rs.getString("ArtistReply"));
+
+                Timestamp requestAtTS = rs.getTimestamp("RequestAt");
+                if (requestAtTS != null) {
+                    req.setRequestAt(requestAtTS.toLocalDateTime());
+                }
+
+                Timestamp respondedAtTS = rs.getTimestamp("RespondedAt");
+                if (respondedAtTS != null) {
+                    req.setRespondedAt(respondedAtTS.toLocalDateTime());
+                }
+
+                list.add(req);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+   
+public boolean createCommission(int requestID, String title, String description, double price, LocalDateTime deadline) throws SQLException {
+    // kiểm tra request có được chấp nhận chưa
+    String checkSql = "SELECT Status FROM CommissionRequest WHERE ID = ?";
+    try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
+        checkStmt.setInt(1, requestID);
+        try (ResultSet rs = checkStmt.executeQuery()) {
+            if (rs.next()) {
+                String status = rs.getString("Status");
+                if (!"ACCEPTED".equalsIgnoreCase(status)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    // chèn commission mới
+    String insertSql = "INSERT INTO Commission (RequestID, Title, Description, Price, Deadline) VALUES (?, ?, ?, ?, ?)";
+    try (PreparedStatement stmt = connection.prepareStatement(insertSql)) {
+        stmt.setInt(1, requestID);
+        stmt.setString(2, title);
+        stmt.setString(3, description);
+        stmt.setDouble(4, price);
+        stmt.setTimestamp(5, Timestamp.valueOf(deadline));
+        return stmt.executeUpdate() > 0;
+    }
+}
+
+
+
+
 }

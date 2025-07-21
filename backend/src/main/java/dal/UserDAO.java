@@ -90,7 +90,7 @@ public class UserDAO extends DBContext {
 
     public User getOne(int userID) {
         User user = null;
-        String sql = "SELECT * FROM Users WHERE ID = ?";
+        String sql = "SELECT * FROM Users WHERE ID = ?;";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, userID);
             st.closeOnCompletion();
@@ -334,6 +334,21 @@ public class UserDAO extends DBContext {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getString("AvatarURL");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+	
+      public String getUNByUserID(int userID) {
+        String sql = "SELECT userName FROM Users WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
                 }
             }
         } catch (SQLException e) {

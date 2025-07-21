@@ -17,6 +17,7 @@ export default function Header({ openCreatePopup }) {
   const [balance, setBalance] = useState(0);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [ava, setAva] = useState("");
   const [userID, setUserID] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,8 +25,8 @@ export default function Header({ openCreatePopup }) {
   const userMenuRef = useRef(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
-  const [eKYC,setEKYC] = useState(false);
-  const [accURL,setAccURL] = useState("");
+  const [eKYC, setEKYC] = useState(false);
+  const [accURL, setAccURL] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -118,29 +119,28 @@ export default function Header({ openCreatePopup }) {
     checkEKYC();
   }, []);
 
-    useEffect(() => {
-      const checkRole = async () => {
-        try {
-          const res = await fetch(
-            "http://localhost:9999/backend/api/role/check",
-            {
-              credentials: "include",
-            }
-          );
+useEffect(() => {
+  const checkRole = async () => {
+    try {
+      const res = await fetch("http://localhost:9999/backend/api/role/check", {
+        credentials: "include",
+      });
 
-          if (!res.ok) return;
+      if (!res.ok) return;
 
-          const data = await res.json();
-          if (data.isArtist) {
-            setIsArtist(true);
-          }
-        } catch (error) {
-          console.error("Failed to check role:", error);
-        }
-      };
+      const data = await res.json();
+      setAva(data.avatarURL);
+      if (data.isArtist) {
+        setIsArtist(true);
+      }
+    } catch (error) {
+      console.error("Failed to check role:", error);
+    }
+  };
 
-      checkRole();
-    }, []);
+  checkRole();
+}, []);
+
 
   const handleLogout = async () => {
     try {
@@ -170,14 +170,14 @@ export default function Header({ openCreatePopup }) {
         {isLogin && !isArtist && location.pathname === "/" && (
           <div className="artist-invitation-container">
             <Link to="/artistPost" className="artist-invitation__link">
-              <p>Bạn muốn làm artist</p>
+              <p>I want to be an Artist!!</p>
             </Link>
           </div>
         )}
         {isLogin && isArtist && !eKYC && (
           <div className="artist-invitation-container">
             <Link to="/eKYC" className="artist-invitation__link">
-              <p>Xác minh eKYC</p>
+              <p>Verify eKYC</p>
             </Link>
           </div>
         )}
@@ -188,18 +188,29 @@ export default function Header({ openCreatePopup }) {
             <p className="header-navbar__title">Commissions</p>
           </div>
         </Link>
-        <Link to="#">
-          <div className="header-navbar__container active">
-            <p className="header-navbar__title">Today</p>
-          </div>
-        </Link>
+        {
+          !userID ?
+            <Link to="/login">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+            :
+            <Link to="/live/form">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+        }
         <div
           className="header-navbar__container"
           ref={createMenuRef}
           onClick={() => setShowCreateMenu(!showCreateMenu)}
           style={{ cursor: "pointer", position: "relative" }}
         >
-          <p className="header-navbar__title">Create</p>
+          <p className="header-navbar__title" id="test-create-btn">Create</p>
           <img
             src={arrowDown}
             alt=""
@@ -274,6 +285,28 @@ export default function Header({ openCreatePopup }) {
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
+       {isArtist && userID != 0 && (
+                  <Link to="/commissiondashboard" className="user-menu-item"  style={{
+        background: `radial-gradient(ellipse 98.08% 114.73% at -3.98% 12.50%, #5EDCFF 0%, rgba(94, 220, 255, 0) 100%), 
+             radial-gradient(ellipse 136.08% 98.99% at 43.75% 114.06%, #3D8BFF 0%, #A8E8FF 81%), 
+             #0F4C81`,
+            
+        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.80) inset',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '14px',
+        marginTop:'-8px',
+        cursor: 'pointer',
+        textShadow: '0 0 5px white'
+      }}>
+                    Manage Commission
+                  </Link>
+                )}
                 {userID != 0 && (
                   <Link to="/" className="user-menu-item">
                     Balance: {Math.floor(balance).toLocaleString()} VND
@@ -299,7 +332,7 @@ export default function Header({ openCreatePopup }) {
                     Top Up
                   </Link>
                 )}
-                {userID != 0 && isArtist &&  (
+                {userID != 0 && isArtist && (
                   <Link to="/withdraw" className="user-menu-item">
                     Withdraw
                   </Link>

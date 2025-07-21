@@ -57,6 +57,49 @@ CREATE TABLE Posts (
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
+CREATE TABLE LivePosts (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    Title VARCHAR(100),
+    LiveID VARCHAR(255),
+    LiveView INT NOT NULL,
+    LiveStatus VARCHAR(20) default 'Live' CHECK (LiveStatus IN ('Live','Post')),
+    Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
+);
+CREATE TABLE Gallery (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT default 0,
+    LivePostID INT NOT NULL,
+    ImageUrl VARCHAR(500) NOT NULL,
+    GalleryLike INT default 0,
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE LiveChatMessages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    LivePostID INT NOT NULL,
+    UserID INT NOT NULL,
+    ChatType VARCHAR(20) DEFAULT 'Chat',
+    Message TEXT NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+CREATE TABLE Auctions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    SalerID INT default 0,
+    LivePostID INT NOT NULL,
+    ImageUrl VARCHAR(500) NOT NULL,
+    Price INT NOT NULL CHECK (Price >= 0),
+    UserID INT default 0,
+    IsBid VARCHAR(20) default 'NoBid',
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+
 -- Multi Media URL -- bắt buộc để đảm bảo khóa
 
 -- bảng nối với Post
@@ -430,7 +473,7 @@ BEGIN
         INSERT INTO CommissionHistory (
             CommissionID,
             ChangedField,
-OldValue,
+            OldValue,
             NewValue,
             ChangedBy,
             ChangedAt
@@ -447,8 +490,6 @@ OldValue,
 END$$
 
 DELIMITER ;
-
-
 
 
 
@@ -482,6 +523,18 @@ CREATE TABLE Messages (
     MediaURL VARCHAR(255),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
+    FOREIGN KEY(SenderID) REFERENCES Users(ID),
+    isDeleted BOOLEAN DEFAULT FALSE,
+    deletedAt DATETIME NULL
+);
+
+Create table LiveMessages(
+	ID INT AUTO_INCREMENT PRIMARY KEY,
+    SenderID INT,
+    Content TEXT,
+    RoomID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(RoomID) REFERENCES LivePosts(ID),
     FOREIGN KEY(SenderID) REFERENCES Users(ID),
     isDeleted BOOLEAN DEFAULT FALSE,
     deletedAt DATETIME NULL
@@ -1024,7 +1077,7 @@ VALUES
 
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(2, 1, 'Portrait of my pet', 'https://imgur.com/pet.jpg', 200000, '2025-07-01', 'PENDING', NULL, '2025-06-15', NULL),
+(2, 1, 'Portrait of my pet', 'https://i.pinimg.com/1200x/6a/1a/18/6a1a18472a84fb0aa929672fa834441f.jpg', 200000, '2025-07-01', 'PENDING', NULL, '2025-06-15', NULL),
 (3, 2, 'Landscape painting of Hanoi', NULL, 500000, '2025-07-10', 'REJECTED', 'Sorry, I am busy this month.', '2025-06-16', '2025-06-17'),
 (4, 3, 'Anime style character', 'https://imgur.com/char.jpg', 350000, '2025-07-05', 'ACCEPTED', NULL, '2025-06-18', '2025-06-19');
 
@@ -1056,7 +1109,7 @@ VALUES
 -- User 2 as Client, User 1 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(2, 1, 'Cartoon avatar', 'https://imgur.com/avatar2.jpg', 9000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
+(2, 1, 'Cartoon avatar', 'https://i.pinimg.com/736x/0a/8f/bb/0a8fbba508d98b19403ff8ce530f0e2f.jpg', 9000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
 (2, 1, 'Family portrait', NULL, 40000, '2025-07-30', 'REJECTED', 'Currently not accepting new commissions.', '2025-06-26', '2025-06-27'),
 (2, 1, 'Fantasy character full body', 'https://imgur.com/fantasy1.jpg', 35000, '2025-08-01', 'ACCEPTED', NULL, '2025-06-28', '2025-06-29');
 
