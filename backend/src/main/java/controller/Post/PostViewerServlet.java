@@ -51,7 +51,6 @@ public class PostViewerServlet extends HttpServlet {
 	private void getAllPosts(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		int offset = 0;
 		int limit = 0;
-
 		try {
 			String offsetParam = request.getParameter("offset");
 			String limitParam = request.getParameter("limit");
@@ -71,7 +70,7 @@ public class PostViewerServlet extends HttpServlet {
 		LikesDAO ldao = new LikesDAO();
 		SaveDAO sdao = new SaveDAO();
 
-		List<Post> posts = pdao.getAllPosts(limit, offset);
+		List<Post> posts = pdao.getAllPosts(offset, limit);
 		JSONArray jsonPosts = new JSONArray();
 
 		HttpSession session = request.getSession(false);

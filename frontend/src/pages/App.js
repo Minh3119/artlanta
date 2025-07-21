@@ -33,6 +33,7 @@ import UserStatistics from "./UserStatistics.jsx";
 import { WebSocketProvider } from "../contexts/WebSocketContext";
 import Settings from "./Settings.jsx";
 import EditProfileComponent from "../components/UserProfileEdit/editProfileComponent";
+import CommissionRequestForm from "../components/Commission/CommissionRequestForm";
 import EditPasswordComponent from "../components/UserProfileEdit/editPasswordComponent";
 import EditNotificationComponent from "../components/UserProfileEdit/editNotificationComponent";
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
@@ -80,6 +81,7 @@ function App() {
           </Route>
           <Route path="/artistPost" element={<ArtistFormContainer />}></Route>
           <Route path="/eKYC" element={<EKYC/>}></Route>
+          <Route path="/request" element={<CommissionRequestForm />} />
         </Routes>
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}
