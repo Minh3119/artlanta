@@ -123,7 +123,7 @@ public class LiveChatEndpoint {
 
         Auction au = ad.getByIndex(auctionIndex);
         NotificationDAO nd = new NotificationDAO();
-//        boolean rs = nd.saveNotification(au.getUserID(), "Auction", au.getImageUrl());
+        boolean rs = nd.saveNotification(au.getUserID(), "Auction", au.getImageUrl());
         roomCurrentAuction.computeIfPresent(roomID, (key, index) -> index + 1);
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
         System.out.println("current aution " + currentIndex);
