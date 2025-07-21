@@ -74,6 +74,33 @@ public class PostDAO extends DBContext {
             }
         }
     }
+    public List<String> getAllImage(int UserID){
+        List<String> list= new ArrayList();
+        String sql= """
+                    SELECT m.URL AS imageURL
+                    FROM Users u
+                    JOIN Posts p ON u.ID = p.UserID
+                    JOIN PostMedia pm ON p.ID = pm.PostID
+                    JOIN Media m ON pm.MediaID = m.ID
+                    WHERE u.ID = ?;
+                    """;
+        try{
+            PreparedStatement st = connection.prepareStatement(sql);
+	   st.setInt(1, UserID);
+           ResultSet rs= st.executeQuery();
+           while(rs.next()){
+               list.add(rs.getString("URL"));
+           }
+           
+           rs.close();
+           st.close();
+            
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     public List<Post> getAllPosts(int offset, int limit) {
         List<Post> posts = new ArrayList<>();

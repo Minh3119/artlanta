@@ -481,7 +481,9 @@ class LiveDetailComponent extends React.Component {
                                     }
                                 </div>
                             </div>
-                            <LiveGalleryComponent />
+                            {/* <LiveGalleryComponent
+                                ID={this.props.params.ID}
+                            /> */}
                         </div>
                         <LiveChatComponent
                             View={this.state.View}
