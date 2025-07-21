@@ -74,6 +74,7 @@ public class CurrentUserServlet extends HttpServlet {
                 userJson.put("bio", user.getBio());
                 userJson.put("avatarUrl", user.getAvatarURL());
                 userJson.put("isMale", user.getGender());
+                userJson.put("DOB", user.getDOB());
                 userJson.put("location", user.getLocation());
                 userJson.put("role", user.getRole());
                 userJson.put("status", user.getStatus());

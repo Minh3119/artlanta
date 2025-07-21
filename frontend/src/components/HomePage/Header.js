@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
-
+import { useLocation } from "react-router-dom";
 import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
@@ -19,11 +19,13 @@ export default function Header({ openCreatePopup }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userID, setUserID] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const createMenuRef = useRef(null);
   const userMenuRef = useRef(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
   const [eKYC,setEKYC] = useState(false);
+  const [accURL,setAccURL] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -165,7 +167,7 @@ export default function Header({ openCreatePopup }) {
         <Link to="/">
           <img src={arlanta} alt="Artlanta" />
         </Link>
-        {isLogin && !isArtist && (
+        {isLogin && !isArtist && location.pathname === "/" && (
           <div className="artist-invitation-container">
             <Link to="/artistPost" className="artist-invitation__link">
               <p>Bạn muốn làm artist</p>
@@ -295,6 +297,11 @@ export default function Header({ openCreatePopup }) {
                 {userID != 0 && (
                   <Link to="/payment" className="user-menu-item">
                     Top Up
+                  </Link>
+                )}
+                {userID != 0 && isArtist &&  (
+                  <Link to="/withdraw" className="user-menu-item">
+                    Withdraw
                   </Link>
                 )}
                 {userID != 0 && (
