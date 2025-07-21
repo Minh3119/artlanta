@@ -26,9 +26,18 @@ public class CommissionServlet extends HttpServlet {
         int userId = SessionUtil.getCurrentUserId(session);
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/") || pathInfo.isEmpty()) {
-            // List all commissions for user
-            JSONObject commissions = commissionService.getCommissionsByUserId(userId);
-            JsonUtil.writeJsonResponse(response, commissions);
+            // Check for status filter
+            String status = request.getParameter("status");
+            if (status != null && !status.isEmpty()) {
+                JSONObject commissions = commissionService.getCommissionsByUserId(userId, status);
+                JsonUtil.writeJsonResponse(response, commissions);
+            } else {
+                // No status selected, return empty list
+                JSONObject empty = new JSONObject();
+                empty.put("success", true);
+                empty.put("commissions", new org.json.JSONArray());
+                JsonUtil.writeJsonResponse(response, empty);
+            }
         } else if (pathInfo.matches("/\\d+/history/?")) {
             // Get commission history
             try {
