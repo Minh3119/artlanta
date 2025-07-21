@@ -30,7 +30,7 @@ export default function EditProfile() {
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState(false);
   const [address, setAddress] = useState("");
   const [bio, setBio] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -41,6 +41,54 @@ export default function EditProfile() {
   const [YOE, setYOE] = useState("");
   const [eKYC, setEKYC] = useState(false);
   const [specialty, setSpecialty] = useState("");
+
+  const validateInputs = () => {
+    const today = new Date();
+    const dob = new Date(dateOfBirth);
+    const age =
+      today.getFullYear() -
+      dob.getFullYear() -
+      (today.getMonth() < dob.getMonth() ||
+      (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())
+        ? 1
+        : 0);
+
+    if (dateOfBirth && isNaN(dob.getTime())) {
+      toast.error("Ngày sinh không hợp lệ");
+      return false;
+    }
+
+    if (dateOfBirth && age < 18) {
+      toast.error("Bạn phải đủ 18 tuổi trở lên để sử dụng hệ thống");
+      return false;
+    }
+
+    if (role === "ARTIST") {
+      const phoneRegex = /^[0-9]{10,15}$/;
+      if (!phoneRegex.test(phoneNumber)) {
+        toast.error("Số điện thoại phải có từ 10 đến 15 chữ số");
+        return false;
+      }
+
+      const yoeInt = parseInt(YOE);
+      if (isNaN(yoeInt) || yoeInt < 0) {
+        toast.error("Số năm kinh nghiệm phải là số nguyên không âm");
+        return false;
+      }
+
+      if (dateOfBirth && yoeInt > age) {
+        toast.error("Số năm kinh nghiệm không thể lớn hơn tuổi");
+        return false;
+      }
+
+      if (!specialty.trim()) {
+        toast.error("Chuyên ngành không được để trống");
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -62,20 +110,29 @@ export default function EditProfile() {
           toast.error("Phiên đăng nhập hết hạn");
           return;
         }
+
         const data = await res.json();
         const user = data.response;
+
         setUsername(user.username || "");
         setFullname(user.fullName || "");
         setEmail(user.email || "");
         setAvatarPreview(user.avatarUrl || "");
-        setGender(user.gender || "0");
-        setAddress(user.address || "");
+        setGender(user.isMale ?? false); // ✅ sửa ở đây
+        setAddress(user.location || ""); // ✅ sửa ở đây
         setBio(user.bio || "");
         setRole(user.role || "");
+
+        if (user.DOB) {
+          const date = new Date(user.DOB);
+          const formatted = date.toISOString().split("T")[0]; // ✅ yyyy-mm-dd
+          setDateOfBirth(formatted);
+        }
       } catch (error) {
         console.error("Failed to check role:", error);
       }
     };
+
     checkRole();
   }, []);
 
@@ -156,6 +213,8 @@ export default function EditProfile() {
         }
       }
 
+      if (!validateInputs()) return;
+
       const userRes = await fetch(
         "http://localhost:9999/backend/api/update-profile",
         {
@@ -169,7 +228,7 @@ export default function EditProfile() {
             gender,
             address,
             bio,
-            dateOfBirth,
+            dateOfBirth
           }),
         }
       );
@@ -342,7 +401,7 @@ export default function EditProfile() {
                   <div>
                     <label className="edit-profile-label">Giới tính</label>
                     <select
-                      value={gender}
+                      value={gender ? "1" : "0"}
                       onChange={(e) => setGender(e.target.value)}
                       className="edit-profile-select"
                     >
@@ -357,6 +416,7 @@ export default function EditProfile() {
                     <MapPin className="w-4 h-4 inline mr-1" /> Địa chỉ
                   </label>
                   <input
+                    maxLength={500}
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -380,35 +440,41 @@ export default function EditProfile() {
                   </p>
                 </div>
 
-                <div className="bio-div">
-                  <label className="edit-profile-label">Số điện thoại</label>
-                  <input
-                    type="text"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="edit-profile-input"
-                  />
-                </div>
-                <div className="bio-div">
-                  <label className="edit-profile-label">
-                    Số năm kinh nghiệm
-                  </label>
-                  <input
-                    type="number"
-                    value={YOE}
-                    onChange={(e) => setYOE(e.target.value)}
-                    className="edit-profile-input"
-                  />
-                </div>
-                <div className="bio-div">
-                  <label className="edit-profile-label">Chuyên ngành</label>
-                  <input
-                    type="text"
-                    value={specialty}
-                    onChange={(e) => setSpecialty(e.target.value)}
-                    className="edit-profile-input"
-                  />
-                </div>
+                {role === "ARTIST" && (
+                  <>
+                    <div className="bio-div">
+                      <label className="edit-profile-label">
+                        Số điện thoại
+                      </label>
+                      <input
+                        type="text"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className="edit-profile-input"
+                      />
+                    </div>
+                    <div className="bio-div">
+                      <label className="edit-profile-label">
+                        Số năm kinh nghiệm
+                      </label>
+                      <input
+                        type="number"
+                        value={YOE}
+                        onChange={(e) => setYOE(e.target.value)}
+                        className="edit-profile-input"
+                      />
+                    </div>
+                    <div className="bio-div">
+                      <label className="edit-profile-label">Chuyên ngành</label>
+                      <input
+                        type="text"
+                        value={specialty}
+                        onChange={(e) => setSpecialty(e.target.value)}
+                        className="edit-profile-input"
+                      />
+                    </div>
+                  </>
+                )}
               </>
             )}
 

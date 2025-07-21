@@ -591,4 +591,69 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean updateBasicProfile(
+            int userId,
+            String username,
+            String fullName,
+            String email,
+            boolean gender,
+            String location,
+            String bio,
+            LocalDateTime dob
+    ) {
+        String sql = """
+        UPDATE Users SET
+            Username = ?,
+            FullName = ?,
+            Email = ?,
+            Gender = ?,
+            Location = ?,
+            Bio = ?,
+            DOB = ?
+        WHERE ID = ?
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, fullName);
+            st.setString(3, email);
+            st.setBoolean(4, gender);
+            st.setString(5, location);
+            st.setString(6, bio);
+            st.setObject(7, dob);
+            st.setInt(8, userId);
+
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isUsernameTakenByOthers(String username, int currentUserId) {
+        String sql = "SELECT 1 FROM Users WHERE Username = ? AND ID <> ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setInt(2, currentUserId);
+            ResultSet rs = st.executeQuery();
+            return rs.next(); // true nếu đã có người khác dùng
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true; // nếu có lỗi thì giả định là trùng để ngăn lỗi
+        }
+    }
+
+    public boolean isEmailTakenByOthers(String email, int currentUserId) {
+        String sql = "SELECT 1 FROM Users WHERE Email = ? AND ID <> ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, email);
+            st.setInt(2, currentUserId);
+            ResultSet rs = st.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
 }

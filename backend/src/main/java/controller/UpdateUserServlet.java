@@ -15,6 +15,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import model.User;
 import util.SessionUtil;
 
@@ -56,27 +59,51 @@ public class UpdateUserServlet extends HttpServlet {
                 return;
             }
 
-//            String username = safeValue(reqBody, "username", currentUser.getUsername());
-//            String fullName = safeValue(reqBody, "fullName", currentUser.getFullName());
-//            String email = safeValue(reqBody, "email", currentUser.getEmail());
-//            String gender = safeValue(reqBody, "gender", currentUser.getGender());
-//            String address = safeValue(reqBody, "address", currentUser.getAddress());
-//            String bio = safeValue(reqBody, "bio", currentUser.getBio());
-//            String dateOfBirth = safeValue(reqBody, "dateOfBirth",
-//                    currentUser.getDateOfBirth() != null
-//                    ? currentUser.getDateOfBirth().toString() : null);
-//
-//            boolean updated = userDAO.updateUser(
-//                    username, fullName, email, gender, address, bio, dateOfBirth
-//            );
-//
-//            if (updated) {
-//                json.addProperty("success", true);
-//                json.addProperty("message", "Cập nhật thành công");
-//            } else {
-//                json.addProperty("success", false);
-//                json.addProperty("message", "Không có thay đổi nào");
-//            }
+            String username = safeValue(reqBody, "username", currentUser.getUsername());
+            String fullName = safeValue(reqBody, "fullName", currentUser.getFullName());
+            String email = safeValue(reqBody, "email", currentUser.getEmail());
+
+            if (userDAO.isUsernameTakenByOthers(username, userId)) {
+                json.addProperty("success", false);
+                json.addProperty("message", "Tên người dùng đã tồn tại");
+                response.getWriter().write(gson.toJson(json));
+                return;
+            }
+
+            if (userDAO.isEmailTakenByOthers(email, userId)) {
+                json.addProperty("success", false);
+                json.addProperty("message", "Email đã được sử dụng");
+                response.getWriter().write(gson.toJson(json));
+                return;
+            }
+
+            boolean gender = safeValue(reqBody, "gender", currentUser.getGender());
+            String address = safeValue(reqBody, "address", currentUser.getLocation());
+            String bio = safeValue(reqBody, "bio", currentUser.getBio());
+            String dateOfBirthStr = safeValue(reqBody, "dateOfBirth",
+                    currentUser.getDOB() != null ? currentUser.getDOB().toLocalDate().toString() : null);
+
+            LocalDateTime dateOfBirth = null;
+            if (dateOfBirthStr != null && !dateOfBirthStr.isBlank()) {
+                try {
+                    LocalDate localDate = LocalDate.parse(dateOfBirthStr); // "2003-04-30"
+                    dateOfBirth = localDate.atStartOfDay(); // chuyển sang LocalDateTime
+                } catch (Exception e) {
+                    e.printStackTrace(); // debug nếu lỗi
+                }
+            }
+
+            boolean updated = userDAO.updateBasicProfile(
+                    userId, username, fullName, email, gender, address, bio, dateOfBirth
+            );
+
+            if (updated) {
+                json.addProperty("success", true);
+                json.addProperty("message", "Cập nhật thành công");
+            } else {
+                json.addProperty("success", false);
+                json.addProperty("message", "Không có thay đổi nào");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,5 +121,19 @@ public class UpdateUserServlet extends HttpServlet {
         }
         String value = obj.get(key).getAsString().trim();
         return value.isEmpty() ? fallback : value;
+    }
+
+    private boolean safeValue(JsonObject obj, String key, boolean fallback) {
+        if (!obj.has(key)) {
+            return fallback;
+        }
+        String value = obj.get(key).getAsString().trim();
+        if (value.equals("1") || value.equalsIgnoreCase("true")) {
+            return true;
+        }
+        if (value.equals("0") || value.equalsIgnoreCase("false")) {
+            return false;
+        }
+        return fallback; // nếu rác thì trả fallback
     }
 }

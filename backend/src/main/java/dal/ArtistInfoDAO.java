@@ -156,4 +156,69 @@ public class ArtistInfoDAO extends DBContext {
         }
         return null;
     }
+
+    public boolean isPhoneNumberTakenByOthers(String phoneNumber, int currentUserId) {
+        String sql = "SELECT 1 FROM ArtistInfo WHERE PhoneNumber = ? AND UserID <> ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, phoneNumber);
+            ps.setInt(2, currentUserId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
+    public boolean updateArtistInfoBasicFields(int userId, String phoneNumber, String specialty, int experienceYears) {
+        String sql = """
+        UPDATE ArtistInfo
+        SET PhoneNumber = ?, Specialty = ?, ExperienceYears = ?
+        WHERE UserID = ?
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, phoneNumber);
+            ps.setString(2, specialty);
+            ps.setInt(3, experienceYears);
+            ps.setInt(4, userId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ArtistInfo getOne(int userId) {
+        ArtistInfo artist = null;
+        String sql = "SELECT * FROM ArtistInfo WHERE UserID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    artist = new ArtistInfo();
+                    artist.setUserId(rs.getInt("UserID"));
+                    artist.setPhoneNumber(rs.getString("PhoneNumber"));
+                    artist.setSpecialty(rs.getString("Specialty"));
+                    artist.setExperienceYears(rs.getInt("ExperienceYears"));
+                    artist.seteKYC(rs.getBoolean("eKYC"));
+                    artist.setDailySpent(rs.getInt("DailySpent"));
+                    artist.setStripeAccountId(rs.getString("stripe_account_id"));
+
+                    if (rs.getTimestamp("CreatedAt") != null) {
+                        artist.setCreatedAt(rs.getTimestamp("CreatedAt").toLocalDateTime());
+                    }
+                    if (rs.getTimestamp("UpdatedAt") != null) {
+                        artist.setUpdatedAt(rs.getTimestamp("UpdatedAt").toLocalDateTime());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return artist;
+    }
 }
