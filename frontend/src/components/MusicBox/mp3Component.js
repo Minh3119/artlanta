@@ -318,18 +318,18 @@ class MP3Component extends React.Component {
 
                 <>
                     <div className="controls">
-                        <button className="btn prev-btn" onClick={this.handlePrevious}>&#9664;&#9664;</button>
+                        <button className="btnControl prev-btn" onClick={this.handlePrevious}>&#9664;&#9664;</button>
                         {
                             this.state.isPlaying ?
-                                <button className="btn pause"
+                                <button className="btnControl pause"
                                     onClick={this.handlePause}
                                 >H</button>
                                 :
-                                <button className="btn play"
+                                <button className="btnControl play"
                                     onClick={this.handlePlay}
                                 >&#9658;</button>
                         }
-                        <button className="btn next-btn" onClick={this.handleNext} >&#9654;&#9654;</button>
+                        <button className="btnControl next-btn" onClick={this.handleNext} >&#9654;&#9654;</button>
 
                     </div>
                     <div className="progress-bar">
