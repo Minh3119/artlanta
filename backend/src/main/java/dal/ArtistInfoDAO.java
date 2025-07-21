@@ -6,6 +6,8 @@ package dal;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import model.ArtistInfo;
 
 /**
  *
@@ -13,18 +15,50 @@ import java.sql.ResultSet;
  */
 public class ArtistInfoDAO extends DBContext {
 
-    public boolean insertArtistInfo(Integer userId, String phoneNumber, String address, String specialty, int experienceYears, boolean eKYC) {
-        String query = "INSERT INTO ArtistInfo (UserID, PhoneNumber, Address, Specialty, ExperienceYears, eKYC, DailySpent, stripe_account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public ArtistInfo getArtistInfoByUserId(int userId) {
+        String query = "SELECT * FROM ArtistInfo WHERE UserID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    ArtistInfo info = new ArtistInfo();
+                    info.setUserId(rs.getInt("UserID"));
+                    info.setPhoneNumber(rs.getString("PhoneNumber"));
+                    info.setSpecialty(rs.getString("Specialty"));
+                    info.setExperienceYears(rs.getInt("ExperienceYears"));
+                    info.seteKYC(rs.getBoolean("eKYC"));
+                    info.setDailySpent(rs.getInt("DailySpent"));
+                    info.setStripeAccountId(rs.getString("stripe_account_id"));
+
+                    Timestamp created = rs.getTimestamp("CreatedAt");
+                    Timestamp updated = rs.getTimestamp("UpdatedAt");
+                    if (created != null) {
+                        info.setCreatedAt(created.toLocalDateTime());
+                    }
+                    if (updated != null) {
+                        info.setUpdatedAt(updated.toLocalDateTime());
+                    }
+
+                    return info;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean insertArtistInfo(Integer userId, String phoneNumber, String specialty, int experienceYears, boolean eKYC) {
+        String query = "INSERT INTO ArtistInfo (UserID, PhoneNumber, Specialty, ExperienceYears, eKYC, DailySpent, stripe_account_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, userId);
             ps.setString(2, phoneNumber);
-            ps.setString(3, address);
-            ps.setString(4, specialty);
-            ps.setInt(5, experienceYears);
-            ps.setBoolean(6, eKYC);
-            ps.setInt(7, 1000000);
-            ps.setString(8, null);
+            ps.setString(3, specialty);
+            ps.setInt(4, experienceYears);
+            ps.setBoolean(5, eKYC);
+            ps.setInt(6, 1000000);
+            ps.setString(7, null);
 
             return ps.executeUpdate() > 0;
 
@@ -55,7 +89,7 @@ public class ArtistInfoDAO extends DBContext {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getBoolean("eKYC"); // true hoặc false
+                    return rs.getBoolean("eKYC");
                 }
             }
         } catch (Exception e) {

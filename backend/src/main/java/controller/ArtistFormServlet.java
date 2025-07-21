@@ -58,7 +58,7 @@ public class ArtistFormServlet extends HttpServlet {
 
         try {
             switch (step) {
-                case 8:
+                case 7:
                     saveArtistInfo(request, response, body);
                     break;
                 default:
@@ -81,14 +81,13 @@ public class ArtistFormServlet extends HttpServlet {
         UserDAO userDAO = new UserDAO();
 
         String phoneNumber = body.optString("phoneNumber", "");
-        String address = body.optString("address", "");
         String specialty = body.optString("specialty", "");
         boolean eKYC = false;
         int experienceYears = body.optInt("experienceYears", 0);
 
         Integer userID = SessionUtil.getCurrentUserId(request.getSession(false));
 
-        boolean success = artistInfoDao.insertArtistInfo(userID, phoneNumber, address, specialty, experienceYears, eKYC);
+        boolean success = artistInfoDao.insertArtistInfo(userID, phoneNumber, specialty, experienceYears, eKYC);
 
         if (success) {
             json.put("success", true);

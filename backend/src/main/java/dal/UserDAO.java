@@ -575,4 +575,20 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+
+    public boolean isPasswordMatch(int userId, String newPasswordHash) {
+        String sql = "SELECT PasswordHash FROM Users WHERE ID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    String currentHash = rs.getString("PasswordHash");
+                    return currentHash != null && currentHash.equals(newPasswordHash.trim());
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

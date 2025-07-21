@@ -170,7 +170,7 @@ const UserInfo = ({
                     ) : (
                         <div className="flex gap-4">
                             <button
-                                onClick={() => navigate('/settings/profile')}
+                                onClick={() => navigate('/editprofile')}
                                 className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
                             >
                                 Edit Profile

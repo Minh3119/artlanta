@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ArtistForm() {
-  const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [yoe, setYoe] = useState("");
@@ -20,11 +19,6 @@ export default function ArtistForm() {
 
     if (!agreed) {
       toast.error("Bạn phải đồng ý cung cấp thông tin để tiếp tục.");
-      isValid = false;
-    }
-
-    if (!address.trim()) {
-      toast.error("Address is required.");
       isValid = false;
     }
 
@@ -56,7 +50,6 @@ export default function ArtistForm() {
 
     const artistInfo = {
       currentStep,
-      address,
       phoneNumber,
       specialty,
       experienceYears: Number(yoe),
@@ -130,15 +123,6 @@ export default function ArtistForm() {
             </label>
           </div>
         </Step>
-        <Step>
-          <h2>Tell us about your address</h2>
-          <input
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Your address"
-          />
-        </Step>
-
         <Step>
           <h2>Tell us about your phone number</h2>
           <input
