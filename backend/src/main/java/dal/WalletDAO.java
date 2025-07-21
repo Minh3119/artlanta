@@ -48,6 +48,22 @@ public class WalletDAO extends DBContext {
         return false;
     }
 
+    public boolean deductFromWallet(int userId, BigDecimal amount) {
+        String sql = "UPDATE Wallets SET Balance = Balance - ? WHERE UserID = ? AND Balance >= ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, userId);
+            ps.setBigDecimal(3, amount);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public void addBalance(int userID, BigDecimal amount) {
         // Kiểm tra wallet có tồn tại không
         String checkSql = "SELECT UserID FROM Wallets WHERE UserID = ?";

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import arlanta from "../../assets/images/arlanta.svg";
 import arrowDown from "../../assets/images/arrow-down.svg";
-
+import { useLocation } from "react-router-dom";
 import noti from "../../assets/images/notification.svg";
 import chat from "../../assets/images/chat.svg";
 import ava from "../../assets/images/avatar.svg";
@@ -19,8 +19,13 @@ export default function Header({ openCreatePopup }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userID, setUserID] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const createMenuRef = useRef(null);
   const userMenuRef = useRef(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isArtist, setIsArtist] = useState(false);
+  const [eKYC, setEKYC] = useState(false);
+  const [accURL, setAccURL] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,7 +51,7 @@ export default function Header({ openCreatePopup }) {
       try {
         const res = await fetch("http://localhost:9999/backend/api/wallet", {
           credentials: "include",
-          method: "POST"
+          method: "POST",
         });
 
         if (!res.ok) return;
@@ -78,6 +83,7 @@ export default function Header({ openCreatePopup }) {
         const data = await res.json();
         if (data.loggedIn) {
           setUserID(data.userId);
+          setIsLogin(true);
         }
       } catch (error) {
         console.error("Failed to check session:", error);
@@ -85,6 +91,55 @@ export default function Header({ openCreatePopup }) {
     };
 
     checkSession();
+  }, []);
+
+  useEffect(() => {
+    const checkEKYC = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/check/eKYC",
+          {
+            credentials: "include",
+            method: "POST"
+          }
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.isKYC) {
+          setEKYC(true);
+        }
+      } catch (error) {
+        console.error("Failed to check session:", error);
+      }
+    };
+
+    checkEKYC();
+  }, []);
+
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/role/check",
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.isArtist) {
+          setIsArtist(true);
+        }
+      } catch (error) {
+        console.error("Failed to check role:", error);
+      }
+    };
+
+    checkRole();
   }, []);
 
   const handleLogout = async () => {
@@ -112,6 +167,20 @@ export default function Header({ openCreatePopup }) {
         <Link to="/">
           <img src={arlanta} alt="Artlanta" />
         </Link>
+        {isLogin && !isArtist && location.pathname === "/" && (
+          <div className="artist-invitation-container">
+            <Link to="/artistPost" className="artist-invitation__link">
+              <p>Bạn muốn làm artist</p>
+            </Link>
+          </div>
+        )}
+        {isLogin && isArtist && !eKYC && (
+          <div className="artist-invitation-container">
+            <Link to="/eKYC" className="artist-invitation__link">
+              <p>Xác minh eKYC</p>
+            </Link>
+          </div>
+        )}
       </div>
       <div className="header-navbar">
         <Link to="/">
@@ -152,14 +221,17 @@ export default function Header({ openCreatePopup }) {
           />
           {showCreateMenu && (
             <div className="create-menu-dropdown">
-              <div className="create-menu-item" id="test-create-post" onClick={() => {
-                if (userID === 0) {
-                  navigate("/login");
-                  return;
-                };
-                openCreatePopup('post');
-                setShowCreateMenu(false);
-              }}>
+              <div
+                className="create-menu-item"
+                onClick={() => {
+                  if (userID === 0) {
+                    navigate("/login");
+                    return;
+                  }
+                  openCreatePopup("post");
+                  setShowCreateMenu(false);
+                }}
+              >
                 Create Post
               </div>
               <div
@@ -236,6 +308,11 @@ export default function Header({ openCreatePopup }) {
                 {userID != 0 && (
                   <Link to="/payment" className="user-menu-item">
                     Top Up
+                  </Link>
+                )}
+                {userID != 0 && isArtist && (
+                  <Link to="/withdraw" className="user-menu-item">
+                    Withdraw
                   </Link>
                 )}
                 {userID != 0 && (

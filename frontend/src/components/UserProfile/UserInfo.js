@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AvatarImage from '../UserProfileView/AvatarImage';
 import FollowerList from '../FollowControl/FollowerList';
 import FollowingList from '../FollowControl/FollowingList';
 import { toast } from 'react-toastify';
 import SuggestFollow from './SuggestFollow';
+import verify from '../../assets/images/verify.svg';
+import CommissionRequestForm from '../Commission/CommissionRequestForm'
 
 const UserInfo = ({ 
     userData, 
@@ -19,7 +21,7 @@ const UserInfo = ({
     userId
 }) => {
     const navigate = useNavigate();
-
+    const [showForm, setShowForm] = useState(false);
     const getSocialIcon = (platform) => {
         switch (platform.toLowerCase()) {
             case 'instagram':
@@ -103,7 +105,9 @@ const UserInfo = ({
             return 'Date format error';
         }
     };
-
+     const handleClick = () => {
+    setShowForm(true);
+  };
     return (
         <div className="bg-white rounded-3xl shadow-lg p-8">
             <div className="flex items-start space-x-4">
@@ -122,9 +126,63 @@ const UserInfo = ({
                     )}
                 </div>
                 <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        {userData.displayName || userData.username}
-                    </h1>
+                    <div className="flex items-center gap-2">
+  <h1 className="text-3xl font-bold text-gray-900">
+    {userData.displayName || userData.username}
+  </h1>
+  {userData.role === "ARTIST" && (
+    <img src={verify} width={24} height={24} alt="logo" title="Verified artist" />
+  )}
+  
+{currentUser && userData ? (
+  currentUser.id !== parseInt(userId) && userData.role === "ARTIST" && (
+    <div
+      data-layer="Rectangle 12"
+      className="Rectangle12"
+      onClick={userData.isComReqExist ? null : handleClick}
+      style={{
+        width: '128px',
+        height: '64px',
+        background: `radial-gradient(ellipse 98.08% 114.73% at -3.98% 12.50%, #F45EC1 0%, rgba(237, 66, 179, 0) 100%), 
+                     radial-gradient(ellipse 136.08% 98.99% at 43.75% 114.06%, #C243FE 0%, #FDC862 81%), 
+                     #55128A`,
+        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.80) inset',
+        borderRadius: '16px',
+        marginLeft: '10%',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '14px',
+        cursor: 'pointer',
+        textShadow: '0 0 5px white'
+      }}
+    >
+      {userData.isComReqExist ? (
+        <>
+          <span>View</span>
+          <span>Commission</span>
+        </>
+      ) : (
+        <>
+          <span>Request</span>
+          <span>Commission</span>
+        </>
+      )}
+    </div>
+  )
+) : null}
+
+
+
+
+
+
+</div>
+
                     {userData.username && userData.displayName && (
                         <p className="text-lg text-gray-500">@{userData.username}</p>
                     )}
@@ -170,7 +228,7 @@ const UserInfo = ({
                     ) : (
                         <div className="flex gap-4">
                             <button
-                                onClick={() => navigate('/settings/profile')}
+                                onClick={() => navigate('/editprofile')}
                                 className="flex-1 py-2 px-4 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
                             >
                                 Edit Profile
@@ -232,6 +290,30 @@ const UserInfo = ({
                     </div>
                 </div>
             )}
+    {showForm && (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)', // nền mờ
+      zIndex: 9999, // cao hơn mọi thứ khác
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+  >
+    <CommissionRequestForm
+      artistID={userData.id}
+      artistUsername={userData.username}
+      artistAvatarURL={userData.avatarURL}
+      onClose={() => setShowForm(false)}
+    />
+  </div>
+)}
+
         </div>
     );
 };

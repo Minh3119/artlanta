@@ -33,6 +33,7 @@ import UserStatistics from "./UserStatistics.jsx";
 import { WebSocketProvider } from "../contexts/WebSocketContext";
 import Settings from "./Settings.jsx";
 import EditProfileComponent from "../components/UserProfileEdit/editProfileComponent";
+import CommissionRequestForm from "../components/Commission/CommissionRequestForm";
 import EditPasswordComponent from "../components/UserProfileEdit/editPasswordComponent";
 import EditNotificationComponent from "../components/UserProfileEdit/editNotificationComponent";
 import EditPricingComponent from "../components/UserProfileEdit/editPricingComponent";
@@ -40,6 +41,13 @@ import DeleteAccountComponent from "../components/UserProfileEdit/deleteAccountC
 import LiveDetailComponent from "../components/LiveStream/liveDetailComponent.js";
 import LivePageComponent from "../components/LiveStream/livePageComponent.js";
 import LiveFormComponent from "../components/LiveStream/liveFormComponent.js";
+import CommissionListPage from "./CommissionListPage.js";
+import CommissionDetailPage from "./CommissionDetailPage.js";
+import ArtistFormContainer from "../components/ArtistForm/ArtistFormContainer";
+import EKYC from "./EKYCVerificationPage.js";
+import Withdraw from "./Withdraw.js";
+import EditProfile from "./EditProfile.js";
+
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
@@ -72,6 +80,8 @@ function App() {
           <Route path="/saved" element={<SavedPostPage />} />
           <Route path="/live" element={<LivePageComponent />} />
           <Route path="/live/form" element={<LiveFormComponent />} />
+          <Route path="/commissions" element={<CommissionListPage />} />
+          <Route path="/commissions/:commissionId" element={<CommissionDetailPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
           <Route path="/live/detail/:ID" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>
@@ -81,22 +91,29 @@ function App() {
             <Route path="editpricing" element={<EditPricingComponent />} />
             <Route path="deleteaccount" element={<DeleteAccountComponent />} />
           </Route>
-        </Routes>
+          <Route path="/editprofile" element={<EditProfile />}></Route>
+          <Route path="/artistPost" element={<ArtistFormContainer />}></Route>
+          <Route path="/eKYC" element={<EKYC />}></Route>
+          <Route path="/withdraw" element={<Withdraw />}></Route>
+          <Route path="/request" element={<CommissionRequestForm />} />
+        </Routes >
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}
         />
-        {isMusicOpen ? null : (
-          <div
-            className="floating-icon"
-            onClick={() => setIsMusicOpen(!isMusicOpen)}
-          >
-            <FiHeadphones />
-          </div>
-        )}
-      </BrowserRouter>
+        {
+          isMusicOpen ? null : (
+            <div
+              className="floating-icon"
+              onClick={() => setIsMusicOpen(!isMusicOpen)}
+            >
+              <FiHeadphones />
+            </div>
+          )
+        }
+      </BrowserRouter >
       <ToastContainer />
-    </WebSocketProvider>
+    </WebSocketProvider >
   );
 }
 

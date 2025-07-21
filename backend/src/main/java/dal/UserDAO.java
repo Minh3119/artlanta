@@ -520,23 +520,23 @@ public class UserDAO extends DBContext {
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     User user = new User(
-                        rs.getInt("ID"),
-                        rs.getString("Username"),
-                        rs.getString("Email"),
-                        rs.getString("PasswordHash"),
-                        rs.getString("FullName"),
-                        rs.getString("Bio"),
-                        rs.getString("AvatarURL"),
-                        rs.getBoolean("Gender"),
-                        rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
-                        rs.getString("Location"),
-                        rs.getString("Role"),
-                        rs.getString("Status"),
-                        rs.getString("Language"),
-                        rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
-                        rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
-                        rs.getBoolean("IsFlagged"),
-                        rs.getBoolean("IsPrivate")
+                            rs.getInt("ID"),
+                            rs.getString("Username"),
+                            rs.getString("Email"),
+                            rs.getString("PasswordHash"),
+                            rs.getString("FullName"),
+                            rs.getString("Bio"),
+                            rs.getString("AvatarURL"),
+                            rs.getBoolean("Gender"),
+                            rs.getTimestamp("DOB") != null ? rs.getTimestamp("DOB").toLocalDateTime() : null,
+                            rs.getString("Location"),
+                            rs.getString("Role"),
+                            rs.getString("Status"),
+                            rs.getString("Language"),
+                            rs.getTimestamp("CreatedAt") != null ? rs.getTimestamp("CreatedAt").toLocalDateTime() : null,
+                            rs.getTimestamp("LastLogin") != null ? rs.getTimestamp("LastLogin").toLocalDateTime() : null,
+                            rs.getBoolean("IsFlagged"),
+                            rs.getBoolean("IsPrivate")
                     );
                     list.add(user);
                 }
@@ -546,4 +546,133 @@ public class UserDAO extends DBContext {
         }
         return list;
     }
+
+    public boolean isArtistById(int userId) {
+        String sql = "SELECT Role FROM Users WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String role = rs.getString("Role");
+                    System.out.println("Fetched role for user " + userId + ": " + role);
+                    return "ARTIST".equalsIgnoreCase(role != null ? role.trim() : "");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean setUserRoleToArtist(int userId) {
+        String sql = "UPDATE Users SET Role = 'ARTIST' WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isPasswordMatch(int userId, String newPasswordHash) {
+        String sql = "SELECT PasswordHash FROM Users WHERE ID = ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setInt(1, userId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    String currentHash = rs.getString("PasswordHash");
+                    return currentHash != null && currentHash.equals(newPasswordHash.trim());
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateBasicProfile(
+            int userId,
+            String username,
+            String fullName,
+            String email,
+            boolean gender,
+            String location,
+            String bio,
+            LocalDateTime dob
+    ) {
+        String sql = """
+        UPDATE Users SET
+            Username = ?,
+            FullName = ?,
+            Email = ?,
+            Gender = ?,
+            Location = ?,
+            Bio = ?,
+            DOB = ?
+        WHERE ID = ?
+    """;
+
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, fullName);
+            st.setString(3, email);
+            st.setBoolean(4, gender);
+            st.setString(5, location);
+            st.setString(6, bio);
+            st.setObject(7, dob);
+            st.setInt(8, userId);
+
+            return st.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isUsernameTakenByOthers(String username, int currentUserId) {
+        String sql = "SELECT 1 FROM Users WHERE Username = ? AND ID <> ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setInt(2, currentUserId);
+            ResultSet rs = st.executeQuery();
+            return rs.next(); // true nếu đã có người khác dùng
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true; // nếu có lỗi thì giả định là trùng để ngăn lỗi
+        }
+    }
+
+    public boolean isEmailTakenByOthers(String email, int currentUserId) {
+        String sql = "SELECT 1 FROM Users WHERE Email = ? AND ID <> ?";
+        try (PreparedStatement st = connection.prepareStatement(sql)) {
+            st.setString(1, email);
+            st.setInt(2, currentUserId);
+            ResultSet rs = st.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+	
+	public boolean isEKYCVerified(int userId) {
+    String sql = "SELECT eKYC FROM ArtistInfo WHERE UserID = ?";
+    
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getBoolean("eKYC");
+        } else {
+            return false; // không tìm thấy userID
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false; 
+    }
+}
+
 }
