@@ -35,8 +35,13 @@ const handleSubmit = () => {
     })
     .catch(() => {
       alert("Không thể kết nối đến máy chủ.");
+    })
+    .finally(() => {
+      onClose();
+      window.location.reload();
     });
 };
+
 
 
   return (
