@@ -145,6 +145,20 @@ const CommissionDetailPage = () => {
   const handleSubmitCommission = async (finalFile, previewFile) => {
     setSubmitLoading(true);
     try {
+      // Check latest commission status before submitting
+      const statusRes = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}`, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!statusRes.ok) throw new Error('Failed to check commission status');
+      const statusData = await statusRes.json();
+      const latestStatus = statusData.commission?.status;
+      if (latestStatus !== 'IN_PROGRESS') {
+        toast.error('This commission is no longer in progress. You cannot submit.');
+        setShowSubmitModal(false);
+        setSubmitLoading(false);
+        return;
+      }
       // Upload final file
       const finalForm = new FormData();
       finalForm.append('file[]', finalFile);

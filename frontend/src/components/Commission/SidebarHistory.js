@@ -1,5 +1,21 @@
 import React from 'react';
 
+// Mapping for user-friendly field names
+const FIELD_LABELS = {
+  ArtistSeenFinal: 'Final Product Submitted',
+  ClientConfirmed: 'Client Accepted Final Product',
+  // Add more mappings as needed
+};
+
+// Function to prettify boolean-like values
+function prettifyValue(field, value) {
+  if (field === 'ArtistSeenFinal' || field === 'ClientConfirmed') {
+    if (value === 1 || value === '1' || value === true || value === 'true') return 'Yes';
+    if (value === 0 || value === '0' || value === false || value === 'false') return 'No';
+  }
+  return value === null || value === undefined || value === '' ? 'null' : value;
+}
+
 const SidebarHistory = ({ history, historyLoading, historyError }) => (
   <div className="lg:w-96">
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
@@ -36,16 +52,16 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-sm font-semibold text-gray-800 bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
-                        {h.changedField}
+                        {FIELD_LABELS[h.changedField] || h.changedField}
                       </span>
                       <span className="text-gray-400">→</span>
                     </div>
                     <div className="space-y-1 mb-3">
                       <div className="text-xs text-gray-500 line-through bg-red-50 px-2 py-1 rounded">
-                        {h.oldValue || 'null'}
+                        {prettifyValue(h.changedField, h.oldValue)}
                       </div>
                       <div className="text-xs text-gray-700 bg-green-50 px-2 py-1 rounded font-medium">
-                        {h.newValue || 'null'}
+                        {prettifyValue(h.changedField, h.newValue)}
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-gray-400">

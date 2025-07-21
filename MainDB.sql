@@ -1067,7 +1067,7 @@ VALUES
 -- For (1,2) Landscape with mountains (assume CommissionRequest ID = 6)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
 VALUES
-(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 27000, '2025-07-25', NULL, 'COMPLETED', FALSE, FALSE, '2025-06-24', '2025-06-24');
+(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 27000, '2025-07-25', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-24', '2025-06-24');
 
 -- For (2,1) Fantasy character full body (assume CommissionRequest ID = 9)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
