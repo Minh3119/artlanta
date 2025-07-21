@@ -11,8 +11,6 @@ CREATE TABLE Media (
     Description VARCHAR(255)
 );
 
-
-
 -- USERS
 CREATE TABLE Users (
     ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,16 +31,6 @@ CREATE TABLE Users (
     IsPrivate BOOLEAN DEFAULT 0,
     IsFlagged BOOLEAN DEFAULT 0
 );
-
-/* PASSWORD RESET -- Beta
-CREATE TABLE PasswordReset (
-   ID INT PRIMARY KEY IDENTITY(1,1),
-   UserID INT NOT NULL,
-   Token NVARCHAR(255) NOT NULL,
-   Expiry DATETIME NOT NULL,
-   IsCaptchaVerified BOOLEAN DEFAULT 0,
-   FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
-)  */
 
 -- PORTFOLIO
 CREATE TABLE Portfolio (
@@ -228,7 +216,9 @@ CREATE TABLE CommissionHistory (
     FOREIGN KEY(ChangedBy) REFERENCES Users(ID)
 );
 
--- REVIEWS
+
+
+/*-- REVIEWS
 CREATE TABLE Review (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     CommissionID INT,
@@ -238,9 +228,10 @@ CREATE TABLE Review (
     ReviewAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(CommissionID) REFERENCES Commission(ID),
     FOREIGN KEY(ReviewerID) REFERENCES Users(ID)
-);
+); */
 
--- REPORTS -- Đang thử rút ngắn report user, post xem sao
+
+-- REPORTS
 CREATE TABLE ReportPost (
     ReporterID INT,
     PostID INT,
@@ -539,7 +530,7 @@ CREATE TABLE ConversationReads (
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
 ('john_doe', 'john.doe1975@chingchong.com', 'P@ssw0rd!123', 'Johnny', 'Graphic Designer', 'https://pbs.twimg.com/media/E8J9YcQVUAgoPn8.jpg', 'ACTIVE', 'ARTIST', 0, '2025-02-28'),
-('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie Quynh', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'MODERATOR', 0, '2025-03-01'),
+('jane_smith', 'jane.s.writer@fbt.com', 'Writ3rL1f3$', 'Janie', 'Nhà văn và blogger nổi tiếng', 'https://i.pinimg.com/736x/a8/3e/d4/a83ed42b038b230d3b1372fd3f542495.jpg', 'ACTIVE', 'MODERATOR', 0, '2025-03-01'),
 ('alice_wonder', 'alice.wonderland@edu.com', 'Tr@v3lPass#', 'AliceW', 'Nhận design character 2d', 'https://i.pinimg.com/736x/e5/75/17/e57517aab05bbf8f873c8c49df5cb17f.jpg', 'ACTIVE', 'ARTIST', 1, '2025-03-01'),
 ('bob_builder', 'bob.builder99@fpt.edu.com', 'C0nstruct!0nG0d', 'Bobby', 'Kỹ sư xây dựng chuyên nghiệp', 'https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg', 'BANNED', 'CLIENT', 1, '2025-03-01'),
 ('charlie_dev', 'k20.never.have@fpt.edu.com', 'S3cur3D3vPa$$', 'CharDev', 'Developer chuyên back-end', 'https://i.pinimg.com/originals/8f/33/30/8f3330d6163782b88b506d396f5d156f.jpg', 'ACTIVE', 'ADMIN', 1, '2025-03-04'),
@@ -1014,7 +1005,8 @@ VALUES
   (8, 440000.00, 'VND'),
   (9, 0.00, 'VND'),
   (10, 300000.00, 'VND');
-  
+
+
 
   
 INSERT INTO Transactions (UserID, PaymentMethod, Amount, Currency, Status, TransactionType, Description, CreatedAt)

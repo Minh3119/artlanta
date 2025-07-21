@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class CommissionRequest {
@@ -15,7 +16,10 @@ public class CommissionRequest {
     private LocalDateTime requestAt;
     private LocalDateTime respondedAt;
 
-    public CommissionRequest(int ID, int clientID, int artistID, String shortDescription, String referenceURL, Double proposedPrice, LocalDateTime proposedDeadline, String status, String artistReply, LocalDateTime requestAt, LocalDateTime respondedAt) {
+	public CommissionRequest() {
+	}
+
+	public CommissionRequest(int ID, int clientID, int artistID, String shortDescription, String referenceURL, Double proposedPrice, LocalDateTime proposedDeadline, String status, String artistReply, LocalDateTime requestAt, LocalDateTime respondedAt) {
         this.ID = ID;
         this.clientID = clientID;
         this.artistID = artistID;
@@ -40,4 +44,49 @@ public class CommissionRequest {
     public String getArtistReply() { return artistReply; }
     public LocalDateTime getRequestAt() { return requestAt; }
     public LocalDateTime getRespondedAt() { return respondedAt; }
+	
+	public void setID(int ID) {
+		this.ID = ID;
+	}
+
+	public void setClientID(int clientID) {
+		this.clientID = clientID;
+	}
+
+	public void setArtistID(int artistID) {
+		this.artistID = artistID;
+	}
+
+	public void setShortDescription(String shortDescription) {
+		this.shortDescription = shortDescription;
+	}
+
+	public void setReferenceURL(String referenceURL) {
+		this.referenceURL = referenceURL;
+	}
+
+	public void setProposedPrice(Double proposedPrice) {
+		this.proposedPrice = proposedPrice;
+	}
+
+	public void setProposedDeadline(LocalDateTime proposedDeadline) {
+		this.proposedDeadline = proposedDeadline;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public void setArtistReply(String artistReply) {
+		this.artistReply = artistReply;
+	}
+
+	public void setRequestAt(LocalDateTime requestAt) {
+		this.requestAt = requestAt;
+	}
+
+	public void setRespondedAt(LocalDateTime respondedAt) {
+		this.respondedAt = respondedAt;
+	}
+
 } 
