@@ -47,6 +47,7 @@ import ArtistFormContainer from "../components/ArtistForm/ArtistFormContainer";
 import EKYC from "./EKYCVerificationPage.js";
 import Withdraw from "./Withdraw.js";
 import EditProfile from "./EditProfile.js";
+import CommissionDashboard from "./CommissionDashboard.js";
 
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
@@ -96,7 +97,11 @@ function App() {
           <Route path="/eKYC" element={<EKYC />}></Route>
           <Route path="/withdraw" element={<Withdraw />}></Route>
           <Route path="/request" element={<CommissionRequestForm />} />
+           <Route path="/commissiondashboard" element={<CommissionDashboard/>}>
+            <Route path="request" element={<CommissionDashboard/>} />
+    </Route>
         </Routes >
+       
         <MusicComponent
           setIsMusicOpen={setIsMusicOpen}
           isMusicOpen={isMusicOpen}

@@ -341,6 +341,21 @@ public class UserDAO extends DBContext {
         }
         return null;
     }
+	
+      public String getUNByUserID(int userID) {
+        String sql = "SELECT userName FROM Users WHERE ID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userID);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public List<User> getUsersByIds(List<Integer> userIds) {
         List<User> result = new ArrayList<>();

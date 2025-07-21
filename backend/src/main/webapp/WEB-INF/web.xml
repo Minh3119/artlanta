@@ -108,6 +108,10 @@
         <servlet-name>ViewImagePost</servlet-name>
         <servlet-class>controller.Live.ViewImagePost</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>HandleRequestCom</servlet-name>
+        <servlet-class>controller.commission.HandleRequestCom</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -287,6 +291,10 @@
     <servlet-mapping>
         <servlet-name>ViewImagePost</servlet-name>
         <url-pattern>/api/live/gallery/image/pick</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HandleRequestCom</servlet-name>
+        <url-pattern>/api/handlerequest</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

@@ -473,7 +473,7 @@ BEGIN
         INSERT INTO CommissionHistory (
             CommissionID,
             ChangedField,
-OldValue,
+            OldValue,
             NewValue,
             ChangedBy,
             ChangedAt
@@ -490,8 +490,6 @@ OldValue,
 END$$
 
 DELIMITER ;
-
-
 
 
 
@@ -1079,7 +1077,7 @@ VALUES
 
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(2, 1, 'Portrait of my pet', 'https://imgur.com/pet.jpg', 200000, '2025-07-01', 'PENDING', NULL, '2025-06-15', NULL),
+(2, 1, 'Portrait of my pet', 'https://i.pinimg.com/1200x/6a/1a/18/6a1a18472a84fb0aa929672fa834441f.jpg', 200000, '2025-07-01', 'PENDING', NULL, '2025-06-15', NULL),
 (3, 2, 'Landscape painting of Hanoi', NULL, 500000, '2025-07-10', 'REJECTED', 'Sorry, I am busy this month.', '2025-06-16', '2025-06-17'),
 (4, 3, 'Anime style character', 'https://imgur.com/char.jpg', 350000, '2025-07-05', 'ACCEPTED', NULL, '2025-06-18', '2025-06-19');
 
@@ -1111,7 +1109,7 @@ VALUES
 -- User 2 as Client, User 1 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
 VALUES
-(2, 1, 'Cartoon avatar', 'https://imgur.com/avatar2.jpg', 9000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
+(2, 1, 'Cartoon avatar', 'https://i.pinimg.com/736x/0a/8f/bb/0a8fbba508d98b19403ff8ce530f0e2f.jpg', 9000, '2025-07-18', 'PENDING', NULL, '2025-06-25', NULL),
 (2, 1, 'Family portrait', NULL, 40000, '2025-07-30', 'REJECTED', 'Currently not accepting new commissions.', '2025-06-26', '2025-06-27'),
 (2, 1, 'Fantasy character full body', 'https://imgur.com/fantasy1.jpg', 35000, '2025-08-01', 'ACCEPTED', NULL, '2025-06-28', '2025-06-29');
 

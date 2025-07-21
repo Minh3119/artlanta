@@ -48,7 +48,7 @@ public class UserProfileEditServlet extends HttpServlet {
             jsonUser.put("email", user.getEmail());
             jsonUser.put("gender", user.getGender() ? "Male" : "Female");
 	  jsonUser.put("role", user.getRole());
-	
+	 
             if (user.getDOB()!=null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String formattedDateTime = user.getDOB().format(formatter);

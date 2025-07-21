@@ -6,17 +6,27 @@
 package controller.commission;
 
 import dal.CommissionDAO;
+import dal.NotificationDAO;
+import dal.UserDAO;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import model.CommissionRequest;
+import model.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import util.JsonUtil;
 import static util.SessionUtil.getCurrentUserId;
 
 /**
@@ -41,13 +51,75 @@ public class RequestCommisson extends HttpServlet {
             out.println("</html>");
         }
     } 
+public static String getTimeAgo(LocalDateTime dateTime) {
+    LocalDateTime now = LocalDateTime.now();
+    Duration duration = Duration.between(dateTime, now);
 
+    long days = duration.toDays();
+    long hours = duration.toHours();
+    long minutes = duration.toMinutes();
+
+    if (days > 0) return days + " ngày trước";
+    if (hours > 0) return hours + " giờ trước";
+    if (minutes > 0) return minutes + " phút trước";
+    return "vừa xong";
+}
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
 
+    HttpSession session = request.getSession(false);
+    Integer ArtistID = getCurrentUserId(session);
+
+    if (ArtistID == null) {
+        JSONObject errorJson = new JSONObject();
+        errorJson.put("error", "Chưa đăng nhập");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        JsonUtil.writeJsonResponse(response, errorJson);
+        return;
+    }
+
+    CommissionDAO cdao = new CommissionDAO();
+    UserDAO udao = new UserDAO();
+    JSONArray jsonRequests = new JSONArray();
+	JSONObject jsonResponse = new JSONObject();
+    try {
+        List<CommissionRequest> requests = cdao.getPendingRequestsByArtistID(ArtistID);
+
+        for (CommissionRequest r : requests) {
+            JSONObject json = new JSONObject();
+            User artist = udao.getOne(r.getArtistID());
+
+            json.put("requestID", r.getID());
+            json.put("artistID", r.getArtistID());
+            
+            json.put("description", r.getShortDescription());
+            json.put("price", r.getProposedPrice());
+            json.put("status", r.getStatus());
+	   json.put("deadline", r.getProposedDeadline().toLocalDate().toString());
+            json.put("createdAt", getTimeAgo(r.getRequestAt()));
+	   json.put("refeURL", r.getReferenceURL());
+	   json.put("clientname", udao.getUNByUserID(r.getClientID()));
+	   json.put("clientid", r.getClientID());
+
+            jsonRequests.put(json);
+        }
+
+        
+        jsonResponse.put("response", jsonRequests);
+	jsonResponse.put("artistUsername", udao.getUNByUserID(ArtistID));
+         jsonResponse.put("artistAvatar", udao.getAvatarByUserID(ArtistID));
+        JsonUtil.writeJsonResponse(response, jsonResponse);
+    } finally {
+        cdao.closeConnection();
+        udao.closeConnection();
+    }
+}
+
+
+	
 @Override
 protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
@@ -96,10 +168,11 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             return;
         }
 
-        Double proposedPrice = null;
+
+        Double proposedPrice=0.0;
         if (proposedPriceStr != null && !proposedPriceStr.trim().isEmpty()) {
             try {
-                proposedPrice = new Double(proposedPriceStr);
+                proposedPrice = Double.parseDouble(artistIDStr);
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 json.put("error", "Giá không hợp lệ");
@@ -130,19 +203,21 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         req.setReferenceURL(referenceURL);
         req.setProposedPrice(proposedPrice);
         req.setProposedDeadline(proposedDeadline);
-
-       
+       UserDAO udao = new UserDAO();
+       NotificationDAO ndao = new NotificationDAO();
+	ndao.saveNotification(artistID, "Commission Request", udao.getUNByUserID(userID)+" has sent you a commission request.");
         dao.insertCommissionRequest(req);
 	json.put("isOtherCom", dao.hasPendingRequest(userID, artistID));
 		
 
-		 json.put("success", true);
+	json.put("success", true);
         json.put("message", "Đã gửi yêu cầu commission");
 	
        
         response.getWriter().write(json.toString());
         System.out.println("Success: Commission request inserted");
-
+       udao.closeConnection();
+	   ndao.closeConnection();
     } catch (Exception e) {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         json.put("error", "Lỗi: " + e.getMessage());
@@ -151,7 +226,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         e.printStackTrace();
 		
     } finally {
-    dao.closeConnection(); // luôn đóng kết nối
+    dao.closeConnection(); 
 }
 }
 
