@@ -156,8 +156,33 @@ function NotificationPopup({ onClose }) {
                     {n.type || "Heading"}
                   </div>
                   <div className="notification-card-message">
-                    {n.content || "content"}
+                    {
+                      n.content.startsWith('https://res.cloudinary.com') && 
+                      <button
+                        onClick={async () => {
+                        try {
+                          const response = await fetch(n.content);
+                          const blob = await response.blob(); 
+                          const blobUrl = window.URL.createObjectURL(blob);
+
+                          const link = document.createElement("a");
+                          link.href = blobUrl;
+                          link.download = "image.png"; 
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+
+                          window.URL.revokeObjectURL(blobUrl); 
+                        } catch (error) {
+                          console.error("Download failed:", error);
+                        }
+                      }}
+                      >
+                        Download
+                      </button>
+                    }
                   </div>
+
                   <div className="notification-card-time">
                     {formatTimeAgo(n.createdAt)}
                   </div>
