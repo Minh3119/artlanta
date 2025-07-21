@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/HomePage/Header';
+import { Navigate } from 'react-router-dom';
 
 const CommissionListPage = () => {
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true); // <-- add this
   const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -99,9 +101,50 @@ const CommissionListPage = () => {
     },
   ];
 
+  // Check if user is logged in
+  useEffect(() => {
+    setAuthLoading(true);
+    fetch('http://localhost:9999/backend/api/current-user', {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.response && data.response.id) {
+          setCurrentUserId(data.response.id);
+        } else {
+          setCurrentUserId(null);
+        }
+        setAuthLoading(false);
+      })
+      .catch(() => {
+        setCurrentUserId(null);
+        setAuthLoading(false);
+      });
+  }, []);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!currentUserId) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex">
-      <Header />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="w-full flex items-center px-4 pt-4">
+        <button
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm shadow"
+          onClick={() => navigate('/homepage')}
+        >
+          ← Back to Home
+        </button>
+      </div>
       <div className="max-w-6xl mx-auto px-4 py-8 w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -287,4 +330,4 @@ const CommissionListPage = () => {
   );
 };
 
-export default CommissionListPage; 
+export default CommissionListPage;
