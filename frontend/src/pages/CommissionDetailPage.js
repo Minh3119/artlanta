@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import SubmitCommissionModal from '../components/Commission/SubmitCommissionModal';
 import SidebarHistory from '../components/Commission/SidebarHistory';
+import { useNavigate } from 'react-router-dom';
 
 const formatDatePretty = (dateStr) => {
   if (!dateStr) return 'N/A';
@@ -25,6 +26,7 @@ const CommissionDetailPage = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState(null);
   const [acceptLoading, setAcceptLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch current user ID and role on mount
   useEffect(() => {
@@ -257,6 +259,14 @@ const CommissionDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="w-full flex items-center px-4 pt-4">
+        <button
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm shadow"
+          onClick={() => navigate('/commissions')}
+        >
+          ← Back
+        </button>
+      </div>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Details */}

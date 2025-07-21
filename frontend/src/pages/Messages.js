@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import ConversationsList from '../components/Messages/ConversationsList';
 import MessagesList from '../components/Messages/MessagesList';
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -21,6 +21,7 @@ const MessagesPage = () => {
   const [error, setError] = useState(null);
   const hasSelectedInitialConversation = useRef(false);
   const previousActiveTab = useRef(null);
+  const navigate = useNavigate();
 
   const {
     setConversations,
@@ -74,7 +75,7 @@ const MessagesPage = () => {
     if (hasSelectedInitialConversation.current) return;
 
     const conversationIdParam = searchParams.get('conversationId');
-    if (conversationIdParam && conversationIdParam !== selectedConversation.id) {
+    if (selectedConversation && conversationIdParam && conversationIdParam !== selectedConversation.id) {
       const found = conversations.find(c => c.id === parseInt(conversationIdParam));
       if (found) {
         setSelectedConversation(found);
@@ -171,11 +172,27 @@ const MessagesPage = () => {
                         />
                       )}
                     </div>
-                    <div>
-                      <h2 className="font-medium text-gray-900">{selectedConversation.user?.fullName || 'User'}</h2>
-                      <p className="text-xs text-gray-500">
-                        {selectedConversation.user?.role || ''}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <h2 className="font-medium text-gray-900 flex items-center">
+                          {selectedConversation.user?.fullName || 'User'}
+                        </h2>
+                        <p className="text-xs text-gray-500">
+                          {selectedConversation.user?.role || ''}
+                        </p>
+                      </div>
+                      {selectedConversation.user?.id && (
+                        <button
+                          className="ml-3 px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition flex items-center"
+                          onClick={() => navigate(`/user/${selectedConversation.user.id}`)}
+                          title="View Profile"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          View Profile
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

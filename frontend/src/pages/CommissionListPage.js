@@ -147,9 +147,8 @@ const CommissionListPage = () => {
       </div>
       <div className="max-w-6xl mx-auto px-4 py-8 w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">My Commissions</h1>
-          <p className="text-gray-600">Manage and track all your art commissions</p>
+        <div className="text-start mb-8">
+          <h2 className="text-4xl font-bold text-gray-800 mb-2">My Commissions</h2>
         </div>
 
         {/* Status selection cards */}
@@ -320,11 +319,6 @@ const CommissionListPage = () => {
             )}
           </div>
         )}
-
-        {/* Footer */}
-        <div className="text-center mt-12 text-gray-500 text-sm">
-          <p>Click on any commission to view detailed information and history</p>
-        </div>
       </div>
     </div>
   );

@@ -1104,7 +1104,7 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceUR
 VALUES
 (1, 2, 'Chibi portrait in anime style', 'https://imgur.com/chibi1.jpg', 12000, '2025-07-15', 'PENDING', NULL, '2025-06-20', NULL),
 (1, 2, 'Realistic pet painting', 'https://imgur.com/pet2.jpg', 30000, '2025-07-20', 'REJECTED', 'Sorry, I do not paint pets.', '2025-06-21', '2025-06-22'),
-(1, 2, 'Landscape with mountains', NULL, 25000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
+(11, 1, 'Landscape with mountains', NULL, 25000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
 
 -- User 2 as Client, User 1 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
