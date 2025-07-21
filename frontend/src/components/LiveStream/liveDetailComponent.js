@@ -4,6 +4,7 @@ import '../../styles/live.scss';
 import logo from '../../assets/images/arlanta.svg';
 import { Navigate, useParams } from 'react-router-dom';
 import LiveChatComponent from "./liveChatComponent";
+import LiveGalleryComponent from "./liveGalleryComponent";
 import imageCompression from 'browser-image-compression';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -116,6 +117,11 @@ class LiveDetailComponent extends React.Component {
             })
             .catch((err) => console.error(err));
         // this.handleUpdateView();
+        // this.chatBoxRef.current.scrollTo({
+        //     top: this.chatBoxRef.current.scrollHeight,
+        //     behavior: "smooth"
+        // });
+
         this.loadWallet();
         if (!this.socket) {
             this.connectWebSocket();
@@ -475,11 +481,7 @@ class LiveDetailComponent extends React.Component {
                                     }
                                 </div>
                             </div>
-                            <div className="live-gallery-container">
-                                <h2>
-                                    Live Gallery
-                                </h2>
-                            </div>
+                            <LiveGalleryComponent />
                         </div>
                         <LiveChatComponent
                             View={this.state.View}

@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { Navigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 import '../../styles/liveForm.scss';
+import logo from '../../assets/images/arlanta.svg';
 class LiveFormComponent extends React.Component {
     state = {
         channelLink: '',
@@ -18,6 +19,8 @@ class LiveFormComponent extends React.Component {
         visibility: "PUBLIC",
         isSubmit: null,
         ID: 0,
+        redirect: null,
+        isLoading: false,
     }
     extractYouTubeUsername = (url) => {
         const regex = /^https?:\/\/(www\.)?youtube\.com\/(@[A-Za-z0-9_.-]+)\/?$/;
@@ -25,6 +28,7 @@ class LiveFormComponent extends React.Component {
         return match ? match[2] : null;
     }
     handleSubmit = async () => {
+
         const { channelLink, title, visibility, auction } = this.state;
 
         if (this.extractYouTubeUsername(channelLink) === null) {
@@ -42,7 +46,9 @@ class LiveFormComponent extends React.Component {
         });
         formData.append("total", auction.length);
         console.log("Form data prepared:", auction.length.toString());
-
+        this.setState({
+            isLoading: true,
+        })
         try {
             const res = await fetch("http://localhost:9999/backend/api/live/check", {
                 method: "POST",
@@ -59,10 +65,14 @@ class LiveFormComponent extends React.Component {
                     visibility: "PUBLIC",
                     isSubmit: `/live/detail/${data.response}`,
                     auction: [],
+
                 });
                 toast.success("Channel success");
             } else {
                 toast.error(data.error);
+                this.setState({
+                    isLoading: false
+                })
             }
         } catch (error) {
             console.log("Server error!", error);
@@ -117,55 +127,72 @@ class LiveFormComponent extends React.Component {
             currentFilePreview: URL.createObjectURL(compressedFile)
         })
     }
+    handleExit = () => {
+        this.setState({
+            redirect: '/'
+        })
+    }
     render() {
         if (this.state.isSubmit) {
             return (<Navigate to={this.state.isSubmit} />)
         }
+        if (this.state.redirect) {
+            return (<Navigate to={this.state.redirect} />)
+        }
         return (
-            <div className='live-form-wrapper'>
-                <div className='live-form-container'>
-                    <div className='live-form-header'>
-                        <h2>Live form</h2>
-                        <button>X</button>
-                    </div>
-                    <input type='text' placeholder='Link' value={this.state.channelLink}
-                        onChange={(e) => { this.setState({ channelLink: e.target.value }) }} />
-                    <input type='text' placeholder='title' value={this.state.title}
-                        onChange={(e) => { this.setState({ title: e.target.value }) }} />
-                    <div className='auction-container'>
-                        <h3>Auction:</h3>
-                        <input type='file' className="file" id="file" name="file[]" onChange={(e) => this.handleOnChangeFile(e)} />
-                        {this.state.currentFilePreview ?
-                            <img src={this.state.currentFilePreview} alt="Preview" style={{ maxWidth: '200px', maxHeight: '500px' }} />
-                            : null
-                        }
-                        <input type='number' value={this.state.currentStartPrice} onChange={(e) => { this.setState({ currentStartPrice: Number(e.target.value) }) }} placeholder='Start Price(VND)' />
-                        <button onClick={() => this.handleAddAuction(this.state.currentFile, this.state.currentStartPrice)}>
-                            Add
-                        </button>
-                        <div className='auction-list'>
-                            {this.state.auction.map((item, index) => {
-                                if (item.preview) {
-                                    return (
-                                        <div key={index}>
-                                            <img src={(item.preview)} style={{ maxWidth: '200px', maxHeight: '500px' }} alt="Auction Item" />
-                                            <p>Start Price: {item.startPrice} VND</p>
-                                            <button onClick={() => this.handleDeleteAuction(index)}>Remove</button>
-                                        </div>
-                                    )
-                                }
-
-                            })}
-
+            this.state.isLoading ?
+                <div className="loading-container">
+                    <span>Loading ... </span>
+                    <img
+                        src={logo}
+                        alt="Loading..."
+                        className="loading-spinner"
+                    /></div>
+                :
+                <div className='live-form-wrapper'>
+                    <div className='live-form-container'>
+                        <div className='live-form-header'>
+                            <h2>Live form</h2>
+                            <button onClick={() => this.handleExit()}>X</button>
                         </div>
+                        <input type='text' placeholder='Link' value={this.state.channelLink}
+                            onChange={(e) => { this.setState({ channelLink: e.target.value }) }} />
+                        <input type='text' placeholder='title' value={this.state.title}
+                            onChange={(e) => { this.setState({ title: e.target.value }) }} />
+                        <div className='auction-container'>
+                            <h3>Auction:</h3>
+                            <input type='file' className="file" id="file" name="file[]" onChange={(e) => this.handleOnChangeFile(e)} />
+                            {this.state.currentFilePreview ?
+                                <img src={this.state.currentFilePreview} alt="Preview" style={{ maxWidth: '200px', maxHeight: '500px' }} />
+                                : null
+                            }
+                            <input type='number' value={this.state.currentStartPrice} onChange={(e) => { this.setState({ currentStartPrice: Number(e.target.value) }) }} placeholder='Start Price(VND)' />
+                            <button onClick={() => this.handleAddAuction(this.state.currentFile, this.state.currentStartPrice)}>
+                                Add
+                            </button>
+                            <div className='auction-list'>
+                                {this.state.auction.map((item, index) => {
+                                    if (item.preview) {
+                                        return (
+                                            <div key={index}>
+                                                <img src={(item.preview)} style={{ maxWidth: '200px', maxHeight: '500px' }} alt="Auction Item" />
+                                                <p>Start Price: {item.startPrice} VND</p>
+                                                <button onClick={() => this.handleDeleteAuction(index)}>Remove</button>
+                                            </div>
+                                        )
+                                    }
+
+                                })}
+
+                            </div>
+                        </div>
+                        <select value={this.state.visibility} onChange={(e) => { this.setState({ visibility: e.target.value }) }}>
+                            <option value="PUBLIC">Public</option>
+                            <option value="PRIVATE">Private</option>
+                        </select>
+                        <button onClick={() => this.handleSubmit()}>Submit</button>
                     </div>
-                    <select value={this.state.visibility} onChange={(e) => { this.setState({ visibility: e.target.value }) }}>
-                        <option value="PUBLIC">Public</option>
-                        <option value="PRIVATE">Private</option>
-                    </select>
-                    <button onClick={() => this.handleSubmit()}>Submit</button>
                 </div>
-            </div>
         )
     }
 
