@@ -22,6 +22,7 @@ web/WEB-INF/env.txt
 **/web/WEB-INF/env.txt
 *env.txt
 web/WEB-INF/env.txt
+src/test/java/selenium
 
 ### NetBeans ###
 ant_build.xml

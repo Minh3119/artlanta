@@ -6,17 +6,15 @@
 package controller.commission;
 
 import dal.CommissionDAO;
-import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import model.CommissionRequest;
 import org.json.JSONObject;
 import static util.SessionUtil.getCurrentUserId;
@@ -98,10 +96,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
             return;
         }
 
-        BigDecimal proposedPrice = null;
+        Double proposedPrice = null;
         if (proposedPriceStr != null && !proposedPriceStr.trim().isEmpty()) {
             try {
-                proposedPrice = new BigDecimal(proposedPriceStr);
+                proposedPrice = new Double(proposedPriceStr);
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 json.put("error", "Giá không hợp lệ");
