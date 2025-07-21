@@ -19,8 +19,10 @@ public class UserIDServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Integer userID = (Integer) SessionUtil.getCurrentUserId(session);
+        String UserName =  String.valueOf(SessionUtil.getCurrentUserName(session));
         JSONObject jsonPost = new JSONObject();
         jsonPost.put("userID", userID);
+        jsonPost.put("username",UserName);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("response", jsonPost);
         

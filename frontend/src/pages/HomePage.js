@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
+import LivePageComponent from "../components/LiveStream/livePageComponent";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
@@ -103,7 +104,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="homepage-container" id="scrollableDiv" style={{overflowX:'hidden'}}>
+    <div className="homepage-container" id="scrollableDiv" style={{ overflowX: 'hidden' }}>
       {/* Pass the type to openCreatePopup */}
       <Header openCreatePopup={openCreatePopup} />
 
@@ -136,38 +137,67 @@ export default function HomePage() {
               Event
             </button>
           </Link>
+          {/* <Link to="/live"> */}
+          <button
+            className={`tab-button ${selectedTab === 'live' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('live')}
+          >
+            Live
+          </button>
+          {/* </Link> */}
         </div>
       </div>
-
-      <ArtistPost
+      {/* <ArtistPost
         refetch={isRefresh}
         currentID={currentID}
         openUpdatePopup={openUpdatePopup}
         openDeletePopup={openDeletePopup}
         scrollableTarget="scrollableDiv"
         addToHistory={addToHistory}
-      />
+      /> */}
+
+      {
+        selectedTab === 'post' ?
+          <ArtistPost
+            refetch={isRefresh}
+            currentID={currentID}
+            openUpdatePopup={openUpdatePopup}
+            openDeletePopup={openDeletePopup}
+            scrollableTarget="scrollableDiv"
+            addToHistory={addToHistory}
+          />
+          :
+          <LivePageComponent />
+      }
 
       {/* Unified create popup */}
-      {isCreateOpen && createType === 'post' && (
-        <CreatePostComponent closeCreatePopup={closeCreatePopup} />
-      )}
-      {isCreateOpen && createType === 'event' && (
-        <CreateEventComponent closeEventPopup={closeCreatePopup} />
-      )}
+      {
+        isCreateOpen && createType === 'post' && (
+          <CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        )
+      }
+      {
+        isCreateOpen && createType === 'event' && (
+          <CreateEventComponent closeEventPopup={closeCreatePopup} />
+        )
+      }
 
-      {isUpdateOpen && (
-        <UpdatePostComponent
-          closeUpdatePopup={closeUpdatePopup}
-          updatePostID={updatePostID}
-        />
-      )}
-      {isDeleteOpen && (
-        <DeletePostComponent
-          closeDeletePopup={closeDeletePopup}
-          deletePostID={deletePostID}
-        />
-      )}
-    </div>
+      {
+        isUpdateOpen && (
+          <UpdatePostComponent
+            closeUpdatePopup={closeUpdatePopup}
+            updatePostID={updatePostID}
+          />
+        )
+      }
+      {
+        isDeleteOpen && (
+          <DeletePostComponent
+            closeDeletePopup={closeDeletePopup}
+            deletePostID={deletePostID}
+          />
+        )
+      }
+    </div >
   );
 }

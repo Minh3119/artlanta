@@ -90,7 +90,7 @@ public class UserDAO extends DBContext {
 
     public User getOne(int userID) {
         User user = null;
-        String sql = "SELECT * FROM Users WHERE ID = ?";
+        String sql = "SELECT * FROM Users WHERE ID = ?;";
         try (PreparedStatement st = connection.prepareStatement(sql)) {
             st.setInt(1, userID);
             st.closeOnCompletion();

@@ -102,7 +102,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                         className="my-masonry-grid"
                         columnClassName="my-masonry-grid_column"
                     >
-                        {posts.map((post) => (
+                        {posts.map((post, index) => (
                             <div className="artistpost-container" key={post.postID}>
                                 <div className="artistpost-info">
                                     <img

@@ -57,6 +57,49 @@ CREATE TABLE Posts (
     FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
+CREATE TABLE LivePosts (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    Title VARCHAR(100),
+    LiveID VARCHAR(255),
+    LiveView INT NOT NULL,
+    LiveStatus VARCHAR(20) default 'Live' CHECK (LiveStatus IN ('Live','Post')),
+    Visibility VARCHAR(20) DEFAULT 'PUBLIC' CHECK (Visibility IN ('PUBLIC','PRIVATE')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE
+);
+CREATE TABLE Gallery (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT default 0,
+    LivePostID INT NOT NULL,
+    ImageUrl VARCHAR(500) NOT NULL,
+    GalleryLike INT default 0,
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+
+CREATE TABLE LiveChatMessages (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    LivePostID INT NOT NULL,
+    UserID INT NOT NULL,
+    ChatType VARCHAR(20) DEFAULT 'Chat',
+    Message TEXT NOT NULL,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+CREATE TABLE Auctions (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    SalerID INT default 0,
+    LivePostID INT NOT NULL,
+    ImageUrl VARCHAR(500) NOT NULL,
+    Price INT NOT NULL CHECK (Price >= 0),
+    UserID INT default 0,
+    IsBid VARCHAR(20) default 'NoBid',
+    FOREIGN KEY(UserID) REFERENCES Users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
+);
+
 -- Multi Media URL -- bắt buộc để đảm bảo khóa
 
 -- bảng nối với Post
@@ -482,6 +525,18 @@ CREATE TABLE Messages (
     MediaURL VARCHAR(255),
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(ConversationID) REFERENCES Conversations(ID),
+    FOREIGN KEY(SenderID) REFERENCES Users(ID),
+    isDeleted BOOLEAN DEFAULT FALSE,
+    deletedAt DATETIME NULL
+);
+
+Create table LiveMessages(
+	ID INT AUTO_INCREMENT PRIMARY KEY,
+    SenderID INT,
+    Content TEXT,
+    RoomID INT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(RoomID) REFERENCES LivePosts(ID),
     FOREIGN KEY(SenderID) REFERENCES Users(ID),
     isDeleted BOOLEAN DEFAULT FALSE,
     deletedAt DATETIME NULL

@@ -138,8 +138,7 @@ public class UpdatePost extends HttpServlet {
             jsonPost.put("imageUrl", imageArr);
 
             JSONObject jsonResponse = new JSONObject();
-            jsonResponse.put("response", jsonPost);
-
+            jsonResponse.put("response", jsonPost); 
             JsonUtil.writeJsonResponse(response, jsonResponse);
 
         } catch (NumberFormatException e) {

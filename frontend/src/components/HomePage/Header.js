@@ -24,8 +24,8 @@ export default function Header({ openCreatePopup }) {
   const userMenuRef = useRef(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isArtist, setIsArtist] = useState(false);
-  const [eKYC,setEKYC] = useState(false);
-  const [accURL,setAccURL] = useState("");
+  const [eKYC, setEKYC] = useState(false);
+  const [accURL, setAccURL] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -118,29 +118,29 @@ export default function Header({ openCreatePopup }) {
     checkEKYC();
   }, []);
 
-    useEffect(() => {
-      const checkRole = async () => {
-        try {
-          const res = await fetch(
-            "http://localhost:9999/backend/api/role/check",
-            {
-              credentials: "include",
-            }
-          );
-
-          if (!res.ok) return;
-
-          const data = await res.json();
-          if (data.isArtist) {
-            setIsArtist(true);
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:9999/backend/api/role/check",
+          {
+            credentials: "include",
           }
-        } catch (error) {
-          console.error("Failed to check role:", error);
-        }
-      };
+        );
 
-      checkRole();
-    }, []);
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (data.isArtist) {
+          setIsArtist(true);
+        }
+      } catch (error) {
+        console.error("Failed to check role:", error);
+      }
+    };
+
+    checkRole();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -188,18 +188,29 @@ export default function Header({ openCreatePopup }) {
             <p className="header-navbar__title">Home</p>
           </div>
         </Link>
-        <Link to="#">
-          <div className="header-navbar__container active">
-            <p className="header-navbar__title">Today</p>
-          </div>
-        </Link>
+        {
+          !userID ?
+            <Link to="/login">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+            :
+            <Link to="/live/form">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+        }
         <div
           className="header-navbar__container"
           ref={createMenuRef}
           onClick={() => setShowCreateMenu(!showCreateMenu)}
           style={{ cursor: "pointer", position: "relative" }}
         >
-          <p className="header-navbar__title">Create</p>
+          <p className="header-navbar__title" id="test-create-btn">Create</p>
           <img
             src={arrowDown}
             alt=""
@@ -299,7 +310,7 @@ export default function Header({ openCreatePopup }) {
                     Top Up
                   </Link>
                 )}
-                {userID != 0 && isArtist &&  (
+                {userID != 0 && isArtist && (
                   <Link to="/withdraw" className="user-menu-item">
                     Withdraw
                   </Link>

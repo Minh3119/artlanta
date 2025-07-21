@@ -1,38 +1,33 @@
-package controller.Music;
 
-import dal.MusicDAO;
+
+package controller.Live;
+
+import dal.LiveDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import org.json.JSONObject;
-import util.JsonUtil;
-import util.SessionUtil;
 
-public class InsertPlayTime extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
+public class UpdateView extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
 
-    }
+    } 
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        MusicDAO md = new MusicDAO();
-        HttpSession session = request.getSession();
+        LiveDAO ld= new LiveDAO();
+        
         StringBuilder sb = new StringBuilder();
         BufferedReader reader = request.getReader();
         String line;
@@ -40,18 +35,17 @@ public class InsertPlayTime extends HttpServlet {
             sb.append(line);
         }
         JSONObject json = new JSONObject(sb.toString());
-        String timeRaw = json.optString("totalPlayTime", "").trim();
-        try {
-            Integer userID = SessionUtil.getCurrentUserId(session);
-
-            double time = Double.parseDouble(timeRaw);
-            if(userID!=null){
-                md.insertPlayTime(userID, time);
-            }
-
-        } catch (Exception e) {
+        String ID_raw = json.optString("ID", "").trim();
+        String View_raw = json.optString("View", "").trim();
+        
+        try{
+            int ID= Integer.parseInt(ID_raw);
+            int View= Integer.parseInt(View_raw);
+            ld.updateView(ID, View);
+            
+        }
+        catch(Exception e){
             e.printStackTrace();
-            JsonUtil.writeJsonError(response, "Error update play time");
         }
     }
 
