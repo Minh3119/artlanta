@@ -1,14 +1,14 @@
 package dal;
 
+import dto.CommissionDTO;
 import java.sql.*;
 import java.util.*;
-import dto.CommissionDTO;
 
 public class CommissionDAO extends DBContext {
     // Get all commissions with joined request and user info for a user
     public List<CommissionDTO> getCommissionsWithRequestAndUserByUserId(int userId) throws SQLException {
         List<CommissionDTO> result = new ArrayList<>();
-        String sql = "SELECT c.ID AS commissionId, c.RequestID AS requestId, c.Title AS title, c.Description AS description, c.Price AS price, c.Deadline AS deadline, c.FileDeliveryURL AS fileDeliveryURL, c.Status AS status, c.ArtistSeenFinal AS artistSeenFinal, c.ClientConfirmed AS clientConfirmed, c.CreatedAt AS createdAt, c.UpdatedAt AS updatedAt, " +
+        String sql = "SELECT c.ID AS commissionId, c.RequestID AS requestId, c.Title AS title, c.Description AS description, c.Price AS price, c.Deadline AS deadline, c.FileDeliveryURL AS fileDeliveryURL, c.PreviewImageURL AS previewImageURL, c.Status AS status, c.ArtistSeenFinal AS artistSeenFinal, c.ClientConfirmed AS clientConfirmed, c.CreatedAt AS createdAt, c.UpdatedAt AS updatedAt, " +
                 "cr.ClientID AS clientId, cr.ArtistID AS artistId, cr.ShortDescription AS shortDescription, cr.ReferenceURL AS referenceURL, cr.ProposedPrice AS proposedPrice, cr.ProposedDeadline AS proposedDeadline, cr.Status AS requestStatus, cr.ArtistReply AS artistReply, cr.RequestAt AS requestAt, cr.RespondedAt AS respondedAt, " +
                 "client.Username AS clientUsername, artist.Username AS artistUsername, client.AvatarURL AS clientAvatarURL, artist.AvatarURL AS artistAvatarURL " +
                 "FROM Commission c " +
@@ -29,6 +29,7 @@ public class CommissionDAO extends DBContext {
                     dto.setPrice(rs.getDouble("price"));
                     dto.setDeadline(rs.getTimestamp("deadline") != null ? rs.getTimestamp("deadline").toLocalDateTime() : null);
                     dto.setFileDeliveryURL(rs.getString("fileDeliveryURL"));
+                    dto.setPreviewImageURL(rs.getString("previewImageURL"));
                     dto.setStatus(rs.getString("status"));
                     dto.setArtistSeenFinal(rs.getBoolean("artistSeenFinal"));
                     dto.setClientConfirmed(rs.getBoolean("clientConfirmed"));
@@ -56,7 +57,7 @@ public class CommissionDAO extends DBContext {
     }
 
     public CommissionDTO getCommissionByIdAndUser(int commissionId, int userId) throws SQLException {
-        String sql = "SELECT c.ID AS commissionId, c.RequestID AS requestId, c.Title AS title, c.Description AS description, c.Price AS price, c.Deadline AS deadline, c.FileDeliveryURL AS fileDeliveryURL, c.Status AS status, c.ArtistSeenFinal AS artistSeenFinal, c.ClientConfirmed AS clientConfirmed, c.CreatedAt AS createdAt, c.UpdatedAt AS updatedAt, " +
+        String sql = "SELECT c.ID AS commissionId, c.RequestID AS requestId, c.Title AS title, c.Description AS description, c.Price AS price, c.Deadline AS deadline, c.FileDeliveryURL AS fileDeliveryURL, c.PreviewImageURL AS previewImageURL, c.Status AS status, c.ArtistSeenFinal AS artistSeenFinal, c.ClientConfirmed AS clientConfirmed, c.CreatedAt AS createdAt, c.UpdatedAt AS updatedAt, " +
                 "cr.ClientID AS clientId, cr.ArtistID AS artistId, cr.ShortDescription AS shortDescription, cr.ReferenceURL AS referenceURL, cr.ProposedPrice AS proposedPrice, cr.ProposedDeadline AS proposedDeadline, cr.Status AS requestStatus, cr.ArtistReply AS artistReply, cr.RequestAt AS requestAt, cr.RespondedAt AS respondedAt, " +
                 "client.Username AS clientUsername, artist.Username AS artistUsername, client.AvatarURL AS clientAvatarURL, artist.AvatarURL AS artistAvatarURL " +
                 "FROM Commission c " +
@@ -78,6 +79,7 @@ public class CommissionDAO extends DBContext {
                     dto.setPrice(rs.getDouble("price"));
                     dto.setDeadline(rs.getTimestamp("deadline") != null ? rs.getTimestamp("deadline").toLocalDateTime() : null);
                     dto.setFileDeliveryURL(rs.getString("fileDeliveryURL"));
+                    dto.setPreviewImageURL(rs.getString("previewImageURL"));
                     dto.setStatus(rs.getString("status"));
                     dto.setArtistSeenFinal(rs.getBoolean("artistSeenFinal"));
                     dto.setClientConfirmed(rs.getBoolean("clientConfirmed"));
@@ -120,5 +122,21 @@ public class CommissionDAO extends DBContext {
             int affected = ps.executeUpdate();
             return affected > 0;
         }
+    }
+
+    public boolean submitCommission(int commissionId, int userId, String fileDeliveryURL, String previewImageURL) throws SQLException {
+        // Only allow update if user is the artist
+        String sql = "UPDATE Commission c " +
+                     "JOIN CommissionRequest cr ON c.RequestID = cr.ID " +
+                     "SET c.FileDeliveryURL = ?, c.PreviewImageURL = ?, c.ArtistSeenFinal = TRUE, c.UpdatedAt = CURRENT_TIMESTAMP " +
+                     "WHERE c.ID = ? AND cr.ArtistID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, fileDeliveryURL);
+            ps.setString(2, previewImageURL);
+            ps.setInt(3, commissionId);
+            ps.setInt(4, userId);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        } 
     }
 } 

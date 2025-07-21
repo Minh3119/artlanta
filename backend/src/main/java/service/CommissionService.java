@@ -83,4 +83,20 @@ public class CommissionService {
         }
         return null;
     }
+
+    public JSONObject submitCommission(int commissionId, int userId, String fileDeliveryURL, String previewImageURL) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            boolean updated = commissionDAO.submitCommission(commissionId, userId, fileDeliveryURL, previewImageURL);
+            if (!updated) return null;
+            CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            if (dto == null) return null;
+            return new JSONObject(util.JsonUtil.toJsonString(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            commissionDAO.closeConnection();
+        }
+        return null;
+    }
 } 

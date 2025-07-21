@@ -15,6 +15,7 @@ public class CommissionDTO {
     private boolean clientConfirmed;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String previewImageURL;
 
     // CommissionRequest fields
     private int clientId;
@@ -89,4 +90,6 @@ public class CommissionDTO {
     public void setClientAvatarURL(String clientAvatarURL) { this.clientAvatarURL = clientAvatarURL; }
     public String getArtistAvatarURL() { return artistAvatarURL; }
     public void setArtistAvatarURL(String artistAvatarURL) { this.artistAvatarURL = artistAvatarURL; }
+    public String getPreviewImageURL() { return previewImageURL; }
+    public void setPreviewImageURL(String previewImageURL) { this.previewImageURL = previewImageURL; }
 } 

@@ -197,7 +197,8 @@ CREATE TABLE Commission (
     Description TEXT,                         -- mô tả cuối cùng sau khi chốt
     Price DECIMAL(10,2) NOT NULL,             -- giá cuối đã thống nhất
     Deadline DATETIME NOT NULL,               -- hạn cuối mà artist phải nộp
-    FileDeliveryURL VARCHAR(255),             -- link tải bản hoàn chỉnh (nếu có)
+    FileDeliveryURL VARCHAR(255),             -- link tải bản hoàn chỉnh (nếu có),
+    PreviewImageURL VARCHAR(255),             -- link ảnh preview có watermark (nếu có),
     Status ENUM('IN_PROGRESS', 'COMPLETED', 'CANCELLED') DEFAULT 'IN_PROGRESS',
     ArtistSeenFinal BOOLEAN DEFAULT FALSE,    -- đánh dấu artist đã gửi xong chưa
     ClientConfirmed BOOLEAN DEFAULT FALSE,    -- đánh dấu client đã xác nhận hoàn tất chưa

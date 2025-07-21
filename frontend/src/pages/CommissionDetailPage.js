@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import SubmitCommissionModal from '../components/Commission/SubmitCommissionModal';
 
 const CommissionDetailPage = () => {
   const { commissionId } = useParams();
@@ -12,6 +13,29 @@ const CommissionDetailPage = () => {
   const [historyError, setHistoryError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editFields, setEditFields] = useState({ title: '', description: '', price: '' });
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+
+  // Fetch current user ID and role on mount
+  useEffect(() => {
+    fetch('http://localhost:9999/backend/api/current-user', {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.response && data.response.id) {
+          setCurrentUserId(data.response.id);
+          setCurrentUserRole(data.response.role);
+        }
+      })
+      .catch(() => {
+        setCurrentUserId(null);
+        setCurrentUserRole(null);
+      });
+  }, []);
 
   useEffect(() => {
     fetch(`http://localhost:9999/backend/api/commissions/${commissionId}`, {
@@ -104,6 +128,59 @@ const CommissionDetailPage = () => {
       toast.success('Commission updated successfully!');
     } catch (err) {
       toast.error(err.message);
+    }
+  };
+
+  const isArtist = commission && currentUserId && currentUserRole === 'ARTIST' && commission.artistId === currentUserId;
+
+  // Submit handler
+  const handleSubmitCommission = async (finalFile, previewFile) => {
+    setSubmitLoading(true);
+    try {
+      // Upload final file
+      const finalForm = new FormData();
+      finalForm.append('file[]', finalFile);
+      const finalRes = await fetch('http://localhost:9999/backend/api/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: finalForm
+      });
+      const finalData = await finalRes.json();
+      if (!finalRes.ok || !finalData.response || !Array.isArray(finalData.response) || !finalData.response[0]?.url) {
+        throw new Error(finalData.error || 'Failed to upload final image');
+      }
+      const finalURL = finalData.response[0].url;
+
+      // Upload preview file
+      const previewForm = new FormData();
+      previewForm.append('file[]', previewFile);
+      const previewRes = await fetch('http://localhost:9999/backend/api/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: previewForm
+      });
+      const previewData = await previewRes.json();
+      if (!previewRes.ok || !previewData.response || !Array.isArray(previewData.response) || !previewData.response[0]?.url) {
+        throw new Error(previewData.error || 'Failed to upload preview image');
+      }
+      const previewURL = previewData.response[0].url;
+
+      // Submit commission with URLs
+      const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}/submit`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileDeliveryURL: finalURL, previewImageURL: previewURL })
+      });
+      if (!res.ok) throw new Error('Failed to submit commission');
+      const data = await res.json();
+      setCommission(data.commission);
+      setShowSubmitModal(false);
+      toast.success('Commission submitted successfully!');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -324,9 +401,22 @@ const CommissionDetailPage = () => {
                         onClick={() => setEditMode(true)}
                       >Edit</button>
                     )}
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors">Submit</button>
+                    {/* Only artist can see submit button */}
+                    {isArtist && (
+                      <button
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
+                        onClick={() => setShowSubmitModal(true)}
+                      >Submit</button>
+                    )}
                   </div>
                 )}
+                {/* Modal for submit commission */}
+                <SubmitCommissionModal
+                  open={showSubmitModal}
+                  onClose={() => setShowSubmitModal(false)}
+                  onSubmit={handleSubmitCommission}
+                  loading={submitLoading}
+                />
 
                 {/* File Delivery */}
                 {commission.fileDeliveryURL && (
@@ -343,6 +433,24 @@ const CommissionDetailPage = () => {
                     >
                       <span>📥</span>
                       Download Final File
+                    </a>
+                  </div>
+                )}
+                {/* Preview Delivery */}
+                {commission.previewImageURL && (
+                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6 mt-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <span className="text-xl">🖼️</span>
+                      Preview (Watermarked)
+                    </h3>
+                    <a
+                      href={commission.previewImageURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      <span>👁️</span>
+                      View Preview Image
                     </a>
                   </div>
                 )}
