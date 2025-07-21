@@ -82,6 +82,12 @@ class LiveChatComponent extends React.Component {
             return;
 
         }
+        if (this.state.currentMessage.startsWith('#bid')) {
+            const amount = this.state.currentMessage.split('-')[2];
+            if (this.props.balance < amount) {
+                return toast.error("Ur credit is not that much!")
+            }
+        }
         if (this.props.socket && this.state.currentMessage.trim() !== '') {
             this.props.socket.send(this.state.currentMessage);
             this.setState({ currentMessage: '' });
@@ -95,6 +101,7 @@ class LiveChatComponent extends React.Component {
             <div className="live-chat">
                 <div className="live-chat-header">
                     <div>Live Chat</div>
+                    <div className="balance">{this.props.balance} VND</div>
                     <div className="live-view"><GrStreetView />{this.props.View}</div>
                 </div>
                 <div className="live-chat-body">

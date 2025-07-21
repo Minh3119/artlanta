@@ -208,18 +208,33 @@
             height: 80vh;
             border-radius: 10px;
             background-color: wheat;
+            position: sticky;
+            top: 10px;
             .live-chat-header{
                 padding: 2px 10px;
                 width: 100%;
                 display: flex;
                 align-items: center;
+                gap:5px;
                 height: 5%;
                 div{
-                    width: 70%;
+                    width: 30%;
                     height: 100%;
                     font-size: 1vw;
                     display: flex;
                     align-items: center;
+                }
+                .balance{
+                    width: 40%;
+                    height: 100%;
+                    border: 1px solid red;
+                    background-color: orange;
+                    border-radius: 10px;
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 1vw;
                 }
                 .live-view{
                     width: 30%;

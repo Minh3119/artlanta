@@ -11,6 +11,7 @@ class LiveDetailComponent extends React.Component {
     state = {
         redirect: null,
         currentUserID: '',
+        balance: 0,
         currentUserName: '',
         ID: '',
         userID: '',
@@ -24,6 +25,7 @@ class LiveDetailComponent extends React.Component {
         Visibility: '',
         LiveID: '',
         imageBidList: [],
+        auctionTransaction: 0,
         realBidImage: [],
         isLoading: true,
         timeLeft: null,
@@ -55,15 +57,18 @@ class LiveDetailComponent extends React.Component {
             })
             .then(async (res) => {
                 const options = {
-                    maxSizeMB: 0.1,
-                    maxWidthOrHeight: 1024,
+                    maxSizeMB: 0.02,
+                    maxWidthOrHeight: 200,
                     useWebWorker: true,
                 };
                 const data = res.data.response;
                 const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
-
+                let count = 0;
                 const filesFromUrls = await Promise.all(
                     previewUrls.map(async (item, index) => {
+                        if (item.IsBid == "Bid") {
+                            count++;
+                        }
                         const response = await fetch(item.mediaURL);
                         const blob = await response.blob();
                         return ({
@@ -105,12 +110,14 @@ class LiveDetailComponent extends React.Component {
                     imageBidList: compressedFile,
                     realBidImage: previewUrls,
                     isLoading: false,
+                    auctionTransaction: count
                 });
             })
             .catch((err) => console.error(err));
         this.handleUpdateView();
         if (!this.socket) {
             this.connectWebSocket();
+
         }
     }
 
@@ -121,6 +128,8 @@ class LiveDetailComponent extends React.Component {
 
         this.socket.onopen = () => {
             console.log(" WebSocket connected to ID:", ID);
+            this.socket.send(`at-` + this.state.auctionTransaction);
+            this.reloadAuction();
         };
 
         this.socket.onmessage = (event) => {
@@ -151,31 +160,24 @@ class LiveDetailComponent extends React.Component {
                 this.setState({ timeLeft: data.Message });
                 return;
             }
-            else if (data.Type === "BidResult") {
-                // const updatedList = this.state.imageBidList.map((item, index) => {
-                //     if (index == data.AuctionIndex) {
-                //         return {
-                //             // aucID: item.aucID,
-                //             // userIDWithBid: Number(data.UserID),
-                //             // file: item.file,
-                //             // preview: item.preview,
-                //             ...item,
-                //             startPrice: data.Amount,
-                //             isBid: "Bid",
-                //         };
-                //     }
-                //     return item;
-                // });
+            else if (data.Type === "BidUpdate") {
                 this.reloadAuction();
+                toast.success(`User ${data.UserID} have raise the ${data.AuctionIndex} Auction with ${data.Amount}`, {
+                    toastId: "raise-auction",
+                });
+
+            }
+            else if (data.Type === "BidResult") {
+                this.changeCurrentAuction(data);
+                this.reloadAuction();
+                this.loadWallet();
                 toast.success(`User ${data.UserID} have won the ${data.AuctionIndex} Auction with ${data.Amount}`, {
                     toastId: "won-auction",
                 });
 
-                // this.setState(
-                //     {
-                //         imageBidList: updatedList
-                //     }
-                // );
+            }
+            else if (data.Type === "CurrentAuction") {
+                this.changeCurrentAuction(data);
             }
 
 
@@ -203,6 +205,32 @@ class LiveDetailComponent extends React.Component {
             messagesList: e,
         })
     }
+    changeCurrentAuction = (data) => {
+        this.setState({
+            auctionTransaction: data.CurrentAuction
+        })
+    }
+    loadWallet = async () => {
+        await axios.post("http://localhost:9999/backend/api/wallet",
+            {
+                ID: this.props.params.ID
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            })
+            .then(async (res) => {
+                const data = res.data.response;
+                this.setState({
+                    balance: data.balance
+                })
+
+
+            })
+            .catch((err) => console.error(err));
+    }
     reloadAuction = async () => {
         await axios.post("http://localhost:9999/backend/api/live/auction/get",
             {
@@ -216,15 +244,18 @@ class LiveDetailComponent extends React.Component {
             })
             .then(async (res) => {
                 const options = {
-                    maxSizeMB: 0.1,
-                    maxWidthOrHeight: 1024,
+                    maxSizeMB: 0.02,
+                    maxWidthOrHeight: 200,
                     useWebWorker: true,
                 };
                 const data = res.data.response;
                 const previewUrls = Array.isArray(data.imageUrl) ? data.imageUrl : [];
-
+                let count = 0;
                 const filesFromUrls = await Promise.all(
                     previewUrls.map(async (item, index) => {
+                        if (item.IsBid == "Bid") {
+                            count++;
+                        }
                         const response = await fetch(item.mediaURL);
                         const blob = await response.blob();
                         return ({
@@ -254,6 +285,7 @@ class LiveDetailComponent extends React.Component {
 
 
                 this.setState({
+                    auctionTransaction: count,
                     imageBidList: compressedFile,
                     realBidImage: previewUrls,
                 });
@@ -316,10 +348,6 @@ class LiveDetailComponent extends React.Component {
         }
         // const { ID } = this.props.params;
         const optsForVideo = {
-            // height: '0',
-            // width: '0',
-            // height: '580px',
-            // width: '100%',
             playerVars: {
                 autoplay: 0,
                 controls: 1,
@@ -366,21 +394,37 @@ class LiveDetailComponent extends React.Component {
 
                                 <div className="live-auction-list">
                                     {this.state.imageBidList.map((item, index) => {
-
-                                        return (
-                                            <div className="live-auction-item" key={index}>
-                                                {
-                                                    item.isBid == "Bid" ?
-                                                        <p className="auction-id">Sold out!!!</p>
-                                                        :
-                                                        <p className="auction-id">ID: {item.aucID}</p>
-                                                }
-                                                <div className="image-wrapper">
-                                                    <img src={item.preview} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
+                                        if (index <= this.state.auctionTransaction || this.state.LiveStatus === "Post") {
+                                            return (
+                                                <div className="live-auction-item" key={index}>
+                                                    {
+                                                        item.isBid == "Bid" ?
+                                                            <p className="auction-id">Sold out!!!</p>
+                                                            :
+                                                            <p className="auction-id">ID: {item.aucID}</p>
+                                                    }
+                                                    <div className="image-wrapper">
+                                                        <img src={item.preview} style={{ maxWidth: '200px', maxHeight: '500px' }} alt={`Live Auction ${index}`} />
+                                                    </div>
+                                                    <p>{item.startPrice} VND</p>
                                                 </div>
-                                                <p>{item.startPrice} VND</p>
-                                            </div>
-                                        )
+                                            )
+                                        }
+                                        else {
+                                            return (
+                                                <div className="live-auction-item" key={index}>
+                                                    <p className="auction-id">ID: ???</p>
+                                                    <div className="image-wrapper">
+                                                        <div style={{ maxWidth: '200px', maxHeight: '500px' }}>
+                                                            Lock
+                                                        </div>
+
+                                                    </div>
+                                                    <p>??? VND</p>
+                                                </div>
+                                            )
+                                        }
+
                                     })
 
                                     }
@@ -399,6 +443,7 @@ class LiveDetailComponent extends React.Component {
                             messagesList={this.state.messagesList}
                             socket={this.socket}
                             updateMess={this.handleOnChangeMessage}
+                            balance={this.state.balance}
 
                         />
 
