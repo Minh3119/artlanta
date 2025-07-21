@@ -1,10 +1,16 @@
 import React from "react";
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import GalleryPickComponent from "./galleryPickComponent";
 class LiveGalleryComponent extends React.Component {
     state = {
         currentID: null,
         galleryList: [
 
         ]
+    }
+    handleSubmit = async () => {
+
     }
     render() {
         return (
@@ -13,9 +19,13 @@ class LiveGalleryComponent extends React.Component {
                     <h2>
                         Live Gallery
                     </h2>
-                    <button>
-                        X
+                    <button
+                        onClick={() => this.handleSubmit()}>
+                        +
                     </button>
+                    <GalleryPickComponent
+                        ID={this.props.ID}
+                    />
                 </div>
                 <div className="gallery-body">
                     {this.state.galleryList.map((item, index) => {
