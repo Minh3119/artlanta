@@ -1107,7 +1107,7 @@ VALUES
 -- User 3 as Client, User 6 as Artist (Fresh commission)
 (3, 6, 'Digital portrait of my daughter', 'https://imgur.com/portrait1.jpg', 18000, '2025-08-15', 'ACCEPTED', NULL, '2025-07-01', '2025-07-02'),
 -- User 4 as Client, User 1 as Artist (Fresh commission)
-(4, 1, 'Logo design for startup company', 'https://imgur.com/logo1.jpg', 45000, '2025-08-20', 'ACCEPTED', NULL, '2025-07-03', '2025-07-04'),
+(7, 1, 'Logo design for startup company', 'https://imgur.com/logo1.jpg', 45000, '2025-08-20', 'ACCEPTED', NULL, '2025-07-03', '2025-07-04'),
 -- User 5 as Client, User 2 as Artist (Fresh commission)
 (5, 2, 'Book cover illustration', 'https://imgur.com/bookcover1.jpg', 32000, '2025-08-25', 'ACCEPTED', NULL, '2025-07-05', '2025-07-06'),
 -- User 6 as Client, User 3 as Artist (Fresh commission)

@@ -196,4 +196,18 @@ public class CommissionDAO extends DBContext {
             stmt.executeUpdate();
         }
     }
+
+    // Client confirms final product
+    public boolean confirmCommissionByClient(int commissionId, int clientId) throws SQLException {
+        String sql = "UPDATE Commission c " +
+                     "JOIN CommissionRequest cr ON c.RequestID = cr.ID " +
+                     "SET c.ClientConfirmed = TRUE, c.Status = 'COMPLETED', c.UpdatedAt = CURRENT_TIMESTAMP " +
+                     "WHERE c.ID = ? AND cr.ClientID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, commissionId);
+            ps.setInt(2, clientId);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        }
+    }
 }

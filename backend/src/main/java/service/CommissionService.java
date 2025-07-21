@@ -99,4 +99,20 @@ public class CommissionService {
         }
         return null;
     }
+
+    public JSONObject confirmCommissionByClient(int commissionId, int clientId) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            boolean updated = commissionDAO.confirmCommissionByClient(commissionId, clientId);
+            if (!updated) return null;
+            CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, clientId);
+            if (dto == null) return null;
+            return new JSONObject(util.JsonUtil.toJsonString(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            commissionDAO.closeConnection();
+        }
+        return null;
+    }
 } 

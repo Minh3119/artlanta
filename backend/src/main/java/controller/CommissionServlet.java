@@ -70,6 +70,30 @@ public class CommissionServlet extends HttpServlet {
             JsonUtil.writeJsonError(response, "Missing commission ID", HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+        // Handle /:id/confirm endpoint
+        if (pathInfo.matches("/\\d+/confirm/?")) {
+            int commissionId;
+            try {
+                commissionId = Integer.parseInt(pathInfo.split("/")[1]);
+            } catch (NumberFormatException e) {
+                JsonUtil.writeJsonError(response, "Invalid commission ID", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            try {
+                JSONObject updated = commissionService.confirmCommissionByClient(commissionId, userId);
+                if (updated == null) {
+                    JsonUtil.writeJsonError(response, "Commission not found or not allowed", HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                    JSONObject result = new JSONObject();
+                    result.put("success", true);
+                    result.put("commission", updated);
+                    JsonUtil.writeJsonResponse(response, result);
+                }
+            } catch (Exception e) {
+                JsonUtil.writeJsonError(response, "Failed to confirm commission: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+            return;
+        }
         int commissionId;
         try {
             commissionId = Integer.parseInt(pathInfo.substring(1));
