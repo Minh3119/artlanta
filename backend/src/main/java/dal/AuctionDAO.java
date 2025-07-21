@@ -27,13 +27,14 @@ public class AuctionDAO extends DBContext {
             ResultSet rs = st.executeQuery();
 
             while (rs.next()) {
+                int SalerID= rs.getInt("SalerID");
                 String ID = String.valueOf(rs.getInt("ID"));
                 int UserID = rs.getInt("UserID");
                 String ImageURL = rs.getString("ImageUrl");
                 int StartPrice = rs.getInt("Price");
                 String IsBid = rs.getString("IsBid");
 
-                list.add(new Auction(ID, ImageURL, StartPrice, UserID, IsBid));
+                list.add(new Auction(SalerID,ID, ImageURL, StartPrice, UserID, IsBid));
             }
 
             rs.close();
@@ -57,13 +58,14 @@ public class AuctionDAO extends DBContext {
             ResultSet rs = st.executeQuery();
 
             if (rs.next()) {
+                int SalerID= rs.getInt("SalerID");
                 int UserID = rs.getInt("UserID");
                 String ImageURL = rs.getString("ImageUrl");
                 int StartPrice = rs.getInt("Price");
                 String IsBid = rs.getString("IsBid");
                 rs.close();
                 st.close();
-                return (new Auction(String.valueOf(ID), ImageURL, StartPrice, UserID, IsBid));
+                return (new Auction(SalerID,String.valueOf(ID), ImageURL, StartPrice, UserID, IsBid));
             }
 
         } catch (Exception e) {

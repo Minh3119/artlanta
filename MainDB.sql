@@ -90,9 +90,9 @@ CREATE TABLE LiveChatMessages (
 
     FOREIGN KEY (LivePostID) REFERENCES LivePosts(ID) ON DELETE CASCADE
 );
-
 CREATE TABLE Auctions (
     ID INT AUTO_INCREMENT PRIMARY KEY,
+    SalerID INT default 0,
     LivePostID INT NOT NULL,
     ImageUrl VARCHAR(500) NOT NULL,
     Price INT NOT NULL CHECK (Price >= 0),

@@ -34,6 +34,7 @@ class LiveDetailComponent extends React.Component {
 
     }
     socket = null;
+    chatBoxRef = React.createRef();
     async componentDidMount() {
         await axios.get("http://localhost:9999/backend/api/user/userid", { withCredentials: true })
             .then((res) => {
@@ -114,7 +115,8 @@ class LiveDetailComponent extends React.Component {
                 });
             })
             .catch((err) => console.error(err));
-        this.handleUpdateView();
+        // this.handleUpdateView();
+        this.loadWallet();
         if (!this.socket) {
             this.connectWebSocket();
 
@@ -134,28 +136,43 @@ class LiveDetailComponent extends React.Component {
 
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            if (data.Type === "Chat") {
-                const message = {
+            let message = {};
+            if (data.Type === "Chat" || data.Type === "Bid") {
+                message = {
                     Type: data.Type,
                     UserID: data.UserID,
                     Username: data.Username,
                     Message: data.Message
                 }
+                // this.setState((prevState) => ({
+                //     messagesList: [...prevState.messagesList, message]
+                // }));
                 this.setState((prevState) => ({
                     messagesList: [...prevState.messagesList, message]
-                }));
+                }),
+                    () => {
+                        // Scroll sau khi DOM đã update
+                        if (this.chatBoxRef?.current) {
+                            this.chatBoxRef.current.scrollTo({
+                                top: this.chatBoxRef.current.scrollHeight,
+                                behavior: "smooth"
+                            });
+                        }
+                    }
+
+                );
             }
-            else if (data.Type === "Bid") {
-                const message = {
-                    Type: data.Type,
-                    UserID: data.UserID,
-                    Username: data.Username,
-                    Message: data.Message
-                }
-                this.setState((prevState) => ({
-                    messagesList: [...prevState.messagesList, message]
-                }));
-            }
+            // else if (data.Type === "Bid") {
+            //     message = {
+            //         Type: data.Type,
+            //         UserID: data.UserID,
+            //         Username: data.Username,
+            //         Message: data.Message
+            //     }
+            //     // this.setState((prevState) => ({
+            //     //     messagesList: [...prevState.messagesList, message]
+            //     // }));
+            // }
             else if (data.Type === "Timer") {
                 this.setState({ timeLeft: data.Message });
                 return;
@@ -179,6 +196,13 @@ class LiveDetailComponent extends React.Component {
             else if (data.Type === "CurrentAuction") {
                 this.changeCurrentAuction(data);
             }
+            else if (data.Type === "at") {
+                return
+            }
+            else if (data.Type === "View") {
+                this.loadView();
+            }
+
 
 
         };
@@ -211,10 +235,7 @@ class LiveDetailComponent extends React.Component {
         })
     }
     loadWallet = async () => {
-        await axios.post("http://localhost:9999/backend/api/wallet",
-            {
-                ID: this.props.params.ID
-            },
+        await axios.post("http://localhost:9999/backend/api/wallet", {},
             {
                 headers: {
                     "Content-Type": "application/json"
@@ -222,7 +243,7 @@ class LiveDetailComponent extends React.Component {
                 withCredentials: true
             })
             .then(async (res) => {
-                const data = res.data.response;
+                const data = res.data;
                 this.setState({
                     balance: data.balance
                 })
@@ -292,6 +313,30 @@ class LiveDetailComponent extends React.Component {
             })
             .catch((err) => console.error(err));
     }
+    loadView = async () => {
+        console.log("viewupdate");
+        try {
+            const res = await axios.post(
+                "http://localhost:9999/backend/api/live/view/get",
+                {
+                    ID: this.props.params.ID,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    withCredentials: true
+                }
+            );
+
+            const data = res.data;
+            this.setState({
+                View: data.View
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
     handleExit = async () => {
         if (this.state.currentUserID === this.state.userID && this.state.LiveStatus == 'Live') {
             console.log('End live');
@@ -325,22 +370,22 @@ class LiveDetailComponent extends React.Component {
             redirect: '/'
         })
     }
-    handleUpdateView = async () => {
-        try {
-            const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
-            const response = await axios.get(
-                `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${this.state.LiveID}&key=${API_KEY}`
-            );
+    // handleUpdateView = async () => {
+    //     try {
+    //         const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+    //         const response = await axios.get(
+    //             `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${this.state.LiveID}&key=${API_KEY}`
+    //         );
 
-            this.setState({
-                View: response.data.items[0].statistics.viewCount,
-                peakView: this.state.View > this.state.peakView ? this.state.View : this.state.peakView
-            });
-        } catch (error) {
-            console.error('Error get view:', error);
-        }
+    //         this.setState({
+    //             View: response.data.items[0].statistics.viewCount,
+    //             peakView: this.state.View > this.state.peakView ? this.state.View : this.state.peakView
+    //         });
+    //     } catch (error) {
+    //         console.error('Error get view:', error);
+    //     }
 
-    }
+    // }
 
     render() {
         if (this.state.redirect) {
@@ -444,6 +489,7 @@ class LiveDetailComponent extends React.Component {
                             socket={this.socket}
                             updateMess={this.handleOnChangeMessage}
                             balance={this.state.balance}
+                            chatBox={this.chatBoxRef}
 
                         />
 

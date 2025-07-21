@@ -11,7 +11,8 @@ import jakarta.servlet.http.Part;
  * @author ADMIN
  */
 public class Auction {
-
+    
+    private int SalerID;
     private String ID;
     private Part image;
     private String imageUrl;
@@ -22,7 +23,8 @@ public class Auction {
     public Auction() {
     }
 
-    public Auction(String ID, String imageUrl, int startPrice, int userID, String isBid) {
+    public Auction(int SalerID,String ID, String imageUrl, int startPrice, int userID, String isBid) {
+        this.SalerID=SalerID;
         this.ID = ID;
         this.imageUrl = imageUrl;
         this.startPrice = startPrice;
@@ -41,6 +43,10 @@ public class Auction {
         this.image = image;
         this.imageUrl = imageUrl;
         this.startPrice = startPrice;
+    }
+
+    public int getSalerID() {
+        return SalerID;
     }
 
     

@@ -114,16 +114,17 @@ public class LiveDAO extends DBContext {
             }
 
             String sqlAuction = """
-                                    INSERT INTO Auctions(LivePostID, ImageUrl, Price,UserID,IsBid)
-                                    VALUES (?, ?, ?,?,?);
+                                    INSERT INTO Auctions(SalerID,LivePostID, ImageUrl, Price,UserID,IsBid)
+                                    VALUES (?,?, ?, ?,?,?);
                                 """;
             stAuction = connection.prepareStatement(sqlAuction);
             for (Auction auction : list) {
-                stAuction.setInt(1, livePostID);
-                stAuction.setString(2, auction.getImageUrl());
-                stAuction.setInt(3, auction.getStartPrice());
-                stAuction.setInt(4, userID);
-                stAuction.setString(5, "NoBid");
+                stAuction.setInt(1, userID);
+                stAuction.setInt(2, livePostID);
+                stAuction.setString(3, auction.getImageUrl());
+                stAuction.setInt(4, auction.getStartPrice());
+                stAuction.setInt(5, userID);
+                stAuction.setString(6, "NoBid");
                 stAuction.addBatch();
             }
             stAuction.executeBatch();
@@ -174,6 +175,45 @@ public class LiveDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public int incrementViewForPost(int id) {
+    String sql = "UPDATE LivePosts SET LiveView = LiveView + 1 WHERE ID = ?";
+    String sql2 = "SELECT LiveView FROM LivePosts WHERE ID = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql);
+         PreparedStatement ps2 = connection.prepareStatement(sql2)) {
+        ps.setInt(1, id);
+        ps.executeUpdate();
+
+        ps2.setInt(1, id);
+        ResultSet rs = ps2.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("LiveView");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+    public int getView(int ID) {
+        int view=0;
+        String sql = """
+                   select * from LivePosts
+                   where ID=?;
+                   """;
+        try {
+            PreparedStatement st = connection.prepareStatement(sql);
+            st.setInt(1, ID);
+            ResultSet rs= st.executeQuery();
+            if(rs.next()){
+                view= rs.getInt("LiveView");
+            }
+            
+            st.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return view;
     }
 
     public void endLive(int ID, int View) {

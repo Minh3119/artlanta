@@ -119,11 +119,22 @@ export default function Header({ openCreatePopup }) {
             <p className="header-navbar__title">Home</p>
           </div>
         </Link>
-        <Link to="#">
-          <div className="header-navbar__container active">
-            <p className="header-navbar__title">Today</p>
-          </div>
-        </Link>
+        {
+          !userID ?
+            <Link to="/login">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+            :
+            <Link to="/live/form">
+              <div className="header-navbar__container active">
+                <p className="header-navbar__title">Live</p>
+              </div>
+
+            </Link>
+        }
         <div
           className="header-navbar__container"
           ref={createMenuRef}

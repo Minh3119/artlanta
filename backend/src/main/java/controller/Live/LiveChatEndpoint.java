@@ -4,12 +4,14 @@ import controller.messaging.HttpSessionConfigurator;
 import dal.AuctionDAO;
 import dal.LiveDAO;
 import dal.NotificationDAO;
+import dal.WalletDAO;
 
 import jakarta.servlet.http.HttpSession;
 
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +22,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Auction;
 
 import model.LiveChatMessage;
@@ -87,8 +91,8 @@ public class LiveChatEndpoint {
         int count = 0;
         for (Auction a : list) {
             int auctionIndex = Integer.parseInt(a.getID());
-            System.out.println("current: "+currentIndex);
-            System.out.println("count: "+count);
+            System.out.println("current: " + currentIndex);
+            System.out.println("count: " + count);
             if (count != currentIndex) {
                 count++;
                 continue;
@@ -123,6 +127,9 @@ public class LiveChatEndpoint {
         roomCurrentAuction.computeIfPresent(roomID, (key, index) -> index + 1);
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
         System.out.println("current aution " + currentIndex);
+        WalletDAO wd = new WalletDAO();
+        wd.addBalance(au.getSalerID(), BigDecimal.valueOf(au.getStartPrice()));
+        wd.updateRemoveBalance(au.getUserID(), BigDecimal.valueOf(au.getStartPrice()));
         synchronized (roomMap) {
             Set<Session> sessions = roomMap.get(roomID);
             if (sessions != null) {
@@ -178,7 +185,7 @@ public class LiveChatEndpoint {
 
             AuctionDAO ad = new AuctionDAO();
             List<Auction> list = ad.getByID(ID);
-            int count=0;
+            int count = 0;
             for (Auction a : list) {
                 if (count != currentAuction) {
                     //sai id cua transaction
@@ -227,6 +234,35 @@ public class LiveChatEndpoint {
         synchronized (roomMap) {
             roomMap.putIfAbsent(ID, new HashSet<>());
             roomMap.get(ID).add(session);
+            System.out.println("View: " + roomMap.size());
+            if (!isLive) {
+                int view = ld.incrementViewForPost(Integer.parseInt(ID));
+
+                for (Session s : roomMap.get(ID)) {
+                    try {
+                        s.getBasicRemote().sendText(
+                                String.format("{\"Type\":\"View\",\"View\":%d}", view)
+                        );
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                ld = new LiveDAO();
+                ld.updateView(Integer.parseInt(ID), roomMap.get(ID).size());
+                for (Session s : roomMap.get(ID)) {
+                    try {
+                        s.getBasicRemote().sendText(
+                                String.format(
+                                        "{\"Type\":\"View\",\"View\":%d}",
+                                        roomMap.get(ID).size()
+                                )
+                        );
+                    } catch (IOException ex) {
+                        Logger.getLogger(LiveChatEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
         }
 
         session.getUserProperties().put("ID", ID);
@@ -266,27 +302,38 @@ public class LiveChatEndpoint {
                 // Parse bid: #bid-01-20000
                 handleBid(message, ID, UserID);
 
-            }
-            else if(message.startsWith("at")){
+            } else if (message.startsWith("at-")) {
+                Type = "at";
                 String[] parts = message.split("-");
-                roomCurrentAuction.putIfAbsent(ID, Integer.parseInt(parts[1]));
-            }
-            else {
+
+                roomCurrentAuction.put(ID, Integer.parseInt(parts[1]));
+            } else {
                 Type = "Chat";
             }
+        } else if (message.startsWith("at-")) {
+            Type = "at";
+            String[] parts = message.split("-");
+
+            roomCurrentAuction.put(ID, Integer.parseInt(parts[1]));
+
         }
 
         if (ID == null) {
             return;
         }
         LiveDAO ld = new LiveDAO();
-        ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Type, message), ID);
+        if (!Type.equals("at")) {
+            ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Type, message), ID);
+        }
         synchronized (roomMap) {
             Set<Session> sessionsInRoom = roomMap.get(ID);
             if (sessionsInRoom != null) {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
-                        session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Type, message));
+                        if (!Type.equals("at")) {
+                            session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Type, message));
+                        }
+
                     }
                 }
             }
@@ -296,11 +343,29 @@ public class LiveChatEndpoint {
     @OnClose
     public void onClose(Session session) {
         String ID = String.valueOf(session.getUserProperties().get("ID"));
+        boolean isLive = Boolean.TRUE.equals(session.getUserProperties().get("isLive"));
         if (ID != null) {
             synchronized (roomMap) {
                 Set<Session> sessions = roomMap.get(ID);
                 if (sessions != null) {
                     sessions.remove(session);
+
+                    if (isLive) {
+                        LiveDAO ld = new LiveDAO();
+                        ld.updateView(Integer.parseInt(ID), sessions.size());
+                        for (Session s : sessions) {
+                            try {
+                                s.getBasicRemote().sendText(
+                                        String.format(
+                                                "{\"Type\":\"View\",\"View\":%d}",
+                                                sessions.size()
+                                        )
+                                );
+                            } catch (IOException ex) {
+                                Logger.getLogger(LiveChatEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
                     if (sessions.isEmpty()) {
                         roomMap.remove(ID);
 
