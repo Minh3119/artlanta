@@ -260,7 +260,7 @@ public class MessagingService {
                 model.User otherUser = conversation.getOtherUser();
                 
                 if (otherUser != null) {
-                    JSONObject otherUserJson = userService.convertUserToJson(otherUser);
+                    JSONObject otherUserJson = userService.convertUserToJson(otherUser,null);
                     convJson.put("user", otherUserJson);
                 }
                 

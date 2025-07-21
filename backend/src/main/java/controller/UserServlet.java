@@ -61,7 +61,7 @@ public class UserServlet extends HttpServlet {
                 return;
             }
 
-            JSONObject result = userService.getUserById(userId);
+            JSONObject result = userService.getUserById(userId, request);
             if (result == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 JsonUtil.writeJsonError(response, "User not found");

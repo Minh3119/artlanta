@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AvatarImage from '../UserProfileView/AvatarImage';
 import FollowerList from '../FollowControl/FollowerList';
@@ -6,6 +6,7 @@ import FollowingList from '../FollowControl/FollowingList';
 import { toast } from 'react-toastify';
 import SuggestFollow from './SuggestFollow';
 import verify from '../../assets/images/verify.svg';
+import unverify from '../../assets/images/unverify.svg';
 import CommissionRequestForm from '../Commission/CommissionRequestForm'
 
 const UserInfo = ({ 
@@ -22,6 +23,7 @@ const UserInfo = ({
 }) => {
     const navigate = useNavigate();
     const [showForm, setShowForm] = useState(false);
+    const [showVerifyTooltip, setShowVerifyTooltip] = useState(false);
     const getSocialIcon = (platform) => {
         switch (platform.toLowerCase()) {
             case 'instagram':
@@ -38,7 +40,7 @@ const UserInfo = ({
                 return '🔗';
         }
     };
-
+    
     const handleFollow = async () => {
         try {
             if (!currentUser) {
@@ -108,6 +110,17 @@ const UserInfo = ({
      const handleClick = () => {
     setShowForm(true);
   };
+  
+  useEffect(() => {
+  if (userData.role === "ARTIST") {
+    setShowVerifyTooltip(true);
+    const timer = setTimeout(() => {
+      setShowVerifyTooltip(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }
+}, [userData.role, userData.isVerify]);
+  
     return (
         <div className="bg-white rounded-3xl shadow-lg p-8">
             <div className="flex items-start space-x-4">
@@ -130,16 +143,57 @@ const UserInfo = ({
   <h1 className="text-3xl font-bold text-gray-900">
     {userData.displayName || userData.username}
   </h1>
-  {userData.role === "ARTIST" && (
-    <img src={verify} width={24} height={24} alt="logo" title="Verified artist" />
+<div style={{ position: 'relative', display: 'inline-block' }}>
+  {userData.role === "ARTIST" && userData.isVerify && (
+    <img src={verify} width={24} height={24} title="Verified artist" />
   )}
-  
+  {userData.role === "ARTIST" && !userData.isVerify && (
+    <img src={unverify} width={24} height={24} title="Unverified artist" />
+  )}
+
+  {showVerifyTooltip && (
+    <div style={{
+      position: 'absolute',
+      top: '-50px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      backgroundColor: '#111',
+      color: '#fff',
+      padding: '8px 12px',
+      borderRadius: '6px',
+      fontSize: '14px',
+      fontWeight: '500',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+      whiteSpace: 'nowrap',
+      zIndex: 20,
+      opacity: 0.95,
+    }}>
+      {userData.isVerify ? '✅ Verified artist' : '⚠️ Unverified artist'}
+
+      {/* Mũi nhọn dưới */}
+      <div style={{
+        position: 'absolute',
+        top: '100%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 0,
+        height: 0,
+        borderLeft: '6px solid transparent',
+        borderRight: '6px solid transparent',
+        borderTop: '6px solid #111',
+      }} />
+    </div>
+  )}
+</div>
+
+    
+
 {currentUser && userData ? (
   currentUser.id !== parseInt(userId) && userData.role === "ARTIST" && (
     <div
       data-layer="Rectangle 12"
       className="Rectangle12"
-      onClick={userData.isComReqExist ? null : handleClick}
+      onClick={userData.hasARe ? null : handleClick}
       style={{
         width: '128px',
         height: '64px',
@@ -161,7 +215,7 @@ const UserInfo = ({
         textShadow: '0 0 5px white'
       }}
     >
-      {userData.isComReqExist ? (
+      {userData.hasARe ? (
         <>
           <span>View</span>
           <span>Commission</span>

@@ -36,16 +36,19 @@ public class CheckArtistRoleServlet extends HttpServlet {
 
         if (userId == null) {
             json.put("isArtist", false);
+	   String avatarURL = "https://cdn-icons-png.flaticon.com/512/11284/11284777.png";
+	   json.put("avatarURL", avatarURL);
         } else {
             boolean isArist = userDao.isArtistById(userId);
-
+             String avatarURL = userDao.getAvatarByUserID(userId);
+	   json.put("avatarURL", avatarURL);
             if (isArist) {
                 json.put("isArtist", true);
             } else {
                 json.put("isArtist", false);
             }
         }
-
+        userDao.closeConnection();
         response.getWriter().write(json.toString());
     }
 
