@@ -67,7 +67,7 @@ public class ConversationServlet extends HttpServlet {
             }
             
             // Convert conversations to JSON
-            JSONArray conversationsJson = messagingService.buildConversationsJson(conversations, userId);
+            JSONArray conversationsJson = messagingService.buildConversationsJson(conversations, userId, request);
             
             // Build and send response
             JSONObject responseJson = new JSONObject();
