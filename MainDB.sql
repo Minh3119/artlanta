@@ -941,13 +941,39 @@ CREATE TABLE ArtistInfo (
     UserID INT NOT NULL UNIQUE,
     
     PhoneNumber VARCHAR(20) NOT NULL,
-    Address VARCHAR(255) NOT NULL,
     Specialty VARCHAR(100),
     ExperienceYears INT DEFAULT 0 CHECK (ExperienceYears >= 0),
     eKYC BOOLEAN DEFAULT FALSE,
+    DailySpent int DEFAULT 1000000,
+	stripe_account_id VARCHAR(255) DEFAULT Null,
     
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (UserID) REFERENCES Users(ID)
 );
+
+CREATE TABLE Escrows (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    FromUserID INT NOT NULL,           -- người gửi tiền (bên thanh toán)
+    ToUserID INT NOT NULL,             -- người nhận tiền
+    Amount DECIMAL(12,2) NOT NULL,
+    Currency VARCHAR(10) DEFAULT 'VND',
+    Status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, RELEASED, CANCELED
+    Description VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ReleasedAt DATETIME,               -- khi chuyển tiền cho người nhận
+    FOREIGN KEY (FromUserID) REFERENCES Users(ID),
+    FOREIGN KEY (ToUserID) REFERENCES Users(ID)
+);
+
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT ResetDailySpent
+ON SCHEDULE EVERY 1 DAY
+STARTS CURRENT_DATE + INTERVAL 1 DAY
+DO
+    UPDATE ArtistInfo 
+    SET DailySpent = 1000000,
+        LastResetDate = CURRENT_DATE
+    WHERE LastResetDate < CURRENT_DATE;

@@ -41,8 +41,8 @@ public class MailSender {
             message.setFrom(new InternetAddress(emailSender));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
             
-            message.setSubject("Your OTP Code");
-            message.setText("Your OTP code is: " + otpNumber);
+            message.setSubject("Your Code");
+            message.setText("Your code is: " + otpNumber);
 
             Transport.send(message);
             return true;
