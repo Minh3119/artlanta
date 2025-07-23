@@ -26,9 +26,18 @@ public class CommissionServlet extends HttpServlet {
         int userId = SessionUtil.getCurrentUserId(session);
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/") || pathInfo.isEmpty()) {
-            // List all commissions for user
-            JSONObject commissions = commissionService.getCommissionsByUserId(userId);
-            JsonUtil.writeJsonResponse(response, commissions);
+            // Check for status filter
+            String status = request.getParameter("status");
+            if (status != null && !status.isEmpty()) {
+                JSONObject commissions = commissionService.getCommissionsByUserId(userId, status);
+                JsonUtil.writeJsonResponse(response, commissions);
+            } else {
+                // No status selected, return empty list
+                JSONObject empty = new JSONObject();
+                empty.put("success", true);
+                empty.put("commissions", new org.json.JSONArray());
+                JsonUtil.writeJsonResponse(response, empty);
+            }
         } else if (pathInfo.matches("/\\d+/history/?")) {
             // Get commission history
             try {
@@ -68,6 +77,30 @@ public class CommissionServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.length() <= 1) {
             JsonUtil.writeJsonError(response, "Missing commission ID", HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        // Handle /:id/confirm endpoint
+        if (pathInfo.matches("/\\d+/confirm/?")) {
+            int commissionId;
+            try {
+                commissionId = Integer.parseInt(pathInfo.split("/")[1]);
+            } catch (NumberFormatException e) {
+                JsonUtil.writeJsonError(response, "Invalid commission ID", HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            try {
+                JSONObject updated = commissionService.confirmCommissionByClient(commissionId, userId);
+                if (updated == null) {
+                    JsonUtil.writeJsonError(response, "Commission not found or not allowed", HttpServletResponse.SC_NOT_FOUND);
+                } else {
+                    JSONObject result = new JSONObject();
+                    result.put("success", true);
+                    result.put("commission", updated);
+                    JsonUtil.writeJsonResponse(response, result);
+                }
+            } catch (Exception e) {
+                JsonUtil.writeJsonError(response, "Failed to confirm commission: " + e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
             return;
         }
         int commissionId;

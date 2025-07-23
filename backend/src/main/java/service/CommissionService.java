@@ -15,19 +15,15 @@ import model.CommissionHistory;
 public class CommissionService {
     public CommissionService() {}
 
-    public JSONObject getCommissionsByUserId(int userId) {
+    public JSONObject getCommissionsByUserId(int userId, String status) {
         List<CommissionDTO> comms = new ArrayList<>();
         CommissionDAO commissionDAO = new CommissionDAO();
         try {
-            comms = commissionDAO.getCommissionsWithRequestAndUserByUserId(userId);
-            
-            // Convert commissions to JSON
+            comms = commissionDAO.getCommissionsWithRequestAndUserByUserId(userId, status);
             JSONObject jsonResponse = new JSONObject();
             JSONArray commsArray = new JSONArray(JsonUtil.toJsonString(comms));
-        
             jsonResponse.put("success", true);
             jsonResponse.put("commissions", commsArray);
-
             return jsonResponse;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -35,6 +31,10 @@ public class CommissionService {
             commissionDAO.closeConnection();
         }
         return null;
+    }
+    // Update the old method for backward compatibility
+    public JSONObject getCommissionsByUserId(int userId) {
+        return getCommissionsByUserId(userId, null);
     }
 
     public JSONObject getCommissionById(int commissionId, int userId) {
@@ -90,6 +90,22 @@ public class CommissionService {
             boolean updated = commissionDAO.submitCommission(commissionId, userId, fileDeliveryURL, previewImageURL);
             if (!updated) return null;
             CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            if (dto == null) return null;
+            return new JSONObject(util.JsonUtil.toJsonString(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            commissionDAO.closeConnection();
+        }
+        return null;
+    }
+
+    public JSONObject confirmCommissionByClient(int commissionId, int clientId) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            boolean updated = commissionDAO.confirmCommissionByClient(commissionId, clientId);
+            if (!updated) return null;
+            CommissionDTO dto = commissionDAO.getCommissionByIdAndUser(commissionId, clientId);
             if (dto == null) return null;
             return new JSONObject(util.JsonUtil.toJsonString(dto));
         } catch (Exception e) {

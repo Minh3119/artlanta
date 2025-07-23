@@ -115,6 +115,22 @@ class LiveFormComponent extends React.Component {
     }
     handleOnChangeFile = async (e) => {
         const acceptedTypes = ['image/png', 'image/jpeg'];
+        const exceptionFile = e.target.files[0];
+        if (!acceptedTypes.includes(exceptionFile.type)) {
+            document.getElementsByClassName("file")[0].value = "";
+            return toast.error(`File "${exceptionFile.name}" wrong format (only PNG or JPG)`, {
+                toastId: "file-type-toast",
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                className: "toast-complete"
+            });
+        }
         const options = {
             maxSizeMB: 5,
             maxWidthOrHeight: 1024,
@@ -156,12 +172,58 @@ class LiveFormComponent extends React.Component {
                             <button onClick={() => this.handleExit()}>X</button>
                         </div>
                         <input type='text' placeholder='Link' value={this.state.channelLink}
-                            onChange={(e) => { this.setState({ channelLink: e.target.value }) }} />
+                            onChange={(e) => {
+                                const newContent = e.target.value;
+                                newContent.length <= 200 ?
+                                    (
+                                        this.setState({
+                                            channelLink: newContent
+                                        })
+                                    )
+                                    :
+                                    (
+                                        toast.error('Link too long!', {
+                                            toastId: "fullname-toast",
+                                            position: "top-right",
+                                            autoClose: 3000,
+                                            hideProgressBar: false,
+                                            closeOnClick: false,
+                                            pauseOnHover: true,
+                                            draggable: true,
+                                            progress: undefined,
+                                            theme: "light",
+                                            className: "toast-complete"
+                                        })
+                                    )
+                            }} />
                         <input type='text' placeholder='title' value={this.state.title}
-                            onChange={(e) => { this.setState({ title: e.target.value }) }} />
+                            onChange={(e) => {
+                                const newContent = e.target.value;
+                                newContent.length <= 50 ?
+                                    (
+                                        this.setState({
+                                            title: newContent
+                                        })
+                                    )
+                                    :
+                                    (
+                                        toast.error('Title too long!', {
+                                            toastId: "fullname-toast",
+                                            position: "top-right",
+                                            autoClose: 3000,
+                                            hideProgressBar: false,
+                                            closeOnClick: false,
+                                            pauseOnHover: true,
+                                            draggable: true,
+                                            progress: undefined,
+                                            theme: "light",
+                                            className: "toast-complete"
+                                        })
+                                    )
+                            }} />
                         <div className='auction-container'>
                             <h3>Auction:</h3>
-                            <input type='file' className="file" id="file" name="file[]" onChange={(e) => this.handleOnChangeFile(e)} />
+                            <input type='file' className="file" id="file" name="file[]" accept=".png, .jpg" onChange={(e) => this.handleOnChangeFile(e)} />
                             {this.state.currentFilePreview ?
                                 <img src={this.state.currentFilePreview} alt="Preview" style={{ maxWidth: '200px', maxHeight: '500px' }} />
                                 : null

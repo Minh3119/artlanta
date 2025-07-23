@@ -78,7 +78,7 @@ const CommissionDashboard = () => {
     switch(activeTab) {
       case 'Request':
         return (
-          <CommissionRequestList
+          <CommissionRequestList 
             requests={requests}
             refreshFlag={refreshFlag}
             triggerRefresh={triggerRefresh}
@@ -122,7 +122,7 @@ const CommissionDashboard = () => {
         );
       default:
         return (
-          <CommissionRequestList
+          <CommissionRequestList 
             requests={requests}
             refreshFlag={refreshFlag}
             triggerRefresh={triggerRefresh}
