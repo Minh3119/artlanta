@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import blueflo from "../assets/images/blueflower.svg"
 import NotificationPopup from "../components/Notification/NotificationPopup";
-import CommissionRequestList from '../components/Commission/CommissionRequestList';
 import { 
   Plus, 
   Bell, 
@@ -20,39 +20,47 @@ import {
   Home,
   Link
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; 
 
 const CommissionDashboard = () => {
-  // States cho sidebar và navigation
-  const [activeTab, setActiveTab] = useState('Request');
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPopup, setShowPopup] = useState(false);
   
-  // States cho artist info
   const [artistava, setArtistava] = useState("");
   const [artistfn, setArtistfn] = useState("");
   
-  // States để truyền xuống component con
   const [requests, setRequests] = useState([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
 
-  // Menu items cho sidebar
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.includes('/commissions')) return 'Commission';
+    if (path.includes('/request')) return 'Request';
+    if (path.includes('/schedule')) return 'Schedule';
+    if (path.includes('/messages')) return 'Messages';
+    if (path.includes('/analysis')) return 'Analysis';
+    return 'Request'; // default
+  };
+
+  const activeTab = getActiveTab();
+
+  // Menu items pour sidebar
   const sideMenuItems = [
     { id: 'Dashboard', label: 'HomePage', icon: Home, path: '/' },
-    { id: 'Commission', label: 'Commission', icon: Briefcase, path: '/commissions' },
-    { id: 'Request', label: 'Request', icon: Users, path: '/commissiondashboard/request', active: activeTab === 'Request' },
-    { id: 'Schedule', label: 'Schedule', icon: Calendar, path: '/schedule' },
-    { id: 'Messages', label: 'Messages', icon: MessageSquare, path: '/messages' },
-    { id: 'Analysis', label: 'Analysis', icon: BarChart3, path: '/analysis' },
+    { id: 'Commission', label: 'Commission', icon: Briefcase, path: '/commissiondashboard/commissions' },
+    { id: 'Request', label: 'Request', icon: Users, path: '/commissiondashboard/request' },
+    { id: 'Schedule', label: 'Schedule', icon: Calendar, path: '/commissiondashboard/schedule' },
+    { id: 'Messages', label: 'Messages', icon: MessageSquare, path: '/commissiondashboard/messages' },
+    { id: 'Analysis', label: 'Analysis', icon: BarChart3, path: '/commissiondashboard/analysis' },
     { id: 'LogOut', label: 'Log out', icon: LogOut, path: '/logout' }
   ];
 
-  // Functions cho sidebar
+  // Functions pour sidebar
   const togglePopup = () => {
     setShowPopup(prev => !prev);
   };
 
-  // Fetch data từ API
+  // Fetch data depuis API
   useEffect(() => {
     fetch('http://localhost:9999/backend/api/reqcom', {
       credentials: 'include'
@@ -68,73 +76,32 @@ const CommissionDashboard = () => {
       .catch(err => console.error('Error:', err));
   }, [refreshFlag]);
 
-  // Function để refresh data (truyền xuống component con)
+  // Function pour refresh data
   const triggerRefresh = () => {
     setRefreshFlag(prev => !prev);
   };
 
-  // Render content dựa trên activeTab
-  const renderMainContent = () => {
-    switch(activeTab) {
-      case 'Request':
-        return (
-          <CommissionRequestList 
-            requests={requests}
-            refreshFlag={refreshFlag}
-            triggerRefresh={triggerRefresh}
-          />
-        );
-      case 'Commission':
-        return (
-          <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl p-8">
-            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-lg text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Commission Management</h2>
-              <p className="text-gray-600">Manage your active commissions here</p>
-            </div>
-          </div>
-        );
-      case 'Schedule':
-        return (
-          <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl p-8">
-            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-lg text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Schedule</h2>
-              <p className="text-gray-600">View your schedule and deadlines</p>
-            </div>
-          </div>
-        );
-      case 'Messages':
-        return (
-          <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl p-8">
-            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-lg text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Messages</h2>
-              <p className="text-gray-600">Chat with your clients</p>
-            </div>
-          </div>
-        );
-      case 'Analysis':
-        return (
-          <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl p-8">
-            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-lg text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Analysis</h2>
-              <p className="text-gray-600">View your performance analytics</p>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <CommissionRequestList 
-            requests={requests}
-            refreshFlag={refreshFlag}
-            triggerRefresh={triggerRefresh}
-          />
-        );
+  // Redirection par défaut vers /request
+  useEffect(() => {
+    if (location.pathname === '/commissiondashboard' || location.pathname === '/commissiondashboard/') {
+      navigate('/commissiondashboard/request', { replace: true });
     }
-  };
+  }, [location.pathname, navigate]);
+
+  // Render placeholder pour routes non implementées
+  const renderPlaceholder = (title, subtitle) => (
+    <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl p-8">
+      <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-lg text-center">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">{title}</h2>
+        <p className="text-gray-600">{subtitle}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen" style={{height: '100%'}}>
       {/* Sidebar */}
-      <div className="w-52 bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 p-6 flex flex-col shadow-2xl" style={{height: '100rem', width: '14rem'}}>
+      <div className="w-52 bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 p-6 flex flex-col shadow-2xl" style={{height: '100%', width: '14rem'}}>
         <div className="flex items-center gap-4 mb-10">
           <img src={blueflo} className="w-10 h-10 rounded-full shadow-lg" alt="Logo" />
           <div className="text-sm font-bold">
@@ -149,19 +116,18 @@ const CommissionDashboard = () => {
         <div className="flex flex-col gap-2">
           {sideMenuItems.map((item) => {
             const IconComponent = item.icon;
+            const isActive = activeTab === item.id;
+            
             return (
               <div
                 key={item.id}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 ${
-                  item.active || activeTab === item.id
+                  isActive
                     ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg transform scale-105'
                     : 'text-slate-300 hover:bg-white/10 hover:text-white hover:transform hover:scale-102'
                 }`}
                 onClick={() => {
-                  setActiveTab(item.id);
-                  if (item.path && item.id !== 'Request') {
-                    navigate(item.path);
-                  }
+                  navigate(item.path);
                 }}
               >
                 <IconComponent size={20} />
@@ -173,7 +139,7 @@ const CommissionDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-lg border-b border-white/20 px-6 py-6 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-4">
@@ -215,7 +181,7 @@ const CommissionDashboard = () => {
               </div>
               <button 
                 className="w-8 h-8 bg-white/60 rounded-lg flex items-center justify-center hover:bg-white/80 transition-all duration-300" 
-                onClick={() => navigate("/settings/editprofile")}
+                onClick={() => navigate("/editprofile")}
               >
                 <MoreVertical size={16} className="text-slate-600" />
               </button>
@@ -223,8 +189,8 @@ const CommissionDashboard = () => {
           </div>
         </div>
 
-        {/* Render Main Content based on activeTab */}
-        {renderMainContent()}
+        {/* Outlet pour les routes imbriquées */}
+        <Outlet context={{ requests, refreshFlag, triggerRefresh }} />
       </div>
 
       {/* Notification Popup */}

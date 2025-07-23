@@ -183,7 +183,7 @@ useEffect(() => {
         )}
       </div>
       <div className="header-navbar">
-        <Link to="/commissions">
+        <Link to="commissiondashboard/commissions">
           <div className="header-navbar__container">
             <p className="header-navbar__title">Commissions</p>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { 
   Plus, 
   MoreVertical, 
@@ -8,8 +8,10 @@ import {
   Clock
 } from 'lucide-react';
 
-const CommissionRequestList = ({ requests, refreshFlag, triggerRefresh }) => {
+const CommissionRequestList = () => {
   const navigate = useNavigate();
+  const { requests, refreshFlag, triggerRefresh } = useOutletContext();
+  
   const [openRejectForms, setOpenRejectForms] = useState({});
   const [rejectReasons, setRejectReasons] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
