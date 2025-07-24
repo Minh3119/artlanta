@@ -174,7 +174,7 @@ export default function Header({ openCreatePopup }) {
             </Link>
           </div>
         )}
-        {isLogin && isArtist && !eKYC && (
+        {isLogin && isArtist && !eKYC && location.pathname === "/" && (
           <div className="artist-invitation-container">
             <Link to="/eKYC" className="artist-invitation__link">
               <p>Verify eKYC</p>
@@ -183,7 +183,7 @@ export default function Header({ openCreatePopup }) {
         )}
       </div>
       <div className="header-navbar">
-        <Link to="/commissions">
+        <Link to="commissiondashboard/commissions">
           <div className="header-navbar__container">
             <p className="header-navbar__title">Commissions</p>
           </div>
