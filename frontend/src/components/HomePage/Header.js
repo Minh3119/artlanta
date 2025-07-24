@@ -174,7 +174,7 @@ useEffect(() => {
             </Link>
           </div>
         )}
-        {isLogin && isArtist && !eKYC && (
+        {isLogin && isArtist && !eKYC && location.pathname === "/" && (
           <div className="artist-invitation-container">
             <Link to="/eKYC" className="artist-invitation__link">
               <p>Verify eKYC</p>

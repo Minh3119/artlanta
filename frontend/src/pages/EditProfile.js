@@ -166,6 +166,14 @@ export default function EditProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const trimmedUsername = username.trim();
+    const trimmedFullname = fullname.trim();
+    const trimmedEmail = email.trim();
+    const trimmedAddress = address.trim();
+    const trimmedBio = bio.trim();
+    const trimmedPhoneNumber = phoneNumber.trim();
+    const trimmedSpecialty = specialty.trim();
+
     try {
       if (
         currentPassword !== "" ||
@@ -213,6 +221,11 @@ export default function EditProfile() {
         }
       }
 
+      if (!trimmedUsername) {
+        toast.error("Tên người dùng không được để trống");
+        return;
+      }
+
       if (!validateInputs()) return;
 
       const userRes = await fetch(
@@ -222,13 +235,13 @@ export default function EditProfile() {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            fullName: fullname,
-            username,
-            email,
+            fullName: trimmedFullname,
+            username: trimmedUsername,
+            email: trimmedEmail,
             gender,
-            address,
-            bio,
-            dateOfBirth
+            address: trimmedAddress,
+            bio: trimmedBio,
+            dateOfBirth,
           }),
         }
       );
@@ -247,9 +260,9 @@ export default function EditProfile() {
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              phoneNumber,
-              specialty,
-              experienceYears: parseInt(YOE),
+              phoneNumber: trimmedPhoneNumber,
+              specialty: trimmedSpecialty,
+              experienceYears: parseInt(YOE) || 0,
             }),
           }
         );
