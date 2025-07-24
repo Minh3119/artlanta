@@ -48,7 +48,7 @@ import EKYC from "./EKYCVerificationPage.js";
 import Withdraw from "./Withdraw.js";
 import EditProfile from "./EditProfile.js";
 import CommissionDashboard from "./CommissionDashboard.js";
-
+import CommissionRequestList from '../components/Commission/CommissionRequestList';
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
@@ -81,8 +81,6 @@ function App() {
           <Route path="/saved" element={<SavedPostPage />} />
           <Route path="/live" element={<LivePageComponent />} />
           <Route path="/live/form" element={<LiveFormComponent />} />
-          <Route path="/commissions" element={<CommissionListPage />} />
-          <Route path="/commissions/:commissionId" element={<CommissionDetailPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
           <Route path="/live/detail/:ID" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>
@@ -97,8 +95,10 @@ function App() {
           <Route path="/eKYC" element={<EKYC />}></Route>
           <Route path="/withdraw" element={<Withdraw />}></Route>
           <Route path="/request" element={<CommissionRequestForm />} />
-           <Route path="/commissiondashboard" element={<CommissionDashboard/>}>
-            <Route path="request" element={<CommissionDashboard/>} />
+           <Route path="/commissiondashboard" element={<CommissionDashboard />}>
+            <Route path="request" element={<CommissionRequestList />} />
+            <Route path="commissions" element={<CommissionListPage />} />
+            <Route path="commissions/:commissionId" element={<CommissionDetailPage />} />
     </Route>
         </Routes >
        
