@@ -2,6 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import SubmitCommissionModal from '../components/Commission/SubmitCommissionModal';
+import SidebarHistory from '../components/Commission/SidebarHistory';
+import { useNavigate } from 'react-router-dom';
+
+const formatDatePretty = (dateStr) => {
+  if (!dateStr) return 'N/A';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 const CommissionDetailPage = () => {
   const { commissionId } = useParams();
@@ -17,6 +25,8 @@ const CommissionDetailPage = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState(null);
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch current user ID and role on mount
   useEffect(() => {
@@ -137,6 +147,20 @@ const CommissionDetailPage = () => {
   const handleSubmitCommission = async (finalFile, previewFile) => {
     setSubmitLoading(true);
     try {
+      // Check latest commission status before submitting
+      const statusRes = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}`, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!statusRes.ok) throw new Error('Failed to check commission status');
+      const statusData = await statusRes.json();
+      const latestStatus = statusData.commission?.status;
+      if (latestStatus !== 'IN_PROGRESS') {
+        toast.error('This commission is no longer in progress. You cannot submit.');
+        setShowSubmitModal(false);
+        setSubmitLoading(false);
+        return;
+      }
       // Upload final file
       const finalForm = new FormData();
       finalForm.append('file[]', finalFile);
@@ -184,6 +208,26 @@ const CommissionDetailPage = () => {
     }
   };
 
+  // Accept handler for client
+  const handleAcceptFinal = async () => {
+    setAcceptLoading(true);
+    try {
+      const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}/confirm`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error('Failed to confirm final product');
+      const data = await res.json();
+      setCommission(data.commission);
+      toast.success('You have accepted the final product!');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setAcceptLoading(false);
+    }
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
       <div className="text-center">
@@ -215,6 +259,14 @@ const CommissionDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="w-full flex items-center px-4 pt-4">
+        <button
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm shadow"
+          onClick={() => navigate('/commissions')}
+        >
+          ← Back
+        </button>
+      </div>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Details */}
@@ -241,7 +293,7 @@ const CommissionDetailPage = () => {
                         <span className="font-medium">{commission.status?.replace('_', ' ')}</span>
                       </span>
                       <span>•</span>
-                      <span>Created {commission.createdAt ? new Date(commission.createdAt).toLocaleDateString() : 'N/A'}</span>
+                      <span>Created {formatDatePretty(commission.createdAt)}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -328,19 +380,19 @@ const CommissionDetailPage = () => {
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Deadline:</span>
                         <span className="font-medium">
-                          {commission.deadline ? new Date(commission.deadline).toLocaleDateString() : 'N/A'}
+                          {formatDatePretty(commission.deadline)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Created:</span>
                         <span className="font-medium">
-                          {commission.createdAt ? new Date(commission.createdAt).toLocaleDateString() : 'N/A'}
+                          {formatDatePretty(commission.createdAt)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">Updated:</span>
                         <span className="font-medium">
-                          {commission.updatedAt ? new Date(commission.updatedAt).toLocaleDateString() : 'N/A'}
+                          {formatDatePretty(commission.updatedAt)}
                         </span>
                       </div>
                     </div>
@@ -359,9 +411,9 @@ const CommissionDetailPage = () => {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Artist Final:</span>
+                        <span className="text-gray-600">Final Product:</span>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${commission.artistSeenFinal ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                          {commission.artistSeenFinal ? 'Complete' : 'Pending'}
+                          {commission.artistSeenFinal ? 'Submitted' : 'Pending'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -420,21 +472,33 @@ const CommissionDetailPage = () => {
 
                 {/* File Delivery */}
                 {commission.fileDeliveryURL && (
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                      <span className="text-xl">📎</span>
-                      Final Delivery
-                    </h3>
-                    <a 
-                      href={commission.fileDeliveryURL} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                    >
-                      <span>📥</span>
-                      Download Final File
-                    </a>
-                  </div>
+                  (currentUserRole !== 'CLIENT' || commission.clientConfirmed) && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <span className="text-xl">📎</span>
+                        Final Delivery
+                      </h3>
+                      <a 
+                        href={commission.fileDeliveryURL} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <span>📥</span>
+                        Download Final File
+                      </a>
+                    </div>
+                  )
+                )}
+                {/* Accept Button for client */}
+                {currentUserRole === 'CLIENT' && commission.artistSeenFinal && !commission.clientConfirmed && (
+                  <button
+                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors mt-4"
+                    onClick={handleAcceptFinal}
+                    disabled={acceptLoading}
+                  >
+                    {acceptLoading ? 'Accepting...' : 'Accept Final Product'}
+                  </button>
                 )}
                 {/* Preview Delivery */}
                 {commission.previewImageURL && (
@@ -459,67 +523,11 @@ const CommissionDetailPage = () => {
           </div>
 
           {/* Sidebar: Commission History */}
-          <div className="lg:w-96">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
-              <div className="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4 text-white">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <span className="text-2xl">📊</span>
-                  History
-                </h3>
-                <p className="text-gray-300 text-sm mt-1">Track all changes made to this commission</p>
-              </div>
-
-              <div className="p-6">
-                {historyLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
-                    <p className="text-gray-500 text-sm">Loading history...</p>
-                  </div>
-                ) : historyError ? (
-                  <div className="text-center py-8">
-                    <div className="text-red-500 text-2xl mb-2">⚠️</div>
-                    <p className="text-red-600 text-sm">{historyError}</p>
-                  </div>
-                ) : history.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 text-4xl mb-3">📝</div>
-                    <p className="text-gray-500 text-sm">No edits yet</p>
-                    <p className="text-gray-400 text-xs mt-1">Changes will appear here</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-                    {history.map((h, idx) => (
-                      <div key={h.id || idx} className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:shadow-sm transition-shadow">
-                        <div className="flex items-start gap-3">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-sm font-semibold text-gray-800 bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
-                                {h.changedField}
-                              </span>
-                              <span className="text-gray-400">→</span>
-                            </div>
-                            <div className="space-y-1 mb-3">
-                              <div className="text-xs text-gray-500 line-through bg-red-50 px-2 py-1 rounded">
-                                {h.oldValue || 'null'}
-                              </div>
-                              <div className="text-xs text-gray-700 bg-green-50 px-2 py-1 rounded font-medium">
-                                {h.newValue || 'null'}
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-xs text-gray-400">
-                              <span>User #{h.changedBy}</span>
-                              <span>{h.changedAt ? new Date(h.changedAt).toLocaleString() : 'N/A'}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <SidebarHistory 
+            history={history} 
+            historyLoading={historyLoading} 
+            historyError={historyError} 
+          />
         </div>
       </div>
       <ToastContainer />

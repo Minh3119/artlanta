@@ -183,9 +183,9 @@ export default function Header({ openCreatePopup }) {
         )}
       </div>
       <div className="header-navbar">
-        <Link to="/">
+        <Link to="/commissions">
           <div className="header-navbar__container">
-            <p className="header-navbar__title">Home</p>
+            <p className="header-navbar__title">Commissions</p>
           </div>
         </Link>
         {

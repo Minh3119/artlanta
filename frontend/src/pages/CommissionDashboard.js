@@ -35,7 +35,7 @@ const [showPopup, setShowPopup] = useState(false);
 // thêm path vào mỗi item
 const sideMenuItems = [
   { id: 'Dashboard', label: 'HomePage', icon: Home, path: '/' },
-  { id: 'Commission', label: 'Commission', icon: Briefcase, path: '/commission' },
+  { id: 'Commission', label: 'Commission', icon: Briefcase, path: '/commissions' },
   { id: 'Request', label: 'Request', icon: Users, path: '/commissiondashboard/request' },
   { id: 'Schedule', label: 'Schedule', icon: Calendar, path: '/schedule' },
   

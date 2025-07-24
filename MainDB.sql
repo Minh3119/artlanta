@@ -1104,7 +1104,7 @@ INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceUR
 VALUES
 (1, 2, 'Chibi portrait in anime style', 'https://imgur.com/chibi1.jpg', 12000, '2025-07-15', 'PENDING', NULL, '2025-06-20', NULL),
 (1, 2, 'Realistic pet painting', 'https://imgur.com/pet2.jpg', 30000, '2025-07-20', 'REJECTED', 'Sorry, I do not paint pets.', '2025-06-21', '2025-06-22'),
-(1, 2, 'Landscape with mountains', NULL, 25000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
+(11, 1, 'Landscape with mountains', NULL, 25000, '2025-07-25', 'ACCEPTED', NULL, '2025-06-23', '2025-06-24');
 
 -- User 2 as Client, User 1 as Artist
 INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
@@ -1120,7 +1120,7 @@ VALUES
 -- For (1,2) Landscape with mountains (assume CommissionRequest ID = 6)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
 VALUES
-(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 27000, '2025-07-25', NULL, 'COMPLETED', FALSE, FALSE, '2025-06-24', '2025-06-24');
+(6, 'Landscape with Mountains', 'Finalized landscape painting with mountains as requested.', 27000, '2025-07-25', NULL, 'IN_PROGRESS', FALSE, FALSE, '2025-06-24', '2025-06-24');
 
 -- For (2,1) Fantasy character full body (assume CommissionRequest ID = 9)
 INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, FileDeliveryURL, Status, ArtistSeenFinal, ClientConfirmed, CreatedAt, UpdatedAt)
@@ -1160,7 +1160,7 @@ VALUES
 -- User 3 as Client, User 6 as Artist (Fresh commission)
 (3, 6, 'Digital portrait of my daughter', 'https://imgur.com/portrait1.jpg', 18000, '2025-08-15', 'ACCEPTED', NULL, '2025-07-01', '2025-07-02'),
 -- User 4 as Client, User 1 as Artist (Fresh commission)
-(4, 1, 'Logo design for startup company', 'https://imgur.com/logo1.jpg', 45000, '2025-08-20', 'ACCEPTED', NULL, '2025-07-03', '2025-07-04'),
+(7, 1, 'Logo design for startup company', 'https://imgur.com/logo1.jpg', 45000, '2025-08-20', 'ACCEPTED', NULL, '2025-07-03', '2025-07-04'),
 -- User 5 as Client, User 2 as Artist (Fresh commission)
 (5, 2, 'Book cover illustration', 'https://imgur.com/bookcover1.jpg', 32000, '2025-08-25', 'ACCEPTED', NULL, '2025-07-05', '2025-07-06'),
 -- User 6 as Client, User 3 as Artist (Fresh commission)

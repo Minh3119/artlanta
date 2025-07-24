@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
   const [finalFile, setFinalFile] = useState(null);
@@ -20,6 +21,11 @@ function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
   const handleFileChange = (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
+    // Only allow image files
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only image files are allowed.');
+      return;
+    }
     if (type === 'final') {
       setFinalFile(file);
       setFinalPreview(URL.createObjectURL(file));
