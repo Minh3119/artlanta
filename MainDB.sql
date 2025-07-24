@@ -1240,6 +1240,12 @@ CREATE TABLE Escrows (
     FOREIGN KEY (ToUserID) REFERENCES Users(ID)
 );
 
+INSERT INTO ArtistInfo (UserID, PhoneNumber, Specialty, ExperienceYears, eKYC, DailySpent, stripe_account_id)
+VALUES 
+(1, '0909123456', 'Digital Art', 3, TRUE, 1000000, 'acct_1Rlkik2Xj9iboqqu'),
+(3, '0911222333', 'Anime Style', 2, FALSE, 1000000, NULL),
+(6, '0988777666', 'Watercolor', 4, TRUE, 1000000, 'acct_6zxyABC');
+
 SET GLOBAL event_scheduler = ON;
 
 CREATE EVENT ResetDailySpent
@@ -1250,3 +1256,5 @@ DO
     SET DailySpent = 1000000,
         LastResetDate = CURRENT_DATE
     WHERE LastResetDate < CURRENT_DATE;
+    
+
