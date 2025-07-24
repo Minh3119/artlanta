@@ -184,9 +184,10 @@ useEffect(() => {
       </div>
       <div className="header-navbar">
         <Link to="commissiondashboard/commissions">
-          <div className="header-navbar__container">
-            <p className="header-navbar__title">Commissions</p>
-          </div>
+          <div className="font-carter header-navbar__container ">
+  <p className="font-carter header-navbar__title">Commissions</p>
+</div>
+
         </Link>
         {
           !userID ?
@@ -285,12 +286,16 @@ useEffect(() => {
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
-       {isArtist && userID != 0 && (
-                  <Link to="/commissiondashboard" className="user-menu-item"  style={{
+     {
+  isArtist && userID !== 0 ? (
+    <Link
+      to="/commissiondashboard"
+      className="user-menu-item"
+      style={{
         background: `radial-gradient(ellipse 98.08% 114.73% at -3.98% 12.50%, #5EDCFF 0%, rgba(94, 220, 255, 0) 100%), 
-             radial-gradient(ellipse 136.08% 98.99% at 43.75% 114.06%, #3D8BFF 0%, #A8E8FF 81%), 
-             #0F4C81`,
-            
+            radial-gradient(ellipse 136.08% 98.99% at 43.75% 114.06%, #3D8BFF 0%, #A8E8FF 81%), 
+            #0F4C81`,
+        zIndex: 99999,
         boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.80) inset',
         borderRadius: '8px',
         display: 'flex',
@@ -300,13 +305,35 @@ useEffect(() => {
         color: 'white',
         fontWeight: 'bold',
         fontSize: '14px',
-        marginTop:'-8px',
+        marginTop: '-8px',
         cursor: 'pointer',
         textShadow: '0 0 5px white'
-      }}>
-                    Manage Commission
-                  </Link>
-                )}
+      }}
+    >
+      Manage Commission
+    </Link>
+  ) : (
+    userID !== 0 && (
+      <Link
+        to="/clientcomdashboard"
+        className="user-menu-item"
+        style={{
+          background: '#1a1a1a',
+          borderRadius: '8px',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          padding: '8px 12px',
+          marginTop: '-8px',
+          cursor: 'pointer'
+        }}
+      >
+        View Commission
+      </Link>
+    )
+  )
+}
+
                 {userID != 0 && (
                   <Link to="/" className="user-menu-item">
                     Balance: {Math.floor(balance).toLocaleString()} VND

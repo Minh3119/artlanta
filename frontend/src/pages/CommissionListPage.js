@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
-
-const CommissionListPage = ({ requests, refreshFlag, triggerRefresh }) => {
+import { useOutletContext } from "react-router-dom";
+const CommissionListPage = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [commissions, setCommissions] = useState([]);
@@ -10,7 +10,12 @@ const CommissionListPage = ({ requests, refreshFlag, triggerRefresh }) => {
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const navigate = useNavigate();
-
+const {
+  requests,
+  refreshFlag,
+  triggerRefresh,
+  compage
+} = useOutletContext();
   // Fetch commissions when selectedStatus changes
   useEffect(() => {
     if (!selectedStatus) {
@@ -233,7 +238,7 @@ const CommissionListPage = ({ requests, refreshFlag, triggerRefresh }) => {
                   <div
                     key={commission.commissionId}
                     className="bg-white/15 backdrop-blur-xl rounded-3xl border border-white/20 overflow-hidden hover:bg-white/20 transition-all duration-300 cursor-pointer group transform hover:scale-[1.02] hover:-translate-y-1 shadow-2xl"
-                    onClick={() => navigate(`/commissiondashboard/commissions/${commission.commissionId}`)}
+                    onClick={() => navigate(`/${compage}/commissions/${commission.commissionId}`)}
                   >
                     <div className="p-8">
                       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
