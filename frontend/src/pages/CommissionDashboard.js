@@ -28,7 +28,7 @@ const CommissionDashboard = () => {
   
   const [artistava, setArtistava] = useState("");
   const [artistfn, setArtistfn] = useState("");
-  
+    const [compage, setCompage] = useState("commissiondashboard");
   const [requests, setRequests] = useState([]);
   const [refreshFlag, setRefreshFlag] = useState(false);
 
@@ -190,7 +190,7 @@ const CommissionDashboard = () => {
         </div>
 
         {/* Outlet pour les routes imbriquées */}
-        <Outlet context={{ requests, refreshFlag, triggerRefresh }} />
+        <Outlet context={{ requests, refreshFlag, triggerRefresh, compage }} />
       </div>
 
       {/* Notification Popup */}

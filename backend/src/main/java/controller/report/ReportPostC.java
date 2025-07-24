@@ -14,16 +14,54 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import static util.SessionUtil.getCurrentUserId;
 import static util.SessionUtil.isLoggedIn;
+import model.ReportPost;
 
 /**
  *
  * @author Asus
  */
-public class ReportPost extends HttpServlet {
+public class ReportPostC extends HttpServlet {
+	
+	@Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+
+    ReportDAO dao = new ReportDAO();
+    JSONArray jsonArray = new JSONArray();
+
+    List<ReportPost> reportedPosts = dao.getReportedPosts();
+    for (ReportPost rp : reportedPosts) {
+        JSONObject json = new JSONObject();
+        int postId = rp.getPostID();
+
+        json.put("postId", postId);
+        json.put("reportCount", rp.getReason().replace("Total: ", ""));
+
+        String topReason = dao.getTopReasonByPost(postId);
+        json.put("topReason", topReason);
+
+        jsonArray.put(json);
+    }
+
+    // Bọc vào object "data"
+    JSONObject finalJson = new JSONObject();
+    finalJson.put("data", jsonArray);
+
+    PrintWriter out = response.getWriter();
+    out.print(finalJson.toString());
+    out.flush();
+}
+
+
+	
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
