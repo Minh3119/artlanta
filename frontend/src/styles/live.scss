@@ -124,6 +124,7 @@
                     border-bottom: 2px solid #ff4d4f;
                     padding-bottom: 8px;
                     display: flex;
+                    gap: 5px;
                     div{
                         border-radius: 10px;
                         background-color: gold;
@@ -132,19 +133,32 @@
 
                     }
                     .auction-header{
-                        width: 95%;
+                        width: 90%;
                         background-color: transparent;
                         text-align: left;
+                    }
+                    .auction-add{
+                        background-color: orange;
+                        border: none;
+                        width: 5%;
+                        border-radius: 10px;
                     }
                     
                 }
 
                 .live-auction-list {
                     display: flex;
+                    // flex-direction: column;
                     flex-wrap: wrap;
                     gap: 20px;
-                    overflow-x: auto;
+                    height: 800px;
+                    overflow-y: auto;
 
+                    scrollbar-width: none; 
+                    -ms-overflow-style: none;
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
                     .live-auction-item {
                     background-color: #1e1e1e;
                     border: 1px solid #333;
