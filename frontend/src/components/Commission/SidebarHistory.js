@@ -44,7 +44,7 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
             <p className="text-gray-400 text-xs mt-1">Changes will appear here</p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-4 max-h-[70vh]">
             {history.map((h, idx) => (
               <div key={h.id || idx} className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:shadow-sm transition-shadow">
                 <div className="flex items-start gap-3">
