@@ -110,7 +110,7 @@ class LiveChatComponent extends React.Component {
                         this.props.messagesList.map((message, index) => {
                             return (
                                 <div className="chat-item" key={index}>
-                                    <img alt="1" />
+                                    <img src={message.Avatar} className="user-avatar" alt="1" />
                                     <div className="user">
                                         <span className="user-name">{message.Username}</span>
                                         <span className="user-text" style={{ backgroundColor: message.Type === "Bid" ? " red" : null }}>{message.Message}</span>

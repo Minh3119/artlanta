@@ -149,6 +149,7 @@ class LiveDetailComponent extends React.Component {
                 message = {
                     Type: data.Type,
                     UserID: data.UserID,
+                    Avatar: data.Avatar,
                     Username: data.Username,
                     Message: data.Message
                 }

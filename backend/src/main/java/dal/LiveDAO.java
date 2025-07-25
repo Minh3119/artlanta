@@ -258,7 +258,7 @@ public class LiveDAO extends DBContext {
     public List<LiveChatMessage> getLiveChatMessage(String postID) {
         List<LiveChatMessage> list = new ArrayList<>();
         String sql = """
-        SELECT lcm.UserID, u.Username, lcm.ChatType, lcm.Message, lcm.CreatedAt
+        SELECT lcm.UserID, u.Username, u.AvatarURL,lcm.ChatType, lcm.Message, lcm.CreatedAt
         FROM LiveChatMessages AS lcm
         JOIN Users AS u ON lcm.UserID = u.ID
         WHERE LivePostID = ?
@@ -272,11 +272,12 @@ public class LiveDAO extends DBContext {
             while (rs.next()) {
                 String userID = String.valueOf(rs.getInt("UserID"));
                 String username = rs.getString("Username");
+                String avatar = rs.getString("AvatarURL");
                 String chatType = rs.getString("ChatType");
                 String message = rs.getString("Message");
                 LocalDateTime createdAt = rs.getTimestamp("CreatedAt").toLocalDateTime();
 
-                LiveChatMessage msg = new LiveChatMessage(userID, username, chatType, message, createdAt);
+                LiveChatMessage msg = new LiveChatMessage(userID, username, avatar, chatType, message, createdAt);
                 list.add(msg);
             }
 
