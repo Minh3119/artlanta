@@ -39,6 +39,7 @@ public class LiveChatEndpoint {
     private static final Map<String, Timer> roomTimers = new ConcurrentHashMap<>();
     private static final Map<String, Integer> roomCountdowns = new ConcurrentHashMap<>();
     private static final Map<String, Integer> roomCurrentAuction = new ConcurrentHashMap<>();
+    public static final Map<String, Set<Integer>> newAuctionsMap = new ConcurrentHashMap<>();
     private static final Map<String, Map<Integer, MaxBidInfo>> roomAuctionBids = new ConcurrentHashMap<>();
     private static final int AUCTION_TIME = 50;
 
@@ -90,6 +91,7 @@ public class LiveChatEndpoint {
         List<Auction> list = ad.getByID(roomID);
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
         Map<Integer, MaxBidInfo> bids = roomAuctionBids.getOrDefault(roomID, Collections.emptyMap());
+        Set<Integer> newAuctions = newAuctionsMap.getOrDefault(roomID, Collections.emptySet());
         int count = 0;
         for (Auction a : list) {
             int auctionIndex = Integer.parseInt(a.getID());
@@ -111,6 +113,11 @@ public class LiveChatEndpoint {
                 System.out.println("dachay");
 
             } else {
+                if (newAuctions.contains(auctionIndex)) {
+                    broadcastReloadCommand(roomID);
+                    newAuctions.remove(auctionIndex);
+                    continue;
+                }
                 ad.updateAuctionBidStatus("Bid", auctionIndex);
                 broadcastAuctionResult(roomID, auctionIndex);
                 System.out.println("thanhcong");
@@ -119,10 +126,31 @@ public class LiveChatEndpoint {
         }
         roomAuctionBids.put(roomID, new ConcurrentHashMap<>());
     }
-
+    private void broadcastReloadCommand(String roomID){
+        synchronized (roomMap) {
+            Set<Session> sessions = roomMap.get(roomID);
+            if (sessions != null) {
+                for (Session session : sessions) {
+                    if (session.isOpen()) {
+                        try {
+                            session.getBasicRemote().sendText(
+                                    String.format(
+                                            "{\"Type\":\"Reload\",\"Reload\":\"%s\"}","true"
+                                            
+                                    )
+                            );
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
     private void broadcastAuctionResult(String roomID, int auctionIndex) {
         AuctionDAO ad = new AuctionDAO();
         Auction au = ad.getByIndex(auctionIndex);
+        List<Auction> list = ad.getByID(roomID);
         NotificationDAO nd = new NotificationDAO();
         boolean rs = nd.saveNotification(au.getUserID(), "Auction", au.getImageUrl());
 
@@ -216,18 +244,18 @@ public class LiveChatEndpoint {
     public void onOpen(Session session, EndpointConfig config) {
         String ID = getLiveID(session);
         LiveDAO ld = new LiveDAO();
-        UserDAO ud= new UserDAO();
+        UserDAO ud = new UserDAO();
         boolean isLive = ld.isLiveByID(ID);
 
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         String Username = "Anonymous";
         String UserID = "0";
-        
+
         if (httpSession != null && httpSession.getAttribute("user") != null) {
             Username = String.valueOf(httpSession.getAttribute("user"));
             UserID = String.valueOf(httpSession.getAttribute("userId"));
         }
-        String Avatar=ud.getOne(Integer.parseInt(UserID)).getAvatarURL();
+        String Avatar = ud.getOne(Integer.parseInt(UserID)).getAvatarURL();
         if (ID == null) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Missing ID"));
@@ -240,7 +268,6 @@ public class LiveChatEndpoint {
         synchronized (roomMap) {
             roomMap.putIfAbsent(ID, new HashSet<>());
             roomMap.get(ID).add(session);
-            System.out.println("View: " + roomMap.size());
             if (!isLive) {
                 int view = ld.incrementViewForPost(Integer.parseInt(ID));
 
