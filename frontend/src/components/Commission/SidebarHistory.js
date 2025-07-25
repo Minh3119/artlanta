@@ -16,7 +16,7 @@ function prettifyValue(field, value) {
   return value === null || value === undefined || value === '' ? 'null' : value;
 }
 
-const SidebarHistory = ({ history, historyLoading, historyError }) => (
+const SidebarHistory = ({ history, historyLoading, historyError, users = {} }) => (
   <div className="lg:w-96">
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden sticky top-8">
       <div className="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4 text-white">
@@ -26,7 +26,7 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
         </h3>
         <p className="text-gray-300 text-sm mt-1">Track all changes made to this commission</p>
       </div>
-      <div className="p-6 h-[400px] overflow-y-auto" >
+      <div className="p-6 h-[400px] overflow-y-auto">
         {historyLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
@@ -60,19 +60,15 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
                       <div className="text-xs text-gray-500 line-through bg-red-50 px-2 py-1 rounded">
                         {prettifyValue(h.changedField, h.oldValue)}
                       </div>
-                      <div className="space-y-1 mb-3">
-                        <div className="text-xs text-gray-500 line-through bg-red-50 px-2 py-1 rounded">
-                          {prettifyValue(h.changedField, h.oldValue)}
-                        </div>
-                        <div className="text-xs text-gray-700 bg-green-50 px-2 py-1 rounded font-medium">
-                          {prettifyValue(h.changedField, h.newValue)}
-                        </div>
+                      <div className="text-xs text-gray-700 bg-green-50 px-2 py-1 rounded font-medium">
+                        {prettifyValue(h.changedField, h.newValue)}
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
-                        <div className="flex items-center gap-2">
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-400">
+                      <div className="flex items-center gap-2">
                         {h.changedBy === 0 ? (
                           <>
-                            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <span>System</span>
@@ -88,18 +84,17 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
                           </>
                         )}
                       </div>
-                        <span>{h.changedAt ? new Date(h.changedAt).toLocaleString() : 'N/A'}</span>
-                      </div>
+                      <span>{h.changedAt ? new Date(h.changedAt).toLocaleString() : 'N/A'}</span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
-  );
-}
+  </div>
+);
 
 export default SidebarHistory;
