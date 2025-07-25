@@ -260,7 +260,7 @@ class CreatePostComponent extends React.Component {
     }
     render() {
         return (
-            <div 
+            <div
                 className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
                 onClick={this.handleCloseTab}
             >
@@ -279,7 +279,7 @@ class CreatePostComponent extends React.Component {
                 )}
 
                 {/* Main Modal */}
-                <div 
+                <div
                     className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -290,7 +290,7 @@ class CreatePostComponent extends React.Component {
 
                     {/* Form Content */}
                     <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-                        
+
                         {/* Image Preview Grid */}
                         {this.state.filePreview.length > 0 && (
                             <div className="mb-6">
@@ -299,16 +299,16 @@ class CreatePostComponent extends React.Component {
                                     {this.state.filePreview.map((item, index) => (
                                         <div key={index} className="relative group">
                                             <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                                                <img 
-                                                    src={item} 
+                                                <img
+                                                    src={item}
                                                     alt={`Preview ${index + 1}`}
                                                     className="w-full h-full object-cover"
                                                 />
-                                                <button 
+                                                <button
                                                     onClick={() => this.handleRemoveImage(index)}
                                                     className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
-                                                    ×
+                                                    remove
                                                 </button>
                                             </div>
                                         </div>
@@ -319,8 +319,8 @@ class CreatePostComponent extends React.Component {
 
                         {/* File Upload */}
                         <div className="mb-6">
-                            <label 
-                                htmlFor="file" 
+                            <label
+                                htmlFor="file"
                                 className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
                             >
                                 <div className="flex flex-col items-center">
@@ -330,13 +330,13 @@ class CreatePostComponent extends React.Component {
                                     <p className="text-sm text-gray-500">Click to upload images</p>
                                     <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 0.4MB</p>
                                 </div>
-                                <input 
-                                    type="file" 
-                                    id="file" 
-                                    className="hidden" 
-                                    multiple 
+                                <input
+                                    type="file"
+                                    id="file"
+                                    className="hidden"
+                                    multiple
                                     accept=".png,.jpg,.jpeg"
-                                    onChange={this.handleFileChange} 
+                                    onChange={this.handleFileChange}
                                 />
                             </label>
                         </div>
@@ -347,9 +347,9 @@ class CreatePostComponent extends React.Component {
                                 Post Content
                             </label>
                             <div className="relative">
-                                <textarea 
+                                <textarea
                                     className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                                    value={this.state.content} 
+                                    value={this.state.content}
                                     placeholder="What's on your mind? Share your thoughts..."
                                     onChange={this.handleOnChangeContent}
                                 />
@@ -364,9 +364,9 @@ class CreatePostComponent extends React.Component {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Who can see this post?
                             </label>
-                            <select 
+                            <select
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={this.state.visibility} 
+                                value={this.state.visibility}
                                 onChange={this.handleOnChangeVisible}
                             >
                                 <option value="PUBLIC">🌍 Public - Everyone can see</option>
@@ -377,13 +377,13 @@ class CreatePostComponent extends React.Component {
 
                     {/* Footer Buttons */}
                     <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t">
-                        <button 
+                        <button
                             onClick={this.handleCancel}
                             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors font-medium"
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             onClick={this.handleSubmit}
                             disabled={this.state.isPosting || !this.state.content.trim()}
                             className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"

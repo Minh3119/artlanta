@@ -52,9 +52,11 @@ public class LiveChatEndpoint {
             @Override
             public void run() {
                 int timeLeft = roomCountdowns.get(roomID) - 1;
+
                 if (timeLeft <= 0) {
 
                     updateAuctionsAfterTimer(roomID);
+
                     // Reset
                     timeLeft = AUCTION_TIME;
 
@@ -86,13 +88,12 @@ public class LiveChatEndpoint {
         AuctionDAO ad = new AuctionDAO();
         List<Auction> list = ad.getByID(roomID);
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
-
         Map<Integer, MaxBidInfo> bids = roomAuctionBids.getOrDefault(roomID, Collections.emptyMap());
         int count = 0;
         for (Auction a : list) {
             int auctionIndex = Integer.parseInt(a.getID());
-            System.out.println("current: " + currentIndex);
-            System.out.println("count: " + count);
+//            System.out.println("current: " + currentIndex);
+//            System.out.println("count: " + count);
             if (count != currentIndex) {
                 count++;
                 continue;
@@ -120,11 +121,12 @@ public class LiveChatEndpoint {
 
     private void broadcastAuctionResult(String roomID, int auctionIndex) {
         AuctionDAO ad = new AuctionDAO();
-
         Auction au = ad.getByIndex(auctionIndex);
         NotificationDAO nd = new NotificationDAO();
         boolean rs = nd.saveNotification(au.getUserID(), "Auction", au.getImageUrl());
+
         roomCurrentAuction.computeIfPresent(roomID, (key, index) -> index + 1);
+
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
         System.out.println("current aution " + currentIndex);
         WalletDAO wd = new WalletDAO();
@@ -299,7 +301,7 @@ public class LiveChatEndpoint {
         if (isLive) {
             if (message.startsWith("#bid")) {
                 Type = "Bid";
-                // Parse bid: #bid-01-20000
+                //  bid: #bid-01-20000
                 handleBid(message, ID, UserID);
 
             } else if (message.startsWith("at-")) {

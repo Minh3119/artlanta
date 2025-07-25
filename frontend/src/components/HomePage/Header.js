@@ -119,27 +119,27 @@ export default function Header({ openCreatePopup }) {
     checkEKYC();
   }, []);
 
-useEffect(() => {
-  const checkRole = async () => {
-    try {
-      const res = await fetch("http://localhost:9999/backend/api/role/check", {
-        credentials: "include",
-      });
+  useEffect(() => {
+    const checkRole = async () => {
+      try {
+        const res = await fetch("http://localhost:9999/backend/api/role/check", {
+          credentials: "include",
+        });
 
-      if (!res.ok) return;
+        if (!res.ok) return;
 
-      const data = await res.json();
-      setAva(data.avatarURL);
-      if (data.isArtist) {
-        setIsArtist(true);
+        const data = await res.json();
+        setAva(data.avatarURL);
+        if (data.isArtist) {
+          setIsArtist(true);
+        }
+      } catch (error) {
+        console.error("Failed to check role:", error);
       }
-    } catch (error) {
-      console.error("Failed to check role:", error);
-    }
-  };
+    };
 
-  checkRole();
-}, []);
+    checkRole();
+  }, []);
 
 
   const handleLogout = async () => {
@@ -185,8 +185,8 @@ useEffect(() => {
       <div className="header-navbar">
         <Link to="commissiondashboard/commissions">
           <div className="font-carter header-navbar__container ">
-  <p className="font-carter header-navbar__title">Commissions</p>
-</div>
+            <p className="font-carter header-navbar__title">Commissions</p>
+          </div>
 
         </Link>
         {
@@ -224,6 +224,7 @@ useEffect(() => {
             <div className="create-menu-dropdown">
               <div
                 className="create-menu-item"
+                id="test-create-post"
                 onClick={() => {
                   if (userID === 0) {
                     navigate("/login");
@@ -286,53 +287,53 @@ useEffect(() => {
             />
             {showUserMenu && (
               <div className="user-menu-dropdown">
-     {
-  isArtist && userID !== 0 ? (
-    <Link
-      to="/commissiondashboard"
-      className="user-menu-item"
-      style={{
-        background: `radial-gradient(ellipse 98.08% 114.73% at -3.98% 12.50%, #5EDCFF 0%, rgba(94, 220, 255, 0) 100%), 
+                {
+                  isArtist && userID !== 0 ? (
+                    <Link
+                      to="/commissiondashboard"
+                      className="user-menu-item"
+                      style={{
+                        background: `radial-gradient(ellipse 98.08% 114.73% at -3.98% 12.50%, #5EDCFF 0%, rgba(94, 220, 255, 0) 100%), 
             radial-gradient(ellipse 136.08% 98.99% at 43.75% 114.06%, #3D8BFF 0%, #A8E8FF 81%), 
             #0F4C81`,
-        zIndex: 99999,
-        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.80) inset',
-        borderRadius: '8px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: '14px',
-        marginTop: '-8px',
-        cursor: 'pointer',
-        textShadow: '0 0 5px white'
-      }}
-    >
-      Manage Commission
-    </Link>
-  ) : (
-    userID !== 0 && (
-      <Link
-        to="/clientcomdashboard"
-        className="user-menu-item"
-        style={{
-          background: '#1a1a1a',
-          borderRadius: '8px',
-          color: 'white',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          padding: '8px 12px',
-          marginTop: '-8px',
-          cursor: 'pointer'
-        }}
-      >
-        View Commission
-      </Link>
-    )
-  )
-}
+                        zIndex: 99999,
+                        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.80) inset',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        marginTop: '-8px',
+                        cursor: 'pointer',
+                        textShadow: '0 0 5px white'
+                      }}
+                    >
+                      Manage Commission
+                    </Link>
+                  ) : (
+                    userID !== 0 && (
+                      <Link
+                        to="/clientcomdashboard"
+                        className="user-menu-item"
+                        style={{
+                          background: '#1a1a1a',
+                          borderRadius: '8px',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          padding: '8px 12px',
+                          marginTop: '-8px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        View Commission
+                      </Link>
+                    )
+                  )
+                }
 
                 {userID != 0 && (
                   <Link to="/" className="user-menu-item">

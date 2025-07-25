@@ -113,6 +113,10 @@
         <servlet-class>controller.commission.HandleRequestCom</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>AddAuction</servlet-name>
+        <servlet-class>controller.Live.AddAuction</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ClientCommission</servlet-name>
         <servlet-class>controller.commission.ClientCommission</servlet-class>
     </servlet>
@@ -303,6 +307,10 @@
     <servlet-mapping>
         <servlet-name>HandleRequestCom</servlet-name>
         <url-pattern>/api/handlerequest</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddAuction</servlet-name>
+        <url-pattern>/api/live/auction/add</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ClientCommission</servlet-name>

@@ -5,6 +5,7 @@ import logo from '../../assets/images/arlanta.svg';
 import { Navigate, useParams } from 'react-router-dom';
 import LiveChatComponent from "./liveChatComponent";
 import LiveGalleryComponent from "./liveGalleryComponent";
+import AddAuctionComponent from "./addAuctionComponent";
 import imageCompression from 'browser-image-compression';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -31,6 +32,7 @@ class LiveDetailComponent extends React.Component {
         isLoading: true,
         timeLeft: null,
         messagesList: [],
+        isOpenAddAuction: false
 
 
     }
@@ -320,7 +322,6 @@ class LiveDetailComponent extends React.Component {
             .catch((err) => console.error(err));
     }
     loadView = async () => {
-        console.log("viewupdate");
         try {
             const res = await axios.post(
                 "http://localhost:9999/backend/api/live/view/get",
@@ -376,22 +377,11 @@ class LiveDetailComponent extends React.Component {
             redirect: '/'
         })
     }
-    // handleUpdateView = async () => {
-    //     try {
-    //         const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
-    //         const response = await axios.get(
-    //             `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${this.state.LiveID}&key=${API_KEY}`
-    //         );
-
-    //         this.setState({
-    //             View: response.data.items[0].statistics.viewCount,
-    //             peakView: this.state.View > this.state.peakView ? this.state.View : this.state.peakView
-    //         });
-    //     } catch (error) {
-    //         console.error('Error get view:', error);
-    //     }
-
-    // }
+    handleAddAuctionForm = () => {
+        this.setState({
+            isOpenAddAuction: !this.state.isOpenAddAuction
+        })
+    }
 
     render() {
         if (this.state.redirect) {
@@ -440,6 +430,12 @@ class LiveDetailComponent extends React.Component {
                             <div className="live-auction-container">
                                 <h2>
                                     <div className="auction-header">Live Auction</div>
+                                    {
+                                        this.state.LiveStatus === "Live" ?
+                                            <button className="auction-add" onClick={() => this.handleAddAuctionForm()}>+</button>
+                                            :
+                                            <div className="auction-add"></div>
+                                    }
                                     <div>{this.state.timeLeft}</div>
                                 </h2>
 
@@ -496,6 +492,16 @@ class LiveDetailComponent extends React.Component {
                             chatBox={this.chatBoxRef}
 
                         />
+
+                        {
+                            this.state.isOpenAddAuction ?
+                                <AddAuctionComponent
+                                    ID={this.props.params.ID}
+                                    handleCloseForm={this.handleAddAuctionForm}
+
+                                /> :
+                                null
+                        }
 
 
                     </div>
