@@ -194,7 +194,6 @@ public class CommissionServlet extends HttpServlet {
         try {
             // No file upload logic here. Only accept URL from JSON body.
             JSONObject body = JsonUtil.parseRequestBody(request);
-            System.out.println("Received request body: " + body.toString());
             String fileDeliveryURL = body.optString("fileDeliveryURL", null);
             if (fileDeliveryURL == null) {
                 System.out.println("fileDeliveryURL is null in request");

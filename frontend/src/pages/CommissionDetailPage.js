@@ -47,7 +47,7 @@ const CommissionDetailPage = () => {
       const data = await res.json();
       setCommission(data.commission);
       toast.success('Commission cancelled successfully');
-      navigate('/commissions');
+      navigate('/commissiondashboard/commissions');
     } catch (err) {
       toast.error(err.message);
     } finally {
