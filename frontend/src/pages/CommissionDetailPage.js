@@ -25,8 +25,35 @@ const CommissionDetailPage = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState(null);
-  const [acceptLoading, setAcceptLoading] = useState(false);
   const navigate = useNavigate();
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  // Handle commission cancellation
+  const handleCancelCommission = async () => {
+    if (!window.confirm('Are you sure you want to cancel this commission? This action cannot be undone.')) {
+      return;
+    }
+
+    setCancelLoading(true);
+    try {
+      const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}/cancel`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!res.ok) throw new Error('Failed to cancel commission');
+      
+      const data = await res.json();
+      setCommission(data.commission);
+      toast.success('Commission cancelled successfully');
+      navigate('/commissions');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setCancelLoading(false);
+    }
+  };
 
   // Fetch current user ID and role on mount
   useEffect(() => {
@@ -144,7 +171,7 @@ const CommissionDetailPage = () => {
   const isArtist = commission && currentUserId && currentUserRole === 'ARTIST' && commission.artistId === currentUserId;
 
   // Submit handler
-  const handleSubmitCommission = async (finalFile, previewFile) => {
+  const handleSubmitCommission = async (fileDeliveryURL) => {
     setSubmitLoading(true);
     try {
       // Check latest commission status before submitting
@@ -161,40 +188,13 @@ const CommissionDetailPage = () => {
         setSubmitLoading(false);
         return;
       }
-      // Upload final file
-      const finalForm = new FormData();
-      finalForm.append('file[]', finalFile);
-      const finalRes = await fetch('http://localhost:9999/backend/api/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: finalForm
-      });
-      const finalData = await finalRes.json();
-      if (!finalRes.ok || !finalData.response || !Array.isArray(finalData.response) || !finalData.response[0]?.url) {
-        throw new Error(finalData.error || 'Failed to upload final image');
-      }
-      const finalURL = finalData.response[0].url;
 
-      // Upload preview file
-      const previewForm = new FormData();
-      previewForm.append('file[]', previewFile);
-      const previewRes = await fetch('http://localhost:9999/backend/api/upload', {
-        method: 'POST',
-        credentials: 'include',
-        body: previewForm
-      });
-      const previewData = await previewRes.json();
-      if (!previewRes.ok || !previewData.response || !Array.isArray(previewData.response) || !previewData.response[0]?.url) {
-        throw new Error(previewData.error || 'Failed to upload preview image');
-      }
-      const previewURL = previewData.response[0].url;
-
-      // Submit commission with URLs
+      // Submit commission with URL
       const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}/submit`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileDeliveryURL: finalURL, previewImageURL: previewURL })
+        body: JSON.stringify({ fileDeliveryURL: fileDeliveryURL })
       });
       if (!res.ok) throw new Error('Failed to submit commission');
       const data = await res.json();
@@ -205,26 +205,6 @@ const CommissionDetailPage = () => {
       toast.error(err.message);
     } finally {
       setSubmitLoading(false);
-    }
-  };
-
-  // Accept handler for client
-  const handleAcceptFinal = async () => {
-    setAcceptLoading(true);
-    try {
-      const res = await fetch(`http://localhost:9999/backend/api/commissions/${commissionId}/confirm`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) throw new Error('Failed to confirm final product');
-      const data = await res.json();
-      setCommission(data.commission);
-      toast.success('You have accepted the final product!');
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setAcceptLoading(false);
     }
   };
 
@@ -416,12 +396,6 @@ const CommissionDetailPage = () => {
                           {commission.artistSeenFinal ? 'Submitted' : 'Pending'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Client Confirmed:</span>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${commission.clientConfirmed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                          {commission.clientConfirmed ? 'Yes' : 'No'}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -453,13 +427,20 @@ const CommissionDetailPage = () => {
                         onClick={() => setEditMode(true)}
                       >Edit</button>
                     )}
-                    {/* Only artist can see submit button */}
-                    {isArtist && (
+                    {/* Action buttons */}
+                    <div className="flex gap-4">
+                      {isArtist && (
+                        <button
+                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
+                          onClick={() => setShowSubmitModal(true)}
+                        >Submit</button>
+                      )}
                       <button
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
-                        onClick={() => setShowSubmitModal(true)}
-                      >Submit</button>
-                    )}
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleCancelCommission}
+                        disabled={cancelLoading}
+                      >{cancelLoading ? 'Cancelling...' : 'Cancel Commission'}</button>
+                    </div>
                   </div>
                 )}
                 {/* Modal for submit commission */}
@@ -472,7 +453,7 @@ const CommissionDetailPage = () => {
 
                 {/* File Delivery */}
                 {commission.fileDeliveryURL && (
-                  (currentUserRole !== 'CLIENT' || commission.clientConfirmed) && (
+                  (
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
                       <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                         <span className="text-xl">📎</span>
@@ -490,34 +471,7 @@ const CommissionDetailPage = () => {
                     </div>
                   )
                 )}
-                {/* Accept Button for client */}
-                {currentUserRole === 'CLIENT' && commission.artistSeenFinal && !commission.clientConfirmed && (
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors mt-4"
-                    onClick={handleAcceptFinal}
-                    disabled={acceptLoading}
-                  >
-                    {acceptLoading ? 'Accepting...' : 'Accept Final Product'}
-                  </button>
-                )}
-                {/* Preview Delivery */}
-                {commission.previewImageURL && (
-                  <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6 mt-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                      <span className="text-xl">🖼️</span>
-                      Preview (Watermarked)
-                    </h3>
-                    <a
-                      href={commission.previewImageURL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                    >
-                      <span>👁️</span>
-                      View Preview Image
-                    </a>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
@@ -535,4 +489,4 @@ const CommissionDetailPage = () => {
   );
 };
 
-export default CommissionDetailPage; 
+export default CommissionDetailPage;

@@ -13,6 +13,35 @@ import dal.CommissionHistoryDAO;
 import model.CommissionHistory;
 
 public class CommissionService {
+    private static final String STATUS_CANCELLED = "CANCELLED";
+
+    public JSONObject cancelCommission(int commissionId, int userId) {
+        CommissionDAO commissionDAO = new CommissionDAO();
+        try {
+            // First check if the commission exists and user has access
+            CommissionDTO commission = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            if (commission == null) return null;
+
+            // Only allow cancellation if commission is not already completed or cancelled
+            if ("COMPLETED".equals(commission.getStatus()) || STATUS_CANCELLED.equals(commission.getStatus())) {
+                return null;
+            }
+
+            // Update commission status to cancelled
+            boolean updated = commissionDAO.updateCommissionStatus(commissionId, STATUS_CANCELLED);
+            if (!updated) return null;
+
+            // Return updated commission
+            commission = commissionDAO.getCommissionByIdAndUser(commissionId, userId);
+            return new JSONObject(JsonUtil.toJsonString(commission));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            commissionDAO.closeConnection();
+        }
+    }
+
     public CommissionService() {}
 
     public JSONObject getCommissionsByUserId(int userId, String status) {
@@ -115,4 +144,4 @@ public class CommissionService {
         }
         return null;
     }
-} 
+}
