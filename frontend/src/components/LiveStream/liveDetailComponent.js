@@ -211,6 +211,11 @@ class LiveDetailComponent extends React.Component {
             else if (data.Type === "View") {
                 this.loadView();
             }
+            else if (data.Type === "Reload") {
+                if (data.Reload === "true") {
+                    this.reloadAuction();
+                }
+            }
 
 
 
@@ -346,23 +351,26 @@ class LiveDetailComponent extends React.Component {
         }
     }
     handleExit = async () => {
+        console.log('Exit live');
+        await axios.post(`http://localhost:9999/backend/api/live/update/view`, {
+            ID: this.props.params.ID,
+            View: this.state.View,
+        }, {
+            headers: {
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }
+
+        ).catch((err) => console.error(err));
+        this.setState({
+            redirect: '/'
+        })
+    }
+    handleEnd = async () => {
         if (this.state.currentUserID === this.state.userID && this.state.LiveStatus == 'Live') {
             console.log('End live');
             axios.post(`http://localhost:9999/backend/api/live/detail/end`, {
-                ID: this.props.params.ID,
-                View: this.state.View,
-            }, {
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                withCredentials: true
-            }
-
-            ).catch((err) => console.error(err));
-        }
-        else {
-            console.log('Exit live');
-            await axios.post(`http://localhost:9999/backend/api/live/update/view`, {
                 ID: this.props.params.ID,
                 View: this.state.View,
             }, {
@@ -416,6 +424,9 @@ class LiveDetailComponent extends React.Component {
                     <div className="live-header">
                         {/* <h1>{ID}</h1> */}
                         <h1>{this.state.UserName} / {this.state.Title}</h1>
+                        {(this.state.currentUserID === this.state.userID && this.state.LiveStatus == 'Live') ?
+                            <button className="end-live" onClick={() => this.handleEnd()}>End Live</button> : null
+                        }
                         <button onClick={() => this.handleExit()}>X</button>
 
                     </div >

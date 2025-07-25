@@ -192,14 +192,15 @@ export default function Header({ openCreatePopup }) {
         {
           !userID ?
             <Link to="/login">
-              <div className="header-navbar__container active">
+              <div className="header-navbar__container active live-btn">
                 <p className="header-navbar__title">Live</p>
               </div>
 
             </Link>
             :
             <Link to="/live/form">
-              <div className="header-navbar__container active">
+
+              <div className="header-navbar__container active live-btn">
                 <p className="header-navbar__title">Live</p>
               </div>
 
