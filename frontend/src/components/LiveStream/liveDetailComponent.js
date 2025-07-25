@@ -211,6 +211,11 @@ class LiveDetailComponent extends React.Component {
             else if (data.Type === "View") {
                 this.loadView();
             }
+            else if (data.Type === "Reload") {
+                if (data.Reload === "true") {
+                    this.reloadAuction();
+                }
+            }
 
 
 
