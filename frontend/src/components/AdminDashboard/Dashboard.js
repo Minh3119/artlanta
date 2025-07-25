@@ -2,12 +2,120 @@ import React, { useState, useMemo, useEffect } from "react";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ComposedChart, Area, AreaChart } from 'recharts';
 import { useNavigate } from "react-router-dom";
 
+// AddModForm Component
+function AddModForm({ onClose, onSuccess }) {
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: ''
+    });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await fetch("http://localhost:9999/backend/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Moderator added successfully!');
+                onSuccess();
+                onClose();
+            } else {
+                alert(data.message || 'Failed to add moderator');
+            }
+        } catch (error) {
+            console.error('Error adding moderator:', error);
+            alert('An error occurred while adding moderator');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Moderator</h3>
+            
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Username:
+                </label>
+                <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Enter username..."
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email:
+                </label>
+                <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Enter email..."
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password:
+                </label>
+                <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Enter password..."
+                />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                >
+                    {loading ? 'Adding...' : 'Add Moderator'}
+                </button>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+                >
+                    Cancel
+                </button>
+            </div>
+        </form>
+    );
+}
+
 export default function Dashboard() {
     const [users, setUsers] = useState({raw: [], chart_data: [], total_user: 0, mostUserCreDay: "", total_Mod: 0, total_BUser: 0});
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [banUsername, setBanUsername] = useState("");
     const [showBanForm, setShowBanForm] = useState(false);
+    const [showAddModForm, setShowAddModForm] = useState(false);
+    const [activeTab, setActiveTab] = useState('ban'); // 'ban' or 'addmod'
     const navigate = useNavigate();
     const [isAuthorized, setIsAuthorized] = useState(null);
 
@@ -376,20 +484,40 @@ export default function Dashboard() {
 
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-gray-900">Quick Ban User</h3>
-                        <button
-                            onClick={() => setShowBanForm(!showBanForm)}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                showBanForm 
-                                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' 
-                                    : 'bg-red-500 text-white hover:bg-red-600'
-                            }`}
-                        >
-                            {showBanForm ? 'Cancel' : 'Ban User'}
-                        </button>
+                        <h3 className="text-xl font-bold text-gray-900">Admin Management</h3>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    setActiveTab('ban');
+                                    setShowBanForm(true);
+                                    setShowAddModForm(false);
+                                }}
+                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    activeTab === 'ban' && showBanForm
+                                        ? 'bg-red-500 text-white' 
+                                        : 'bg-gray-100 text-gray-700 hover:bg-red-100'
+                                }`}
+                            >
+                                Ban User
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setActiveTab('addmod');
+                                    setShowAddModForm(true);
+                                    setShowBanForm(false);
+                                }}
+                                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    activeTab === 'addmod' && showAddModForm
+                                        ? 'bg-blue-500 text-white' 
+                                        : 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+                                }`}
+                            >
+                                Add Moderator
+                            </button>
+                        </div>
                     </div>
 
-                    {showBanForm && (
+                    {showBanForm && activeTab === 'ban' && (
                         <div className="mb-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -403,64 +531,90 @@ export default function Dashboard() {
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
                                 />
                             </div>
-                            <button
-                                onClick={handleBanUser}
-                                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                            >
-                                Confirm Ban/Unban
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleBanUser}
+                                    className="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                >
+                                    Confirm Ban/Unban
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowBanForm(false);
+                                        setBanUsername("");
+                                    }}
+                                    className="px-4 py-3 bg-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-400 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     )}
 
-                    <div className="space-y-4">
-                        <h4 className="text-lg font-semibold text-gray-900">Platform Insights</h4>
-                        
-                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                            <div className="flex items-center mb-2">
-                                <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <strong className="text-blue-900">Peak Activity Day</strong>
-                            </div>
-                            <p className="text-blue-800">{users.mostUserCreDay}</p>
+                    {showAddModForm && activeTab === 'addmod' && (
+                        <div className="mb-6">
+                            <AddModForm 
+                                onClose={() => {
+                                    setShowAddModForm(false);
+                                }}
+                                onSuccess={() => {
+                                    fetchPosts(); // Refresh data after adding moderator
+                                }}
+                            />
                         </div>
+                    )}
 
-                        <div className={`p-4 rounded-lg border ${
-                            parseFloat(metrics.banRate) < 15 
-                                ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
-                                : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'
-                        }`}>
-                            <div className="flex items-center mb-2">
-                                <svg className={`w-5 h-5 mr-2 ${parseFloat(metrics.banRate) < 15 ? 'text-green-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <strong className={parseFloat(metrics.banRate) < 15 ? 'text-green-900' : 'text-yellow-900'}>
-                                    Platform Status
-                                </strong>
+                    {!showBanForm && !showAddModForm && (
+                        <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-gray-900">Platform Insights</h4>
+                            
+                            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                                <div className="flex items-center mb-2">
+                                    <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <strong className="text-blue-900">Peak Activity Day</strong>
+                                </div>
+                                <p className="text-blue-800">{users.mostUserCreDay}</p>
                             </div>
-                            <p className={parseFloat(metrics.banRate) < 15 ? 'text-green-800' : 'text-yellow-800'}>
-                                {parseFloat(metrics.banRate) < 15 ? 'Healthy' : 'Needs Attention'}
-                            </p>
-                        </div>
 
-                        <div className={`p-4 rounded-lg border ${
-                            parseFloat(metrics.moderationRatio) < 10 
-                                ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
-                                : 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200'
-                        }`}>
-                            <div className="flex items-center mb-2">
-                                <svg className={`w-5 h-5 mr-2 ${parseFloat(metrics.moderationRatio) < 10 ? 'text-green-600' : 'text-orange-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                                <strong className={parseFloat(metrics.moderationRatio) < 10 ? 'text-green-900' : 'text-orange-900'}>
-                                    Moderation Efficiency
-                                </strong>
+                            <div className={`p-4 rounded-lg border ${
+                                parseFloat(metrics.banRate) < 15 
+                                    ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
+                                    : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'
+                            }`}>
+                                <div className="flex items-center mb-2">
+                                    <svg className={`w-5 h-5 mr-2 ${parseFloat(metrics.banRate) < 15 ? 'text-green-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <strong className={parseFloat(metrics.banRate) < 15 ? 'text-green-900' : 'text-yellow-900'}>
+                                        Platform Status
+                                    </strong>
+                                </div>
+                                <p className={parseFloat(metrics.banRate) < 15 ? 'text-green-800' : 'text-yellow-800'}>
+                                    {parseFloat(metrics.banRate) < 15 ? 'Healthy' : 'Needs Attention'}
+                                </p>
                             </div>
-                            <p className={parseFloat(metrics.moderationRatio) < 10 ? 'text-green-800' : 'text-orange-800'}>
-                                {parseFloat(metrics.moderationRatio) < 10 ? 'Optimal' : 'Consider more moderators'}
-                            </p>
+
+                            <div className={`p-4 rounded-lg border ${
+                                parseFloat(metrics.moderationRatio) < 10 
+                                    ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
+                                    : 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200'
+                            }`}>
+                                <div className="flex items-center mb-2">
+                                    <svg className={`w-5 h-5 mr-2 ${parseFloat(metrics.moderationRatio) < 10 ? 'text-green-600' : 'text-orange-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    <strong className={parseFloat(metrics.moderationRatio) < 10 ? 'text-green-900' : 'text-orange-900'}>
+                                        Moderation Efficiency
+                                    </strong>
+                                </div>
+                                <p className={parseFloat(metrics.moderationRatio) < 10 ? 'text-green-800' : 'text-orange-800'}>
+                                    {parseFloat(metrics.moderationRatio) < 10 ? 'Optimal' : 'Consider more moderators'}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

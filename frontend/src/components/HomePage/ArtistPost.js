@@ -156,7 +156,6 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                     >
                                         <img
                                             src={post.mediaURL[0]}
-                                            alt="post-img"
                                             className="post-img"
                                             style={{ height: "auto" }}
                                         />
