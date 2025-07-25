@@ -428,49 +428,7 @@ const CommissionDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Edit & Submit Buttons - Only show if IN_PROGRESS */}
-                {commission.status === 'IN_PROGRESS' && (
-                  <div className="flex gap-4 mb-8 justify-between">
-                    {editMode ? (
-                      <>
-                        <button
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
-                          onClick={handleSave}
-                        >Save</button>
-                        <button
-                          className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
-                          onClick={() => {
-                            setEditMode(false);
-                            setEditFields({
-                              title: commission.title || '',
-                              description: commission.description || '',
-                              price: commission.price || ''
-                            });
-                          }}
-                        >Cancel</button>
-                      </>
-                    ) : (
-                      <button
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
-                        onClick={() => setEditMode(true)}
-                      >Edit</button>
-                    )}
-                    {/* Action buttons */}
-                    <div className="flex gap-4">
-                      {isArtist && (
-                        <button
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors"
-                          onClick={() => setShowSubmitModal(true)}
-                        >Submit</button>
-                      )}
-                      <button
-                        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={handleCancelCommission}
-                        disabled={cancelLoading}
-                      >{cancelLoading ? 'Cancelling...' : 'Cancel Commission'}</button>
-                    </div>
-                  </div>
-                )}
+                
                 {/* Modal for submit commission */}
                 <SubmitCommissionModal
                   open={showSubmitModal}
@@ -520,8 +478,7 @@ const CommissionDetailPage = () => {
           
           {/* Enhanced Action Buttons */}
                 {commission.status === 'IN_PROGRESS' && (
-                  <div className="w-[300px] h-[200px] flex flex-wrap gap-3 mb-8 p-6   ">
-
+                  <div className="w-[300px] h-[200px] flex flex-wrap gap-3 mb-8 p-6">
                     {editMode ? (
                       <>
                         <button
@@ -545,12 +502,22 @@ const CommissionDetailPage = () => {
                         </button>
                       </>
                     ) : (
-                      <button
-                        className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
-                        onClick={() => setEditMode(true)}
-                      >
-                        <span>✏️</span> Edit Details
-                      </button>
+                      <>
+                        <button
+                          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          onClick={() => setEditMode(true)}
+                        >
+                          <span>✏️</span> Edit Details
+                        </button>
+                        <button
+                          className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          onClick={handleCancelCommission}
+                          disabled={cancelLoading}
+                        >
+                          <span>{cancelLoading ? '⏳' : '🚫'}</span>
+                          {cancelLoading ? 'Cancelling...' : 'Cancel Commission'}
+                        </button>
+                      </>
                     )}
                     
                     {isArtist && (
