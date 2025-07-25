@@ -1,3 +1,6 @@
+html {
+  scroll-behavior: smooth !important;
+}
 .live-page-container {
     width: 100vw;
     height: 100vh;
@@ -321,8 +324,9 @@
             height: 80vh;
             border-radius: 10px;
             background-color: wheat;
-            position: sticky;
-            top: 10px;
+            position: fixed;
+            top: 60px;
+            right: 0;
             .live-chat-header{
                 padding: 2px 10px;
                 width: 100%;
