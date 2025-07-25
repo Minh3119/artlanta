@@ -2,61 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
-  const [finalFile, setFinalFile] = useState(null);
-  const [previewFile, setPreviewFile] = useState(null);
-  const [finalPreview, setFinalPreview] = useState(null);
-  const [previewPreview, setPreviewPreview] = useState(null);
+  const [fileUrl, setFileUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!open) {
-      setFinalFile(null);
-      setPreviewFile(null);
-      setFinalPreview(null);
-      setPreviewPreview(null);
+      setFileUrl('');
       setUploading(false);
     }
   }, [open]);
 
-  const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Only allow image files
-    if (!file.type.startsWith('image/')) {
-      toast.error('Only image files are allowed.');
-      return;
-    }
-    if (type === 'final') {
-      setFinalFile(file);
-      setFinalPreview(URL.createObjectURL(file));
-    } else {
-      setPreviewFile(file);
-      setPreviewPreview(URL.createObjectURL(file));
-    }
+  const handleUrlChange = (e) => {
+    setFileUrl(e.target.value);
   };
 
-  const handleRemove = (type) => {
-    if (type === 'final') {
-      setFinalFile(null);
-      if (finalPreview) URL.revokeObjectURL(finalPreview);
-      setFinalPreview(null);
-    } else {
-      setPreviewFile(null);
-      if (previewPreview) URL.revokeObjectURL(previewPreview);
-      setPreviewPreview(null);
-    }
+  const handleClear = () => {
+    setFileUrl('');
   };
 
-  const handleUploadAndSubmit = async () => {
-    if (!finalFile || !previewFile) {
-      alert('Both images are required');
+  const handleSubmit = async () => {
+    if (!fileUrl) {
+      toast.error('File URL is required');
       return;
     }
     setUploading(true);
     try {
-      await onSubmit(finalFile, previewFile);
+      await onSubmit(fileUrl);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setUploading(false);
     }
@@ -75,42 +48,27 @@ function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
           ×
         </button>
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Submit Final Artwork</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Final Image Upload */}
-          <div className="flex flex-col items-center">
-            <label className="font-medium mb-2 text-gray-700">Final Image</label>
-            {finalPreview ? (
-              <div className="relative group mb-2">
-                <img src={finalPreview} alt="Final Preview" className="w-32 h-32 object-cover rounded-lg border border-gray-200 shadow-sm" />
-                <button className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-gray-500 hover:text-red-600 border border-gray-200 shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-400" onClick={() => handleRemove('final')}>
-                  &times;
+        <div className="mb-6">
+          <div className="flex flex-col">
+            <label className="font-medium mb-2 text-gray-700">File URL</label>
+            <div className="relative">
+              <input 
+                type="url" 
+                value={fileUrl}
+                onChange={handleUrlChange}
+                placeholder="Enter URL for your file"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              />
+              {fileUrl && (
+                <button 
+                  onClick={handleClear}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ×
                 </button>
-              </div>
-            ) : (
-              <label className="w-32 h-32 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition mb-2 bg-gray-50 hover:bg-blue-50">
-                <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, 'final')} />
-                <span className="text-gray-400">Upload</span>
-              </label>
-            )}
-            <span className="text-xs text-gray-500 text-center">High quality, no watermark</span>
-          </div>
-          {/* Preview Image Upload */}
-          <div className="flex flex-col items-center">
-            <label className="font-medium mb-2 text-gray-700">Preview (Watermarked)</label>
-            {previewPreview ? (
-              <div className="relative group mb-2">
-                <img src={previewPreview} alt="Preview Preview" className="w-32 h-32 object-cover rounded-lg border border-gray-200 shadow-sm" />
-                <button className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-gray-500 hover:text-red-600 border border-gray-200 shadow transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-400" onClick={() => handleRemove('preview')}>
-                  &times;
-                </button>
-              </div>
-            ) : (
-              <label className="w-32 h-32 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition mb-2 bg-gray-50 hover:bg-blue-50">
-                <input type="file" accept="image/*" className="hidden" onChange={e => handleFileChange(e, 'preview')} />
-                <span className="text-gray-400">Upload</span>
-              </label>
-            )}
-            <span className="text-xs text-gray-500 text-center">For client preview, must have watermark</span>
+              )}
+            </div>
+            <span className="text-xs text-gray-500 mt-1">Enter the URL for your file</span>
           </div>
         </div>
         <div className="flex gap-4 justify-end mt-6">
@@ -121,7 +79,7 @@ function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
           </button>
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg 
                 font-semibold shadow-md transition border border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60" 
-                onClick={handleUploadAndSubmit} disabled={uploading || loading || !finalFile || !previewFile}>
+                onClick={handleSubmit} disabled={uploading || loading || !fileUrl}>
             {uploading || loading ? 'Submitting...' : 'Submit'}
           </button>
         </div>
@@ -130,4 +88,4 @@ function SubmitCommissionModal({ open, onClose, onSubmit, loading }) {
   );
 }
 
-export default SubmitCommissionModal; 
+export default SubmitCommissionModal;

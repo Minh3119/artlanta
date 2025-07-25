@@ -13,24 +13,7 @@ const menuItems = [
   'section',
   { section: 'ADVANCED' },
   { iconClass: 'fas fa-copy', label: 'Payment', badge: '6', badgeClass: 'info', arrowIcon: more },
-  { iconClass: 'fas fa-chart-pie', label: 'Charts', arrowIcon: more },
-  { iconClass: 'fas fa-tree', label: 'UI Elements', arrowIcon: more },
-  { iconClass: 'fas fa-edit', label: 'Forms', arrowIcon: more },
-  { iconClass: 'fas fa-table', label: 'Tables', arrowIcon: more },
-  'section',
-  { section: 'MISCELLANEOUS' },
-  { iconClass: 'fas fa-calendar-alt', label: 'Calendar', badge: '2' },
-  { iconClass: 'fas fa-image', label: 'Gallery' },
-  { iconClass: 'fas fa-th-large', label: 'Kanban Board' },
-  { iconClass: 'fas fa-envelope', label: 'Mailbox', arrowIcon: more },
-  { iconClass: 'fas fa-book', label: 'Pages', arrowIcon: more },
-  { iconClass: 'fas fa-check-square', label: 'Extras', arrowIcon: more },
-  { iconClass: 'fas fa-search', label: 'Search', arrowIcon: more },
-  'section',
-  { section: 'LABELS' },
-  { iconClass: 'fas fa-circle text-danger', label: 'Important' },
-  { iconClass: 'fas fa-circle text-warning', label: 'Warning' },
-  { iconClass: 'fas fa-circle text-info', label: 'Informational' },
+
 ];
 const Sidebar = ({ activeItem, onChangeActive }) => {
 

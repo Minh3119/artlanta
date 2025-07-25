@@ -297,9 +297,9 @@ class UpdatePostComponent extends React.Component {
 
     render() {
         return (
-          <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-4 " onClick={this.handleCloseTab}>
 
-                onClick={this.handleCloseTab}>
+                
                 
                 {this.state.isPosting && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60">

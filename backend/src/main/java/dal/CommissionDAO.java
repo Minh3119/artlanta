@@ -13,6 +13,16 @@ import java.util.List;
 import model.CommissionRequest;
 
 public class CommissionDAO extends DBContext {
+    public boolean updateCommissionStatus(int commissionId, String status) throws SQLException {
+        String sql = "UPDATE Commission SET Status = ?, UpdatedAt = CURRENT_TIMESTAMP WHERE ID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, commissionId);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        }
+    }
+
     // Get all commissions with joined request and user info for a user
     public List<CommissionDTO> getCommissionsWithRequestAndUserByUserId(int userId) throws SQLException {
         List<CommissionDTO> result = new ArrayList<>();
@@ -193,7 +203,7 @@ public class CommissionDAO extends DBContext {
         // Only allow update if user is the artist
         String sql = "UPDATE Commission c " +
                      "JOIN CommissionRequest cr ON c.RequestID = cr.ID " +
-                     "SET c.FileDeliveryURL = ?, c.PreviewImageURL = ?, c.ArtistSeenFinal = TRUE, c.UpdatedAt = CURRENT_TIMESTAMP " +
+                     "SET c.FileDeliveryURL = ?, c.PreviewImageURL = ?, c.ArtistSeenFinal = TRUE, c.Status = 'COMPLETED', c.UpdatedAt = CURRENT_TIMESTAMP " +
                      "WHERE c.ID = ? AND cr.ArtistID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, fileDeliveryURL);
@@ -283,6 +293,50 @@ public class CommissionDAO extends DBContext {
 
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setInt(1, artistID);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                CommissionRequest req = new CommissionRequest();
+                req.setID(rs.getInt("ID"));
+                req.setClientID(rs.getInt("ClientID"));
+                req.setArtistID(rs.getInt("ArtistID"));
+                req.setShortDescription(rs.getString("ShortDescription"));
+                req.setReferenceURL(rs.getString("ReferenceURL"));
+                req.setProposedPrice(rs.getDouble("ProposedPrice"));
+
+                Timestamp deadlineTS = rs.getTimestamp("ProposedDeadline");
+                if (deadlineTS != null) {
+                    req.setProposedDeadline(deadlineTS.toLocalDateTime());
+                }
+
+                req.setStatus(rs.getString("Status"));
+                req.setArtistReply(rs.getString("ArtistReply"));
+
+                Timestamp requestAtTS = rs.getTimestamp("RequestAt");
+                if (requestAtTS != null) {
+                    req.setRequestAt(requestAtTS.toLocalDateTime());
+                }
+
+                Timestamp respondedAtTS = rs.getTimestamp("RespondedAt");
+                if (respondedAtTS != null) {
+                    req.setRespondedAt(respondedAtTS.toLocalDateTime());
+                }
+
+                list.add(req);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}	
+   
+   public List<CommissionRequest> getClientRequestsByClientID(int clientID) {
+    List<CommissionRequest> list = new ArrayList<>();
+    String sql = "SELECT * FROM CommissionRequest WHERE ClientID = ? ORDER BY RequestAt DESC";
+
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        stmt.setInt(1, clientID);
         try (ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 CommissionRequest req = new CommissionRequest();
