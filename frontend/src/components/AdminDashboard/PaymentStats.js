@@ -296,10 +296,6 @@ const PaymentStats = () => {
             <TransactionSizeDistributionChart />
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-xl font-semibold text-white mb-4">Balance Concentration Analysis</h3>
-            <BalanceConcentrationChart />
-          </div>
         </div>
 
         {/* Data Tables */}

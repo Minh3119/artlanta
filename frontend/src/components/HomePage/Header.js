@@ -183,12 +183,12 @@ export default function Header({ openCreatePopup }) {
         )}
       </div>
       <div className="header-navbar">
-        <Link to="commissiondashboard/commissions">
-          <div className="font-carter header-navbar__container ">
-            <p className="font-carter header-navbar__title">Commissions</p>
-          </div>
+        <Link to={isArtist ? "commissiondashboard/commissions" : "clientcomdashboard/commissions"}>
+  <div className="font-carter header-navbar__container">
+    <p className="font-carter header-navbar__title">Commissions</p>
+  </div>
+</Link>
 
-        </Link>
         {
           !userID ?
             <Link to="/login">
