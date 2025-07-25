@@ -4,6 +4,7 @@ import controller.messaging.HttpSessionConfigurator;
 import dal.AuctionDAO;
 import dal.LiveDAO;
 import dal.NotificationDAO;
+import dal.UserDAO;
 import dal.WalletDAO;
 
 import jakarta.servlet.http.HttpSession;
@@ -215,15 +216,18 @@ public class LiveChatEndpoint {
     public void onOpen(Session session, EndpointConfig config) {
         String ID = getLiveID(session);
         LiveDAO ld = new LiveDAO();
+        UserDAO ud= new UserDAO();
         boolean isLive = ld.isLiveByID(ID);
 
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         String Username = "Anonymous";
         String UserID = "0";
+        
         if (httpSession != null && httpSession.getAttribute("user") != null) {
             Username = String.valueOf(httpSession.getAttribute("user"));
             UserID = String.valueOf(httpSession.getAttribute("userId"));
         }
+        String Avatar=ud.getOne(Integer.parseInt(UserID)).getAvatarURL();
         if (ID == null) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Missing ID"));
@@ -270,6 +274,7 @@ public class LiveChatEndpoint {
         session.getUserProperties().put("ID", ID);
         session.getUserProperties().put("UserID", UserID);
         session.getUserProperties().put("Username", Username);
+        session.getUserProperties().put("Avatar", Avatar);
         session.getUserProperties().put("isLive", isLive);
 
         if (isLive) {
@@ -296,6 +301,7 @@ public class LiveChatEndpoint {
         String ID = String.valueOf(senderSession.getUserProperties().get("ID"));
         String UserID = String.valueOf(senderSession.getUserProperties().get("UserID"));
         String Username = String.valueOf(senderSession.getUserProperties().get("Username"));
+        String Avatar = String.valueOf(senderSession.getUserProperties().get("Avatar"));
         boolean isLive = Boolean.TRUE.equals(senderSession.getUserProperties().get("isLive"));
         String Type = "Chat";
         if (isLive) {
@@ -325,7 +331,7 @@ public class LiveChatEndpoint {
         }
         LiveDAO ld = new LiveDAO();
         if (!Type.equals("at")) {
-            ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Type, message), ID);
+            ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Avatar, Type, message), ID);
         }
         synchronized (roomMap) {
             Set<Session> sessionsInRoom = roomMap.get(ID);
@@ -333,7 +339,7 @@ public class LiveChatEndpoint {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
                         if (!Type.equals("at")) {
-                            session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Type, message));
+                            session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Avatar, Type, message));
                         }
 
                     }
