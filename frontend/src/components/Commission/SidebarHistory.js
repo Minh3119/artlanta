@@ -26,7 +26,7 @@ const SidebarHistory = ({ history, historyLoading, historyError }) => (
         </h3>
         <p className="text-gray-300 text-sm mt-1">Track all changes made to this commission</p>
       </div>
-      <div className="p-6">
+      <div className="p-6 h-[400px] overflow-y-auto" >
         {historyLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>

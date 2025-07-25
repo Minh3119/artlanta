@@ -180,7 +180,9 @@ const Withdraw = () => {
             >
               🔗 Lấy tài khoản nhận tiền Stripe của bạn
             </button>
-
+            <div className="text-xs text-red-500 mt-1">
+              Lưu ý: bạn PHẢI XÁC NHẬN TÀI KHOẢN trước khi rút tiền
+            </div>
             <div className="flex gap-2 mt-4 flex-wrap">
               {quickAmounts.map(({ label, value }) => (
                 <button

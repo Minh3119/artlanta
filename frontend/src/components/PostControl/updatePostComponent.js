@@ -1,8 +1,8 @@
 import React from "react";
-import '../../styles/post.scss';
 import logo from '../../assets/images/arlanta.svg';
 import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
+
 class UpdatePostComponent extends React.Component {
     state = {
         postID: 0,
@@ -14,13 +14,14 @@ class UpdatePostComponent extends React.Component {
         visibility: 'PUBLIC',
         isLoading: false,
         isPosting: false,
-
     }
+
     handleCloseTab = () => {
         //logic lay thay doi props isUpdateOpen
         console.log("out create");
         this.props.closeUpdatePopup();
     }
+
     handleOnChangeContent = (e) => {
         const newContent = e.target.value;
         newContent.length <= 750 ?
@@ -45,6 +46,7 @@ class UpdatePostComponent extends React.Component {
                 })
             )
     };
+
     handleCancel = () => {
         toast.error("The process has been canceled!", {
             toastId: "update-cancel",
@@ -70,6 +72,7 @@ class UpdatePostComponent extends React.Component {
         })
         this.props.closeUpdatePopup();
     }
+
     handleRemoveImage = (ID, index) => {
         const newFile = [...this.state.file];
         const newFileAdd = [...this.state.idListAdd];
@@ -79,21 +82,18 @@ class UpdatePostComponent extends React.Component {
         newFileAdd.splice(index, 1);
         newPreview.splice(index, 1);
 
-
         if (ID !== 0) {
             this.setState({
                 idListDelete: [...this.state.idListDelete, ID],
                 file: newFile,
                 filePreview: newPreview,
-            }
-            )
+            })
         } else {
             this.setState({
                 idListAdd: newFileAdd,
                 file: newFile,
                 filePreview: newPreview,
-            }
-            )
+            })
         }
     };
 
@@ -170,6 +170,7 @@ class UpdatePostComponent extends React.Component {
             });
         }
     };
+
     handleOnChangeVisible = (e) => {
         this.setState({ visibility: e.target.value });
     }
@@ -209,6 +210,7 @@ class UpdatePostComponent extends React.Component {
                 console.error('Error fetching user data:', error);
             });
     }
+
     handleSubmit = async () => {
         if (!(this.state.content.trim())) {
             toast.error(`Content cannot be blank`, {
@@ -234,7 +236,6 @@ class UpdatePostComponent extends React.Component {
             images.forEach((file) => {
                 formData.append("file[]", file);
             })
-
         }
         if (this.state.idListDelete) {
             const del = this.state.idListDelete;
@@ -293,65 +294,135 @@ class UpdatePostComponent extends React.Component {
             console.log("server error!", er);
         }
     }
+
     render() {
         return (
-            <div className="create-post-container"
-                onClick={this.handleCloseTab}>
-                {this.state.isPosting ?
-                    <div className="loading-container">
-                        <span>Loading ...</span>
-                        <img
-                            src={logo}
-                            alt="Loading..."
-                            className="loading-spinner"
-                        /></div>
-                    : null}
-                <div className="post-popup"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="post-header">
-                        Edit Post
+          <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50 p-4 " onClick={this.handleCloseTab}>
+
+                
+                
+                {this.state.isPosting && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60">
+                        <div className="bg-white rounded-xl p-8 flex flex-col items-center space-y-4 shadow-2xl">
+                            <span className="text-lg font-medium text-gray-700">Loading...</span>
+                            <img
+                                src={logo}
+                                alt="Loading..."
+                                className="w-12 h-12 animate-spin"
+                            />
+                        </div>
+                    </div>
+                )}
+
+                <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}>
+                    
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+                        <h2 className="text-2xl font-bold text-white">Edit Post</h2>
                     </div>
 
-                    <div className="post-form">
-                        <div className="image-list">
-                            {
-                                this.state.filePreview.map((item, index) => {
-                                    return (
-                                        <div className="image-container" key={index}>
-                                            <div className="image-wrapper">
-                                                <img src={item.mediaURL} alt="post-image" />
-                                                <button onClick={() => { this.handleRemoveImage(item.ID, index) }}>Remove</button>
+                    {/* Form Content */}
+                    <div className="p-8 space-y-6">
+                        
+                        {/* Image Preview Section */}
+                        {this.state.filePreview.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="block text-sm font-semibold text-gray-700">Images</label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {this.state.filePreview.map((item, index) => (
+                                        <div key={index} className="relative group">
+                                            <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-blue-400 transition-colors">
+                                                <img 
+                                                    src={item.mediaURL} 
+                                                    alt="post-image" 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <button 
+                                                    onClick={() => { this.handleRemoveImage(item.ID, index) }}
+                                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold transition-colors opacity-0 group-hover:opacity-100"
+                                                >
+                                                    ×
+                                                </button>
                                             </div>
                                         </div>
-                                    )
-                                })
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
-
-                            }
+                        {/* File Upload */}
+                        <div className="space-y-3">
+                            <label 
+                                htmlFor="file" 
+                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium rounded-xl cursor-pointer transition-all transform hover:scale-105 shadow-lg"
+                            >
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Add Images
+                            </label>
+                            <input 
+                                type="file" 
+                                className="file hidden" 
+                                id="file" 
+                                name="file[]" 
+                                multiple 
+                                accept=".png, .jpg" 
+                                onChange={(event) => this.handleFileChange(event)} 
+                            />
                         </div>
-                        <label for="file" className="file-label">File</label>
-                        <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
-                        <div className="content-container">
-                            <textarea required className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
-                            <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
+
+                        {/* Content Textarea */}
+                        <div className="space-y-3">
+                            <label className="block text-sm font-semibold text-gray-700">Content</label>
+                            <div className="relative">
+                                <textarea 
+                                    required 
+                                    className="w-full h-40 px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none text-gray-700 placeholder-gray-400" 
+                                    value={this.state.content} 
+                                    placeholder="Write your post content here..." 
+                                    onChange={(event) => this.handleOnChangeContent(event)}
+                                />
+                                <div className="absolute bottom-3 right-3 text-sm text-gray-500 bg-white px-2 py-1 rounded-lg border">
+                                    {String(this.state.content.length).padStart(3, '0')}/750
+                                </div>
+                            </div>
                         </div>
-                        <select className="visibility" value={this.state.visibility} onChange={(event) => this.handleOnChangeVisible(event)}>
-                            <option value="PUBLIC">Public</option>
-                            <option value="PRIVATE">Private</option>
-                        </select>
 
+                        {/* Visibility Select */}
+                        <div className="space-y-3">
+                            <label className="block text-sm font-semibold text-gray-700">Visibility</label>
+                            <select 
+                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all bg-white text-gray-700" 
+                                value={this.state.visibility} 
+                                onChange={(event) => this.handleOnChangeVisible(event)}
+                            >
+                                <option value="PUBLIC">Public</option>
+                                <option value="PRIVATE">Private</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="post-button">
-                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Save</button>
-                        <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
+
+                    {/* Action Buttons */}
+                    <div className="bg-gray-50 px-8 py-6 flex justify-end space-x-4">
+                        <button 
+                            onClick={this.handleCancel}
+                            className="px-8 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-xl transition-colors transform hover:scale-105 shadow-lg"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={this.handleSubmit}
+                            className="px-8 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                        >
+                            Save Changes
+                        </button>
                     </div>
-
-
-
                 </div>
-            </div >
+            </div>
         )
     }
 }
+
 export default UpdatePostComponent;

@@ -94,7 +94,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
 
             json.put("requestID", r.getID());
             json.put("artistID", r.getArtistID());
-            
+            json.put("reply",r.getArtistReply());
             json.put("description", r.getShortDescription());
             json.put("price", r.getProposedPrice());
             json.put("status", r.getStatus());
