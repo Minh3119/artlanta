@@ -416,6 +416,9 @@ class LiveDetailComponent extends React.Component {
                     <div className="live-header">
                         {/* <h1>{ID}</h1> */}
                         <h1>{this.state.UserName} / {this.state.Title}</h1>
+                        {(this.state.currentUserID === this.state.userID && this.state.LiveStatus == 'Live') ?
+                            <button className="end-live" onClick={() => this.handleExit()}>End Live</button> : null
+                        }
                         <button onClick={() => this.handleExit()}>X</button>
 
                     </div >

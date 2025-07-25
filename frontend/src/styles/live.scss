@@ -78,11 +78,18 @@
     font-size: 200%;
     width: 100vw;
 }
+.live-container::-webkit-scrollbar {
+  display: none;
+}
 .live-container{
     width: 100vw;
     background-color: rgb(25, 22, 22);
+    overflow: auto; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
     .live-header{
         display: flex;
+        gap: 5px;
         h1{
             width: 95%;
             color: white;
@@ -91,9 +98,17 @@
         button{
             width: 5%;
             border: none;
+            border-radius: 10px;
+            transition: background-color 0.3s ease-in-out;
         }
         button:hover{
             border: 1px solid orange;
+            background-color: orange;
+
+        }
+        .end-live{
+            font-weight: bolder;
+            
         }
     }
     .live-body{
