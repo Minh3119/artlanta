@@ -172,7 +172,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         Double proposedPrice=0.0;
         if (proposedPriceStr != null && !proposedPriceStr.trim().isEmpty()) {
             try {
-                proposedPrice = Double.parseDouble(artistIDStr);
+                proposedPrice = Double.parseDouble(proposedPriceStr);
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 json.put("error", "Giá không hợp lệ");
