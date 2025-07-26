@@ -250,8 +250,8 @@ const CommissionDetailPage = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Details */}
-          <div className="flex-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="flex-1 ">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 ">
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-white">
                 <div className="flex items-center justify-between">
@@ -295,7 +295,7 @@ const CommissionDetailPage = () => {
               </div>
 
               {/* Content */}
-              <div className="p-8">
+              <div className="p-8  overflow-y-auto h-[70vh] mb-20">
                 {/* Enhanced Participants Section */}
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   <div className="group bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-all duration-300">
@@ -360,7 +360,7 @@ const CommissionDetailPage = () => {
                       <span className="text-2xl">📝</span>
                       Project Description
                     </h3>
-                    <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-inner">
+                    <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-gray-200 shadow-inner ">
                       {editMode ? (
                         <textarea
                           className="w-full min-h-[120px] p-4 border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 resize-none"

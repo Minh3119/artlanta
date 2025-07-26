@@ -106,7 +106,7 @@ const CommissionRequestList = () => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl" style={{marginLeft:"50px"}}>
+      <div className="flex-1 bg-gradient-to-br from-slate-50/50 to-blue-50/50 backdrop-blur-lg rounded-tl-3xl overflow-auto" style={{marginLeft:"50px"}}>
         <div className="p-8">
           {/* Pending Section */}
           <div className="mb-8">
@@ -149,7 +149,7 @@ const CommissionRequestList = () => {
                       <div className="flex items-center gap-8">
                         <div className="flex flex-col">
                           <span className="text-xs text-slate-500 font-medium mb-1">Budget</span>
-                          <span className="text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{request.price}$</span>
+                          <span className="text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{request.price}VNĐ</span>
                         </div>
                         <div className="flex flex-col">
                           <span className="text-xs text-slate-500 font-medium mb-1">Deadline</span>

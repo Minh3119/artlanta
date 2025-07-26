@@ -213,7 +213,7 @@ const ClientCommissionRequestList = () => {
                           <div className="border-2 border-green-600 rounded-md p-3 bg-green-100 text-center">
                             <DollarSign size={18} className="mx-auto text-green-700 mb-1" />
                             <h5 className="text-xs font-bold text-green-800 mb-1 m-0 p-0 uppercase">PRICE:</h5>
-                            <p className="text-base font-bold text-green-900 m-0 p-0">${request.price}</p>
+                            <p className="text-base font-bold text-green-900 m-0 p-0">VND{request.price}</p>
                           </div>
                           
                           {/* Deadline */}

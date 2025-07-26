@@ -553,6 +553,73 @@ CREATE TABLE ConversationReads (
 
 
 
+-- Create events table
+CREATE TABLE events (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    location VARCHAR(255),
+    creator_id INT NOT NULL,
+    image_url VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (creator_id) REFERENCES Users(ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create event_followers table for managing event attendees/followers
+CREATE TABLE event_followers (
+    event_id INT,
+    user_id INT,
+    status ENUM('interested', 'going', 'not_going') DEFAULT 'interested',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, user_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create event_posts table for linking posts to events
+CREATE TABLE event_posts (
+    event_id INT,
+    post_id INT,
+    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, post_id),
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES Posts(ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE ArtistInfo (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL UNIQUE,
+    
+    PhoneNumber VARCHAR(20) NOT NULL,
+    Specialty VARCHAR(100),
+    ExperienceYears INT DEFAULT 0 CHECK (ExperienceYears >= 0),
+    eKYC BOOLEAN DEFAULT FALSE,
+    DailySpent int DEFAULT 1000000,
+	stripe_account_id VARCHAR(255) DEFAULT Null,
+    
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (UserID) REFERENCES Users(ID)
+);
+
+CREATE TABLE Escrows (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    FromUserID INT NOT NULL,           -- người gửi tiền (bên thanh toán)
+    ToUserID INT NOT NULL,             -- người nhận tiền
+    Amount DECIMAL(12,2) NOT NULL,
+    Currency VARCHAR(10) DEFAULT 'VND',
+    Status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, RELEASED, CANCELED
+    Description VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ReleasedAt DATETIME,               -- khi chuyển tiền cho người nhận
+    FOREIGN KEY (FromUserID) REFERENCES Users(ID),
+    FOREIGN KEY (ToUserID) REFERENCES Users(ID)
+);
 
 
 
@@ -563,22 +630,27 @@ CREATE TABLE ConversationReads (
 
 
 
+-- ================================
+-- INSERT 2 USERS: 1 ARTIST & 1 CLIENT
+-- ================================
 
+-- Artist: Minh Anh - Họa sĩ chuyên nghiệp
+INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Gender, DOB, Location, Role, Status, Language, CreatedAt, LastLogin, IsPrivate, IsFlagged)
+VALUES 
+('minh_anh_artist', 'minhanh.artist@gmail.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TttxN0nXyWFNzM6VehSdt7r.lqzS', 
+ 'Nguyễn Minh Anh', 
+ 'Họa sĩ chuyên nghiệp với 8 năm kinh nghiệm trong lĩnh vực digital art, concept art cho game và anime. Chuyên vẽ character design, portrait và illustration. Đã hoàn thành hơn 500+ commission cho khách hàng quốc tế.',
+ 'https://i.pinimg.com/736x/4f/27/9d/4f279d361960af96bf63836386393601.jpg',
+ 0, '1995-08-15 00:00:00', 'Quận 1, TP.HCM', 'ARTIST', 'ACTIVE', 'vn',
+ '2023-01-15 09:30:00', '2025-07-26 14:22:00', 0, 0),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
--- SAMPLE DATA--
+-- Client: David Trần - Nhà phát triển game indie
+('david_tran_dev', 'david.tran.gamedev@outlook.com', '$2b$12$M8x2c3yqBWVHxkd0LHAkCOYz6TttxN0nXyWFNzM6VehSdt7r.abc123',
+ 'Trần Hoàng David',
+ 'Game Developer và Founder của studio indie "Pixel Dreams". Đam mê tạo ra những trò chơi mobile độc đáo với art style Việt Nam. Hiện đang phát triển game RPG "Huyền Thoại Việt" cần nhiều artwork chất lượng cao.',
+ 'https://i.pinimg.com/736x/0a/8c/d4/0a8cd40fd3db2dbb67eef7f6ce10aca6.jpg',
+ 1, '1992-03-22 00:00:00', 'Quận 7, TP.HCM', 'CLIENT', 'ACTIVE', 'vn',
+ '2023-03-10 16:45:00', '2025-07-26 13:15:00', 0, 0);
 
 INSERT INTO Users (Username, Email, PasswordHash, FullName, Bio, AvatarURL, Status, Role, IsPrivate, CreatedAt)
 VALUES
@@ -611,8 +683,250 @@ VALUES
 ('isabe.lla_fashion', 'isabella.fashion@trend.com', 'Tr3ndyL00k!', 'Isabella', 'Fashionista và blogger.', NULL, 'ACTIVE', 'CLIENT', 0, '2025-03-06'),
 ('jack_gaming', 'jack.gaming@stream.com', 'G@mingLif3!', 'Jack', 'Game thủ eSports.', 'jack.jpg', 'ACTIVE', 'CLIENT', 1, '2025-03-07');
 
+-- ================================
+-- ARTIST INFO CHO MINH ANH
+-- ================================
+INSERT INTO ArtistInfo (UserID, PhoneNumber, Specialty, ExperienceYears, eKYC, DailySpent, stripe_account_id, CreatedAt)
+VALUES 
+((SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), 
+ '+84901234567', 'Digital Art, Character Design, Concept Art', 8, TRUE, 2000000, 'acct_1234567890abcdef', '2023-01-15 10:00:00');
+
+-- ================================
+-- PORTFOLIO CHO MINH ANH
+-- ================================
+INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt)
+VALUES 
+((SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Digital Art Portfolio - Minh Anh',
+ 'Chuyên nghiệp trong việc tạo ra character design, concept art và illustration cho game, anime và manga. Phong cách đa dạng từ realistic đến anime/manga style. Sử dụng thành thạo Photoshop, Clip Studio Paint, Procreate.',
+ 'https://i.pinimg.com/1200x/eb/ec/ef/ebecef4598a23caaf0457820efcd1758.jpg',
+ '• 500+ commission hoàn thành thành công\n• Hợp tác với 3 studio game lớn tại Việt Nam\n• Featured artist trên ArtStation 2023\n• Winner của Digital Art Contest VN 2022\n• 15K+ followers trên Instagram\n• Average rating 4.9/5 từ 200+ reviews',
+ '2023-01-15 11:00:00');
+
+-- ================================
+-- WALLET CHO CẢ 2 USER
+-- ================================
+INSERT INTO Wallets (UserID, Balance, Currency, UpdatedAt)
+VALUES 
+((SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), 15750000.00, 'VND', '2025-07-26 14:00:00'),
+((SELECT ID FROM Users WHERE Username = 'david_tran_dev'), 8250000.00, 'VND', '2025-07-26 13:30:00');
+
+-- ================================
+-- TẠO CONVERSATION GIỮA 2 NGƯỜI
+-- ================================
+INSERT INTO Conversations (User1ID, User2ID, CreatedAt)
+VALUES 
+((SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ '2025-07-15 09:20:00');
+
+-- ================================
+-- COMMISSION REQUEST CHI TIẾT
+-- ================================
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES 
+((SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Tôi cần thiết kế 5 main character cho game RPG "Huyền Thoại Việt". Mỗi character cần có 3 pose khác nhau (idle, attack, skill). Style anime nhưng có elements truyền thống Việt Nam. Characters bao gồm: Warrior (áo giáp cổ VN), Mage (áo dài + phép thuật), Archer (trang phục thổ cẩm), Assassin (ninja VN), Support (thầy cúng). Cần file PSD với layers riêng biệt, resolution 2048x2048 cho mỗi pose.',
+ 'https://reference-images-vietnamese-characters.zip',
+ 4500000.00,
+ '2025-08-15 23:59:59',
+ 'ACCEPTED',
+ 'Project rất thú vị! Tôi có kinh nghiệm làm character cho game và rất yêu thích văn hóa Việt Nam. Chúng ta có thể thảo luận thêm về chi tiết qua tin nhắn.',
+ '2025-07-15 09:30:00',
+ '2025-07-15 14:20:00');
+
+-- ================================
+-- TẠO COMMISSION TỪ REQUEST
+-- ================================
+INSERT INTO Commission (RequestID, Title, Description, Price, Deadline, Status, CreatedAt, UpdatedAt)
+VALUES 
+(1, 
+ 'Character Design - Game "Huyền Thoại Việt"',
+ 'Thiết kế 5 main character cho game RPG mobile với phong cách anime-Vietnamese fusion. Bao gồm:\n\n1. WARRIOR - "Thần Trận"\n- Giới tính: Nam\n- Tuổi: 28\n- Trang phục: Áo giáp cổ Việt Nam kết hợp elements hiện đại\n- Vũ khí: Đao phượng hoàng (phoenix blade)\n- Personality: Dũng mãnh, lãnh đạo\n- 3 poses: Idle (stance tự tin), Attack (chém ngang), Ultimate skill (triệu hồi phượng hoàng)\n\n2. MAGE - "Tiên Nữ"\n- Giới tính: Nữ\n- Tuổi: 24\n- Trang phục: Áo dài trắng với chi tiết thêu rồng, nón lá ma thuật\n- Vũ khí: Trúc bút (magic bamboo staff)\n- Elements: Thuỷ, mộc\n- 3 poses: Idle (thiền định), Cast spell (vẽ phù chú), Ultimate (triệu hồi rồng nước)\n\n3. ARCHER - "Cung Thủ Rừng"\n- Giới tính: Nữ\n- Tuổi: 22\n- Trang phục: Trang phục thổ cẩm của dân tộc thiểu số, accessories từ tre nứa\n- Vũ khí: Cung tre với tên lửa thần\n- 3 poses: Idle (canh gác), Shoot (bắn tên), Multi-shot ultimate\n\n4. ASSASSIN - "Bóng Đêm"\n- Giới tính: Nam\n- Tuổi: 26\n- Trang phục: Ninja outfit màu đen với mask rồng, sandals\n- Vũ khí: Dual kunai + shuriken hình lá sen\n- 3 poses: Idle (ẩn mình), Stealth attack (đâm sau lưng), Shadow clone ultimate\n\n5. SUPPORT - "Thầy Cúng"\n- Giới tính: Nam\n- Tuổi: 45\n- Trang phục: Áo dài nam màu vàng, turban, chuỗi tràng hạt\n- Tool: Linh bùa, đèn thờ\n- 3 poses: Idle (đọc kinh), Heal spell (tung bùa chú), Mass resurrection\n\nYêu cầu kỹ thuật:\n- Resolution: 2048x2048 pixels mỗi pose\n- Format: PSD với layers riêng biệt (line art, base color, shading, effects, background)\n- Color palette: Warm tones với accent colors đặc trưng VN\n- Background: Transparent hoặc simple gradient\n- Style reference: Genshin Impact meets Vietnamese traditional art',
+ 5200000.00,
+ '2025-08-18 23:59:59',
+ 'IN_PROGRESS',
+ '2025-07-15 15:00:00',
+ '2025-07-20 10:30:00');
+
+-- ================================
+-- COMMISSION REQUIREMENT DETAILS
+-- ================================
+INSERT INTO CommissionRequirementDetail (CommissionID, DetailKey, DetailValue, CreatedAt)
+VALUES 
+(1, 'File_Format', 'PSD với layers riêng biệt (Line Art, Base Colors, Shading, Highlights, Effects, Background)', '2025-07-15 15:05:00'),
+(1, 'Resolution', '2048x2048 pixels cho mỗi pose, 300 DPI', '2025-07-15 15:05:00'),
+(1, 'Color_Mode', 'RGB, sRGB color space', '2025-07-15 15:05:00'),
+(1, 'Revision_Rounds', 'Tối đa 3 lần chỉnh sửa major cho mỗi character, unlimited minor tweaks', '2025-07-15 15:05:00'),
+(1, 'Reference_Style', 'Anime style như Genshin Impact, Fire Emblem Heroes, nhưng có elements Việt Nam', '2025-07-15 15:05:00'),
+(1, 'Color_Palette', 'Warm earth tones, đỏ lacquer, vàng gold, xanh jade, trắng ivory như traditional VN art', '2025-07-15 15:05:00'),
+(1, 'Character_Expressions', 'Mỗi character cần có facial expression phù hợp với personality', '2025-07-15 15:05:00'),
+(1, 'Weapon_Details', 'Weapons cần có intricate details và engravings theo văn hoá VN', '2025-07-15 15:05:00'),
+(1, 'Clothing_Accuracy', 'Trang phục phải historically accurate nhưng có stylized elements cho game', '2025-07-15 15:05:00'),
+(1, 'Progress_Updates', 'Weekly progress update với sketch/WIP images', '2025-07-15 15:05:00');
+
+-- ================================
+-- COMMISSION HISTORY - TRACK CHANGES
+-- ================================
+INSERT INTO CommissionHistory (CommissionID, ChangedField, OldValue, NewValue, ChangedBy, ChangedAt)
+VALUES 
+(1, 'Price', '4500000.00', '5200000.00', (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), '2025-07-15 14:45:00'),
+(1, 'Deadline', '2025-08-15 23:59:59', '2025-08-18 23:59:59', (SELECT ID FROM Users WHERE Username = 'david_tran_dev'), '2025-07-15 15:10:00'),
+(1, 'Description', 'Basic character descriptions', 'Detailed character descriptions with poses and technical requirements', (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), '2025-07-15 15:15:00'),
+(1, 'Status', 'PENDING', 'IN_PROGRESS', (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), '2025-07-15 15:30:00');
+
+-- ================================
+-- TIN NHẮN TRAO ĐỔI CÔNG VIỆC CHI TIẾT
+-- ================================
+INSERT INTO Messages (ConversationID, SenderID, Content, CreatedAt)
+VALUES 
+-- Tin nhắn đầu tiên từ David
+(1, (SELECT ID FROM Users WHERE Username = 'david_tran_dev'), 
+ 'Chào anh Minh Anh! Em là David, founder của Pixel Dreams studio. Em đã xem portfolio của anh trên platform và rất ấn tượng với style art của anh, đặc biệt là những character design cho game. Em đang develop một game RPG mobile tên "Huyền Thoại Việt" và cần thiết kế main characters. Anh có thể nhận project này không ạ?', 
+ '2025-07-15 09:25:00'),
+
+-- Phản hồi từ Minh Anh
+(1, (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'), 
+ 'Chào David! Cảm ơn em đã liên hệ. Anh rất thích ý tưởng game RPG Việt Nam, nghe rất thú vị! Anh có kinh nghiệm làm character design cho game, đã làm cho vài studio trong nước. Em có thể share thêm chi tiết về project không? Như là art style em muốn, số lượng characters, timeline, budget range... để anh evaluate xem có thể nhận không ạ.', 
+ '2025-07-15 09:45:00'),
+
+-- David giải thích chi tiết project
+(1, (SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ 'Dạ anh! Project này em định làm 5 main characters cho team chính trong game. Style em muốn là anime nhưng có融入 elements văn hoá Việt Nam, kiểu như traditional clothing, weapons, accessories... Em muốn mỗi character thể hiện 1 class RPG khác nhau: Warrior, Mage, Archer, Assassin, Support.\n\nEm cần mỗi character có 3 poses: idle stance, attack pose, và ultimate skill pose. File delivery em muốn là PSD với layers tách riêng để team em có thể dễ dàng implement vào game engine.\n\nTimeline em hi vọng là khoảng 3-4 tuần. Về budget, em nghĩ khoảng 4-5 triệu cho toàn bộ. Anh thấy thế nào?',
+ '2025-07-15 10:15:00'),
+
+-- Minh Anh thảo luận về technical requirements
+(1, (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Nghe hay đấy David! Anh rất thích concept này. Vài câu hỏi technical:\n\n1. Resolution em cần bao nhiêu? Cho mobile thì thường 1024x1024 hoặc 2048x2048?\n2. Em có reference images hay mood board nào không? Để anh hiểu rõ hơn về direction em muốn\n3. Color palette có constraints gì không? \n4. Characters có cần background hay transparent?\n5. Em có cần concepts sketches trước khi anh start final artwork không?\n\nVề pricing, với scope này (5 chars x 3 poses = 15 full illustrations + PSD organization), anh nghĩ 5.2 triệu sẽ hợp lý hơn. Timeline 3-4 tuần là OK nhé!',
+ '2025-07-15 11:30:00'),
+
+-- David trả lời technical questions
+(1, (SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ 'Dạ anh!\n\n1. Resolution: 2048x2048 sẽ perfect, em cần high-res để scale cho các devices khác nhau\n2. Em sẽ gửi reference pack cho anh, gồm traditional Vietnamese clothing references, weapon designs, và một số anime character styles em thích\n3. Color palette: Em muốn warm earth tones làm chính, có accent colors như đỏ lacquer, vàng gold, xanh jade... very Vietnamese feeling\n4. Transparent background nhé anh, để em dễ composite\n5. Concept sketches would be great! Em muốn review và feedback trước khi anh làm final\n\n5.2 triệu là OK với em đấy anh. Em sẽ tạo official commission request ngay!',
+ '2025-07-15 12:00:00'),
+
+-- Sau khi tạo commission request
+(1, (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Perfect! Anh đã nhận được commission request của em và accept rồi nhé. Reference package em gửi rất detailed, anh thích lắm!\n\nPlan của anh sẽ là:\n- Tuần 1: Concept sketches cho cả 5 characters (chỉ idle poses)\n- Tuần 2: Refine concepts + làm final artwork cho 2 characters đầu tiên (all poses)\n- Tuần 3: Hoàn thành 2 characters tiếp theo\n- Tuần 4: Character cuối + final revisions\n\nAnh sẽ update progress weekly và gửi WIP images để em feedback. Sounds good?',
+ '2025-07-15 15:35:00'),
+
+-- Thảo luận về specific characters
+(1, (SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ 'Sounds perfect anh! Em có thêm vài ý tưởng cho từng character:\n\nWarrior: Em muốn anh ấy là leader type, confident và noble. Armor design có thể inspired by Trần dynasty?\n\nMage: Em nghĩ 1 cô gái gentle và elegant, áo dài style nhưng có magical elements. Maybe cô ấy có thể float một chút?\n\nArcher: Forest ranger vibe, ethnic minority clothing, very connected to nature\n\nAssassin: Mysterious và deadly, nhưng không quá dark. Ninja nhưng có Vietnamese touch\n\nSupport: Older wise character, như thầy cúng hay thầy phù thủy gì đó\n\nAnh thấy direction này thế nào?',
+ '2025-07-15 16:00:00'),
+
+-- Minh Anh brainstorm thêm
+(1, (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Excellent ideas David! Anh đã start sketching một số concepts dựa trên em describe:\n\nWarrior "Thần Trận": Anh nghĩ tên này hay đấy. Armor sẽ combine Trần dynasty elements với modern fantasy. Weapon có thể là đao phượng hoàng?\n\nMage "Tiên Nữ": Áo dài trắng với embroidered dragons, nón lá nhưng có magical aura. Staff có thể là trúc bút traditional?\n\nArcher: Trang phục thổ cẩm rất beautiful cho character này. Cung tre với tên có đuôi lông chim\n\nAssassin "Bóng Đêm": Ninja outfit nhưng mask design theo dragon motif, weapons là kunai + shuriken hình lá sen\n\nSupport: "Thầy Cúng" - older man với áo dài nam, turban, holding linh bùa\n\nAnh sẽ sketch rough concepts cho cả 5 và gửi em review vào cuối tuần này!',
+ '2025-07-16 09:15:00'),
+
+-- Progress update 1
+(1, (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Hi David! Weekly update đây:\n\nAnh đã hoàn thành rough sketches cho cả 5 characters (idle poses). Overall feedback từ em thế nào? Có character nào cần adjust major không?\n\nTrong tuần này anh sẽ refine Warrior và Mage concepts, sau đó start final artwork. Em có prefer character nào làm trước không?',
+ '2025-07-22 14:30:00'),
+
+-- David feedback
+(1, (SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ 'Anh ơi, sketches tuyệt vời luôn! Team em đều rất impressed. Có vài minor adjustments:\n\n- Warrior: Có thể make armor elaborate hơn một chút không anh? Em muốn anh ấy really stand out as leader\n- Mage: Perfect! Cô ấy exactly như em imagine\n- Archer: Cung có thể bigger một tí? To show power\n- Assassin: Mask design có thể subtle hơn? Current design hơi too elaborate\n- Support: Maybe thêm một số mystic accessories?\n\nEm muốn anh làm Warrior và Mage trước nhé, họ là 2 main characters của story.',
+ '2025-07-22 16:45:00');
+
+
+
+-- ================================
+-- NHIỀU COMMISSION REQUESTS CHO ARTIST (Minh Anh)
+-- ================================
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES 
+-- Request 2: PENDING
+((SELECT ID FROM Users WHERE Username = 'john_doe'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Cần thiết kế logo và branding package cho startup fintech "VietPay". Bao gồm logo chính, variations, color palette, typography guide. Style modern và professional.',
+ 'https://i.pinimg.com/736x/1e/97/a5/1e97a5a07eeed3b717cfa42815800c66.jpg',
+ 1800000.00, '2025-08-05 23:59:59', 'PENDING', NULL, '2025-07-25 10:30:00', NULL),
+
+-- Request 3: ACCEPTED
+((SELECT ID FROM Users WHERE Username = 'alice_wonder'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Portrait commission cho bạn trai. Style anime/manga, size A3, digital painting. Có reference photos.',
+ 'https://i.pinimg.com/736x/0f/d0/76/0fd07622a9eaff9241b21194e240ec31.jpg',
+ 800000.00, '2025-08-10 23:59:59', 'PENDING', 'Dễ thương quá! Anh sẽ làm portrait style anime romantic cho em nhé.', '2025-07-23 14:20:00', '2025-07-23 18:45:00'),
+
+-- Request 4: REJECTED
+((SELECT ID FROM Users WHERE Username = 'emma_artist'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Cần vẽ 20 NSFW illustrations cho webtoon romance. Explicit content. Budget 3 triệu.',
+ NULL,
+ 3000000.00, '2025-08-20 23:59:59', 'REJECTED', 'Xin lỗi em, anh không nhận loại content này. Em có thể tìm artist khác chuyên về NSFW art.', '2025-07-20 16:00:00', '2025-07-20 19:30:00'),
+
+-- Request 5: PENDING
+((SELECT ID FROM Users WHERE Username = 'charlie_dev'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Website illustrations cho company portfolio thiên về mảng làm game. Cần 8 custom illustrations về Gaming themes. Vector format.',
+ 'https://i.pinimg.com/736x/02/c8/30/02c8301cc32ce79dce58586ce95a5d2e.jpg',
+ 2400000.00, '2025-08-12 23:59:59', 'PENDING', NULL, '2025-07-24 09:15:00', NULL),
+
+-- Request 6: ACCEPTED
+((SELECT ID FROM Users WHERE Username = 'sophia_travel'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Book cover design cho travel guide "Hidden Gems" với style hoạt hình kiểu CN. Cần front cover, back cover, spine. Print-ready.',
+ 'https://i.pinimg.com/736x/b2/b9/be/b2b9bee991392cb20b426b57fa51f527.jpg',
+ 1200000.00, '2025-08-08 23:59:59', 'PENDING', 'Chủ đề du lịch VN rất thú vị! Anh sẽ design cover beautiful và eye-catching.', '2025-07-22 11:00:00', '2025-07-22 15:20:00'),
+
+
+
+-- Request 8: PENDING
+((SELECT ID FROM Users WHERE Username = 'olivia_foodie'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Food illustrations cho cookbook "Vietnamese Street Food". Cần 25 detailed food illustrations. Watercolor style.',
+ 'https://i.pinimg.com/1200x/3a/b7/cb/3ab7cbf5c316c441cef2ad9a2d295ed2.jpg',
+ 3500000.00, '2025-08-25 23:59:59', 'PENDING', NULL, '2025-07-25 13:45:00', NULL),
+
+-- Request 9: ACCEPTED
+((SELECT ID FROM Users WHERE Username = 'brian_startup'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'App UI/UX illustrations cho meditation app "Zen Garden". Cần icons, onboarding illustrations, character mascot.',
+ 'https://i.pinimg.com/1200x/fe/3d/b1/fe3db1f01b80696efdd0e6230043621c.jpg',
+ 2800000.00, '2025-08-15 23:59:59', 'PENDING', 'Meditation app sounds peaceful! Anh rất interested và có experience với UI illustration.', '2025-07-21 16:30:00', '2025-07-21 20:15:00'),
+
+-- Request 10: P
+((SELECT ID FROM Users WHERE Username = 'amanda_artist'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Collaboration request: Em muốn invite anh join art exhibition. Không có payment nhưng có exposure và networking.',
+ NULL,
+ 0.00, '2025-09-01 23:59:59', 'ACCEPTED', 'Cảm ơn em đã nghĩ đến anh! Nhưng hiện tại anh đang focus vào paid commissions. Chúc exhibition của em thành công!', '2025-07-19 10:00:00', '2025-07-19 14:20:00'),
+
+-- Request 11: PENDING
+((SELECT ID FROM Users WHERE Username = 'karen_yoga'), 
+ (SELECT ID FROM Users WHERE Username = 'minh_anh_artist'),
+ 'Yoga pose illustrations cho instructional book. 30 detailed poses, line art style. Cần anatomically correct.',
+ 'https://i.pinimg.com/736x/c6/22/da/c622da6cac1f75e11ac6bfbb3a61cd12.jpg',
+ 2100000.00, '2025-08-18 23:59:59', 'PENDING', NULL, '2025-07-26 07:30:00', NULL);
+
+-- ================================
+-- NHIỀU COMMISSION REQUESTS TỪ CLIENT (David)
+-- ================================
+INSERT INTO CommissionRequest (ClientID, ArtistID, ShortDescription, ReferenceURL, ProposedPrice, ProposedDeadline, Status, ArtistReply, RequestAt, RespondedAt)
+VALUES 
+-- Request từ David tới artist khác - PENDING
+((SELECT ID FROM Users WHERE Username = 'david_tran_dev'),
+ (SELECT ID FROM Users WHERE Username = 'emma_artist'),
+ 'Background art cho game "Huyền Thoại Việt". Cần 8 environment backgrounds: ancient temple, bamboo forest, Hoi An street, Mekong delta, Sapa mountains, imperial palace, cave dungeon, final boss arena.',
+ 'https://environment-refs.jpg',
+ 3200000.00, '2025-08-20 23:59:59', 'PENDING', NULL, '2025-07-24 15:00:00', NULL);
+
+
+
+
+
+
+
+
+
+
+
+
 INSERT INTO Portfolio (ArtistID, Title, Description, CoverURL, Achievements, CreatedAt) VALUES
-(1, 'Digital Art Collection', 'Bộ sưu tập tranh kỹ thuật số phong cách hiện đại.', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop', 'Đạt giải nhất cuộc thi tranh kỹ thuật số 2024', '2025-04-01'),
 (2, 'Portrait Sketches', 'Chuyên về phác thảo chân dung.', 'cover2.jpg', 'Triển lãm tranh tại gallery HN 2023', '2025-04-02'),
 (3, 'Landscape Paintings', 'Tranh phong cảnh thiên nhiên Việt Nam.', 'https://i.pinimg.com/736x/e1/bf/33/e1bf336ede878927b2edcc465da6629d.jpg', 'Bán tranh tại triển lãm quốc tế 2024', '2025-04-03'),
 (4, 'Anime Style Works', 'Tác phẩm theo phong cách anime.', 'cover4.jpg', 'Top 10 nghệ sĩ trẻ năm 2023', '2025-04-04'),
@@ -899,41 +1213,7 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 3, 'Message 19 in Conversation 2', NULL, '2025-06-14 00:34:07');
 INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VALUES (2, 1, 'Message 20 in Conversation 2', 'https://example.com/media20.jpg', '2025-06-14 00:35:07');
 
--- Create events table
-CREATE TABLE events (
-    event_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL,
-    location VARCHAR(255),
-    creator_id INT NOT NULL,
-    image_url VARCHAR(255),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (creator_id) REFERENCES Users(ID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Create event_followers table for managing event attendees/followers
-CREATE TABLE event_followers (
-    event_id INT,
-    user_id INT,
-    status ENUM('interested', 'going', 'not_going') DEFAULT 'interested',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id, user_id),
-    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Create event_posts table for linking posts to events
-CREATE TABLE event_posts (
-    event_id INT,
-    post_id INT,
-    added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id, post_id),
-    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES Posts(ID) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Add some sample events data
 INSERT INTO events (title, description, start_time, end_time, location, creator_id, image_url)
@@ -1048,8 +1328,6 @@ INSERT INTO Messages (ConversationID, SenderID, Content, MediaURL, CreatedAt) VA
 
 INSERT INTO Wallets (UserID, Balance, Currency)
 VALUES 
-  (1, 150000.00, 'VND'),
-  (2, 82000.00, 'VND'),
   (3, 1200000.00, 'VND'),
   (4, 350000.00, 'VND'),
   (5, 50000.00, 'VND'),
@@ -1210,40 +1488,10 @@ VALUES
 
 
 
-CREATE TABLE ArtistInfo (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL UNIQUE,
-    
-    PhoneNumber VARCHAR(20) NOT NULL,
-    Specialty VARCHAR(100),
-    ExperienceYears INT DEFAULT 0 CHECK (ExperienceYears >= 0),
-    eKYC BOOLEAN DEFAULT FALSE,
-    DailySpent int DEFAULT 1000000,
-	stripe_account_id VARCHAR(255) DEFAULT Null,
-    
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (UserID) REFERENCES Users(ID)
-);
-
-CREATE TABLE Escrows (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    FromUserID INT NOT NULL,           -- người gửi tiền (bên thanh toán)
-    ToUserID INT NOT NULL,             -- người nhận tiền
-    Amount DECIMAL(12,2) NOT NULL,
-    Currency VARCHAR(10) DEFAULT 'VND',
-    Status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, RELEASED, CANCELED
-    Description VARCHAR(255),
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ReleasedAt DATETIME,               -- khi chuyển tiền cho người nhận
-    FOREIGN KEY (FromUserID) REFERENCES Users(ID),
-    FOREIGN KEY (ToUserID) REFERENCES Users(ID)
-);
 
 INSERT INTO ArtistInfo (UserID, PhoneNumber, Specialty, ExperienceYears, eKYC, DailySpent, stripe_account_id)
 VALUES 
-(1, '0909123456', 'Digital Art', 3, TRUE, 1000000, 'acct_1Rlkik2Xj9iboqqu'),
 (3, '0911222333', 'Anime Style', 2, FALSE, 1000000, NULL),
 (6, '0988777666', 'Watercolor', 4, TRUE, 1000000, 'acct_6zxyABC');
 
@@ -1258,4 +1506,9 @@ DO
         LastResetDate = CURRENT_DATE
     WHERE LastResetDate < CURRENT_DATE;
     
+
+
+
+
+
 
