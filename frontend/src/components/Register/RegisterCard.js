@@ -17,7 +17,7 @@ export default function RegisterCard() {
           "http://localhost:9999/backend/api/session/check",
           {
             method: "GET",
-            credentials: "include", 
+            credentials: "include",
           }
         );
         const data = await res.json();
@@ -46,16 +46,41 @@ export default function RegisterCard() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    const trimmedCPassword = cpassword.trim();
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
-    if (!passwordRegex.test(password)) {
+    if (trimmedEmail.length < 3 || trimmedEmail.length > 100) {
+      setMessage("Email must be between 3 and 100 characters.");
+      return;
+    }
+
+    if (trimmedUsername.length < 3 || trimmedUsername.length > 50) {
+      setMessage("Username must be between 3 and 50 characters.");
+      return;
+    }
+
+    if (trimmedPassword.length < 8 || trimmedPassword.length > 255) {
+      setMessage("Password must be between 8 and 255 characters.");
+      return;
+    }
+
+    if (trimmedCPassword.length > 255) {
+      setMessage("Confirm password must be between 8 and 255 characters.");
+      return;
+    }
+
+    if (!passwordRegex.test(trimmedPassword)) {
       setMessage(
         "Password phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
       );
       return;
     }
 
-    if (password !== cpassword) {
+    if (trimmedPassword !== trimmedCPassword) {
       setMessage("Password phải trùng với Confirm password");
       setCPassword("");
       return;

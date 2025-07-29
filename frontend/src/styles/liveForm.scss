@@ -1,0 +1,155 @@
+$primary: #e53935; // đỏ mạnh
+$background: #121212; // nền tối
+$surface: #1e1e1e; // hộp tối hơn
+$text: #ffffffcc; // trắng mờ
+$border: #333;
+$hover: #c62828;
+.loading-container{
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-size: 200%;
+    width: 100vw;
+}
+.live-form-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background: $background;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  color: $text;
+}
+
+.live-form-container {
+  background: $surface;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+  width: 600px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    padding: 0.75rem 1rem;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #181818;
+    color: $text;
+    width: 100%;
+    transition: border 0.2s ease-in-out;
+
+    &:focus {
+      border-color: $primary;
+      outline: none;
+    }
+  }
+
+  select {
+    background: #181818;
+  }
+  .live-form-header{
+    display: flex;
+    h2{
+        width: 90%;
+    }
+    button{
+        width: 10%;
+    }
+  }
+  .auction-container {
+    background: #191919;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid $border;
+
+    h3 {
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    input[type='file'] {
+      margin: 0.5rem 0;
+    }
+
+    img {
+      display: block;
+      margin-top: 0.5rem;
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid $border;
+    }
+
+    .auction-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+
+      > div {
+        background: #202020;
+        padding: 0.75rem;
+        border: 1px solid $border;
+        border-radius: 8px;
+        width: calc(50% - 0.5rem);
+        box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+        position: relative;
+
+        img {
+          width: 100%;
+          height: auto;
+        }
+
+        p {
+          margin: 0.5rem 0;
+          font-weight: 500;
+          color: $text;
+        }
+
+        button {
+          background-color: $primary;
+          color: white;
+          border: none;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.9rem;
+
+          &:hover {
+            background-color: $hover;
+          }
+        }
+      }
+    }
+  }
+
+  button {
+    background-color: $primary;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: $hover;
+    }
+  }
+}

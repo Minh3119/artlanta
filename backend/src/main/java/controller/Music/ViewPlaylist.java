@@ -29,7 +29,10 @@ public class ViewPlaylist extends HttpServlet {
         try {
             Integer userID = SessionUtil.getCurrentUserId(session);
 //            Integer userID=29;
-            list = md.getPlaylistByUserID(userID);
+            if (userID != null) {
+                list = md.getPlaylistByUserID(userID);
+            }
+
             JSONObject jsonMusic = new JSONObject();
             JSONArray mediaArr = new JSONArray();
             for (Music music : list) {

@@ -103,15 +103,13 @@
 .homepage-time, .homepage-title {
     color: #111111;
     font-weight: 600;
-
     display: flex;
     justify-content: center;
 }
 
 .homepage-time {
-    margin-top: 65px;
     font-size: 20px;
-
+    margin-top: 100px;
 }
 
 .homepage-title {
@@ -132,8 +130,9 @@
 .artistpost-container {
     background-color: #E6EEFA;
     padding: 20px 25px;
-
     border-radius: 30px;
+    /* Thêm overflow để tránh nội dung tràn ra ngoài */
+    overflow: hidden;
 }
 
 .artistpost-info {
@@ -153,16 +152,36 @@
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
-   
+    /* Sửa để text dài không tràn ra ngoài */
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    /* Đảm bảo có khoảng cách phía dưới khi không có ảnh */
+    min-height: 20px;
 }
+
 .postdetail-link {
      text-decoration:none;
 }
 
 .artistpost-morecontent {
     width: 100%;
-    height: 80%;
     position: relative;
+    /* Thay đổi height để tự động điều chỉnh */
+    min-height: 50px;
+}
+
+/* Khi có ảnh */
+.artistpost-morecontent:has(.post-img) {
+    height: 80%;
+}
+
+/* Khi không có ảnh, đảm bảo có đủ không gian cho thanh react */
+.artistpost-morecontent:not(:has(.post-img)) {
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .post-img {
@@ -175,16 +194,30 @@
 .artistpost-react {
     position: absolute;
     bottom: 0;
-}
-
-.artistpost-react {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 15px 20px 15px ;
+    padding: 15px 20px 15px;
     background-color: rgba(20, 20, 20, 0.2);
     backdrop-filter: blur(10px);
     border-radius: 0 0 30px 30px;
+    /* Đảm bảo thanh react luôn ở đúng vị trí */
+    left: 0;
+    right: 0;
+}
+
+/* Khi không có ảnh, thay đổi style của thanh react */
+.artistpost-morecontent:not(:has(.post-img)) .artistpost-react {
+    position: relative;
+    background-color: rgba(108, 122, 156, 0.1);
+    color: #111111;
+    margin-top: 10px;
+    border-radius: 20px;
+}
+
+.artistpost-morecontent:not(:has(.post-img)) .artistpost-react .comment-count,
+.artistpost-morecontent:not(:has(.post-img)) .artistpost-react .like-count {
+    color: #111111;
 }
 
 .artistpost-react__count,
@@ -463,7 +496,7 @@ a {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  min-width: 180px;
+  min-width: 220px;
   z-index: 1000;
   margin-top: 8px;
   padding: 8px 0;

@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/homepage.css";
+import LivePageComponent from "../components/LiveStream/livePageComponent";
 import Header from "../components/HomePage/Header";
 import ArtistPost from "../components/HomePage/ArtistPost";
 import CreatePostComponent from "../components/PostControl/createPostComponent";
 import UpdatePostComponent from "../components/PostControl/updatePostComponent";
 import DeletePostComponent from "../components/PostControl/deletePostComponent";
 import CreateEventComponent from "../components/Event/CreateEventComponent";
+import EventPage from "./EventPage";
+import SavedPostPage from "./SavedPostPage";
+import SavePost from "../components/HomePage/SavePost";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -101,9 +105,27 @@ export default function HomePage() {
       console.error("Failed to add to history", err);
     }
   }, []);
-
+  const handleChangePage = () => {
+    switch (selectedTab) {
+      case "post":
+        return <ArtistPost
+          refetch={isRefresh}
+          currentID={currentID}
+          openUpdatePopup={openUpdatePopup}
+          openDeletePopup={openDeletePopup}
+          scrollableTarget="scrollableDiv"
+          addToHistory={addToHistory}
+        />
+      case "live":
+        return <LivePageComponent />
+      case "event":
+        return <EventPage />
+      case "saved":
+        return <SavePost />
+    }
+  }
   return (
-    <div className="homepage-container" id="scrollableDiv" style={{overflowX:'hidden'}}>
+    <div className="homepage-container" id="scrollableDiv" style={{ overflowX: 'hidden' }}>
       {/* Pass the type to openCreatePopup */}
       <Header openCreatePopup={openCreatePopup} />
 
@@ -112,14 +134,14 @@ export default function HomePage() {
       </div>
       <div className="homepage-title">
         <div className="tab-buttons">
-          <Link to="/saved">
-            <button
-              className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
-              onClick={() => setSelectedTab('saved')}
-            >
-              Saved
-            </button>
-          </Link>
+          {/* <Link to="/saved"> */}
+          <button
+            className={`tab-button ${selectedTab === 'saved' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('saved')}
+          >
+            Saved
+          </button>
+          {/* </Link> */}
           <Link to="/homepage">
             <button
               className={`tab-button ${selectedTab === 'post' ? 'active' : ''}`}
@@ -128,46 +150,76 @@ export default function HomePage() {
               Artwork Posts
             </button>
           </Link>
-          <Link to="/event">
-            <button
-              className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
-              onClick={() => setSelectedTab('event')}
-            >
-              Event
-            </button>
-          </Link>
+          {/* <Link to="/event"> */}
+          <button
+            className={`tab-button ${selectedTab === 'event' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('event')}
+          >
+            Event
+          </button>
+          {/* </Link> */}
+          {/* <Link to="/live"> */}
+          <button
+            className={`tab-button ${selectedTab === 'live' ? 'active' : ''}`}
+            onClick={() => setSelectedTab('live')}
+          >
+            Live
+          </button>
+          {/* </Link> */}
         </div>
       </div>
-
-      <ArtistPost
+      {/* <ArtistPost
         refetch={isRefresh}
         currentID={currentID}
         openUpdatePopup={openUpdatePopup}
         openDeletePopup={openDeletePopup}
         scrollableTarget="scrollableDiv"
         addToHistory={addToHistory}
-      />
+      /> */}
+
+      {
+        // selectedTab === 'post' ?
+        //   <ArtistPost
+        //     refetch={isRefresh}
+        //     currentID={currentID}
+        //     openUpdatePopup={openUpdatePopup}
+        //     openDeletePopup={openDeletePopup}
+        //     scrollableTarget="scrollableDiv"
+        //     addToHistory={addToHistory}
+        //   />
+        //   :
+        //   <LivePageComponent />
+        handleChangePage()
+      }
 
       {/* Unified create popup */}
-      {isCreateOpen && createType === 'post' && (
-        <CreatePostComponent closeCreatePopup={closeCreatePopup} />
-      )}
-      {isCreateOpen && createType === 'event' && (
-        <CreateEventComponent closeEventPopup={closeCreatePopup} />
-      )}
+      {
+        isCreateOpen && createType === 'post' && (
+          <CreatePostComponent closeCreatePopup={closeCreatePopup} />
+        )
+      }
+      {
+        isCreateOpen && createType === 'event' && (
+          <CreateEventComponent closeEventPopup={closeCreatePopup} />
+        )
+      }
 
-      {isUpdateOpen && (
-        <UpdatePostComponent
-          closeUpdatePopup={closeUpdatePopup}
-          updatePostID={updatePostID}
-        />
-      )}
-      {isDeleteOpen && (
-        <DeletePostComponent
-          closeDeletePopup={closeDeletePopup}
-          deletePostID={deletePostID}
-        />
-      )}
-    </div>
+      {
+        isUpdateOpen && (
+          <UpdatePostComponent
+            closeUpdatePopup={closeUpdatePopup}
+            updatePostID={updatePostID}
+          />
+        )
+      }
+      {
+        isDeleteOpen && (
+          <DeletePostComponent
+            closeDeletePopup={closeDeletePopup}
+            deletePostID={deletePostID}
+          />
+        )
+      }
+    </div >
   );
 }

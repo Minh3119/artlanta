@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.gson.JsonSyntaxException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -243,7 +244,7 @@ public class MessagingService {
      * @param currentUserId ID of the current user
      * @return JSONArray containing conversation data
      */
-    public JSONArray buildConversationsJson(List<ConversationDTO> conversations, int currentUserId) {
+    public JSONArray buildConversationsJson(List<ConversationDTO> conversations, int currentUserId, HttpServletRequest request) {
         JSONArray conversationsJson = new JSONArray();
         
         if (conversations == null || conversations.isEmpty()) {
@@ -260,7 +261,7 @@ public class MessagingService {
                 model.User otherUser = conversation.getOtherUser();
                 
                 if (otherUser != null) {
-                    JSONObject otherUserJson = userService.convertUserToJson(otherUser);
+                    JSONObject otherUserJson = userService.convertUserToJson(otherUser,request);
                     convJson.put("user", otherUserJson);
                 }
                 

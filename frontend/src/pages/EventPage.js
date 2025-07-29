@@ -8,7 +8,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PostImageSlider from '../components/HomePage/PostImageSlider';
 import '../styles/event.scss';
-import '../styles/homepage.css';
 
 export default function EventPage() {
   const [currentID, setCurrentID] = useState(0);
@@ -30,7 +29,7 @@ export default function EventPage() {
     }
 
     if (location.state) {
-      navigate(location.pathname, { replace: true }); 
+      navigate(location.pathname, { replace: true });
     }
   }, [location, navigate]);
 
@@ -169,146 +168,105 @@ export default function EventPage() {
 
   //----------------Phần render component----------------
   return (
-    <div className="homepage-container" id="scrollableDiv" style={{ overflow: "auto" }}>
-      <Header openCreatePopup={openCreatePopup} />
-
-      <div className="homepage-time">
-        <p>{today_formatted}</p>
-      </div>
-
-      <div className="homepage-title">
-        <div className="tab-buttons">
-          <Link to="/saved">
-            <button className={`tab-button${location.pathname === "/saved" ? " active" : ""}`}>
-              Saved
-            </button>
-          </Link>
-
-          <Link to="/homepage">
-            <button className={`tab-button${location.pathname === "/homepage" ? " active" : ""}`}>
-              Artwork Posts
-            </button>
-          </Link>
-
-          <Link to="/event">
-            <button className={`tab-button${location.pathname === "/event" ? " active" : ""}`}>
-              Events
-            </button>
-          </Link>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="loading-container">
-          <span>Loading...</span>
-        </div>
-      ) : events.length === 0 ? (
-        <div className="no-events-message">
-          <p>No events found</p>
-        </div>
-      ) : (
-        <div className="events-list">
-          {events.map((event) => (
-            <div key={event.eventId} className="event-card">
-              <div className="event-header">
-                <div className="event-info">
-                  <h2 className="event-title">{event.title}</h2>
-                  <div className="event-metadata">
-                    <span className="event-date">
-                      {formatDate(event.startTime)} - {formatDate(event.endTime)}
-                    </span>
-                    <span className="event-location">{event.location}</span>
-                  </div>
-                </div>
-                {event.imageUrl && (
-                  <img src={event.imageUrl} alt={event.title} className="event-cover-image" />
-                )}
-              </div>
-
-              <p className="event-description">{event.description}</p>
-
-              {event.posts && event.posts.length > 0 && (
-                <div className="event-posts">
-                  <h3>Related Posts</h3>
-                  <div className="posts-grid">
-                    {event.posts.map((post) => (
-                      <Link to={`/post/${post.ID}`} key={post.ID} className="post-card">
-                        <div className="post-content">
-                          <p>{post.content}</p>
-                          {post.mediaURL && post.mediaURL.length > 0 && (
-                            <PostImageSlider mediaURL={post.mediaURL} />
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="event-footer">
-                <div className="event-stats">
-                  <span>{event.interestedCount || 0} following</span>
-                  <span>{event.goingCount || 0} join</span>
-                </div>
-                <div className="event-actions-dropdown">
-                  {(() => {
-                    const status = getUserEventStatus(event);
-                    let dropTitle = "Not interested";
-                    if (status === "interested") dropTitle = "Following";
-                    else if (status === "going") dropTitle = "Joining";
-                    return (
-                      <details className="dropdown">
-                        <summary className="dropdown-button">
-                          {dropTitle}
-                          <span className="dropdown-arrow" aria-hidden="true" style={{marginLeft: 12, fontSize: 18, display: 'inline-block', transition: 'transform 0.2s'}}>
-                            ▼
-                          </span>
-                        </summary>
-                        <div className="dropdown-content animated-dropdown">
-                          <label className="dropdown-option">
-                            <input
-                              type="radio"
-                              name={`action-${event.eventId}`}
-                              checked={status === null}
-                              onChange={() => handleNotInterested(event.eventId)}
-                            />
-                            Not interested
-                          </label>
-                          <label className="dropdown-option">
-                            <input
-                              type="radio"
-                              name={`action-${event.eventId}`}
-                              checked={status === "interested"}
-                              onChange={() => handleFollow(event.eventId)}
-                            />
-                            Follow
-                          </label>
-                          <label className="dropdown-option">
-                            <input
-                              type="radio"
-                              name={`action-${event.eventId}`}
-                              checked={status === "going"}
-                              onChange={() => handleJoin(event.eventId)}
-                            />
-                            Join
-                          </label>
-                        </div>
-                      </details>
-                    );
-                  })()}
-                </div>
-
+    <div className="events-list">
+      {events.map((event) => (
+        <div key={event.eventId} className="event-card">
+          <div className="event-header">
+            <div className="event-info">
+              <h2 className="event-title">{event.title}</h2>
+              <div className="event-metadata">
+                <span className="event-date">
+                  {formatDate(event.startTime)} - {formatDate(event.endTime)}
+                </span>
+                <span className="event-location">{event.location}</span>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            {event.imageUrl && (
+              <img src={event.imageUrl} alt={event.title} className="event-cover-image" />
+            )}
+          </div>
 
+          <p className="event-description">{event.description}</p>
+
+          {event.posts && event.posts.length > 0 && (
+            <div className="event-posts">
+              <h3>Related Posts</h3>
+              <div className="posts-grid">
+                {event.posts.map((post) => (
+                  <Link to={`/post/${post.ID}`} key={post.ID} className="post-card">
+                    <div className="post-content">
+                      <p>{post.content}</p>
+                      {post.mediaURL && post.mediaURL.length > 0 && (
+                        <PostImageSlider mediaURL={post.mediaURL} />
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="event-footer">
+            <div className="event-stats">
+              <span>{event.interestedCount || 0} following</span>
+              <span>{event.goingCount || 0} join</span>
+            </div>
+            <div className="event-actions-dropdown">
+              {(() => {
+                const status = getUserEventStatus(event);
+                let dropTitle = "Not interested";
+                if (status === "interested") dropTitle = "Following";
+                else if (status === "going") dropTitle = "Joining";
+                return (
+                  <details className="dropdown">
+                    <summary className="dropdown-button">
+                      {dropTitle}
+                      <span className="dropdown-arrow" aria-hidden="true" style={{ marginLeft: 12, fontSize: 18, display: 'inline-block', transition: 'transform 0.2s' }}>
+                        ▼
+                      </span>
+                    </summary>
+                    <div className="dropdown-content animated-dropdown">
+                      <label className="dropdown-option">
+                        <input
+                          type="radio"
+                          name={`action-${event.eventId}`}
+                          checked={status === null}
+                          onChange={() => handleNotInterested(event.eventId)}
+                        />
+                        Not interested
+                      </label>
+                      <label className="dropdown-option">
+                        <input
+                          type="radio"
+                          name={`action-${event.eventId}`}
+                          checked={status === "interested"}
+                          onChange={() => handleFollow(event.eventId)}
+                        />
+                        Follow
+                      </label>
+                      <label className="dropdown-option">
+                        <input
+                          type="radio"
+                          name={`action-${event.eventId}`}
+                          checked={status === "going"}
+                          onChange={() => handleJoin(event.eventId)}
+                        />
+                        Join
+                      </label>
+                    </div>
+                  </details>
+                );
+              })()}
+            </div>
+
+          </div>
+        </div>
+      ))}
       {isEventOpen && (
         <CreateEventComponent closeEventPopup={closeCreatePopup} />
       )}
-
-      <ToastContainer />
     </div>
+
+
   );
 }

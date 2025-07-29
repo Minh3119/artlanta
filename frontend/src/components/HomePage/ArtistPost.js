@@ -14,40 +14,40 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
     const [posts, setPosts] = useState([]);
     const [hasMore, setHasMore] = useState(true);
     const isLoading = useRef(false);
-    const [limit, setLimit] = useState(0);
-    const [offset, setOffset] = useState(10);
-    const [showBot, setShowBot] = useState(false);
+    const [offset, setOffset] = useState(0);
+    const limit = 10; 
     const navigate = useNavigate();
+    const [showBot, setShowBot] = useState(false);
 
-    const fetchPosts = () => {
-        if (isLoading.current || !hasMore) return;
-        isLoading.current = true;
-        fetch(`http://localhost:9999/backend/api/post/view?limit=${limit}&offset=${offset}`, {
-            credentials: "include"
+    const fetchPosts = (customOffset = offset) => {
+    if (isLoading.current || !hasMore) return;
+    isLoading.current = true;
+
+    fetch(`http://localhost:9999/backend/api/post/view?offset=${customOffset}&limit=${limit}`, {
+        credentials: "include"
+    })
+        .then(res => res.json())
+        .then(data => {
+            const newPosts = data.response;
+            if (!newPosts || newPosts.length === 0) {
+                setHasMore(false);
+                return;
+            }
+            setPosts((prev) => [...prev, ...newPosts]);
+            setOffset(customOffset + limit); 
         })
-            .then(res => res.json())
-            .then(data => {
-                const newPosts = data.response;
-                if (newPosts.length === 0) {
-                    setHasMore(false);
-                    return;
-                }
-                setPosts((prev) => [...prev, ...newPosts]);
-                setLimit((prev) => prev + 10);
-                setOffset((prev) => prev + 10);
-            })
-            .finally(() => {
-                isLoading.current = false;
-            });
-    };
+        .finally(() => {
+            isLoading.current = false;
+        });
+};
+
 
     useEffect(() => {
-        setPosts([]);
-        setLimit(0);
-        setOffset(10);
-        setHasMore(true);
-        fetchPosts();
-    }, [refetch]);
+    setHasMore(true);
+    setPosts([]);
+    setOffset(0);
+    fetchPosts(0);
+}, [refetch]);
 
     const handleLike = (postId) => {
         fetch(`http://localhost:9999/backend/api/like?postId=${postId}`, {
@@ -102,7 +102,7 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                         className="my-masonry-grid"
                         columnClassName="my-masonry-grid_column"
                     >
-                        {posts.map((post) => (
+                        {posts.map((post, index) => (
                             <div className="artistpost-container" key={post.postID}>
                                 <div className="artistpost-info">
                                     <img
@@ -156,7 +156,6 @@ export default function ArtistPost({ refetch, currentID, openDeletePopup, openUp
                                     >
                                         <img
                                             src={post.mediaURL[0]}
-                                            alt="post-img"
                                             className="post-img"
                                             style={{ height: "auto" }}
                                         />

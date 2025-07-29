@@ -1,5 +1,6 @@
 package controller.UserProfileEdit;
 
+import dal.CommissionDAO;
 import dal.SocialDAO;
 import dal.UserDAO;
 import java.io.IOException;
@@ -46,6 +47,8 @@ public class UserProfileEditServlet extends HttpServlet {
             jsonUser.put("location", user.getLocation());
             jsonUser.put("email", user.getEmail());
             jsonUser.put("gender", user.getGender() ? "Male" : "Female");
+	  jsonUser.put("role", user.getRole());
+	 
             if (user.getDOB()!=null) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 String formattedDateTime = user.getDOB().format(formatter);
@@ -66,7 +69,8 @@ public class UserProfileEditServlet extends HttpServlet {
             jsonResponse.put("response", jsonUser);
             response.getWriter().write(jsonResponse.toString());
             response.getWriter().flush();
-
+	ud.closeConnection();
+	sd.closeConnection();
 //            JsonUtil.writeJsonResponse(response, jsonResponse);
         } catch (Exception e) {
             e.printStackTrace();

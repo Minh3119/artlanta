@@ -82,12 +82,18 @@ public class StripeWebhookServlet extends HttpServlet {
                 int userId = Integer.parseInt(userIdStr);
                 BigDecimal amountVND = amountUSD.multiply(ExchangeRateUtil.getUsdToVndRate());
 
-
                 TransactionDAO transactionDAO = new TransactionDAO();
                 WalletDAO walletDAO = new WalletDAO();
-                
+
                 transactionDAO.insertTransaction(
-                        userId, amountUSD, "Nạp tiền vào tài khoản", "stripe", "USD", "Stripe session ID: " + sessionId);
+                        userId,
+                        amountUSD,
+                        "success", 
+                        "stripe", 
+                        "USD", 
+                        "deposit",
+                        "Stripe session ID: " + sessionId
+                );
                 walletDAO.addBalance(userId, amountVND);
 
                 processedEvents.add(event.getId());
@@ -115,6 +121,7 @@ public class StripeWebhookServlet extends HttpServlet {
     }
 
     private static class CheckoutSessionPartial {
+
         String id;
         Long amount_total;
         Map<String, String> metadata;

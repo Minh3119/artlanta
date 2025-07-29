@@ -96,6 +96,7 @@ export default function LoginCard() {
           type="email"
           placeholder="Email address"
           icon="mail"
+          id="email-input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -104,6 +105,7 @@ export default function LoginCard() {
           type="password"
           placeholder="Password"
           icon="lock"
+          id="pw-input"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
