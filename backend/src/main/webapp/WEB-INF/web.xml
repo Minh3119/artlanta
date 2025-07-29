@@ -13,8 +13,8 @@
         <servlet-class>controller.admin.PlatformStats</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ReportPost</servlet-name>
-        <servlet-class>controller.report.ReportPost</servlet-class>
+        <servlet-name>ReportPostC</servlet-name>
+        <servlet-class>controller.report.ReportPostC</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>SavePost</servlet-name>
@@ -112,6 +112,18 @@
         <servlet-name>HandleRequestCom</servlet-name>
         <servlet-class>controller.commission.HandleRequestCom</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AddAuction</servlet-name>
+        <servlet-class>controller.Live.AddAuction</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ClientCommission</servlet-name>
+        <servlet-class>controller.commission.ClientCommission</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ModeratorControl</servlet-name>
+        <servlet-class>controller.ModeratorControl</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SearchUser</servlet-name>
         <url-pattern>/api/search/user</url-pattern>
@@ -185,7 +197,7 @@
         <url-pattern>/api/post/view/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ReportPost</servlet-name>
+        <servlet-name>ReportPostC</servlet-name>
         <url-pattern>/api/post/report</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -295,6 +307,18 @@
     <servlet-mapping>
         <servlet-name>HandleRequestCom</servlet-name>
         <url-pattern>/api/handlerequest</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AddAuction</servlet-name>
+        <url-pattern>/api/live/auction/add</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClientCommission</servlet-name>
+        <url-pattern>/api/clientreqcom</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ModeratorControl</servlet-name>
+        <url-pattern>/api/moderatorcontrol</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

@@ -48,7 +48,10 @@ import EKYC from "./EKYCVerificationPage.js";
 import Withdraw from "./Withdraw.js";
 import EditProfile from "./EditProfile.js";
 import CommissionDashboard from "./CommissionDashboard.js";
-
+import ModeratorDashboard from "./ModeratorDashboard.js";
+import ClientComDashboard from "./ClientComDashboard.js";
+import CommissionRequestList from '../components/Commission/CommissionRequestList';
+import ClientCommissionRequestList from '../components/Commission/ClientCommissionRequestList';
 function App() {
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
@@ -72,6 +75,7 @@ function App() {
           <Route path="/post/:postID" element={<PostDetail />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/post/:postID" element={<PostDetail />} />
+           <Route path="/moddashboard" element={<ModeratorDashboard />} />
           <Route path="/payment" element={<Payment />}></Route>
           <Route path="/paymentHis" element={<PaymentHis />}></Route>
           <Route path="/paymentResult" element={<PaymentResult />}></Route>
@@ -81,8 +85,6 @@ function App() {
           <Route path="/saved" element={<SavedPostPage />} />
           <Route path="/live" element={<LivePageComponent />} />
           <Route path="/live/form" element={<LiveFormComponent />} />
-          <Route path="/commissions" element={<CommissionListPage />} />
-          <Route path="/commissions/:commissionId" element={<CommissionDetailPage />} />
           <Route path="/account/:userId/stats" element={<UserStatistics />} />
           <Route path="/live/detail/:ID" element={<LiveDetailComponent />} />
           <Route path="/settings" element={<Settings />}>
@@ -97,8 +99,15 @@ function App() {
           <Route path="/eKYC" element={<EKYC />}></Route>
           <Route path="/withdraw" element={<Withdraw />}></Route>
           <Route path="/request" element={<CommissionRequestForm />} />
-           <Route path="/commissiondashboard" element={<CommissionDashboard/>}>
-            <Route path="request" element={<CommissionDashboard/>} />
+          <Route path="/clientcomdashboard" element={<ClientComDashboard />}> 
+              <Route path="request" element={<ClientCommissionRequestList />} />
+            <Route path="commissions" element={<CommissionListPage />} />
+            <Route path="commissions/:commissionId" element={<CommissionDetailPage />} />
+            </Route>
+           <Route path="/commissiondashboard" element={<CommissionDashboard />}>
+            <Route path="request" element={<CommissionRequestList />} />
+            <Route path="commissions" element={<CommissionListPage />} />
+            <Route path="commissions/:commissionId" element={<CommissionDetailPage />} />
     </Route>
         </Routes >
        

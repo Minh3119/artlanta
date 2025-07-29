@@ -690,4 +690,254 @@ public class UserDAO extends DBContext {
     }
 }
 
+	
+	
+	
+	
+	public double getUserEngagementRate(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COALESCE(p.total_posts, 0) as total_posts,
+                COALESCE(l.total_likes, 0) as total_likes,
+                COALESCE(c.total_comments, 0) as total_comments
+            FROM Users u
+            LEFT JOIN (
+                SELECT UserID, COUNT(*) as total_posts 
+                FROM Posts 
+                WHERE IsDraft = 0 AND UserID = ?
+            ) p ON u.ID = p.UserID
+            LEFT JOIN (
+                SELECT p.UserID, COUNT(l.UserID) as total_likes
+                FROM Posts p 
+                LEFT JOIN Likes l ON p.ID = l.PostID
+                WHERE p.UserID = ?
+                GROUP BY p.UserID
+            ) l ON u.ID = l.UserID
+            LEFT JOIN (
+                SELECT p.UserID, COUNT(c.ID) as total_comments
+                FROM Posts p 
+                LEFT JOIN Comments c ON p.ID = c.PostID
+                WHERE p.UserID = ?
+                GROUP BY p.UserID
+            ) c ON u.ID = c.UserID
+            WHERE u.ID = ?
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, userId);
+            stmt.setInt(3, userId);
+            stmt.setInt(4, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalPosts = rs.getInt("total_posts");
+                int totalLikes = rs.getInt("total_likes");
+                int totalComments = rs.getInt("total_comments");
+                
+                if (totalPosts == 0) return 0.0;
+                return (double)(totalLikes + totalComments) / totalPosts;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 2. Tỷ lệ bài viết bị báo cáo (flagged posts / total posts)
+     * Chỉ số quan trọng để phát hiện user có hành vi vi phạm
+     */
+    public double getUserFlaggedPostRate(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COUNT(*) as total_posts,
+                SUM(CASE WHEN IsFlagged = 1 THEN 1 ELSE 0 END) as flagged_posts
+            FROM Posts 
+            WHERE UserID = ? AND IsDraft = 0
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalPosts = rs.getInt("total_posts");
+                int flaggedPosts = rs.getInt("flagged_posts");
+                
+                if (totalPosts == 0) return 0.0;
+                return (double)flaggedPosts / totalPosts * 100;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 3. Tỷ lệ thành công Commission (completed / total requests)
+     * Chỉ số đánh giá độ tin cậy của artist
+     */
+    public double getArtistCommissionSuccessRate(int artistId) throws SQLException {
+        String sql = """
+            SELECT 
+                COUNT(*) as total_commissions,
+                SUM(CASE WHEN c.Status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_commissions
+            FROM CommissionRequest cr
+            JOIN Commission c ON cr.ID = c.RequestID
+            WHERE cr.ArtistID = ? AND cr.Status = 'ACCEPTED'
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, artistId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalCommissions = rs.getInt("total_commissions");
+                int completedCommissions = rs.getInt("completed_commissions");
+                
+                if (totalCommissions == 0) return 0.0;
+                return (double)completedCommissions / totalCommissions * 100;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 4. Tỷ lệ active user (số ngày hoạt động / tổng số ngày từ khi tạo tài khoản)
+     * Chỉ số đánh giá mức độ tích cực của user
+     */
+
+    
+    /**
+     * 5. Tỷ lệ follower/following ratio
+     * Chỉ số đánh giá mức độ ảnh hưởng và chất lượng nội dung
+     */
+    public double getUserFollowerRatio(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COALESCE(followers.count, 0) as follower_count,
+                COALESCE(following.count, 0) as following_count
+            FROM Users u
+            LEFT JOIN (
+                SELECT FollowedID, COUNT(*) as count 
+                FROM Follows 
+                WHERE Status = 'ACCEPTED' AND FollowedID = ?
+                GROUP BY FollowedID
+            ) followers ON u.ID = followers.FollowedID
+            LEFT JOIN (
+                SELECT FollowerID, COUNT(*) as count 
+                FROM Follows 
+                WHERE Status = 'ACCEPTED' AND FollowerID = ?
+                GROUP BY FollowerID
+            ) following ON u.ID = following.FollowerID
+            WHERE u.ID = ?
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, userId);
+            stmt.setInt(3, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int followerCount = rs.getInt("follower_count");
+                int followingCount = rs.getInt("following_count");
+                
+                if (followingCount == 0) return followerCount > 0 ? Double.MAX_VALUE : 0.0;
+                return (double)followerCount / followingCount;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 6. Tỷ lệ comment spam (comments có từ khóa spam hoặc quá ngắn)
+     * Chỉ số phát hiện hành vi spam comment
+     */
+    public double getUserSpamCommentRate(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COUNT(*) as total_comments,
+                SUM(CASE 
+                    WHEN LENGTH(TRIM(Content)) <= 3 
+                    OR Content REGEXP '(http|www\\.|bit\\.ly|tinyurl)' 
+                    OR Content REGEXP '^[!@#$%^&*(),.?":{}|<>]*$'
+                    THEN 1 ELSE 0 
+                END) as spam_comments
+            FROM Comments 
+            WHERE UserID = ? AND IsFlagged = 0
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalComments = rs.getInt("total_comments");
+                int spamComments = rs.getInt("spam_comments");
+                
+                if (totalComments == 0) return 0.0;
+                return (double)spamComments / totalComments * 100;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 7. Tỷ lệ livestream engagement (viewers + comments / total streams)
+     * Chỉ số đánh giá chất lượng livestream
+     */
+    public double getUserLiveStreamEngagement(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COUNT(lp.ID) as total_streams,
+                COALESCE(SUM(lp.LiveView), 0) as total_views,
+                COALESCE(COUNT(lcm.ID), 0) as total_comments
+            FROM LivePosts lp
+            LEFT JOIN LiveChatMessages lcm ON lp.ID = lcm.LivePostID
+            WHERE lp.UserID = ?
+            GROUP BY lp.UserID
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalStreams = rs.getInt("total_streams");
+                int totalViews = rs.getInt("total_views");
+                int totalComments = rs.getInt("total_comments");
+                
+                if (totalStreams == 0) return 0.0;
+                return (double)(totalViews + totalComments) / totalStreams;
+            }
+        }
+        return 0.0;
+    }
+    
+    /**
+     * 8. Tỷ lệ giao dịch thành công (completed transactions / total transactions)
+     * Chỉ số đánh giá độ tin cậy trong giao dịch tài chính
+     */
+    public double getUserTransactionSuccessRate(int userId) throws SQLException {
+        String sql = """
+            SELECT 
+                COUNT(*) as total_transactions,
+                SUM(CASE WHEN Status = 'completed' OR Status = 'success' THEN 1 ELSE 0 END) as successful_transactions
+            FROM Transactions 
+            WHERE UserID = ? 
+            AND TransactionType IN ('deposit', 'withdraw', 'donate_send', 'donate_receive')
+        """;
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int totalTransactions = rs.getInt("total_transactions");
+                int successfulTransactions = rs.getInt("successful_transactions");
+                
+                if (totalTransactions == 0) return 0.0;
+                return (double)successfulTransactions / totalTransactions * 100;
+            }
+        }
+        return 0.0;
+    }
 }

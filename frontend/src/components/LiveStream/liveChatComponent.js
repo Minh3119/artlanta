@@ -2,11 +2,19 @@ import React from "react";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { GrStreetView } from "react-icons/gr";
-import { redirect } from "react-router-dom";
-import { Navigate } from 'react-router-dom';
+import { redirect, Navigate } from "react-router-dom";
+import { FaCircleInfo } from "react-icons/fa6";
+import { Tooltip } from 'react-tooltip';
 class LiveChatComponent extends React.Component {
 
     state = {
+        instructor: `<strong>Auction tip</strong><br/>
+                    Syntax: #bid-(AuctionID)-(BidPrice)<br/><br/>
+                    - Each transaction lasts 50s.<br/>
+                    - When a transaction resets, the highest bid will be applied.<br/>
+                    - If no one bids in a transaction, the winner will be the previous highest bidder.<br/>
+                    - If no one bids in the first transaction, the auction will return to the author.<br/>
+                    - The winner can check the notification for download link.`,
         UserID: null,
         redirect: null,
         currentMessage: '',
@@ -28,51 +36,6 @@ class LiveChatComponent extends React.Component {
             .catch((err) => console.error(err));
 
     }
-    // connectWebSocket = () => {
-    //     const ID = this.props.ID;
-
-    //     this.socket = new WebSocket(`ws://localhost:9999/backend/api/live/chat?ID=${ID}`);
-
-    //     this.socket.onopen = () => {
-    //         console.log(" WebSocket connected to ID:", ID);
-    //     };
-
-    //     this.socket.onmessage = (event) => {
-    //         const data = JSON.parse(event.data);
-    //         console.log("data:", data);
-    //         if (data.Type === "Chat") {
-    //             const message = {
-    //                 Type: data.Type,
-    //                 UserID: data.UserID,
-    //                 Username: data.Username,
-    //                 Message: data.Message
-    //             }
-    //             this.setState((prevState) => ({
-    //                 messagesList: [...prevState.messagesList, message]
-    //             }));
-    //         }
-    //         else if (data.Type === "Bid") {
-
-    //         }
-
-
-    //     };
-
-
-    //     this.socket.onclose = () => {
-    //         console.log(" WebSocket disconnected");
-    //     };
-
-    //     this.socket.onerror = (err) => {
-    //         console.error(" WebSocket error:", err);
-    //     };
-    // }
-    // componentWillUnmount() {
-    //     if (this.socket) {
-    //         this.socket.close();
-    //     }
-
-    // }
 
     handleSendMessage = () => {
         if (!this.state.UserID) {
@@ -110,7 +73,7 @@ class LiveChatComponent extends React.Component {
                         this.props.messagesList.map((message, index) => {
                             return (
                                 <div className="chat-item" key={index}>
-                                    <img alt="1" />
+                                    <img src={message.Avatar} className="user-avatar" alt="1" />
                                     <div className="user">
                                         <span className="user-name">{message.Username}</span>
                                         <span className="user-text" style={{ backgroundColor: message.Type === "Bid" ? " red" : null }}>{message.Message}</span>
@@ -130,6 +93,19 @@ class LiveChatComponent extends React.Component {
                             if (e.key === 'Enter') {
                                 this.handleSendMessage();
                             }
+                        }}
+                    />
+                    <FaCircleInfo className="message-help" data-tooltip-id="my-tooltip"
+                        data-tooltip-html={this.state.instructor} />
+                    <Tooltip id="my-tooltip" place="bottom"
+                        style={{
+                            maxWidth: '300px',
+                            whiteSpace: 'normal',
+                            backgroundColor: '#333',
+                            color: '#fff',
+                            fontSize: '13px',
+                            padding: '8px',
+                            borderRadius: '4px'
                         }}
                     />
                     <button onClick={() => this.handleSendMessage()}>send</button>

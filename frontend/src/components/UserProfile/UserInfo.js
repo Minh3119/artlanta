@@ -188,12 +188,15 @@ const UserInfo = ({
 
     
 
-{currentUser && userData ? (
-  currentUser.id !== parseInt(userId) && userData.role === "ARTIST" && (
+{currentUser && userData &&
+  currentUser.id !== parseInt(userId) &&
+  userData.role === "ARTIST" &&
+  currentUser.role !== "ARTIST" &&
+  !userData.hasARe && (
     <div
       data-layer="Rectangle 12"
       className="Rectangle12"
-      onClick={userData.hasARe ? null : handleClick}
+      onClick={handleClick}
       style={{
         width: '128px',
         height: '64px',
@@ -215,20 +218,11 @@ const UserInfo = ({
         textShadow: '0 0 5px white'
       }}
     >
-      {userData.hasARe ? (
-        <>
-          <span>View</span>
-          <span>Commission</span>
-        </>
-      ) : (
-        <>
-          <span>Request</span>
-          <span>Commission</span>
-        </>
-      )}
+      <span>Request</span>
+      <span>Commission</span>
     </div>
-  )
-) : null}
+)}
+
 
 
 

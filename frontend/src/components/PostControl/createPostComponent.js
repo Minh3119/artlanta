@@ -125,7 +125,8 @@ class CreatePostComponent extends React.Component {
         const files = Array.from(e.target.files);
         const validFiles = [];
 
-        document.getElementsByClassName("file")[0].value = "";
+        // Reset input
+        e.target.value = "";
 
         for (const file of files) {
             if (!acceptedTypes.includes(file.type)) {
@@ -160,21 +161,17 @@ class CreatePostComponent extends React.Component {
                 this.setState({
                     file: [...this.state.file, ...validFiles.map(f => f.file)],
                     filePreview: [...this.state.filePreview, ...validFiles.map(f => f.preview)],
-                    isImage: true,
                 });
-            }
-            else {
+            } else {
                 this.setState({
                     file: validFiles.map(f => f.file),
                     filePreview: validFiles.map(f => f.preview),
-                    isImage: true,
                 });
             }
         } else {
             this.setState({
-                files: [],
-                filePreviews: [],
-                // isImage: false,
+                file: [],
+                filePreview: [],
             });
         }
     };
@@ -263,64 +260,141 @@ class CreatePostComponent extends React.Component {
     }
     render() {
         return (
-            <div className="create-post-container" onClick={this.handleCloseTab}>
-                {this.state.isPosting ?
-                    <div className="loading-container">
-                        <span>Loading ...</span>
-                        <img
-                            src={logo}
-                            alt="Loading..."
-                            className="loading-spinner"
-                        /></div>
-                    : null}
-                <div className="post-popup"
+            <div
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                onClick={this.handleCloseTab}
+            >
+                {/* Loading Overlay */}
+                {this.state.isPosting && (
+                    <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-60">
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="text-lg font-medium text-gray-700">Creating your post...</div>
+                            <img
+                                src={logo}
+                                alt="Loading..."
+                                className="w-10 h-10 animate-spin"
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Main Modal */}
+                <div
+                    className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="post-header">
-                        Create Post
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                        <h2 className="text-xl font-bold text-white">Create New Post</h2>
                     </div>
 
-                    <div className="post-form">
-                        {/* <div className="title-container">
-                            <input type="text" required className="title" value={this.state.title} placeholder="Post Title" onChange={(event) => this.handleOnChangeTitle(event)} />
-                            <p>{String(this.state.title.length).padStart(3, '0')}/100</p>
-                        </div> */}
-                        <div className="image-list">
-                            {
-                                this.state.filePreview.map((item, index) => {
-                                    return (
-                                        <div className="image-container" key={index}>
-                                            <div className="image-wrapper">
-                                                <img src={item} alt="post-image" />
-                                                <button onClick={() => { this.handleRemoveImage(index) }}>Remove</button>
+                    {/* Form Content */}
+                    <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+
+                        {/* Image Preview Grid */}
+                        {this.state.filePreview.length > 0 && (
+                            <div className="mb-6">
+                                <h3 className="text-sm font-medium text-gray-700 mb-3">Selected Images</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {this.state.filePreview.map((item, index) => (
+                                        <div key={index} className="relative group">
+                                            <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                                                <img
+                                                    src={item}
+                                                    alt={`Preview ${index + 1}`}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <button
+                                                    onClick={() => this.handleRemoveImage(index)}
+                                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    remove
+                                                </button>
                                             </div>
                                         </div>
-                                    )
-                                })
-                            }
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* File Upload */}
+                        <div className="mb-6">
+                            <label
+                                htmlFor="file"
+                                className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                            >
+                                <div className="flex flex-col items-center">
+                                    <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    <p className="text-sm text-gray-500">Click to upload images</p>
+                                    <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 0.4MB</p>
+                                </div>
+                                <input
+                                    type="file"
+                                    id="file"
+                                    className="hidden"
+                                    multiple
+                                    accept=".png,.jpg,.jpeg"
+                                    onChange={this.handleFileChange}
+                                />
+                            </label>
                         </div>
-                        <label for="file" className="file-label">File</label>
-                        <input type="file" className="file" id="file" name="file[]" hidden multiple accept=".png, .jpg" onChange={(event) => this.handleFileChange(event)} />
-                        <div className="content-container">
-                            <textarea className="content" value={this.state.content} placeholder="Write your post content here..." onChange={(event) => this.handleOnChangeContent(event)}></textarea>
-                            <p>{String(this.state.content.length).padStart(3, '0')}/750</p>
+
+                        {/* Content Textarea */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Post Content
+                            </label>
+                            <div className="relative">
+                                <textarea
+                                    className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    value={this.state.content}
+                                    placeholder="What's on your mind? Share your thoughts..."
+                                    onChange={this.handleOnChangeContent}
+                                />
+                                <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                                    {String(this.state.content.length).padStart(3, '0')}/750
+                                </div>
+                            </div>
                         </div>
-                        <select className="visibility" value={this.state.visibility} onChange={(event) => this.handleOnChangeVisible(event)}>
-                            <option value="PUBLIC">Public</option>
-                            <option value="PRIVATE">Private</option>
-                        </select>
 
+                        {/* Visibility Select */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Who can see this post?
+                            </label>
+                            <select
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                value={this.state.visibility}
+                                onChange={this.handleOnChangeVisible}
+                            >
+                                <option value="PUBLIC">🌍 Public - Everyone can see</option>
+                                <option value="PRIVATE">🔒 Private - Only you can see</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="post-button">
-                        <button onClick={this.handleSubmit} style={{ backgroundColor: "lightgreen" }}>Create</button>
-                        <button style={{ backgroundColor: "lightcoral" }} onClick={this.handleCancel}>Cancel</button>
+
+                    {/* Footer Buttons */}
+                    <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3 border-t">
+                        <button
+                            onClick={this.handleCancel}
+                            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors font-medium"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={this.handleSubmit}
+                            disabled={this.state.isPosting || !this.state.content.trim()}
+                            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+                        >
+                            {this.state.isPosting ? 'Creating...' : 'Create Post'}
+                        </button>
                     </div>
-
-
-
                 </div>
-            </div >
-        )
+            </div>
+        );
     }
+
 }
 export default CreatePostComponent;

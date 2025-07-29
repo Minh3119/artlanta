@@ -36,6 +36,7 @@ public class GetLiveChat extends HttpServlet {
                 JSONObject o= new JSONObject();
                 o.put("UserID", l.getUserID());
                 o.put("Username", l.getUsername());
+                o.put("Avatar", l.getAvatar());
                 o.put("Type", l.getType());
                 o.put("Message", l.getMessage());
                 arr.put(o);

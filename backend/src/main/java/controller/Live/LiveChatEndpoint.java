@@ -4,6 +4,7 @@ import controller.messaging.HttpSessionConfigurator;
 import dal.AuctionDAO;
 import dal.LiveDAO;
 import dal.NotificationDAO;
+import dal.UserDAO;
 import dal.WalletDAO;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,6 +39,7 @@ public class LiveChatEndpoint {
     private static final Map<String, Timer> roomTimers = new ConcurrentHashMap<>();
     private static final Map<String, Integer> roomCountdowns = new ConcurrentHashMap<>();
     private static final Map<String, Integer> roomCurrentAuction = new ConcurrentHashMap<>();
+    public static final Map<String, Set<Integer>> newAuctionsMap = new ConcurrentHashMap<>();
     private static final Map<String, Map<Integer, MaxBidInfo>> roomAuctionBids = new ConcurrentHashMap<>();
     private static final int AUCTION_TIME = 50;
 
@@ -52,9 +54,11 @@ public class LiveChatEndpoint {
             @Override
             public void run() {
                 int timeLeft = roomCountdowns.get(roomID) - 1;
+
                 if (timeLeft <= 0) {
 
                     updateAuctionsAfterTimer(roomID);
+
                     // Reset
                     timeLeft = AUCTION_TIME;
 
@@ -86,13 +90,13 @@ public class LiveChatEndpoint {
         AuctionDAO ad = new AuctionDAO();
         List<Auction> list = ad.getByID(roomID);
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
-
         Map<Integer, MaxBidInfo> bids = roomAuctionBids.getOrDefault(roomID, Collections.emptyMap());
+        Set<Integer> newAuctions = newAuctionsMap.getOrDefault(roomID, Collections.emptySet());
         int count = 0;
         for (Auction a : list) {
             int auctionIndex = Integer.parseInt(a.getID());
-            System.out.println("current: " + currentIndex);
-            System.out.println("count: " + count);
+//            System.out.println("current: " + currentIndex);
+//            System.out.println("count: " + count);
             if (count != currentIndex) {
                 count++;
                 continue;
@@ -109,6 +113,11 @@ public class LiveChatEndpoint {
                 System.out.println("dachay");
 
             } else {
+                if (newAuctions.contains(auctionIndex)) {
+                    broadcastReloadCommand(roomID);
+                    newAuctions.remove(auctionIndex);
+                    continue;
+                }
                 ad.updateAuctionBidStatus("Bid", auctionIndex);
                 broadcastAuctionResult(roomID, auctionIndex);
                 System.out.println("thanhcong");
@@ -117,14 +126,36 @@ public class LiveChatEndpoint {
         }
         roomAuctionBids.put(roomID, new ConcurrentHashMap<>());
     }
-
+    private void broadcastReloadCommand(String roomID){
+        synchronized (roomMap) {
+            Set<Session> sessions = roomMap.get(roomID);
+            if (sessions != null) {
+                for (Session session : sessions) {
+                    if (session.isOpen()) {
+                        try {
+                            session.getBasicRemote().sendText(
+                                    String.format(
+                                            "{\"Type\":\"Reload\",\"Reload\":\"%s\"}","true"
+                                            
+                                    )
+                            );
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
     private void broadcastAuctionResult(String roomID, int auctionIndex) {
         AuctionDAO ad = new AuctionDAO();
-
         Auction au = ad.getByIndex(auctionIndex);
+        List<Auction> list = ad.getByID(roomID);
         NotificationDAO nd = new NotificationDAO();
         boolean rs = nd.saveNotification(au.getUserID(), "Auction", au.getImageUrl());
+
         roomCurrentAuction.computeIfPresent(roomID, (key, index) -> index + 1);
+
         int currentIndex = roomCurrentAuction.getOrDefault(roomID, -1);
         System.out.println("current aution " + currentIndex);
         WalletDAO wd = new WalletDAO();
@@ -213,15 +244,18 @@ public class LiveChatEndpoint {
     public void onOpen(Session session, EndpointConfig config) {
         String ID = getLiveID(session);
         LiveDAO ld = new LiveDAO();
+        UserDAO ud = new UserDAO();
         boolean isLive = ld.isLiveByID(ID);
 
         HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
         String Username = "Anonymous";
         String UserID = "0";
+
         if (httpSession != null && httpSession.getAttribute("user") != null) {
             Username = String.valueOf(httpSession.getAttribute("user"));
             UserID = String.valueOf(httpSession.getAttribute("userId"));
         }
+        String Avatar = ud.getOne(Integer.parseInt(UserID)).getAvatarURL();
         if (ID == null) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Missing ID"));
@@ -234,7 +268,6 @@ public class LiveChatEndpoint {
         synchronized (roomMap) {
             roomMap.putIfAbsent(ID, new HashSet<>());
             roomMap.get(ID).add(session);
-            System.out.println("View: " + roomMap.size());
             if (!isLive) {
                 int view = ld.incrementViewForPost(Integer.parseInt(ID));
 
@@ -268,6 +301,7 @@ public class LiveChatEndpoint {
         session.getUserProperties().put("ID", ID);
         session.getUserProperties().put("UserID", UserID);
         session.getUserProperties().put("Username", Username);
+        session.getUserProperties().put("Avatar", Avatar);
         session.getUserProperties().put("isLive", isLive);
 
         if (isLive) {
@@ -294,12 +328,13 @@ public class LiveChatEndpoint {
         String ID = String.valueOf(senderSession.getUserProperties().get("ID"));
         String UserID = String.valueOf(senderSession.getUserProperties().get("UserID"));
         String Username = String.valueOf(senderSession.getUserProperties().get("Username"));
+        String Avatar = String.valueOf(senderSession.getUserProperties().get("Avatar"));
         boolean isLive = Boolean.TRUE.equals(senderSession.getUserProperties().get("isLive"));
         String Type = "Chat";
         if (isLive) {
             if (message.startsWith("#bid")) {
                 Type = "Bid";
-                // Parse bid: #bid-01-20000
+                //  bid: #bid-01-20000
                 handleBid(message, ID, UserID);
 
             } else if (message.startsWith("at-")) {
@@ -323,7 +358,7 @@ public class LiveChatEndpoint {
         }
         LiveDAO ld = new LiveDAO();
         if (!Type.equals("at")) {
-            ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Type, message), ID);
+            ld.insertLiveMessage(new LiveChatMessage(UserID, Username, Avatar, Type, message), ID);
         }
         synchronized (roomMap) {
             Set<Session> sessionsInRoom = roomMap.get(ID);
@@ -331,7 +366,7 @@ public class LiveChatEndpoint {
                 for (Session session : sessionsInRoom) {
                     if (session.isOpen()) {
                         if (!Type.equals("at")) {
-                            session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Type, message));
+                            session.getBasicRemote().sendObject(new LiveChatMessage(UserID, Username, Avatar, Type, message));
                         }
 
                     }
